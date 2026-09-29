@@ -8,7 +8,7 @@ public class IPAddr {
     public IPAddr(byte[] bytes) {
         if(bytes.length!=4)
             throw new IllegalArgumentException("Expected a four byte array found"+Arrays.toString(bytes));
-        this.bytes = bytes;
+        this.bytes = bytes.clone();
     }
 
     // Internal constructor 
@@ -61,4 +61,28 @@ public class IPAddr {
             .mapToObj(i-> Integer.toString(i))
             .toList());
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + Arrays.hashCode(bytes);
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        IPAddr other = (IPAddr) obj;
+        if (!Arrays.equals(bytes, other.bytes))
+            return false;
+        return true;
+    }
+
+    
 }

@@ -3,6 +3,7 @@ package org.singsurf.netsym.netswitch;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
@@ -46,5 +47,17 @@ public class IPAddrTest {
         String expect = "138.253.39.2";
         IPAddr addr1 = new IPAddr(bytes);
         assertEquals(expect, addr1.toString());
+    }
+
+    @Test
+    public void compare_two_equal_address() {
+        byte[] bytes1 = new byte[] { (byte) 138, (byte) 253, 39, 2};
+        byte[] bytes2 = new byte[] { (byte) 138, (byte) 253, 39, 2};
+
+        IPAddr addr1 = new IPAddr(bytes1);
+        IPAddr addr2 = new IPAddr(bytes2);
+
+        assertTrue(addr1.equals(addr2));
+   
     }
 }
