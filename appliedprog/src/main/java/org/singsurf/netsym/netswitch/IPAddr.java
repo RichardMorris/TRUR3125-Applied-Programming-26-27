@@ -11,8 +11,9 @@ public class IPAddr {
         this.bytes = bytes;
     }
 
-    
-    IPAddr(Byte[] bytes) {
+    // Internal constructor 
+    // private to prevent external use
+    private IPAddr(Byte[] bytes) {
         this.bytes = new byte[4];
         if(bytes.length!=4)
             throw new IllegalArgumentException("Expected a four byte array found"+Arrays.toString(bytes));
@@ -22,6 +23,9 @@ public class IPAddr {
         this.bytes[3] = bytes[3];
     }
 
+    public IPAddr(int[] ubytes) {
+        this(Arrays.stream(ubytes).mapToObj(i -> (byte) i).toArray(Byte[]::new));
+    }
     public IPAddr(String addr) {
         this(
             Arrays.stream(addr.split("\\."))
@@ -33,15 +37,28 @@ public class IPAddr {
         return bytes.clone(); // safty ensure calling code cannot modify
     }
 
+    /**
+     * Returns the given byte as a number from 0 to 255
+     * @param n index of the byte
+     * @return an int between 0 and 255
+     */
+    public int getUnsignedByte(int n) {
+        return bytes[n] & 0xFF;
+    }
+
+    public int[] getUnsignedBytes() {
+        return new int[] {
+            getUnsignedByte(0),
+            getUnsignedByte(1),
+            getUnsignedByte(2),
+            getUnsignedByte(3)
+        };
+    }
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(bytes[0] & 0xFF);
-        sb.append('.');
-        sb.append(bytes[1] & 0xFF);
-        sb.append('.');
-        sb.append(bytes[2] & 0xFF);
-        sb.append('.');
-        sb.append(bytes[3] & 0xFF);
-        return sb.toString();
+        var us = getUnsignedBytes();
+        return String.join(".",
+            Arrays.stream(us)
+            .mapToObj(i-> Integer.toString(i))
+            .toList());
     }
 }
