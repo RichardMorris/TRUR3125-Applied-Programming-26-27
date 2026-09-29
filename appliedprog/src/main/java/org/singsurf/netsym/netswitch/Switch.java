@@ -40,7 +40,21 @@ public class Switch extends IPDevice {
 
     public void addDevice(IPDevice dev) {
         var devaddr = dev.getAddr();
+        var index = getIndex(devaddr);
+        if(index==0) {
+            throw new IllegalArgumentException("Address of device "+devaddr+" does not match address of switch "+getAddr());
+        }
+        myDevices[index] = dev;
+    }
 
+    /**
+     * Finds the index in the look up table for a given
+     * device based on the devices IP address and the bit mask. 
+     * @param devaddr address of device
+     * @return an index from 0 to 255
+     * @throws IllegalArgumentException if the IP address does not match the switch.
+     */
+    int getIndex(IPAddr devaddr) {
         var index = switch(n_bitmask_bits) {
             case 0 -> devaddr.getUnsignedByte(0);
             case 8 -> devaddr.getUnsignedByte(1);
@@ -49,9 +63,6 @@ public class Switch extends IPDevice {
             default ->
                 throw new IllegalStateException("bad n_bitmask_bits");
         };
-        if(index==0) {
-                throw new IllegalArgumentException("Address of device "+devaddr+" does not match address of switch "+getAddr());
-        }
         switch (n_bitmask_bits) {
             case 24:
                 if(getAddr().getUnsignedByte(2) != devaddr.getUnsignedByte(2))
@@ -65,8 +76,7 @@ public class Switch extends IPDevice {
             default:
                 break;
         }
-
-        myDevices[index] = dev;
+        return index;
     }
 
     public IPDevice getDevice(int index) {
@@ -75,7 +85,17 @@ public class Switch extends IPDevice {
 
     @Override
     public void receive(Message msg) {
-        throw new UnsupportedOperationException("Unimplemented method 'receive'");
+        int index = getIndex(msg.getAddress());
+        if(index==0) {
+            System.out.println("Switch Message "+getAddr()+" : "+ msg.getMessage());
+        } else {
+            var dev = getDevice(index);
+            if(dev==null) {
+                System.out.println("Error: no device for IP "+msg.getAddress());
+            } else {
+                dev.receive(msg);
+            }
+        }
     }
 
     /** */

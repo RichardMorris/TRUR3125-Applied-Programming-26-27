@@ -1,9 +1,13 @@
 package org.singsurf.netsym.netswitch;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 
 import org.junit.jupiter.api.Test;
 
@@ -188,5 +192,91 @@ public class TestSwitch {
             sw.addDevice(pc));
     }
 
+    @Test 
+    public void send_message_device_to_bitmask_24() {
+        // Arrange
+        IPAddr addr = new IPAddr("138.253.39.0");
+        Switch sw = new Switch(addr,24);
+
+        IPAddr addr2 = new IPAddr("138.253.39.2");
+        PC pc = new PC(addr2);
+
+        sw.addDevice(pc);
+
+        Message msg = new Message(addr2, "Hello world");
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        PrintStream ps = new PrintStream(baos);
+        var oldout = System.out;
+        System.setOut(ps);
+
+        // Act
+        sw.receive(msg);
+
+        // Assert
+                ps.close();
+        System.setOut(oldout);
+        
+        String output = baos.toString();
+        String expected = "138.253.39.2: Hello world";
+        assertEquals(expected, output.strip());         
+    }
+
+    @Test 
+    public void send_bad_message_device_to_bitmask_24() {
+        // Arrange
+        IPAddr addr = new IPAddr("138.253.39.0");
+        Switch sw = new Switch(addr,24);
+
+        IPAddr addr2 = new IPAddr("138.253.39.2");
+        PC pc = new PC(addr2);
+
+        sw.addDevice(pc);
+
+        IPAddr addr3 = new IPAddr("138.253.39.3");
+        Message msg = new Message(addr3, "Hello world");
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        PrintStream ps = new PrintStream(baos);
+        var oldout = System.out;
+        System.setOut(ps);
+
+        // Act
+        sw.receive(msg);
+
+        // Assert
+        ps.close();
+        System.setOut(oldout);
+        
+        String output = baos.toString();
+        String expected = "Error: no device for IP 138.253.39.3";
+        assertEquals(expected, output.strip());         
+    }
+
+        @Test 
+    public void send_message_to_switch_bitmask_24() {
+        // Arrange
+        IPAddr addr = new IPAddr("138.253.39.0");
+        Switch sw = new Switch(addr,24);
+
+        IPAddr addr2 = new IPAddr("138.253.39.0");
+        Message msg = new Message(addr2, "Hello world");
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        PrintStream ps = new PrintStream(baos);
+        var oldout = System.out;
+        System.setOut(ps);
+
+        // Act
+        sw.receive(msg);
+
+        // Assert
+                ps.close();
+        System.setOut(oldout);
+        
+        String output = baos.toString();
+        String expected = "Switch Message 138.253.39.0 : Hello world";
+        assertEquals(expected, output.strip());         
+    }
 
 }
