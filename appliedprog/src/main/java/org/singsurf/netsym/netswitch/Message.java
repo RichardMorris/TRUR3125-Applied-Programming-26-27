@@ -1,13 +1,10 @@
 package org.singsurf.netsym.netswitch;
 
-import org.singsurf.netsym.Message;
-import org.singsurf.netsym.IPAddr;
-
 /**
  * Represents a message going to a particular IP address
  * SwitchMessage
  */
-public class SwitchMessage implements Message {
+public class Message {
     IPAddr ipaddr;
     String message;
 
@@ -16,7 +13,7 @@ public class SwitchMessage implements Message {
      * @param ipaddr
      * @param message
      */
-    public SwitchMessage(IPAddr ipaddr, String message) {
+    public Message(IPAddr ipaddr, String message) {
         this.ipaddr = ipaddr;
         this.message = message;
     }

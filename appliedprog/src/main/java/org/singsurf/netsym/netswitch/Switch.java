@@ -1,7 +1,5 @@
 package org.singsurf.netsym.netswitch;
 
-import org.singsurf.netsym.Device;
-
 /**
  * A simplified version of a switch. 
  * Each switch can choose between 256 devices according to 
