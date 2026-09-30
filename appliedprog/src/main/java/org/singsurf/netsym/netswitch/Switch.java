@@ -44,6 +44,9 @@ public class Switch extends IPDevice {
         if(index==0) {
             throw new IllegalArgumentException("Address of device "+devaddr+" does not match address of switch "+getAddr());
         }
+        if(myDevices[index] != null) {
+            throw new IllegalArgumentException("Address of device "+devaddr+" conflicts with existing device at index "+index);
+        }
         myDevices[index] = dev;
     }
 
