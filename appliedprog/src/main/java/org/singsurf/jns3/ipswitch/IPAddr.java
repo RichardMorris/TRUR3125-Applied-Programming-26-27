@@ -1,4 +1,4 @@
-package org.singsurf.netsym.netswitch;
+package org.singsurf.jns3.ipswitch;
 
 import java.util.Arrays;
 

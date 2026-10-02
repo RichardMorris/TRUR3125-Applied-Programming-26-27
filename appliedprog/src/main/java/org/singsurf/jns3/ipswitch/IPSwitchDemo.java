@@ -1,4 +1,4 @@
-package org.singsurf.netsym.netswitch;
+package org.singsurf.jns3.ipswitch;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +38,7 @@ public class IPSwitchDemo {
             IPAddr dst = addressed.get(dstIndex);
             System.out.println("Simulating packet to " + dst);
             String message = "Message # " + i;
-            root.receive(new Message(dst, message));
+            root.receive(new IPMessage(dst, message));
         }
     }
     public static void main(String[] args) {

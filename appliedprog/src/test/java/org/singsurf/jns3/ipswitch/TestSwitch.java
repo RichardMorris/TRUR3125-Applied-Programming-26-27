@@ -1,4 +1,4 @@
-package org.singsurf.netsym.netswitch;
+package org.singsurf.jns3.ipswitch;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -196,7 +196,7 @@ public class TestSwitch {
 
             sw.addDevice(pc);
 
-            Message msg = new Message(addr2, "Hello world");
+            IPMessage msg = new IPMessage(addr2, "Hello world");
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             PrintStream ps = new PrintStream(baos);
@@ -227,7 +227,7 @@ public class TestSwitch {
             sw.addDevice(pc);
 
             IPAddr addr3 = new IPAddr("138.253.39.3");
-            Message msg = new Message(addr3, "Hello world");
+            IPMessage msg = new IPMessage(addr3, "Hello world");
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             PrintStream ps = new PrintStream(baos);
@@ -253,7 +253,7 @@ public class TestSwitch {
             IPSwitch sw = new IPSwitch(addr,16);
 
             IPAddr addr2 = new IPAddr("138.253.0.0");
-            Message msg = new Message(addr2, "Hello world");
+            IPMessage msg = new IPMessage(addr2, "Hello world");
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             PrintStream ps = new PrintStream(baos);
@@ -312,7 +312,7 @@ public class TestSwitch {
             sw2.addDevice(pc3);
 
 
-            Message msg = new Message(addr2, "Hello world");
+            IPMessage msg = new IPMessage(addr2, "Hello world");
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             PrintStream ps = new PrintStream(baos);
@@ -388,7 +388,7 @@ public class TestSwitch {
 
             sw.addDevice(pc);
 
-            Message msg = new Message(addr2, "Hello world");
+            IPMessage msg = new IPMessage(addr2, "Hello world");
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             PrintStream ps = new PrintStream(baos);
@@ -419,7 +419,7 @@ public class TestSwitch {
             sw.addDevice(pc);
 
             IPAddr addr3 = new IPAddr("138.253.39.3");
-            Message msg = new Message(addr3, "Hello world");
+            IPMessage msg = new IPMessage(addr3, "Hello world");
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             PrintStream ps = new PrintStream(baos);
@@ -445,7 +445,7 @@ public class TestSwitch {
             IPSwitch sw = new IPSwitch(addr,24);
 
             IPAddr addr2 = new IPAddr("138.253.39.0");
-            Message msg = new Message(addr2, "Hello world");
+            IPMessage msg = new IPMessage(addr2, "Hello world");
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             PrintStream ps = new PrintStream(baos);

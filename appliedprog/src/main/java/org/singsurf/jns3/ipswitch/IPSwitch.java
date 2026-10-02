@@ -1,4 +1,4 @@
-package org.singsurf.netsym.netswitch;
+package org.singsurf.jns3.ipswitch;
 
 /**
  * A simplified version of a switch. 
@@ -88,7 +88,7 @@ public class IPSwitch extends IPDevice {
     }
 
     @Override
-    public void receive(Message msg) {
+    public void receive(IPMessage msg) {
         int index = getIndex(msg.getAddress());
         if(index==0) {
             System.out.println("Switch Message "+getAddr()+" : "+ msg.getMessage());

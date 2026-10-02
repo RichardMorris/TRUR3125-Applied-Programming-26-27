@@ -1,4 +1,4 @@
-package org.singsurf.netsym.netswitch;
+package org.singsurf.jns3.ipswitch;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -21,7 +21,7 @@ public class TestPC {
         // Arrange
         String s = "138.253.39.2";
         PC pc = new PC(new IPAddr(s));
-        Message msg = new Message(new IPAddr(s), "hello world");
+        IPMessage msg = new IPMessage(new IPAddr(s), "hello world");
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         PrintStream ps = new PrintStream(baos);
@@ -46,7 +46,7 @@ public class TestPC {
         String s = "138.253.39.2";
         String s2 = "138.253.39.3";
         PC pc = new PC(new IPAddr(s));
-        Message msg = new Message(new IPAddr(s2), "hello world");
+        IPMessage msg = new IPMessage(new IPAddr(s2), "hello world");
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         PrintStream ps = new PrintStream(baos);

@@ -1,4 +1,4 @@
-package org.singsurf.netsym.netswitch;
+package org.singsurf.jns3.ipswitch;
 
 public class PC extends IPDevice {
 
@@ -6,7 +6,7 @@ public class PC extends IPDevice {
         super(addr);
     }
 
-    public void receive(Message msg) {
+    public void receive(IPMessage msg) {
         if(addr.equals(msg.getAddress())) {
             System.out.println(addr.toString() + ": " + msg.getMessage());
         } else {
