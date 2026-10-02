@@ -18,7 +18,7 @@ public class TestSwitch {
     public void create_bad_bit_mask_9() {
         IPAddr addr = new IPAddr("138.0.0.0");
         assertThrows(IllegalArgumentException.class, ()->
-            new Switch(addr, 9));
+            new IPSwitch(addr, 9));
     }
 
     @Nested 
@@ -26,7 +26,7 @@ public class TestSwitch {
         @Test 
         public void create_bit_mask_0() {
             IPAddr addr = new IPAddr("0.0.0.0");
-            Switch sw = new Switch(addr, 0);
+            IPSwitch sw = new IPSwitch(addr, 0);
             assertNotNull(sw);
         }
 
@@ -34,13 +34,13 @@ public class TestSwitch {
         public void create_bad_bit_mask_0() {
             IPAddr addr = new IPAddr("138.0.0.0");
             assertThrows(IllegalArgumentException.class, ()->
-                new Switch(addr, 0));
+                new IPSwitch(addr, 0));
         }
 
         @Test 
         public void get_self_bitmask_0() {
             IPAddr addr = new IPAddr("0.0.0.0");
-            Switch sw = new Switch(addr, 0);
+            IPSwitch sw = new IPSwitch(addr, 0);
             IPDevice dev = sw.getDevice(0);
             assertSame(sw, dev);
         }
@@ -49,7 +49,7 @@ public class TestSwitch {
         @Test 
         public void add_device_to_bitmask_0() {
             IPAddr addr = new IPAddr("0.0.0.0");
-            Switch sw = new Switch(addr, 0);
+            IPSwitch sw = new IPSwitch(addr, 0);
 
             IPAddr addr2 = new IPAddr("1.0.0.0");
             PC pc = new PC(addr2);
@@ -65,7 +65,7 @@ public class TestSwitch {
         @Test 
         public void add_bad_device_to_bitmask_0() {
             IPAddr addr = new IPAddr("0.0.0.0");
-            Switch sw = new Switch(addr, 0);
+            IPSwitch sw = new IPSwitch(addr, 0);
 
             IPAddr addr2 = new IPAddr("0.0.0.0");
             PC pc = new PC(addr2);
@@ -82,7 +82,7 @@ public class TestSwitch {
         @Test 
         public void create_bit_mask_8() {
             IPAddr addr = new IPAddr("138.0.0.0");
-            Switch sw = new Switch(addr, 8);
+            IPSwitch sw = new IPSwitch(addr, 8);
             assertNotNull(sw);
         }
 
@@ -90,13 +90,13 @@ public class TestSwitch {
         public void create_bad_bit_mask_8() {
             IPAddr addr = new IPAddr("138.39.0.0");
             assertThrows(IllegalArgumentException.class, ()->
-                new Switch(addr, 8));
+                new IPSwitch(addr, 8));
         }
 
         @Test 
         public void add_device_to_bitmask_8() {
             IPAddr addr = new IPAddr("138.0.0.0");
-            Switch sw = new Switch(addr,8);
+            IPSwitch sw = new IPSwitch(addr,8);
 
             IPAddr addr2 = new IPAddr("138.253.39.2");
             PC pc = new PC(addr2);
@@ -112,7 +112,7 @@ public class TestSwitch {
         @Test 
         public void add_bad_device_to_bitmask_8() {
             IPAddr addr = new IPAddr("138.0.0.0");
-            Switch sw = new Switch(addr, 8);
+            IPSwitch sw = new IPSwitch(addr, 8);
 
             IPAddr addr2 = new IPAddr("136.253.39.2");
             PC pc = new PC(addr2);
@@ -129,7 +129,7 @@ public class TestSwitch {
         @Test 
         public void create_bit_mask_16() {
             IPAddr addr = new IPAddr("138.39.0.0");
-            Switch sw = new Switch(addr, 16);
+            IPSwitch sw = new IPSwitch(addr, 16);
             assertNotNull(sw);
         }
 
@@ -137,13 +137,13 @@ public class TestSwitch {
         public void create_bad_bit_mask_16() {
             IPAddr addr = new IPAddr("138.39.2.0");
             assertThrows(IllegalArgumentException.class, ()->
-                new Switch(addr, 16));
+                new IPSwitch(addr, 16));
         }
 
         @Test 
         public void add_device_to_bitmask_16() {
             IPAddr addr = new IPAddr("138.253.0.0");
-            Switch sw = new Switch(addr,16);
+            IPSwitch sw = new IPSwitch(addr,16);
 
             IPAddr addr2 = new IPAddr("138.253.39.2");
             PC pc = new PC(addr2);
@@ -159,7 +159,7 @@ public class TestSwitch {
         @Test 
         public void add_conflicting_device() {
             IPAddr addr = new IPAddr("138.253.0.0");
-            Switch sw = new Switch(addr,16);
+            IPSwitch sw = new IPSwitch(addr,16);
 
             IPAddr addr2 = new IPAddr("138.253.39.2");
             PC pc = new PC(addr2);
@@ -176,7 +176,7 @@ public class TestSwitch {
         @Test 
         public void add_bad_device_to_bitmask_16() {
             IPAddr addr = new IPAddr("138.253.0.0");
-            Switch sw = new Switch(addr, 16);
+            IPSwitch sw = new IPSwitch(addr, 16);
 
             IPAddr addr2 = new IPAddr("138.254.38.2");
             PC pc = new PC(addr2);
@@ -189,7 +189,7 @@ public class TestSwitch {
         public void send_message_device_to_bitmask_16() {
             // Arrange
             IPAddr addr = new IPAddr("138.253.0.0");
-            Switch sw = new Switch(addr,16);
+            IPSwitch sw = new IPSwitch(addr,16);
 
             IPAddr addr2 = new IPAddr("138.253.39.2");
             PC pc = new PC(addr2);
@@ -219,7 +219,7 @@ public class TestSwitch {
         public void send_bad_message_device_to_bitmask_16() {
             // Arrange
             IPAddr addr = new IPAddr("138.253.0.0");
-            Switch sw = new Switch(addr,16);
+            IPSwitch sw = new IPSwitch(addr,16);
 
             IPAddr addr2 = new IPAddr("138.253.39.2");
             PC pc = new PC(addr2);
@@ -250,7 +250,7 @@ public class TestSwitch {
         public void send_message_to_switch_bitmask_16() {
             // Arrange
             IPAddr addr = new IPAddr("138.253.0.0");
-            Switch sw = new Switch(addr,16);
+            IPSwitch sw = new IPSwitch(addr,16);
 
             IPAddr addr2 = new IPAddr("138.253.0.0");
             Message msg = new Message(addr2, "Hello world");
@@ -275,10 +275,10 @@ public class TestSwitch {
         @Test 
         public void add_nested_switch_device() {
             IPAddr addr = new IPAddr("138.253.0.0");
-            Switch sw = new Switch(addr,16);
+            IPSwitch sw = new IPSwitch(addr,16);
 
             IPAddr addr1 = new IPAddr("138.253.39.0");
-            Switch sw2 = new Switch(addr1, 24);
+            IPSwitch sw2 = new IPSwitch(addr1, 24);
 
             sw.addDevice(sw2);
 
@@ -295,10 +295,10 @@ public class TestSwitch {
         @Test 
         public void send_message_to_nested_device() {
             IPAddr addr = new IPAddr("138.253.0.0");
-            Switch sw = new Switch(addr,16);
+            IPSwitch sw = new IPSwitch(addr,16);
 
             IPAddr addr1 = new IPAddr("138.253.39.0");
-            Switch sw2 = new Switch(addr1, 24);
+            IPSwitch sw2 = new IPSwitch(addr1, 24);
 
             sw.addDevice(sw2);
 
@@ -341,7 +341,7 @@ public class TestSwitch {
         @Test 
         public void create_bit_mask_24() {
             IPAddr addr = new IPAddr("138.253.39.0");
-            Switch sw = new Switch(addr, 24);
+            IPSwitch sw = new IPSwitch(addr, 24);
             assertNotNull(sw);
         }
 
@@ -349,13 +349,13 @@ public class TestSwitch {
         public void create_bad_bit_mask_24() {
             IPAddr addr = new IPAddr("138.253.39.2");
             assertThrows(IllegalArgumentException.class, ()->
-                new Switch(addr, 24));
+                new IPSwitch(addr, 24));
         }
 
         @Test 
         public void add_device_to_bitmask_24() {
             IPAddr addr = new IPAddr("138.253.39.0");
-            Switch sw = new Switch(addr,24);
+            IPSwitch sw = new IPSwitch(addr,24);
 
             IPAddr addr2 = new IPAddr("138.253.39.2");
             PC pc = new PC(addr2);
@@ -368,7 +368,7 @@ public class TestSwitch {
         @Test 
         public void add_bad_device_to_bitmask_24() {
             IPAddr addr = new IPAddr("138.253.39.0");
-            Switch sw = new Switch(addr, 24);
+            IPSwitch sw = new IPSwitch(addr, 24);
 
             IPAddr addr2 = new IPAddr("136.253.39.0");
             PC pc = new PC(addr2);
@@ -381,7 +381,7 @@ public class TestSwitch {
         public void send_message_device_to_bitmask_24() {
             // Arrange
             IPAddr addr = new IPAddr("138.253.39.0");
-            Switch sw = new Switch(addr,24);
+            IPSwitch sw = new IPSwitch(addr,24);
 
             IPAddr addr2 = new IPAddr("138.253.39.2");
             PC pc = new PC(addr2);
@@ -411,7 +411,7 @@ public class TestSwitch {
         public void send_bad_message_device_to_bitmask_24() {
             // Arrange
             IPAddr addr = new IPAddr("138.253.39.0");
-            Switch sw = new Switch(addr,24);
+            IPSwitch sw = new IPSwitch(addr,24);
 
             IPAddr addr2 = new IPAddr("138.253.39.2");
             PC pc = new PC(addr2);
@@ -442,7 +442,7 @@ public class TestSwitch {
         public void send_message_to_switch_bitmask_24() {
             // Arrange
             IPAddr addr = new IPAddr("138.253.39.0");
-            Switch sw = new Switch(addr,24);
+            IPSwitch sw = new IPSwitch(addr,24);
 
             IPAddr addr2 = new IPAddr("138.253.39.0");
             Message msg = new Message(addr2, "Hello world");

@@ -4,12 +4,12 @@ package org.singsurf.netsym.netswitch;
  * A simplified version of a switch. 
  * Each switch can choose between 256 devices according to 
  */
-public class Switch extends IPDevice {
+public class IPSwitch extends IPDevice {
     
     int n_bitmask_bits;
     IPDevice[] myDevices = new IPDevice[256];
 
-    public Switch(IPAddr addr, int n_bitmask_bits) {
+    public IPSwitch(IPAddr addr, int n_bitmask_bits) {
         super(addr);
         myDevices[0] = this;
         this.n_bitmask_bits = n_bitmask_bits;
@@ -50,6 +50,7 @@ public class Switch extends IPDevice {
         myDevices[index] = dev;
     }
 
+    
     /**
      * Finds the index in the look up table for a given
      * device based on the devices IP address and the bit mask. 
