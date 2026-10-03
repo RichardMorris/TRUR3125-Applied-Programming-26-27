@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 
 public class TestFrameFactory {
     FrameFactory factory = new FrameFactory();
-    FrameDecoder decoder = new FrameDecoder();
 
     @Test
     public void create_from_string() {
@@ -19,7 +18,7 @@ public class TestFrameFactory {
         assertEquals(source, frame.getSource());
         assertEquals((short) message.length(), frame.getEtherType());
         assertArrayEquals(message.getBytes(), frame.getPayload());
-        assertEquals(message, decoder.decode(frame));
+        assertEquals(message, FrameFactory.decode(frame));
     }
 
     @Test
@@ -32,7 +31,7 @@ public class TestFrameFactory {
         assertEquals(source, frame.getSource());
         assertEquals(6, frame.getEtherType());
         assertArrayEquals(message.getBytes(), frame.getPayload());
-        assertEquals(message, decoder.decode(frame));
+        assertEquals(message, FrameFactory.decode(frame));
     }
 
     @Test
@@ -58,7 +57,7 @@ public class TestFrameFactory {
         assertEquals(source, frame2.getSource());
         assertEquals((short) (message.length() - 1500), frame2.getEtherType());
         assertArrayEquals(message.substring(1500).getBytes(), frame2.getPayload());
-        String res = decoder.decode(frames);
+        String res = FrameFactory.decode(frames);
         assertEquals(message, res);
         System.out.println(res);
     }

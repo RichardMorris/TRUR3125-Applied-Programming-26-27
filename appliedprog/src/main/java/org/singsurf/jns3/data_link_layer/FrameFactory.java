@@ -64,4 +64,16 @@ public class FrameFactory {
         return frames;
     }
 
+        public static String decode(EthernetFrame frame) {
+        return new String(frame.getPayload());
+    }
+
+    public static String decode(List<EthernetFrame> frames) {
+        StringBuilder sb = new StringBuilder();
+        for (EthernetFrame frame : frames) {
+            sb.append(new String(frame.getPayload()));
+        }
+        return sb.toString();
+    }
+
 }
