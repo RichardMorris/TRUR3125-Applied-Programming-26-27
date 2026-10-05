@@ -1,32 +1,30 @@
 package org.singsurf.jns3.data_link_layer;
 
+import org.singsurf.jns3.transport_layer.Connection;
 import org.singsurf.jns3.Jns3Logger;
 
-public class PC implements FrameReceiver {
-    private MACAddress macAddress;
-    private String name;
-    
-    public PC(String name, MACAddress macAddress) {
-        this.name = name;
-        this.macAddress = macAddress;
+public class PC extends Device {
+    Connection connection;
+
+    public PC(String name, MACAddress macAddress, IPAddress ipAddress) {
+        super(name, macAddress, ipAddress);
     }
 
-    public MACAddress getMacAddress() {
-        return macAddress;
-    }
-
-    public String getName() {
-        return name;
+    public void setConnection(Connection connection) {
+        this.connection = connection;
     }
 
     @Override
-    public void receiveFrame(EthernetFrame frame) {
-        if(frame.getDestination().equals(this.macAddress)) {
-            Jns3Logger.log(name, Jns3Logger.LogLevel.RECEIVED,  
-                FrameFactory.decode(frame));
+    public void sendFrame(EthernetFrame frame) {
+        if (connection != null) {
+            connection.send(frame);
         } else {
-            Jns3Logger.log(name, Jns3Logger.LogLevel.IGNORED,  
-                FrameFactory.decode(frame));
+            Jns3Logger.log(getName(), Jns3Logger.LogLevel.ERROR, "No connection set");
         }
+    }   
+
+    @Override
+    public String toString() {
+        return "PC\t" + getName() + "\t" + getMacAddress() + "\t" + getIpAddress();
     }
 }
