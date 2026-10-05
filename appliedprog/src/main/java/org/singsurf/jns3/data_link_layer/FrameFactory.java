@@ -22,6 +22,21 @@ public class FrameFactory {
     }
 
     /**
+     * A Factory method to create an Ethernet frame. the length of the payload is used as the EtherType field.
+     * @param destination the destination MAC address
+     * @param source the source MAC address
+     * @param payload the payload of the Ethernet frame
+     * @return the created Ethernet frame
+     */
+    public EthernetFrame createEthernetFrame(
+        MACAddress destination,
+        MACAddress source,
+        byte[] payload) {
+        return new EthernetFrame(destination, source, (short) payload.length, payload);
+    }
+
+
+    /**
      * A Factory method to create an Ethernet frame from a message string.
      * @param destination the destination MAC address
      * @param source the source MAC address
@@ -64,7 +79,7 @@ public class FrameFactory {
         return frames;
     }
 
-        public static String decode(EthernetFrame frame) {
+    public static String decode(EthernetFrame frame) {
         return new String(frame.getPayload());
     }
 
