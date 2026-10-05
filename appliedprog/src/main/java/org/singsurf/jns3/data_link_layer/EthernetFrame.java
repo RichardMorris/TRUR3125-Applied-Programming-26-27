@@ -15,6 +15,10 @@ public class EthernetFrame {
         this.source = source;
         this.etherType = etherType;
         this.payload = payload;
+
+        if(etherType == ARPController.ARP_ETHER_TYPE)  
+            return; // Skip further checks for ARP frames
+
         if(etherType <= 0 || etherType > 1500) {
             throw new IllegalArgumentException("Invalid etherType: " + etherType);
         }
@@ -39,4 +43,13 @@ public class EthernetFrame {
         return payload;
     }
 
+    @Override
+    public String toString() {
+        return "EthernetFrame{" +
+                "destination=" + destination +
+                ", source=" + source +
+                ", etherType=" + etherType +
+                ", payload=" + new String(payload) +
+                '}';
+    }
 }
