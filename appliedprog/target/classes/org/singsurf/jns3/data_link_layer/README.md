@@ -1,13 +1,15 @@
 # Week 4 Data Link Layer
 
-## User Story
+## Ethernet Frames
+
+### User Story
 
 As a network engineer for a large company with thousands of PC's
 I want to set up a local area network using simple level 2 switches
 and PC's referenced by MAC addresses
 so that any message received by any switch is sent to the correct PC and displayed.
 
-## Specification
+### Specification
 
 1. A `MACAddress` consist of 6 octets or bytes.
    * As a MAC address and `IPAddr` are similar differing only in the number of bytes a common base class `AbstractAddress` is used.
@@ -34,7 +36,7 @@ so that any message received by any switch is sent to the correct PC and display
     * A unique name
     * It can receive frames and log them via the Jns3Logger.
 
-## Pattern Usage
+### Pattern Usage
 
 A factory method
 
@@ -54,3 +56,91 @@ ensure no two devices have the same address.
 
 The exact constructor used to make a  `PC` changed several times, the factory method hid this change from calling code. It also generates a random
 mac address saving the calling code from having to create MAC addresses.
+
+## Week 5 Address Resolution Protocol
+
+### User Story 5
+
+As a network engineer when I connect two machines with assigned local IP address
+they need to find the corresponding MAC Addresses so they
+can then send messages to each other.
+
+### Specification 5
+
+1. An `ARPMessage` message has the format
+    * 2 byte hardware type. Ethernet is 0x0001. 
+    * 2 byte protocol type, IPv4 is 0x0800.
+    * 1 byte length of hardware address, 6 for MAC addresses for Ethernet
+    * 1 byte length of protocol address, 4 for IPv4 addresses.
+    * 2 bytes for operation, 0x0001 for a request 0x0002 for a reply
+    * 6 bytes for sender MacAddress
+    * 4 bytes for sender IPv4 protocol address
+    * 6 bytes for target MacAddress
+    * 4 bytes for target IPv4 protocol address
+    * 28 bytes in total
+2. ARP request messages are sent in a `EthernetFrame` with
+    * broadcast MAC addresses FF-FF-FF-FF-FF-FF
+    * an etherType 0f 0x0806.
+3. ARP response messages are sent in an `EthernetFrame` with
+    * to the MAC address of sender.
+    * an etherType 0f 0x0806.
+4. A Gratuitous ARP message (GARP) is a ARP request with
+    * Sended MAC and Sender IP of the sender
+    * Target MAC of 0x0
+    * Target IP the same as the Sender IP
+    * This is sent to all connected devices to announce the presence of
+    a new device
+5. An `ARPController` handles the sending and response of frames with ARP requests
+    and response. 
+    * It has a `boolean handle(EthernetFrame)` method that
+        * returns true if it is an ARP request/response message, false otherwise
+        * stores the senders MAC address and IP address
+        * if the frame is an ARP Request and the MAC address matches then send an ARP response
+    * It has a `sendGarpRequest()` method that sends GARP messages.
+    * It is initialised with a `Device` that handles creation and sending of frames.
+    * It maintains two tables
+        * `arpTable` a map from known IP addresses to MAC addresses
+        * `reverseArpTable` a map from known MAC addresses to IP addresses
+6. The `FrameHandler` interface defines the `boolean handle(EthernetFrame)` method.
+7. The `DefaultFrameHandler` handles frames not handled by other FrameHandlers reporting messages in the log.
+8. The `FrameSender` interface defines  methods used by devices 
+    * `void sendFrame(EthernetFrame frame)`
+9. The abstract base class `Device` is used for most devices. It
+    * Has a `name` for reporting purposes specified in the constructor.
+    * Has a `MACAddress` specified in the constructor.
+    * Has a `IPAddress` specified in the constructor.
+    * Has a `frameFactory` set by a getter. 
+    * Has an `ARPController` set by a getter.
+    * Has a list of `FrameHandler` to handle incoming frames.
+    * It implements `FrameReceiver` and it's `receiveFrame(EthernetFrame frame)` method loops through
+        the list of FrameHandlers testing to see if they handle the frame
+    * It implement `FrameSender` but provides no `sendFrame()` as PC's and network devices differ.
+    * It has utility methods `EthernetFrame createEthernetFrame(MACAddress destinationMac, String payload)` and `createEthernetFrame(MACAddress destinationMac, byte[] payload)`
+    that create frames using the devices MacAddress as the source address.
+10. The transport layer is modelled by an interface `Connection` that has a methods
+    * `void send(EthernetFrame frame)` to start transmission of the frame down the wire
+11. The `SimpleConnection` represents a simple one way connection between two devices. It
+    * Loss less, never dropping frames
+    * Collisions free, there is no chance of messages from both devices interfering
+    * Has no delay
+    * Its `send(frame)` methods simply calls the second device's `receiveFrame(frame)` method.
+    * It has a `Connection getReverseConnection()` to get the connection in the reverse direction,
+        representing a bi-directional wire.
+12. A `PC` is a `Device` created by the `DeviceFactory`. It
+    * Has a random mac address
+    * Has a IP address in the 192.168.0.0/16 range.
+    * Has a single `Connection` to one other device, set by a setter.
+    * Has an `ARPController`
+    * Has a `DefaultFrameHandler`
+    * Has a `FrameFactory` 
+    * Has a `void setConnection(Connection connection)` method.
+    * Its `sendFrame(EthernetFrame frame)` method sends a frame to its single connection
+    * It can send a GARP request via its ARPController.
+13. A network of two PC's can be constructed
+    * They are created using the DeviceFactory
+    * They are connected using a `SimpleConnection`
+    * One PC sends and GARP request
+    * The other PC receives the message and updates it tables
+    * It then sends a ARP response
+    * The first PC receives the message and updates its tables
+    * Either PC can then look up the other PC's IP Address and MAC Address and use them to send a frame.
