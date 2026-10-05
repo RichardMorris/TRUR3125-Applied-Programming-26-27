@@ -19,6 +19,5 @@ public interface Connection {
      * @param frame the Ethernet frame to be sent
      * @param sender the device sending the frame
      */
-    void send(EthernetFrame frame, Device sender);
-
+    void send(EthernetFrame frame);
 }

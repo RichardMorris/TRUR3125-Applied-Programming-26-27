@@ -1,10 +1,7 @@
 package org.singsurf.jns3.transport_layer;
 
-import org.singsurf.jns3.data_link_layer.FrameTransmitter;
 import org.singsurf.jns3.data_link_layer.Device;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
-import org.singsurf.jns3.data_link_layer.MACAddress;
-import org.singsurf.jns3.transport_layer.Connection;
 
 /**
  * A simple connection between two devices.
@@ -19,12 +16,11 @@ public class SimpleConnection implements Connection {
         this.dev2 = dev2;
     }
 
-    public void send(EthernetFrame frame, Device device) {
-        if (device == dev1) {
-            dev2.receiveFrame(frame);
-        } else if (device == dev2) {
-            dev1.receiveFrame(frame);
-        }
+    public void send(EthernetFrame frame) {
+        dev2.receiveFrame(frame);
     }
 
+    public Connection getReverseConnection() {
+        return new SimpleConnection(dev2, dev1);
+    }
 }
