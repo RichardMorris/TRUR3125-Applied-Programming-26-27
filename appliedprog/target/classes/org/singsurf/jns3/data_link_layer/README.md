@@ -144,3 +144,5 @@ can then send messages to each other.
     * It then sends a ARP response
     * The first PC receives the message and updates its tables
     * Either PC can then look up the other PC's IP Address and MAC Address and use them to send a frame.
+
+See [cisco overview of layer 2](https://community.cisco.com/t5/networking-knowledge-base/overview-of-layer-2-switched-networks-and-communication/ta-p/3128423)
