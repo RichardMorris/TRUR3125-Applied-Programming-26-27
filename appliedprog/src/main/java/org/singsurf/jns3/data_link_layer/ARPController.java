@@ -2,7 +2,7 @@ package org.singsurf.jns3.data_link_layer;
 import java.util.HashMap;
 import java.util.Map;
 import org.singsurf.jns3.Jns3Logger;
-
+import org.singsurf.jns3.hardware.Device;
 public class ARPController implements FrameHandler {
     FrameFactory frameFactory;
     public static MACAddress ARP_BROADCAST_MAC = new MACAddress(new byte[] {(byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF});

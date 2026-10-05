@@ -1,7 +1,10 @@
-package org.singsurf.jns3.data_link_layer;
+package org.singsurf.jns3.hardware;
 
 import org.singsurf.jns3.transport_layer.Connection;
 import org.singsurf.jns3.Jns3Logger;
+import org.singsurf.jns3.data_link_layer.EthernetFrame;
+import org.singsurf.jns3.data_link_layer.IPAddress;
+import org.singsurf.jns3.data_link_layer.MACAddress;
 
 public class PC extends Device {
     Connection connection;

@@ -1,8 +1,6 @@
 package org.singsurf.jns3.transport_layer;
 
-import org.singsurf.jns3.data_link_layer.Device;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
-import org.singsurf.jns3.data_link_layer.MACAddress;
 
 /**
  * Represents a physical connection between two devices.

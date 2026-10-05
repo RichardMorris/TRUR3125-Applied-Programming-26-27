@@ -1,6 +1,7 @@
 package org.singsurf.jns3.data_link_layer;
 
 import org.singsurf.jns3.Jns3Logger;
+import org.singsurf.jns3.hardware.Device;
 
 public class DefaultFrameHandler implements FrameHandler {
     Device device;

@@ -1,4 +1,4 @@
-package org.singsurf.jns3.data_link_layer;
+package org.singsurf.jns3.hardware;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,8 +48,8 @@ public class TestAPRInitisation {
     public void testGRAP() {
         Jns3Logger.clearLog();
         var arpController = pc1.getArpController();
-        assertEquals(0, arpController.arpTable.size());
-        assertEquals(0, arpController.reverseArpTable.size());
+        assertEquals(0, arpController.getArpTable().size());
+        assertEquals(0, arpController.getReverseArpTable().size());
         arpController.sendGARPRequest();
 
         List<LogItem> logs = Jns3Logger.getLogItems();
@@ -71,15 +71,15 @@ public class TestAPRInitisation {
         assertEquals("PC1", logs.get(3).deviceName);
         assertEquals("Received ARP frame", logs.get(3).message);        
 
-        assertTrue(arpController.arpTable.containsKey(pc2.getIpAddress()));
-        assertTrue(arpController.reverseArpTable.containsKey(pc2.getMacAddress())); 
-        assertEquals(pc2.getMacAddress(), arpController.arpTable.get(pc2.getIpAddress()));
-        assertEquals(pc2.getIpAddress(), arpController.reverseArpTable.get(pc2.getMacAddress()));
+        assertTrue(arpController.getArpTable().containsKey(pc2.getIpAddress()));
+        assertTrue(arpController.getReverseArpTable().containsKey(pc2.getMacAddress())); 
+        assertEquals(pc2.getMacAddress(), arpController.getArpTable().get(pc2.getIpAddress()));
+        assertEquals(pc2.getIpAddress(), arpController.getReverseArpTable().get(pc2.getMacAddress()));
 
-        assertTrue(pc2.getArpController().arpTable.containsKey(pc1.getIpAddress()));
-        assertTrue(pc2.getArpController().reverseArpTable.containsKey(pc1.getMacAddress()));
-        assertEquals(pc1.getMacAddress(), pc2.getArpController().arpTable.get(pc1.getIpAddress()));
-        assertEquals(pc1.getIpAddress(), pc2.getArpController().reverseArpTable.get(pc1.getMacAddress()));
+        assertTrue(pc2.getArpController().getArpTable().containsKey(pc1.getIpAddress()));
+        assertTrue(pc2.getArpController().getReverseArpTable().containsKey(pc1.getMacAddress()));
+        assertEquals(pc1.getMacAddress(), pc2.getArpController().getArpTable().get(pc1.getIpAddress()));
+        assertEquals(pc1.getIpAddress(), pc2.getArpController().getReverseArpTable().get(pc1.getMacAddress()));
     }
 
     @Test
@@ -89,7 +89,7 @@ public class TestAPRInitisation {
 
         Jns3Logger.clearLog();
 
-        for(var entry : arpController.arpTable.entrySet()) {
+        for(var entry : arpController.getArpTable().entrySet()) {
             var ipAddress = entry.getKey();
             var macAddress = entry.getValue();
             var frameFactory = pc1 .getFrameFactory();
@@ -115,7 +115,7 @@ public class TestAPRInitisation {
 
         Jns3Logger.clearLog();
         
-        for(var entry : arpController.arpTable.entrySet()) {
+        for(var entry : arpController.getArpTable().entrySet()) {
             var ipAddress = entry.getKey();
             var macAddress = entry.getValue();
             var frameFactory = pc2.getFrameFactory();

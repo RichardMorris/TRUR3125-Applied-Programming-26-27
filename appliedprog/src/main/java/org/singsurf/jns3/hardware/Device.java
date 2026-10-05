@@ -1,8 +1,16 @@
-package org.singsurf.jns3.data_link_layer;
+package org.singsurf.jns3.hardware;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.singsurf.jns3.Jns3Logger;
+import org.singsurf.jns3.data_link_layer.ARPController;
+import org.singsurf.jns3.data_link_layer.EthernetFrame;
+import org.singsurf.jns3.data_link_layer.FrameFactory;
+import org.singsurf.jns3.data_link_layer.FrameHandler;
+import org.singsurf.jns3.data_link_layer.FrameReceiver;
+import org.singsurf.jns3.data_link_layer.FrameSender;
+import org.singsurf.jns3.data_link_layer.IPAddress;
+import org.singsurf.jns3.data_link_layer.MACAddress;
 
 public abstract class Device implements FrameReceiver, FrameSender {
     private MACAddress macAddress;

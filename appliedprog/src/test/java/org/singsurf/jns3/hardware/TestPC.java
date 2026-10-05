@@ -1,4 +1,4 @@
-package org.singsurf.jns3.data_link_layer;
+package org.singsurf.jns3.hardware;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -8,6 +8,9 @@ import java.util.List;
 
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.Jns3Logger.LogItem;
+import org.singsurf.jns3.data_link_layer.EthernetFrame;
+import org.singsurf.jns3.data_link_layer.FrameFactory;
+import org.singsurf.jns3.data_link_layer.MACAddress;
 
 public class TestPC {
     DeviceFactory deviceFactory = new DeviceFactory();
