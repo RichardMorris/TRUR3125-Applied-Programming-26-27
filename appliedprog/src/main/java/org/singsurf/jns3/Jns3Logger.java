@@ -5,7 +5,7 @@ public class Jns3Logger {
     public enum LogLevel {
         RECEIVED, // Frame was received successfully
         IGNORED, // Frame was ignored 
-        ERROR
+        ERROR, SENT
     }
     public static class LogItem {
         public String deviceName;
