@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
-import org.singsurf.jns3.transport_layer.SimpleConnection;
+import org.singsurf.jns3.physical_layer.SimpleConnection;
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.Jns3Logger.LogItem;
 

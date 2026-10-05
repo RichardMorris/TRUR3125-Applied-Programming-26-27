@@ -1,6 +1,6 @@
 package org.singsurf.jns3.hardware;
 
-import org.singsurf.jns3.transport_layer.Connection;
+import org.singsurf.jns3.physical_layer.Connection;
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.data_link_layer.IPAddress;

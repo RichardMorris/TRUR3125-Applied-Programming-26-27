@@ -1,4 +1,4 @@
-package org.singsurf.jns3.transport_layer;
+package org.singsurf.jns3.physical_layer;
 
 import org.singsurf.jns3.hardware.Device;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
