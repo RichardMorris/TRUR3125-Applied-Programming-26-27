@@ -1,18 +1,21 @@
 package org.singsurf.jns3.data_link_layer;
+
 import java.util.HashMap;
 import java.util.Map;
+
 import org.singsurf.jns3.Jns3Logger;
-import org.singsurf.jns3.hardware.Device;
+import org.singsurf.jns3.hardware.PC;
+import org.singsurf.jns3.network_layer.IPAddress;
+
 public class ARPController implements FrameHandler {
     FrameFactory frameFactory;
-    public static MACAddress ARP_BROADCAST_MAC = new MACAddress(new byte[] {(byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF});
     public static short ARP_ETHER_TYPE = 0x0806; // EtherType for ARP
     Map<IPAddress, MACAddress> arpTable = new HashMap<>();
     Map<MACAddress, IPAddress> reverseArpTable = new HashMap<>();
 
-    Device device;
+    PC device;
 
-    public ARPController(Device device) {
+    public ARPController(PC device) {
         this.device = device;
         this.frameFactory = device.getFrameFactory();
     }
@@ -21,8 +24,8 @@ public class ARPController implements FrameHandler {
     public boolean handleFrame(EthernetFrame frame) {
         if(frame.getEtherType() != ARP_ETHER_TYPE) return false;
 
-        if(frame.getDestination().equals(ARP_BROADCAST_MAC)
-            || frame.getDestination().equals(device.getMacAddress())) {
+        if(frame.getDestination().equals(MACAddress.BROADCAST_MAC)
+            || frame.getDestination().equals(device.getMACAddress())) {
 
                 Jns3Logger.log(device.getName(), Jns3Logger.LogLevel.RECEIVED,  "Received ARP frame");
                 var arpMessage = ARPMessage.fromFrame(frame);
@@ -34,13 +37,13 @@ public class ARPController implements FrameHandler {
                     // Respond to ARP request
                     var reply = new ARPMessage(
                         false, 
-                        device.getMacAddress(), 
-                        device.getIpAddress(), 
+                        device.getMACAddress(), 
+                        device.getIPAddress(), 
                         arpMessage.getSenderMac(), 
                         arpMessage.getSenderIp());
                     var replyFrame = frameFactory.createEthernetFrame(
                         arpMessage.getSenderMac(), 
-                        device.getMacAddress(), 
+                        device.getMACAddress(), 
                         ARP_ETHER_TYPE,
                         reply.toBytes());
                 Jns3Logger.log(device.getName(), Jns3Logger.LogLevel.SENT,  "Sent ARP reply frame");
@@ -56,16 +59,32 @@ public class ARPController implements FrameHandler {
 
     public void sendGARPRequest() {
         var garpMessage = ARPMessage.createGarpRequest(
-            device.getMacAddress(),
-            device.getIpAddress());
+            device.getMACAddress(),
+            device.getIPAddress());
         
         var garpFrame = frameFactory.createEthernetFrame(
-            ARP_BROADCAST_MAC,
-            device.getMacAddress(),
+            MACAddress.BROADCAST_MAC,
+            device.getMACAddress(),
             ARP_ETHER_TYPE,
             garpMessage.toBytes());
         Jns3Logger.log(device.getName(), Jns3Logger.LogLevel.SENT,  "Sent GARP request frame");
         device.sendFrame(garpFrame);
+    }
+
+    public void sendArpRequest(IPAddress ip) {
+        var request = new ARPMessage(
+            true,
+            device.getMACAddress(),
+            device.getIPAddress(),
+            MACAddress.ZERO_MAC,
+            ip);
+        var requestFrame = frameFactory.createEthernetFrame(
+            MACAddress.BROADCAST_MAC,
+            device.getMACAddress(),
+            ARP_ETHER_TYPE,
+            request.toBytes());
+        Jns3Logger.log(device.getName(), Jns3Logger.LogLevel.SENT,  "Sent ARP Probe request frame");
+        device.sendFrame(requestFrame);
     }
 
     public Map<IPAddress, MACAddress> getArpTable() {

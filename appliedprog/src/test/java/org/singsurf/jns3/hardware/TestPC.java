@@ -24,7 +24,7 @@ public class TestPC {
     @Test 
     public void receiveFrame() {
         PC pc = deviceFactory.createPC("TestPC");
-        MACAddress destination = pc.getMacAddress();
+        MACAddress destination = pc.getMACAddress();
         MACAddress source = deviceFactory.createMACAddress();
 
         EthernetFrame frame = frameFactory.createEthernetFrame(destination, source, 
@@ -43,7 +43,7 @@ public class TestPC {
     public void receiveFrameWithWrongDestination() {
         PC pc = deviceFactory.createPC("TestPC");
         MACAddress destination = deviceFactory.createMACAddress();
-        MACAddress source = pc.getMacAddress();
+        MACAddress source = pc.getMACAddress();
 
         EthernetFrame frame = frameFactory.createEthernetFrame(destination, source, 
             "Hello, PC!");

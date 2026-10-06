@@ -1,6 +1,7 @@
 package org.singsurf.jns3.data_link_layer;
 
 import org.junit.jupiter.api.Test;
+import org.singsurf.jns3.network_layer.IPAddress;
 
 import static org.junit.jupiter.api.Assertions.*;
 

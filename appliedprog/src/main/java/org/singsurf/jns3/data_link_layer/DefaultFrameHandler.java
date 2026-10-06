@@ -1,18 +1,18 @@
 package org.singsurf.jns3.data_link_layer;
 
 import org.singsurf.jns3.Jns3Logger;
-import org.singsurf.jns3.hardware.Device;
+import org.singsurf.jns3.hardware.PC;
 
 public class DefaultFrameHandler implements FrameHandler {
-    Device device;
+    PC device;
 
-    public DefaultFrameHandler(Device device) {
+    public DefaultFrameHandler(PC device) {
         this.device = device;
     }
     @Override
     public boolean handleFrame(EthernetFrame frame) {
 
-        if(frame.getDestination().equals(device.getMacAddress())) {
+        if(frame.getDestination().equals(device.getMACAddress())) {
             Jns3Logger.log(device.getName(), Jns3Logger.LogLevel.RECEIVED,  
                 FrameFactory.decode(frame));
         } else {
