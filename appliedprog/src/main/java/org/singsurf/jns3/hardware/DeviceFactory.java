@@ -5,8 +5,8 @@ import java.util.List;
 import org.singsurf.jns3.data_link_layer.ARPController;
 import org.singsurf.jns3.data_link_layer.DefaultFrameHandler;
 import org.singsurf.jns3.data_link_layer.FrameFactory;
-import org.singsurf.jns3.data_link_layer.IPAddress;
 import org.singsurf.jns3.data_link_layer.MACAddress;
+import org.singsurf.jns3.network_layer.IPAddress;
 
 import java.util.ArrayList;
 
@@ -16,7 +16,7 @@ public class DeviceFactory {
     FrameFactory frameFactory = new FrameFactory();
 
     public DeviceFactory() {
-        macAddresses.add(ARPController.ARP_BROADCAST_MAC);
+        macAddresses.add(MACAddress.BROADCAST_MAC);
     }
 
     public MACAddress createMACAddress() {
@@ -58,5 +58,15 @@ public class DeviceFactory {
         pc.setArpController(new ARPController(pc));
         pc.addFrameHandler(new DefaultFrameHandler(pc));
         return pc;
+    }
+
+    public Switch createSwitch(String name, int numPorts) {
+        var sw = new Switch(name, numPorts);
+        return sw;
+    }
+
+    public Hub createHub(String name, int numPorts) {
+        var hub = new Hub(name, numPorts);
+        return hub;
     }
 }
