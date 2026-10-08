@@ -40,7 +40,7 @@ public class TestCorruptedConnection {
         DeviceFactory deviceFactory = new DeviceFactory();
         pc1 = deviceFactory.createPC("PC1");
         pc2 = new Receiver();
-        cc = new CorruptedConnection(pc1, pc2);
+        cc = new CorruptedConnection(pc1.getEndPoint(), pc2);
         assertEquals(Jns3Logger.getLogItems().size(), 0);
     }
 

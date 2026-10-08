@@ -33,8 +33,8 @@ public class TestSwitch {
             pc2 = deviceFactory.createPC("PC2");
             sw = deviceFactory.createSwitch("Switch1", 8);
 
-            var connection1 = new SimpleConnection(pc1, sw.getPort(0));
-            var connection2 = new SimpleConnection(pc2, sw.getPort(1));
+            var connection1 = new SimpleConnection(pc1.getEndPoint(), sw.getPort(0));
+            var connection2 = new SimpleConnection(pc2.getEndPoint(), sw.getPort(1));
             assertNotNull(connection1);
             assertNotNull(connection2);
             assertEquals(Jns3Logger.getLogItems().size(), 0);
@@ -128,9 +128,9 @@ public class TestSwitch {
             pc3 = deviceFactory.createPC("PC3");
             sw = deviceFactory.createSwitch("Switch1", 8);
 
-            var connection1 = new SimpleConnection(pc1, sw.getPort(0));
-            var connection2 = new SimpleConnection(pc2, sw.getPort(1));
-            var connection3 = new SimpleConnection(pc3, sw.getPort(5));
+            var connection1 = new SimpleConnection(pc1.getEndPoint(), sw.getPort(0));
+            var connection2 = new SimpleConnection(pc2.getEndPoint(), sw.getPort(1));
+            var connection3 = new SimpleConnection(pc3.getEndPoint(), sw.getPort(5));
             assertNotNull(connection1);
             assertNotNull(connection2);
             assertNotNull(connection3);

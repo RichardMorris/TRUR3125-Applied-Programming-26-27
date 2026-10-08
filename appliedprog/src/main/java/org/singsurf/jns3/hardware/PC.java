@@ -1,5 +1,5 @@
 package org.singsurf.jns3.hardware;
-
+import org.singsurf.jns3.data_link_layer.FrameSender;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,13 +13,27 @@ import org.singsurf.jns3.data_link_layer.FrameFactory;
 import org.singsurf.jns3.data_link_layer.FrameHandler;
 import org.singsurf.jns3.data_link_layer.ARPController;
 import org.singsurf.jns3.data_link_layer.EthernetEndPoint;
+import org.singsurf.jns3.physical_layer.PhysicalEndPoint;
+import org.singsurf.jns3.data_link_layer.FrameReceiver;
 
-public class PC extends EthernetEndPoint implements MACAddressable, IPAddressable {
+public class PC extends NamedDevice implements MACAddressable, IPAddressable, FrameSender, FrameReceiver {
     List<FrameHandler> frameHandlers = new ArrayList<>();
     ARPController arpController;
     FrameFactory frameFactory;
     MACAddress macAddress;
     IPAddress ipAddress;
+    EthernetEndPoint ethernetEndPoint;
+
+    class MyEndPoint extends EthernetEndPoint {
+        MyEndPoint(String name) {
+            super(name);
+        }
+
+        @Override
+        public void receiveFrame(EthernetFrame frame) {
+            PC.this.receiveFrame(frame);
+        }
+    }
 
     @Override
     public MACAddress getMACAddress() {
@@ -31,10 +45,15 @@ public class PC extends EthernetEndPoint implements MACAddressable, IPAddressabl
         return ipAddress;
     }
 
+    public PhysicalEndPoint getEndPoint() {
+        return ethernetEndPoint;
+    }
+
     public PC(String name, MACAddress macAddress, IPAddress ipAddress) {
         super(name);
         this.macAddress = macAddress;
         this.ipAddress = ipAddress;
+        this.ethernetEndPoint = new MyEndPoint(name);
     }
 
 
@@ -42,6 +61,10 @@ public class PC extends EthernetEndPoint implements MACAddressable, IPAddressabl
         frameHandlers.add(frameHandler);
     }
 
+    @Override
+    public void sendFrame(EthernetFrame frame) {
+        ethernetEndPoint.sendFrame(frame);
+    }
 
     public void receiveFrame(EthernetFrame frame) {
         for (FrameHandler handler : frameHandlers) {

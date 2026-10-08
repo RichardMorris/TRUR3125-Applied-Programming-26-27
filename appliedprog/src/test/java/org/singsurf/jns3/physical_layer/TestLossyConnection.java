@@ -20,7 +20,7 @@ public class TestLossyConnection {
         DeviceFactory deviceFactory = new DeviceFactory();
         pc1 = deviceFactory.createPC("PC1");
         pc2 = deviceFactory.createPC("PC2");
-        var connection = new LossyConnection(pc1, pc2);
+        var connection = new LossyConnection(pc1.getEndPoint(), pc2.getEndPoint());
         assertNotNull(connection);
         assertEquals(Jns3Logger.getLogItems().size(), 0);
     }

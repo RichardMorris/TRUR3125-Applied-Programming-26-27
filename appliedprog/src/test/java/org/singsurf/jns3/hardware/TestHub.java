@@ -33,8 +33,8 @@ public class TestHub {
             pc2 = deviceFactory.createPC("PC2");
             hub = deviceFactory.createHub("Hub1", 8);
 
-            var connection1 = new SimpleConnection(pc1, hub.getPort(0));
-            var connection2 = new SimpleConnection(pc2, hub.getPort(1));
+            var connection1 = new SimpleConnection(pc1.getEndPoint(), hub.getPort(0));
+            var connection2 = new SimpleConnection(pc2.getEndPoint(), hub.getPort(1));
             assertNotNull(connection1);
             assertNotNull(connection2);
             assertEquals(Jns3Logger.getLogItems().size(), 0);
@@ -131,9 +131,9 @@ public class TestHub {
             pc3 = deviceFactory.createPC("PC3");
             hub = deviceFactory.createHub("Hub1", 8);
 
-            var connection1 = new SimpleConnection(pc1, hub.getPort(0));
-            var connection2 = new SimpleConnection(pc2, hub.getPort(1));
-            var connection3 = new SimpleConnection(pc3, hub.getPort(5));
+            var connection1 = new SimpleConnection(pc1.getEndPoint(), hub.getPort(0));
+            var connection2 = new SimpleConnection(pc2.getEndPoint(), hub.getPort(1));
+            var connection3 = new SimpleConnection(pc3.getEndPoint(), hub.getPort(5));
             assertNotNull(connection1);
             assertNotNull(connection2);
             assertNotNull(connection3);
