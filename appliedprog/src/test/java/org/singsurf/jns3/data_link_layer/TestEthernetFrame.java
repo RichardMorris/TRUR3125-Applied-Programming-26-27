@@ -19,4 +19,22 @@ public class TestEthernetFrame {
         assertEquals((short) payload.length, frame.getEtherType());
         assertArrayEquals(payload, frame.getPayload());
     }
+
+    @Test
+    public void testEthernetFrameToBytesAndBack() {
+        MACAddress destination = new MACAddress("00:11:22:33:44:55");
+        MACAddress source = new MACAddress("66:77:88:99:AA:BB");
+        byte[] payload = new byte[] {
+            0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x2C, 0x20, 0x45, 0x74, 0x68, 0x65, 0x72, 0x6E, 0x65, 0x74, 0x21
+        };
+        FrameFactory factory = new FrameFactory();
+        EthernetFrame frame = factory.createEthernetFrame(destination, source, (short) payload.length, payload);
+        byte[] frameBytes = frame.getBytes();
+        EthernetFrame parsedFrame = EthernetFrame.parseBytes(frameBytes);
+        assertEquals(destination, parsedFrame.getDestination());
+        assertEquals(source, parsedFrame.getSource());
+        assertEquals((short) payload.length, parsedFrame.getEtherType());
+        assertArrayEquals(payload, parsedFrame.getPayload());
+        assertEquals(frame, parsedFrame);
+    }
 }

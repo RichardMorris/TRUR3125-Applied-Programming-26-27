@@ -1,4 +1,4 @@
-package org.singsurf.jns3.hardware;
+package org.singsurf.jns3.data_link_layer;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,6 +12,8 @@ import java.util.List;
 import org.singsurf.jns3.physical_layer.SimpleConnection;
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.Jns3Logger.LogItem;
+import org.singsurf.jns3.hardware.DeviceFactory;
+import org.singsurf.jns3.hardware.PC;
 
 public class TestAPRInitisation {
 

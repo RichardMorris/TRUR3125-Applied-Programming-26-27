@@ -7,7 +7,7 @@ import org.singsurf.jns3.data_link_layer.DefaultFrameHandler;
 import org.singsurf.jns3.data_link_layer.FrameFactory;
 import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.network_layer.IPAddress;
-
+import org.singsurf.jns3.data_link_layer.FrameChecker;
 import java.util.ArrayList;
 
 public class DeviceFactory {
@@ -55,6 +55,7 @@ public class DeviceFactory {
         IPAddress ip = createLocalIPAddress();
         var pc = new PC(name, mac, ip);
         pc.setFrameFactory(frameFactory);
+        pc.addFrameHandler(new FrameChecker(pc));
         pc.setArpController(new ARPController(pc));
         pc.addFrameHandler(new DefaultFrameHandler(pc));
         return pc;
