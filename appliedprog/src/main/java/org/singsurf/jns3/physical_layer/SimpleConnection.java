@@ -1,6 +1,7 @@
 package org.singsurf.jns3.physical_layer;
 
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
+import org.singsurf.jns3.data_link_layer.EthernetEndPoint;
 
 /**
  * A simple connection between two devices.
