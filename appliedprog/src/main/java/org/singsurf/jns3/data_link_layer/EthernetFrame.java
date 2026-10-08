@@ -1,6 +1,7 @@
 package org.singsurf.jns3.data_link_layer;
 
 import java.util.zip.CRC32;
+import java.util.Arrays;
 
 public class EthernetFrame {
     MACAddress destination;
@@ -28,6 +29,26 @@ public class EthernetFrame {
         if(payload == null || payload.length != etherType) {
             throw new IllegalArgumentException("Invalid payload length: " + (payload == null ? 0 : payload.length));
         }
+    }
+
+    public static EthernetFrame parseBytes(byte[] frame) {
+        if(frame.length < 14 + 4) {
+            throw new IllegalArgumentException("Frame too short");
+        }
+        byte[] destBytes = new byte[6];
+        byte[] srcBytes = new byte[6];
+        System.arraycopy(frame, 0, destBytes, 0, 6);
+        System.arraycopy(frame, 6, srcBytes, 0, 6);
+        MACAddress destination = new MACAddress(destBytes);
+        MACAddress source = new MACAddress(srcBytes);
+        short etherType = (short)((frame[13] << 8) | (frame[12] & 0xFF));
+        byte[] payload = new byte[frame.length - 14 - 4];
+        System.arraycopy(frame, 14, payload, 0, payload.length);
+        long crc = ((long)(frame[14 + payload.length] & 0xFF)) |
+                   ((long)(frame[14 + payload.length + 1] & 0xFF) << 8) |
+                   ((long)(frame[14 + payload.length + 2] & 0xFF) << 16) |
+                   ((long)(frame[14 + payload.length + 3] & 0xFF) << 24);
+        return new EthernetFrame(destination, source, etherType, payload, crc);
     }
 
     private EthernetFrame(
@@ -58,6 +79,20 @@ public class EthernetFrame {
         return payload;
     }
 
+    public byte[] getBytes() {
+        byte[] frame = new byte[14 + payload.length + 4]; // 14 bytes for header, 4 bytes for CRC
+        System.arraycopy(destination.getBytes(), 0, frame, 0, 6);
+        System.arraycopy(source.getBytes(), 0, frame, 6, 6);
+        frame[12] = (byte)(etherType & 0xFF);
+        frame[13] = (byte)(etherType >> 8);
+        System.arraycopy(payload, 0, frame, 14, payload.length);
+        long crc = getFrameCheck();
+        frame[14 + payload.length] = (byte)(crc & 0xFF);
+        frame[14 + payload.length + 1] = (byte)(crc >> 8);
+        frame[14 + payload.length + 2] = (byte)(crc >> 16);
+        frame[14 + payload.length + 3] = (byte)(crc >> 24);
+        return frame;
+    }
     public String getPayloadAsString() {
         return new String(payload);
     }
@@ -92,6 +127,26 @@ public class EthernetFrame {
         byte[] payload, long frameCheck) {
             return new EthernetFrame(destination,source,etherType,payload,frameCheck);
     }
+    
+    @Override
+    public int hashCode() {
+        int result = destination.hashCode();
+        result = 31 * result + source.hashCode();
+        result = 31 * result + Short.hashCode(etherType);
+        result = 31 * result + Arrays.hashCode(payload);
+        result = 31 * result + Long.hashCode(frameCheck);
+        return result;
+    }
 
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        EthernetFrame that = (EthernetFrame) obj;
+        return etherType == that.etherType &&
+                frameCheck == that.frameCheck &&
+                destination.equals(that.destination) &&
+                source.equals(that.source) &&
+                Arrays.equals(payload, that.payload);
+    }
 
 }

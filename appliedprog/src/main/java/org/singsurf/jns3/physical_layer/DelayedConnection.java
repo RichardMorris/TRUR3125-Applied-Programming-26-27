@@ -1,41 +1,44 @@
 package org.singsurf.jns3.physical_layer;
 
-import org.singsurf.jns3.data_link_layer.EthernetFrame;
-import org.singsurf.jns3.data_link_layer.EthernetEndPoint;
-
 /**
  * A delayed connection between two devices.
  * Every frame is delayed by 1ms. Has no practical 
  * in a single threaded environment.
  */
-public class DelayedConnection implements EthernetConnection {
-    EthernetEndPoint dev1;
-    EthernetEndPoint dev2;
+public class DelayedConnection implements PhysicalConnection {
+    PhysicalEndPoint dev1;
+    PhysicalEndPoint dev2;
+    int delay;
 
-    public DelayedConnection(EthernetEndPoint dev1, EthernetEndPoint dev2) {
+    public DelayedConnection(PhysicalEndPoint dev1, PhysicalEndPoint dev2) {
+        this(dev1, dev2, 1);
+    }
+
+    public DelayedConnection(PhysicalEndPoint dev1, PhysicalEndPoint dev2, int delay) {
         this.dev1 = dev1;
         this.dev2 = dev2;
+        this.delay = delay;
         dev1.setConnection(this);
         dev2.setConnection(this.getReverseConnection());
     }
 
-    private DelayedConnection(EthernetEndPoint dev1, EthernetEndPoint dev2, boolean reversed) {
+    private DelayedConnection(PhysicalEndPoint dev1, PhysicalEndPoint dev2, boolean reversed) {
         this.dev1 = dev1;
         this.dev2 = dev2;
         dev1.setConnection(this);
     }
 
-    public void send(EthernetFrame frame) {
+    public void send(byte[] frame) {
         try {
-            Thread.sleep(1);
+            Thread.sleep(delay);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new RuntimeException(e);
         }
-        dev2.receiveFrame(frame);
+        dev2.receive(frame);
     }
 
-    public EthernetConnection getReverseConnection() {
+    public PhysicalConnection getReverseConnection() {
         return new DelayedConnection(dev2, dev1, true);
     }
 }

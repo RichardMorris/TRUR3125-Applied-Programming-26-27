@@ -14,7 +14,6 @@ import org.singsurf.jns3.data_link_layer.FrameHandler;
 import org.singsurf.jns3.data_link_layer.ARPController;
 import org.singsurf.jns3.data_link_layer.EthernetEndPoint;
 
-
 public class PC extends EthernetEndPoint implements MACAddressable, IPAddressable {
     List<FrameHandler> frameHandlers = new ArrayList<>();
     ARPController arpController;
