@@ -19,20 +19,26 @@ public class TestCorruptedConnection {
     CorruptedConnection cc;
     EthernetEndPoint ep2;
     Receiver receiver;
-    static class Receiver extends NamedDevice implements MACAddressable, FrameReceiver {
+    static class Receiver implements NamedDevice, MACAddressable, FrameReceiver {
         EthernetFrame lastReceivedFrame;
         MACAddress macAddress;
+        String name;
 
         public MACAddress getMACAddress() {
             return macAddress;
         }
         Receiver() {
-            super("Receiver");
+            this.name = "Receiver";
             macAddress = new DeviceFactory().createMACAddress();
         }
         public void receiveFrame(EthernetFrame frame) {
             lastReceivedFrame = frame;
         }
+
+        public String getName() {
+            return name;
+        }
+
     }
 
     @BeforeEach

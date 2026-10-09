@@ -3,12 +3,13 @@ package org.singsurf.jns3.physical_layer;
 import org.singsurf.jns3.hardware.NamedDevice;
 import org.singsurf.jns3.Jns3Logger;
 
-public abstract class PhysicalEndPoint extends NamedDevice {
+public abstract class PhysicalEndPoint implements NamedDevice {
     PhysicalConnection connection;
     boolean reversed;
+    String name;
 
     public PhysicalEndPoint(String name) {
-        super(name);
+        this.name = name;
     }
 
     /**
@@ -54,5 +55,11 @@ public abstract class PhysicalEndPoint extends NamedDevice {
      * @param frame the data being received
      */
     protected abstract void receive(byte[] frame);
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
 
 }   

@@ -54,9 +54,9 @@ public class DeviceFactory {
         MACAddress mac = createMACAddress();
         IPAddress ip = createLocalIPAddress();
         var pc = new PC(name, mac, ip);
-        pc.setFrameFactory(frameFactory);
+        // boot logic for the PC
         pc.addFrameHandler(new FrameChecker(pc));
-        pc.setArpController(new ARPController(pc));
+        pc.addFrameHandler(pc.getArpController());
         pc.addFrameHandler(new DefaultFrameHandler(pc));
         return pc;
     }
