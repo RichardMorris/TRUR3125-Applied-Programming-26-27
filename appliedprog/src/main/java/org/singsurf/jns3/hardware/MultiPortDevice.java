@@ -3,11 +3,13 @@ package org.singsurf.jns3.hardware;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.data_link_layer.EthernetEndPoint;
 
-public abstract class MultiPortDevice extends NamedDevice {
+public abstract class MultiPortDevice implements NamedDevice {
+    String name;
     int numPorts;
     Port[] ports;
+
     public MultiPortDevice(String name, int numPorts) {
-        super(name);
+        this.name = name;
         this.numPorts = numPorts;
         this.ports = new Port[numPorts];
         for (int i = 0; i < numPorts; i++) {
@@ -25,6 +27,16 @@ public abstract class MultiPortDevice extends NamedDevice {
     public EthernetEndPoint getEndPoint(int portNumber) {
         return ports[portNumber].ethernetEndPoint;
     }
-    
+
+    public String getName() {
+        return name;
+    }
+
+    public void sendFrame(int portNumber, EthernetFrame frame) {
+        if (ports[portNumber].isConnected()) {
+                    ports[portNumber].sendFrame(frame);
+        }
+    }
+
     public abstract void receiveFrame(int portNumber, EthernetFrame frame);
 }
