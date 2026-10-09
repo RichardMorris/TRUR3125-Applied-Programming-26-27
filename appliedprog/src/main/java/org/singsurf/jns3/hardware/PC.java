@@ -16,7 +16,8 @@ import org.singsurf.jns3.data_link_layer.EthernetEndPoint;
 import org.singsurf.jns3.physical_layer.PhysicalEndPoint;
 import org.singsurf.jns3.data_link_layer.FrameReceiver;
 
-public class PC extends NamedDevice implements MACAddressable, IPAddressable, FrameSender, FrameReceiver {
+public class PC implements NamedDevice, MACAddressable, IPAddressable, FrameSender, FrameReceiver {
+    String name;
     List<FrameHandler> frameHandlers = new ArrayList<>();
     ARPController arpController;
     FrameFactory frameFactory;
@@ -24,30 +25,13 @@ public class PC extends NamedDevice implements MACAddressable, IPAddressable, Fr
     IPAddress ipAddress;
     EthernetEndPoint ethernetEndPoint;
 
-    @Override
-    public MACAddress getMACAddress() {
-        return macAddress;
-    }
-
-    @Override
-    public IPAddress getIPAddress() {
-        return ipAddress;
-    }
-
-    public PhysicalEndPoint getEndPoint() {
-        return ethernetEndPoint;
-    }
-
     public PC(String name, MACAddress macAddress, IPAddress ipAddress) {
-        super(name);
+        this.name = name;
         this.macAddress = macAddress;
         this.ipAddress = ipAddress;
         this.ethernetEndPoint = new EthernetEndPoint(name, this);
-    }
-
-
-    public void addFrameHandler(FrameHandler frameHandler) {
-        frameHandlers.add(frameHandler);
+        this.frameFactory = new FrameFactory();
+        this.arpController = new ARPController(this);
     }
 
     @Override
@@ -64,15 +48,9 @@ public class PC extends NamedDevice implements MACAddressable, IPAddressable, Fr
         Jns3Logger.log(getName(), Jns3Logger.LogLevel.ERROR, "Unhandled frame: " + frame);
     }
 
-
-    public ARPController getArpController() {
-        return arpController;
+    public void addFrameHandler(FrameHandler frameHandler) {
+        frameHandlers.add(frameHandler);
     }
-
-    public void setArpController(ARPController arpController) { 
-        this.arpController = arpController;
-        frameHandlers.add(arpController);
-    }   
 
     public void sendGARPRequest() {
         arpController.sendGARPRequest();
@@ -80,14 +58,6 @@ public class PC extends NamedDevice implements MACAddressable, IPAddressable, Fr
 
     public void sendArpRequest(IPAddress targetIP) {
         arpController.sendArpRequest(targetIP);
-    }
-
-    public FrameFactory getFrameFactory() {
-        return frameFactory;
-    }
-
-    public void setFrameFactory(FrameFactory frameFactory) {
-        this.frameFactory = frameFactory;
     }
 
     public EthernetFrame createEthernetFrame(MACAddress destinationMac, String payload) {
@@ -106,4 +76,32 @@ public class PC extends NamedDevice implements MACAddressable, IPAddressable, Fr
     public String toString() {
         return "PC\t" + getName() + "\t" + getMACAddress() + "\t" + getIPAddress();
     }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+    
+    @Override
+    public MACAddress getMACAddress() {
+        return macAddress;
+    }
+
+    @Override
+    public IPAddress getIPAddress() {
+        return ipAddress;
+    }
+
+    public PhysicalEndPoint getEndPoint() {
+        return ethernetEndPoint;
+    }
+
+    public FrameFactory getFrameFactory() {
+        return frameFactory;
+    }
+
+    public ARPController getArpController() {
+        return arpController;
+    }
+
 }

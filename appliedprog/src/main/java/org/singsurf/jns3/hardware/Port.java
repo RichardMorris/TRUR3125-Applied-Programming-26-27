@@ -5,13 +5,14 @@ import org.singsurf.jns3.data_link_layer.FrameSender;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.data_link_layer.EthernetEndPoint;
 
-public class Port extends NamedDevice implements FrameReceiver, FrameSender {
+public class Port implements NamedDevice, FrameReceiver, FrameSender {
     MultiPortDevice hostDevice;
     int portNumber;
     EthernetEndPoint ethernetEndPoint;
+    String name;
 
     public Port(MultiPortDevice hostDevice, int portNumber) {
-        super(hostDevice.getName() + "::" + portNumber);
+        this.name = hostDevice.getName() + "::" + portNumber;
         this.hostDevice = hostDevice;
         this.portNumber = portNumber;
         this.ethernetEndPoint = new EthernetEndPoint(getName(), this); 
@@ -33,4 +34,9 @@ public class Port extends NamedDevice implements FrameReceiver, FrameSender {
     public void sendFrame(EthernetFrame frame) {
         ethernetEndPoint.sendFrame(frame);
     }   
+
+    @Override
+    public String getName() {
+        return name;
+    }
 }
