@@ -27,7 +27,7 @@ public class TestFrameChecker {
     }
 
     @Test
-    public void only_the_good_frames_are_received() {
+    public void only_the_good_frames_get_through() {
         Jns3Logger.clearLog();
         for(int i=1;i<=20;++i) {
             var frame = pc1.createEthernetFrame(

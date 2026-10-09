@@ -1,5 +1,5 @@
 package org.singsurf.jns3.physical_layer;
-
+import org.singsurf.jns3.hardware.NamedDevice;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
@@ -12,13 +12,14 @@ import org.singsurf.jns3.data_link_layer.EthernetEndPoint;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.data_link_layer.MACAddressable;
+import org.singsurf.jns3.data_link_layer.FrameReceiver;
 
 public class TestCorruptedConnection {
     PC pc1;
-    Receiver pc2;
     CorruptedConnection cc;
-    
-    static class Receiver extends EthernetEndPoint implements MACAddressable {
+    EthernetEndPoint ep2;
+    Receiver receiver;
+    static class Receiver extends NamedDevice implements MACAddressable, FrameReceiver {
         EthernetFrame lastReceivedFrame;
         MACAddress macAddress;
 
@@ -39,8 +40,9 @@ public class TestCorruptedConnection {
         Jns3Logger.clearLog();
         DeviceFactory deviceFactory = new DeviceFactory();
         pc1 = deviceFactory.createPC("PC1");
-        pc2 = new Receiver();
-        cc = new CorruptedConnection(pc1.getEndPoint(), pc2);
+        receiver = new Receiver();
+        ep2 = new EthernetEndPoint("EP2", receiver);
+        cc = new CorruptedConnection(pc1.getEndPoint(), ep2);
         assertEquals(Jns3Logger.getLogItems().size(), 0);
     }
 
@@ -71,7 +73,7 @@ public class TestCorruptedConnection {
     @Test
     public void test_modify_frame() {
         var frame = pc1.createEthernetFrame(
-            pc2.getMACAddress(), 
+            receiver.getMACAddress(), 
             "Hello PC2 from PC1");
         int payload_len = frame.getPayload().length;
         byte[] bytes = frame.getBytes();
@@ -107,7 +109,7 @@ public class TestCorruptedConnection {
     @Test
     public void test_corrupt_CRC() {
         var frame = pc1.createEthernetFrame(
-            pc2.getMACAddress(), 
+            receiver.getMACAddress(), 
             "Hello PC2 from PC1");
         byte[] bytes = frame.getBytes();
 
@@ -121,10 +123,10 @@ public class TestCorruptedConnection {
     public void every_10th_frame_is_corrupted() {
         for(int i=1; i<=100;++i) {
             var frame = pc1.createEthernetFrame(
-                pc2.getMACAddress(), 
+                receiver.getMACAddress(), 
                 "Hello PC2 from PC1 no " + i);
             pc1.sendFrame(frame);
-            var frame0 = pc2.lastReceivedFrame;
+            var frame0 = receiver.lastReceivedFrame;
             if(i % 10 == 0) {
                 assertNotEquals(frame, frame0);
                 assertNotEquals(frame0.getFrameCheck(), frame0.calcFrameCheck());
