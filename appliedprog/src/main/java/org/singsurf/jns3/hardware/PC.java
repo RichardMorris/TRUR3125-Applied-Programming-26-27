@@ -24,17 +24,6 @@ public class PC extends NamedDevice implements MACAddressable, IPAddressable, Fr
     IPAddress ipAddress;
     EthernetEndPoint ethernetEndPoint;
 
-    class MyEndPoint extends EthernetEndPoint {
-        MyEndPoint(String name) {
-            super(name);
-        }
-
-        @Override
-        public void receiveFrame(EthernetFrame frame) {
-            PC.this.receiveFrame(frame);
-        }
-    }
-
     @Override
     public MACAddress getMACAddress() {
         return macAddress;
@@ -53,7 +42,7 @@ public class PC extends NamedDevice implements MACAddressable, IPAddressable, Fr
         super(name);
         this.macAddress = macAddress;
         this.ipAddress = ipAddress;
-        this.ethernetEndPoint = new MyEndPoint(name);
+        this.ethernetEndPoint = new EthernetEndPoint(name, this);
     }
 
 

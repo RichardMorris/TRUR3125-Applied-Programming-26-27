@@ -1,6 +1,7 @@
 package org.singsurf.jns3.hardware;
 
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
+import org.singsurf.jns3.data_link_layer.EthernetEndPoint;
 
 public abstract class MultiPortDevice extends NamedDevice {
     int numPorts;
@@ -19,6 +20,10 @@ public abstract class MultiPortDevice extends NamedDevice {
             throw new IllegalArgumentException("Invalid port number: " + portNumber);
         }
         return ports[portNumber];
+    }
+
+    public EthernetEndPoint getEndPoint(int portNumber) {
+        return ports[portNumber].ethernetEndPoint;
     }
     
     public abstract void receiveFrame(int portNumber, EthernetFrame frame);

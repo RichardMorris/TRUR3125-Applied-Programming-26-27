@@ -1,26 +1,23 @@
 package org.singsurf.jns3.data_link_layer;
 
 import org.singsurf.jns3.physical_layer.PhysicalEndPoint;
-import org.singsurf.jns3.Jns3Logger;
 
-public abstract class EthernetEndPoint extends PhysicalEndPoint {
+public class EthernetEndPoint extends PhysicalEndPoint implements FrameSender {
+    FrameReceiver frameReceiver;
 
-    public EthernetEndPoint(String name) {
+    public EthernetEndPoint(String name, FrameReceiver frameReceiver) {
         super(name);
+        this.frameReceiver = frameReceiver;
     }
 
+    @Override
     public void sendFrame(EthernetFrame frame) {
-        if (getConnection() != null) {
-            getConnection().send(frame.getBytes());
-        } else {
-            Jns3Logger.log(getName(), Jns3Logger.LogLevel.ERROR, "No connection set");
-        }
+        send(frame.getBytes());
     }   
 
-    public void receive(byte[] frame) {
+    @Override
+    protected void receive(byte[] frame) {
         EthernetFrame ethernetFrame = EthernetFrame.parseBytes(frame);
-        receiveFrame(ethernetFrame);
+        frameReceiver.receiveFrame(ethernetFrame);
     }
-
-    public abstract void receiveFrame(EthernetFrame frame);
 }
