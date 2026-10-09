@@ -106,7 +106,7 @@ Boot logic setting all the PC components is currently provided in the `DeviceFac
 
 1. Implement some other types of connection
     * A `BrokenConnection` never transmits data.
-    * A `NosyConnection` representing a hacker intercepting bytes along the connection.
+    * A `NoseyConnection` representing a hacker intercepting bytes along the connection.
     * A `ReflectingConnection` send (some) data back to the calling device
     * An `OutOfOrderConnection` occasionally swapping the order of frames transmitted.
 Implementing classes should:
@@ -114,9 +114,5 @@ Implementing classes should:
     * Supply a constructor `public BrokenConstructor(PhysicalEndPoint ep1,PhysicalEndPoint ep2)` than calls the super class constructor `super(ep1,ep2)`.
     * Implement the `protected void send(byte[] frame, boolean reversed)` method, possibly calling
         `receive(byte[] frame, boolean reversed)` normally passing through the `reversed` parameter.
-2. (Hard) implement a `HalfDuplexConnection` that mimics problems with two-wire cables when both devices try to send data at the same time creating a collision. This may require using Threads
-allowing different part of the system to operate independently.
-
-
-
-
+2. (Hard) implement a `DelayedConnection` adding a delay to transmission. The `send` method should return before `received` is called allowing the sending device to continue operating. This will
+require using Threads allowing different part of the system to run in parallel.
