@@ -4,35 +4,20 @@ package org.singsurf.jns3.physical_layer;
  * Every 10th frame is corrupted. 
  * One bit is flipped. 
  */
-public class CorruptedConnection implements PhysicalConnection {
-    PhysicalEndPoint dev1;
-    PhysicalEndPoint dev2;
+public class CorruptedConnection extends PhysicalConnection {
     private int count = 0;
 
     public CorruptedConnection(PhysicalEndPoint dev1, PhysicalEndPoint dev2) {
-        this.dev1 = dev1;
-        this.dev2 = dev2;
-        dev1.setConnection(this);
-        dev2.setConnection(this.getReverseConnection());
+        super(dev1, dev2);
     }
 
-    private CorruptedConnection(PhysicalEndPoint dev1, PhysicalEndPoint dev2, boolean reversed) {
-        this.dev1 = dev1;
-        this.dev2 = dev2;
-        dev1.setConnection(this);
-    }
-
-    public void send(byte[] frame) {
+    public void send(byte[] frame, boolean reversed) {
         count++;
         if (count % 10 != 0) {
-            dev2.receive(frame);
+            receive(frame, reversed);
         } else {
-            dev2.receive(corrupt(frame));
+            receive(corrupt(frame), reversed);
         }
-    }
-
-    public PhysicalConnection getReverseConnection() {
-        return new CorruptedConnection(dev2, dev1, true);
     }
 
     byte modifyByte(byte b) {

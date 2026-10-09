@@ -4,32 +4,18 @@ package org.singsurf.jns3.physical_layer;
  * A lossy connection between two devices.
  * Every 10th frame is dropped.
  */
-public class LossyConnection implements PhysicalConnection {
-    PhysicalEndPoint dev1;
-    PhysicalEndPoint dev2;
+public class LossyConnection extends PhysicalConnection {
     private int count = 0;
 
     public LossyConnection(PhysicalEndPoint dev1, PhysicalEndPoint dev2) {
-        this.dev1 = dev1;
-        this.dev2 = dev2;
-        dev1.setConnection(this);
-        dev2.setConnection(this.getReverseConnection());
+        super(dev1, dev2);
     }
 
-    private LossyConnection(PhysicalEndPoint dev1, PhysicalEndPoint dev2, boolean reversed) {
-        this.dev1 = dev1;
-        this.dev2 = dev2;
-        dev1.setConnection(this);
-    }
-
-    public void send(byte[] frame) {
+    @Override
+    public void send(byte[] frame, boolean reversed) {
         count++;
         if (count % 10 != 0) {
-            dev2.receive(frame);
+            receive(frame, reversed);
         }
-    }
-
-    public PhysicalConnection getReverseConnection() {
-        return new LossyConnection(dev2, dev1, true);
     }
 }

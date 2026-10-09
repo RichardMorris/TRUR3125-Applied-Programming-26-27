@@ -1,19 +1,42 @@
 package org.singsurf.jns3.physical_layer;
 
 /**
- * Represents a physical ethernet connection between two devices.
+ * Represents a physical ethernet cable connection between two devices.
  * Frames sent by one device are received by the other.
  */
-public interface PhysicalConnection {
+public abstract class PhysicalConnection {
+    PhysicalEndPoint dev1;
+    PhysicalEndPoint dev2;
+
+    public PhysicalConnection(PhysicalEndPoint dev1, PhysicalEndPoint dev2) {
+        this.dev1 = dev1;
+        this.dev2 = dev2;
+        dev1.setConnection(this,false);
+        dev2.setConnection(this,true);
+    }
+
     /**
-     * Sends an Ethernet frame from the sender device 
+     * Sends an as set of bytes from the sender device 
      * to the other device.
-     * The second parameter represents the sender device ensures
-     * the frame is sent sent to  the correct device.
-     * It should usually be called as 
-     * {@code connection.send(frame, this);}
-     * @param frame the Ethernet frame to be sent
-     * @param sender the device sending the frame
+     * Implementing classes should call 
+     * {@code receive(frame, reversed)} with the reversed parameter unchanged.
+     * @param frame the data be sent
+     * @param reversed whether the sender is the reversed end of the connection
      */
-    void send(byte[] frame);
+    protected abstract void send(byte[] frame, boolean reversed);
+
+    /**
+     * Receives an as set of bytes and delivers it to the other device
+     * using the reversed flag to determine the sender.
+     * @param frame the data being received
+     * @param reversed whether the sender is the reversed end of the connection
+     */
+    protected void receive(byte[] frame, boolean reversed) {
+        if(reversed) {
+            dev1.receive(frame);
+        } else {
+            dev2.receive(frame);
+        }
+    }
+
 }
