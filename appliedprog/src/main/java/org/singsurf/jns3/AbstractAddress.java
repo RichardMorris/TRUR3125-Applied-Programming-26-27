@@ -9,7 +9,7 @@ import java.util.Arrays;
  */
 public abstract class AbstractAddress {
     int size;
-    final byte[] bytes;
+    protected final byte[] bytes;
 
     protected AbstractAddress(int size, byte[] bytes) {
         if(bytes.length!=size)
