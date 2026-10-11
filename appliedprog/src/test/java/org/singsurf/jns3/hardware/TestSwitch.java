@@ -1,20 +1,18 @@
 package org.singsurf.jns3.hardware;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.Jns3Logger.LogItem;
-
 import org.singsurf.jns3.physical_layer.SimpleConnection;
 
 public class TestSwitch {
@@ -57,9 +55,10 @@ public class TestSwitch {
             List<LogItem> logs = Jns3Logger.getLogItems();
             System.out.println(logs);
             assertEquals(1, logs.size());
-            assertEquals(Jns3Logger.LogLevel.RECEIVED  , logs.get(0).level);
-            assertEquals("PC2", logs.get(0).deviceName);
-            assertEquals("Hello All from PC1", logs.get(0).message);
+            assertEquals(new Jns3Logger.LogItem("PC2", 
+            		Jns3Logger.LogLevel.RECEIVED,
+            		"Hello All from PC1"), 
+            	logs.get(0));
         }
 
         @Test 
@@ -88,9 +87,10 @@ public class TestSwitch {
             logs = Jns3Logger.getLogItems();
             System.out.println(logs);
             assertEquals(1, logs.size());
-            assertEquals(Jns3Logger.LogLevel.RECEIVED  , logs.get(0).level);
-            assertEquals("PC2", logs.get(0).deviceName);
-            assertEquals("Hello PC2 from PC1", logs.get(0).message);
+            assertEquals(new Jns3Logger.LogItem("PC2", 
+            		Jns3Logger.LogLevel.RECEIVED,
+            		"Hello PC2 from PC1"), 
+            	logs.get(0));
 
             // PC2 should have PC1's MAC address in its ARP table
             Jns3Logger.clearLog();
@@ -106,9 +106,11 @@ public class TestSwitch {
             logs = Jns3Logger.getLogItems();
             System.out.println(logs);
             assertEquals(1, logs.size());
-            assertEquals(Jns3Logger.LogLevel.RECEIVED  , logs.get(0).level);
-            assertEquals("PC1", logs.get(0).deviceName);
-            assertEquals("Hello PC1 from PC2", logs.get(0).message);
+            
+            assertEquals(new Jns3Logger.LogItem("PC1", 
+            		Jns3Logger.LogLevel.RECEIVED,
+            		"Hello PC1 from PC2"), 
+            	logs.get(0));
         }
     }
 
@@ -155,15 +157,17 @@ public class TestSwitch {
             List<LogItem> logs = Jns3Logger.getLogItems();
             System.out.println(logs);
             assertEquals(2, logs.size());
-            var log0 = logs.get(0);
-            var log1 = logs.get(1);
-            assertEquals(Jns3Logger.LogLevel.RECEIVED  , log0.level);
-            assertEquals("PC2", log0.deviceName);
-            assertEquals("Hello All from PC1", log0.message);
+            
+            assertEquals(new Jns3Logger.LogItem("PC2", 
+            		Jns3Logger.LogLevel.RECEIVED,
+            		"Hello All from PC1"), 
+            	logs.get(0));
 
-            assertEquals(Jns3Logger.LogLevel.IGNORED  , log1.level);
-            assertEquals("PC3", log1.deviceName);
-            assertEquals("Hello All from PC1", log1.message);
+            assertEquals(new Jns3Logger.LogItem("PC3", 
+            		Jns3Logger.LogLevel.IGNORED,
+            		"Hello All from PC1"), 
+            	logs.get(1));
+
             }
 
         @Test 
@@ -192,12 +196,10 @@ public class TestSwitch {
             logs = Jns3Logger.getLogItems();
             System.out.println(logs);
             assertEquals(1, logs.size());
-            var log0 = logs.get(0);
-
-            assertEquals(Jns3Logger.LogLevel.RECEIVED  , log0.level);
-            assertEquals("PC2", log0.deviceName);
-            assertEquals("Hello PC2 from PC1", log0.message);
-
+            assertEquals(new Jns3Logger.LogItem("PC2", 
+            		Jns3Logger.LogLevel.RECEIVED,
+            		"Hello PC2 from PC1"), 
+            	logs.get(0));
 
             // PC2 should have PC1's MAC address in its ARP table
             Jns3Logger.clearLog();
@@ -214,14 +216,10 @@ public class TestSwitch {
             logs = Jns3Logger.getLogItems();
             System.out.println(logs);
             assertEquals(1, logs.size());
-            log0 = logs.get(0);
-
-            assertEquals(Jns3Logger.LogLevel.RECEIVED  , log0.level);
-            assertEquals("PC1", log0.deviceName);
-            assertEquals("Hello PC1 from PC2", log0.message);
-
-
-
+            assertEquals(new Jns3Logger.LogItem("PC1", 
+            		Jns3Logger.LogLevel.RECEIVED,
+            		"Hello PC1 from PC2"), 
+            	logs.get(0));
         }
 
     }

@@ -1,19 +1,18 @@
 package org.singsurf.jns3.data_link_layer;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.BeforeEach;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
-import org.singsurf.jns3.physical_layer.SimpleConnection;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.Jns3Logger.LogItem;
 import org.singsurf.jns3.hardware.DeviceFactory;
 import org.singsurf.jns3.hardware.PC;
+import org.singsurf.jns3.physical_layer.SimpleConnection;
 
 public class TestAPRInitisation {
 
@@ -41,9 +40,7 @@ public class TestAPRInitisation {
         List<LogItem> logs = Jns3Logger.getLogItems();
         System.out.println(logs);
         assertEquals(1, logs.size());
-        assertEquals(Jns3Logger.LogLevel.RECEIVED  , logs.get(0).level);
-        assertEquals("PC2", logs.get(0).deviceName);
-        assertEquals("Hello PC2 from PC1", logs.get(0).message);
+        assertEquals(new Jns3Logger.LogItem("PC2", Jns3Logger.LogLevel.RECEIVED,"Hello PC2 from PC1"), logs.get(0));
     }
 
     @Test
@@ -57,21 +54,17 @@ public class TestAPRInitisation {
         List<LogItem> logs = Jns3Logger.getLogItems();
         System.out.println(logs);
         assertEquals(4, logs.size());
-        assertEquals(Jns3Logger.LogLevel.SENT, logs.get(0).level);
-        assertEquals("PC1", logs.get(0).deviceName);
-        assertEquals("Sent GARP request frame", logs.get(0).message);   
+        assertEquals(new Jns3Logger.LogItem("PC1", 
+        		Jns3Logger.LogLevel.SENT,"Sent GARP request frame"), logs.get(0));
 
-        assertEquals(Jns3Logger.LogLevel.RECEIVED, logs.get(1).level);
-        assertEquals("PC2", logs.get(1).deviceName);
-        assertEquals("Received ARP frame", logs.get(1).message);    
+        assertEquals(new Jns3Logger.LogItem("PC2", 
+        		Jns3Logger.LogLevel.RECEIVED,"Received ARP frame"), logs.get(1));
 
-        assertEquals(Jns3Logger.LogLevel.SENT, logs.get(2).level);
-        assertEquals("PC2", logs.get(2).deviceName);
-        assertEquals("Sent ARP reply frame", logs.get(2).message);
+        assertEquals(new Jns3Logger.LogItem("PC2", 
+        		Jns3Logger.LogLevel.SENT,"Sent ARP reply frame"), logs.get(2));
 
-        assertEquals(Jns3Logger.LogLevel.RECEIVED, logs.get(3).level);
-        assertEquals("PC1", logs.get(3).deviceName);
-        assertEquals("Received ARP frame", logs.get(3).message);        
+        assertEquals(new Jns3Logger.LogItem("PC1", 
+        		Jns3Logger.LogLevel.RECEIVED,"Received ARP frame"), logs.get(3));
 
         assertTrue(arpController.getArpTable().containsKey(pc2.getIPAddress()));
         assertTrue(arpController.getReverseArpTable().containsKey(pc2.getMACAddress())); 
@@ -105,9 +98,10 @@ public class TestAPRInitisation {
         List<LogItem> logs = Jns3Logger.getLogItems();
         System.out.println(logs);   
         assertEquals(1, logs.size());
-        assertEquals(Jns3Logger.LogLevel.RECEIVED, logs.get(0).level);
-        assertEquals("PC2", logs.get(0).deviceName);
-        assertEquals("Hello "+ pc2.getIPAddress(), logs.get(0).message);
+        assertEquals(new Jns3Logger.LogItem("PC2", 
+        		Jns3Logger.LogLevel.RECEIVED,
+        		"Hello "+ pc2.getIPAddress()), 
+        	logs.get(0));
     }
 
     @Test
@@ -131,9 +125,10 @@ public class TestAPRInitisation {
         List<LogItem> logs = Jns3Logger.getLogItems();
         System.out.println(logs);   
         assertEquals(1, logs.size());
-        assertEquals(Jns3Logger.LogLevel.RECEIVED, logs.get(0).level);
-        assertEquals("PC1", logs.get(0).deviceName);
-        assertEquals("Hello "+ pc1.getIPAddress(), logs.get(0).message);
+        assertEquals(new Jns3Logger.LogItem("PC1", 
+        		Jns3Logger.LogLevel.RECEIVED,
+        		"Hello "+ pc1.getIPAddress()), 
+        	logs.get(0));
     }
 
 }

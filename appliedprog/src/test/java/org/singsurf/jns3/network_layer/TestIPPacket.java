@@ -1,9 +1,13 @@
 package org.singsurf.jns3.network_layer;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
+import org.singsurf.jns3.Jns3Logger;
+import org.singsurf.jns3.hardware.DeviceFactory;
+import org.singsurf.jns3.physical_layer.SimpleConnection;
 public class TestIPPacket {
 
     @Test
@@ -96,5 +100,41 @@ public class TestIPPacket {
         assertArrayEquals(packet.getData(), reconstructed.getData());
         assertTrue(reconstructed.isValidChecksum());
     }
+    
+
+    @Test
+    public void transmit_single_packet() {
+        Jns3Logger.clearLog();
+        DeviceFactory deviceFactory = new DeviceFactory();
+        var pc1 = deviceFactory.createPC("PC1");
+        var pc2 = deviceFactory.createPC("PC2");
+        pc2.clearFrameHandlers();
+        pc2.addFrameHandler((frame) -> {
+			var packet = IPPacket.fromBytes(frame.getPayload());
+			assertEquals(packet.getSourceAddress(), pc1.getIPAddress());
+			assertEquals(packet.getDestinationAddress(), pc2.getIPAddress());
+			assertArrayEquals(packet.getData(), new byte[] {1, 2, 3, 4});
+			assertTrue(packet.isValidChecksum());
+			Jns3Logger.log(pc2.getName(), Jns3Logger.LogLevel.RECEIVED,"Received packet");
+			return true;
+		});
+        var connection = new SimpleConnection(pc1.getEndPoint(), pc2.getEndPoint());
+        assertNotNull(connection);
+        assertEquals(Jns3Logger.getLogItems().size(), 0);
+        
+        byte[] data = new byte[] {1, 2, 3, 4};
+        IPPacket packet = new IPPacket(IPPacket.TCP, 64,
+            pc1.getIPAddress(), pc2.getIPAddress(), data);
+        var frame = pc1.createEthernetFrame(pc2.getMACAddress(), 
+        		packet.toBytes());
+        pc1.sendFrame(frame);
+        assertEquals(Jns3Logger.getLogItems().size(), 1);
+        var logItem = Jns3Logger.getLogItems().get(0);
+        assertEquals(new Jns3Logger.LogItem(pc2.getName(), Jns3Logger.LogLevel.RECEIVED, "Received packet"), logItem);
+//        assertEquals(logItem.message, "Received packet");
+//        assertEquals(logItem.level, Jns3Logger.LogLevel.RECEIVED);
+//        assertEquals(logItem.deviceName, pc2.getName());        
+    }
+
 
 }

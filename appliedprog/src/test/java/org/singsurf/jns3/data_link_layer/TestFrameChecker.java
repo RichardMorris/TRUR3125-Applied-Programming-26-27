@@ -5,11 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
+import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.hardware.DeviceFactory;
 import org.singsurf.jns3.hardware.PC;
 import org.singsurf.jns3.physical_layer.CorruptedConnection;
-import org.singsurf.jns3.Jns3Logger;
 
 public class TestFrameChecker {
         private PC pc1;
@@ -41,14 +40,15 @@ public class TestFrameChecker {
         assertEquals(20, logs.size());
         for(int i=1;i<=20;++i) {
             if(i%10!=0) {
-                assertEquals(Jns3Logger.LogLevel.RECEIVED  , logs.get(i-1).level);
-                assertEquals("PC2", logs.get(i-1).deviceName);
-                assertEquals("Hello PC2 from PC1 "+i, logs.get(i-1).message);
+                assertEquals(new Jns3Logger.LogItem("PC2", 
+                		Jns3Logger.LogLevel.RECEIVED,
+                		"Hello PC2 from PC1 "+i), 
+                	logs.get(i-1));
             } else {
-                assertEquals(Jns3Logger.LogLevel.ERROR  , logs.get(i-1).level);
-                assertEquals("PC2", logs.get(i-1).deviceName);
-                assertEquals("Detected invalid CRC in frame", 
-                    logs.get(i-1).message);
+                assertEquals(new Jns3Logger.LogItem("PC2", 
+                		Jns3Logger.LogLevel.ERROR,
+                		"Detected invalid CRC in frame"), 
+                	logs.get(i-1));
             }
         }
 

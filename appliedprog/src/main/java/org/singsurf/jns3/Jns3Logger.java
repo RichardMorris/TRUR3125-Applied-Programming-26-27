@@ -7,17 +7,7 @@ public class Jns3Logger {
         IGNORED, // Frame was ignored 
         ERROR, SENT
     }
-    public static class LogItem {
-        public String deviceName;
-        public LogLevel level;
-        public String message;
-
-        public LogItem(String deviceName, LogLevel level, String message) {
-            this.deviceName = deviceName;
-            this.level = level;
-            this.message = message;
-        }
-
+    public static record LogItem(String deviceName, LogLevel level, String message) {
         @Override
         public String toString() {
             return "[" + level + "] " + deviceName + ": " + message;

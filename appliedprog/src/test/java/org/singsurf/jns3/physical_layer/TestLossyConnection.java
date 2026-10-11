@@ -5,13 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.hardware.DeviceFactory;
 import org.singsurf.jns3.hardware.PC;
 
 public class TestLossyConnection {
-        private PC pc1;
+    private PC pc1;
     private PC pc2;
 
     @BeforeEach

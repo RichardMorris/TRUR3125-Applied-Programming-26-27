@@ -1,11 +1,11 @@
 package org.singsurf.jns3.hardware;
 
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.List;
 
+import org.junit.jupiter.api.Test;
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.Jns3Logger.LogItem;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
@@ -34,9 +34,11 @@ public class TestPC {
         pc.receiveFrame(frame);
         List<LogItem> logs = Jns3Logger.getLogItems();
         assertEquals(1, logs.size());
-        assertEquals("TestPC", logs.get(0).deviceName);
-        assertEquals(Jns3Logger.LogLevel.RECEIVED, logs.get(0).level);
-        assertEquals("Hello, PC!", logs.get(0).message);
+        
+        assertEquals(new Jns3Logger.LogItem("TestPC", 
+        		Jns3Logger.LogLevel.RECEIVED,
+        		"Hello, PC!"), 
+        	logs.get(0));
     }
 
     @Test 
@@ -53,9 +55,11 @@ public class TestPC {
         List<LogItem> logs = Jns3Logger.getLogItems();
         System.out.println(logs);
         assertEquals(1, logs.size());
-        assertEquals("TestPC", logs.get(0).deviceName);
-        assertEquals(Jns3Logger.LogLevel.IGNORED, logs.get(0).level);
-        assertEquals("Hello, PC!", logs.get(0).message);
+        
+        assertEquals(new Jns3Logger.LogItem("TestPC", 
+        		Jns3Logger.LogLevel.IGNORED,
+        		"Hello, PC!"), 
+        	logs.get(0));
     }
 
 }
