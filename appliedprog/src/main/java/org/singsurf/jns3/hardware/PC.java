@@ -1,20 +1,20 @@
 package org.singsurf.jns3.hardware;
-import org.singsurf.jns3.data_link_layer.FrameSender;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.singsurf.jns3.Jns3Logger;
+import org.singsurf.jns3.data_link_layer.ARPController;
+import org.singsurf.jns3.data_link_layer.EthernetEndPoint;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
+import org.singsurf.jns3.data_link_layer.FrameFactory;
+import org.singsurf.jns3.data_link_layer.FrameHandler;
+import org.singsurf.jns3.data_link_layer.FrameReceiver;
+import org.singsurf.jns3.data_link_layer.FrameSender;
 import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.data_link_layer.MACAddressable;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPAddressable;
-import org.singsurf.jns3.data_link_layer.FrameFactory;
-import org.singsurf.jns3.data_link_layer.FrameHandler;
-import org.singsurf.jns3.data_link_layer.ARPController;
-import org.singsurf.jns3.data_link_layer.EthernetEndPoint;
 import org.singsurf.jns3.physical_layer.PhysicalEndPoint;
-import org.singsurf.jns3.data_link_layer.FrameReceiver;
 
 public class PC implements NamedDevice, MACAddressable, IPAddressable, FrameSender, FrameReceiver {
     String name;
@@ -103,5 +103,9 @@ public class PC implements NamedDevice, MACAddressable, IPAddressable, FrameSend
     public ARPController getArpController() {
         return arpController;
     }
+
+	public void clearFrameHandlers() {
+		frameHandlers.clear();		
+	}
 
 }
