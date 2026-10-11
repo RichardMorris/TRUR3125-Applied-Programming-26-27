@@ -65,4 +65,31 @@ public class TestIPPacket {
         short checksum = packet.calculateHeaderChecksum().getValue(); 
         assertEquals((short) 0xFFFF, checksum);
     }
+
+    @Test
+    public void to_bytes_and_back_again() {
+        IPAddress source = new IPAddress(new byte[] {127, 0, 0, 1});
+        IPAddress destination = new IPAddress(new int[] {192, 168, 0, 1});
+        byte[] data = new byte[] {1, 2, 3, 4};
+        IPPacket packet = new IPPacket(IPPacket.TCP, 64,
+            source, destination, data);
+
+        byte[] bytes = packet.toBytes();
+
+        IPPacket reconstructed =IPPacket.fromBytes(bytes);
+ 
+        assertEquals(packet.getVersion(), reconstructed.getVersion());
+        assertEquals(packet.getHeaderLength(), reconstructed.getHeaderLength());
+        assertEquals(packet.getTypeOfService(), reconstructed.getTypeOfService());
+        assertEquals(packet.getTotalLength(), reconstructed.getTotalLength());
+        assertEquals(packet.getIdentification(), reconstructed.getIdentification());
+        assertEquals(packet.getDontFragment(), reconstructed.getDontFragment());
+        assertEquals(packet.getMoreFragments(), reconstructed.getMoreFragments());
+        assertEquals(packet.getFragmentOffset(), reconstructed.getFragmentOffset());
+        assertEquals(packet.getChecksum(), reconstructed.getChecksum());
+        assertEquals(packet.getSourceAddress(), reconstructed.getSourceAddress());
+        assertEquals(packet.getDestinationAddress(), reconstructed.getDestinationAddress());
+        assertArrayEquals(packet.getData(), reconstructed.getData());
+    }
+
 }

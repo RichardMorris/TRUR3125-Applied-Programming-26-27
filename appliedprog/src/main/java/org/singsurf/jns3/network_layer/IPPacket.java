@@ -1,12 +1,15 @@
 package org.singsurf.jns3.network_layer;
 
+import java.util.Arrays;
+
+
 public class IPPacket {
     public static final byte IMCP = 0x01;
     public static final byte TCP = 0x06;
     public static final byte UDP = 0x11;
 
-    final byte version = 0x4; // 4 bits
-    final byte headerLength = 0x5; // 4 bits
+    byte version = 0x4; // 4 bits
+    byte headerLength = 0x5; // 4 bits
     byte typeOfService = 0x00; // unused here
     short totalLength; // calculates automatically based on header and data length
     short identification=0x0000; // used for fragments
@@ -26,12 +29,42 @@ public class IPPacket {
         public FragmentInfo(int identification, boolean dontFragment, boolean moreFragments, int fragmentOffset) {
             this((short) identification, dontFragment, moreFragments, (short) fragmentOffset);
         }
+
+        public FragmentInfo(short identification, short flagsAndFragmentOffset) {
+            this(
+                (short) identification, // identification
+                (flagsAndFragmentOffset & 0x02) != 0, // dontFragment
+                (flagsAndFragmentOffset & 0x04) != 0, // moreFragments
+                (short) ((flagsAndFragmentOffset >> 3) & 0x1FFF) // fragmentOffset
+            );
+        }
     }
 
-    public IPPacket(int protocol,
-        int timeToLive, 
+        //     return new IPPacket(
+        //     versionAndHeaderLength, typeOfService, totalLength, 
+        //     flagsAndFragmentOffset,
+        //     timeToLive, protocol, headerChecksum,
+        //     sourceAddress, destinationAddress, data
+        // );
+
+    private IPPacket(
+        byte versionAndHeaderLength, byte typeOfService, short totalLength, 
+        FragmentInfo flagsAndFragmentOffset, 
+        byte timeToLive, byte protocol, short headerChecksum, 
         IPAddress sourceAddress, IPAddress destinationAddress, byte[] data) {
-        this((byte)protocol, new FragmentInfo(), (byte) timeToLive, sourceAddress, destinationAddress, data);
+        this.version = (byte) ((versionAndHeaderLength >> 4) & 0x0F);
+        this.headerLength = (byte) (versionAndHeaderLength & 0x0F);
+        this.typeOfService = typeOfService;
+        this.totalLength = totalLength;
+        this.flags = (byte) ((flagsAndFragmentOffset.dontFragment() ? 0x02 : 0x00) | (flagsAndFragmentOffset.moreFragments() ? 0x04 : 0x00));
+        this.fragmentOffset = flagsAndFragmentOffset.fragmentOffset();
+        this.identification = flagsAndFragmentOffset.identification();
+        this.timeToLive = timeToLive;
+        this.protocol = protocol;
+        this.headerChecksum = headerChecksum;
+        this.sourceAddress = sourceAddress;
+        this.destinationAddress = destinationAddress;
+        this.data = data;
     }
 
     public IPPacket(byte protocol, FragmentInfo frag,
@@ -50,6 +83,12 @@ public class IPPacket {
         this.sourceAddress = sourceAddress;
         this.destinationAddress = destinationAddress;
         this.headerChecksum = calculateHeaderChecksum().getComplement().getValue();
+    }
+
+    public IPPacket(int protocol,
+        int timeToLive, 
+        IPAddress sourceAddress, IPAddress destinationAddress, byte[] data) {
+        this((byte)protocol, new FragmentInfo(), (byte) timeToLive, sourceAddress, destinationAddress, data);
     }
 
     public byte getVersion() {
@@ -122,5 +161,46 @@ public class IPPacket {
         sum = sum.add(headerChecksum);
 
         return sum;
+    }
+
+    byte[] toBytes() {
+        byte[] bytes = new byte[totalLength];
+        bytes[0] = getVersionAndHeaderLength();
+        bytes[1] = typeOfService;
+        bytes[2] = (byte) (totalLength >> 8);
+        bytes[3] = (byte) (totalLength & 0xFF);
+        bytes[4] = (byte) (identification >> 8);
+        bytes[5] = (byte) (identification & 0xFF);
+        bytes[6] = (byte) (getFlagsAndFragmentOffset() >> 8);
+        bytes[7] = (byte) (getFlagsAndFragmentOffset() & 0xFF);
+        bytes[8] = timeToLive;
+        bytes[9] = protocol;
+        bytes[10] = (byte) (headerChecksum >> 8);
+        bytes[11] = (byte) (headerChecksum & 0xFF);
+        System.arraycopy(sourceAddress.getBytes(), 0, bytes, 12, 4);
+        System.arraycopy(destinationAddress.getBytes(), 0, bytes, 16, 4);
+        System.arraycopy(data, 0, bytes, 20, data.length);
+        return bytes;
+    }
+
+    static IPPacket fromBytes(byte[] bytes) {
+        byte versionAndHeaderLength = bytes[0];
+        byte typeOfService = bytes[1];
+        short totalLength = (short) ((bytes[2] << 8) | (bytes[3] & 0xFF));
+        short identification = (short) ((bytes[4] << 8) | (bytes[5] & 0xFF));
+        short flagsAndFragmentOffset = (short) ((bytes[6] << 8) | (bytes[7] & 0xFF));
+        var fragmentInfo = new FragmentInfo(identification, flagsAndFragmentOffset);
+        byte timeToLive = bytes[8];
+        byte protocol = bytes[9];
+        short headerChecksum = (short) ((bytes[10] << 8) | (bytes[11] & 0xFF));
+        IPAddress sourceAddress = new IPAddress(Arrays.copyOfRange(bytes, 12, 16));
+        IPAddress destinationAddress = new IPAddress(Arrays.copyOfRange(bytes, 16, 20));
+        byte[] data = Arrays.copyOfRange(bytes, 20, bytes.length);
+
+        return new IPPacket(
+            versionAndHeaderLength, typeOfService, totalLength, fragmentInfo,
+            timeToLive, protocol, headerChecksum,
+            sourceAddress, destinationAddress, data
+        );
     }
 }

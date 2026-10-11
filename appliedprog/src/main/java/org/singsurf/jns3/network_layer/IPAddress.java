@@ -51,14 +51,4 @@ public class IPAddress extends AbstractAddress {
             .toList());
     }
 
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null || getClass() != obj.getClass()) return false;
-        IPAddress other = (IPAddress) obj;
-        return Arrays.equals(getBytes(), other.getBytes());
-    }
-    
-    public int hashCode() {
-        return Arrays.hashCode(getBytes());
-    }
 }
