@@ -1,7 +1,9 @@
 package org.singsurf.jns3.network_layer;
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.Test;
 public class TestIPPacket {
 
     @Test
@@ -25,7 +27,7 @@ public class TestIPPacket {
         assertEquals((short) 0xB9B5, packet.getChecksum());
         short checksum = packet.calculateHeaderChecksum().getValue(); 
         assertEquals((short) 0xFFFF, checksum);
-
+        assertTrue(packet.isValidChecksum());
     }
 
     @Test
@@ -49,6 +51,7 @@ public class TestIPPacket {
         assertArrayEquals(data, packet.getData());
         short checksum = packet.calculateHeaderChecksum().getValue(); 
         assertEquals((short) 0xFFFF, checksum);
+        assertTrue(packet.isValidChecksum());
     }
 
 
@@ -64,6 +67,7 @@ public class TestIPPacket {
         assertEquals((short) 0xB9B5, headerChecksum);
         short checksum = packet.calculateHeaderChecksum().getValue(); 
         assertEquals((short) 0xFFFF, checksum);
+        assertTrue(packet.isValidChecksum());
     }
 
     @Test
@@ -90,6 +94,7 @@ public class TestIPPacket {
         assertEquals(packet.getSourceAddress(), reconstructed.getSourceAddress());
         assertEquals(packet.getDestinationAddress(), reconstructed.getDestinationAddress());
         assertArrayEquals(packet.getData(), reconstructed.getData());
+        assertTrue(reconstructed.isValidChecksum());
     }
 
 }

@@ -162,6 +162,10 @@ public class IPPacket {
 
         return sum;
     }
+    
+    public boolean isValidChecksum() {
+		return calculateHeaderChecksum().equals(OnesComplementNumber.MINUS_ZERO);
+	}
 
     byte[] toBytes() {
         byte[] bytes = new byte[totalLength];

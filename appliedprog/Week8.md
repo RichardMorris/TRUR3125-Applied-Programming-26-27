@@ -1,13 +1,14 @@
-# Week 8 TCP
+# Week 8 IPPackets
 
 ## User Story
 
-As a network engineer I want to have a reliable method of transmitting data to take account
-of lost or corrupted frames so end users have confidence that their messages will get through.
+As a network engineer I want to transmit large message broken into frames 
+over networks that do not always preserve frame order so that end users can 
+send and receive large documents reliably.
 
 ## Specification
 
-1. A `IPPacket` contains and `IPheader` and a data section. The `IPheader` has the format
+1. An `IPPacket` contains header and a data section. The header has the format
     * `version` 4 bits with the value 0x4 for IPv4
     * `headerLength` 4 bits with value 0x5 when the options are omitted.
     * `typeOfService` 8 bits, 1 byte comprising, value 0x00
@@ -26,5 +27,17 @@ of lost or corrupted frames so end users have confidence that their messages wil
     * `sourceAddress` 4 byte, source IP address
     * `destinationAddress` 4 byte, destination IP address
     * `options` not used 0 bytes.
-
-See [Civo ip-packet](https://www.civo.com/learn/ip-packets)
+2. `OnesComplementNumber` manages calculation:
+    * It can be constructed from a short, or two bytes.
+    * It has an `OnesComplementNumber add(OnesComplementNumber)` to add two numbers according to the rules of one's complement numbers.
+    * It has `add(short)` and `add(byte,byte)` methods.
+    * Other method 
+3. The one's complement sum of two short values is calculated using, with a wrap-around carry
+```
+int sum = (a & 0xFFFF) + (b & 0xFFFF);
+short result = (short) ((sum & 0xFFFF) + (sum >> 16));
+```
+4. `IPPacket` has a method `OnesComplementNumber calculateHeaderChecksum()` than calculates the one complement of the ones complement sum of all fields in the headers, including the `headerChecksum` field.
+    * On construction `headerChecksum` is first set to zero, then `calculateHeaderChecksum` is called saving the result in the `headerChecksum` field. 
+    * To check the header of a packet after transmission `calculateHeaderChecksum` is calculated. This should be `OxFFFF`, negative zero in one's complement representation. 
+    * A method `boolean isValidChecksum()` can be used the check the checksum. 

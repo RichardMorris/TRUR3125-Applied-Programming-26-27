@@ -10,7 +10,8 @@ package org.singsurf.jns3.network_layer;
  * OnesComplement
  */
 public class OnesComplementNumber {
-    short num;
+    public static final Object MINUS_ZERO = new OnesComplementNumber((short) 0xFFFF);
+	short num;
 
     public OnesComplementNumber(short num) {
         this.num = num;
