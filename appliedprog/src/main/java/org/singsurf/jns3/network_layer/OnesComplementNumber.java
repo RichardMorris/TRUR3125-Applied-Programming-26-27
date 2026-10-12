@@ -1,5 +1,5 @@
 package org.singsurf.jns3.network_layer;
-
+import java.util.Iterator;
 /**
  * See https://www.rfc-editor.org/rfc/rfc1071.txt for the RFC
  * Implementation of 1's complement arithmetic in Java.
@@ -9,8 +9,10 @@ package org.singsurf.jns3.network_layer;
  * 
  * OnesComplement
  */
-public class OnesComplementNumber {
-    public static final Object MINUS_ZERO = new OnesComplementNumber((short) 0xFFFF);
+public class OnesComplementNumber implements Comparable<OnesComplementNumber> {
+    public static final OnesComplementNumber MINUS_ZERO = new OnesComplementNumber((short) 0xFFFF);
+    public static final OnesComplementNumber MIN_VALUE = new OnesComplementNumber((short) 0x8000);
+    public static final OnesComplementNumber MAX_VALUE = new OnesComplementNumber((short) 0x7FFF);
 	short num;
 
     public OnesComplementNumber(short num) {
@@ -44,6 +46,10 @@ public class OnesComplementNumber {
     public short abs() {
         return (short) (num >= 0 ? num : ~num);
     }
+    
+    public boolean isPositive() {
+		return num >= 0;
+	}
 
     public OnesComplementNumber add(OnesComplementNumber b) {
         return add(b.getValue());
@@ -76,6 +82,54 @@ public class OnesComplementNumber {
     
     public int hashCode() {
         return Short.hashCode(num);
-    }   
+    }
+    
+    static OnesComplementNumber fromTwosComplement(int value) {
+    	if(value>=0) {	
+    		return new OnesComplementNumber((short) value);
+    	} else {
+    		return new OnesComplementNumber((short) ~(-value));
+		}
+	}
 
+    static Iterator<OnesComplementNumber> iterator(int start, int stop, int stepsize) {
+        
+        return new Iterator<OnesComplementNumber>() {
+        	OnesComplementNumber stepSize = fromTwosComplement(stepsize);
+        	OnesComplementNumber currentValue = fromTwosComplement(start);
+        	OnesComplementNumber stopValue = fromTwosComplement(stop);
+        	boolean hasNext = true;
+            @Override
+            public boolean hasNext() {
+                return hasNext;
+            }
+
+            @Override
+            public OnesComplementNumber next() {
+            	var res = currentValue;
+        		var nextValue = currentValue.add(stepSize);
+        		if(nextValue.compareTo(stopValue) > 0) {
+					hasNext = false;
+				}        		
+        		currentValue = nextValue;
+        		return res;
+            }
+        };
+    }
+
+	@Override
+	public int compareTo(OnesComplementNumber that) {
+		if(num>=0) {
+			if(that.num>=0) {
+				return Short.compare(num, that.num);
+			} else {
+				return 1;
+			}
+		} else {
+			if(that.num>=0) {
+				return -1;
+			}
+			return Short.compare(that.num,num);
+		}
+	}
 }
