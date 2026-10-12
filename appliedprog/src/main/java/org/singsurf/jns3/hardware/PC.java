@@ -14,6 +14,9 @@ import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.data_link_layer.MACAddressable;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPAddressable;
+import org.singsurf.jns3.network_layer.IPPacket;
+import org.singsurf.jns3.network_layer.PacketFragmentor;
+import org.singsurf.jns3.network_layer.PacketReceiver;
 import org.singsurf.jns3.physical_layer.PhysicalEndPoint;
 
 public class PC implements NamedDevice, MACAddressable, IPAddressable, FrameSender, FrameReceiver {
@@ -24,6 +27,8 @@ public class PC implements NamedDevice, MACAddressable, IPAddressable, FrameSend
     MACAddress macAddress;
     IPAddress ipAddress;
     EthernetEndPoint ethernetEndPoint;
+    PacketReceiver packetReceiver;
+    PacketFragmentor packetFragmentor;
 
     public PC(String name, MACAddress macAddress, IPAddress ipAddress) {
         this.name = name;
@@ -32,6 +37,7 @@ public class PC implements NamedDevice, MACAddressable, IPAddressable, FrameSend
         this.ethernetEndPoint = new EthernetEndPoint(name, this);
         this.frameFactory = new FrameFactory();
         this.arpController = new ARPController(this);
+        this.packetFragmentor = new PacketFragmentor(140);
     }
 
     @Override
@@ -106,6 +112,41 @@ public class PC implements NamedDevice, MACAddressable, IPAddressable, FrameSend
 
 	public void clearFrameHandlers() {
 		frameHandlers.clear();		
+	}
+
+	public void setPacketReceiver(PacketReceiver packetReceiver) {
+		this.packetReceiver = packetReceiver;
+	}
+	
+	public PacketReceiver getPacketReceiver() {
+		return packetReceiver;
+	}
+
+	public PacketFragmentor getPacketFragmentor() {
+		return packetFragmentor;
+	}
+	
+	public IPPacket createIPPacket(int protocol,IPAddress dest, byte[] data) {
+        IPPacket packet = new IPPacket(protocol, 64,
+                getIPAddress(), dest, data);
+		return packet;
+	}
+
+	public IPPacket createIPPacket(int protocol,IPAddress dest, String data) {
+        IPPacket packet = new IPPacket(protocol, 64,
+                getIPAddress(), dest, data.getBytes());
+		return packet;
+	}
+
+	public void sendIPPacket(IPPacket packet) {
+		var destMac = arpController.getArpTable().get(packet.getDestinationAddress());
+		List<IPPacket> packets = packetFragmentor.getFragments(packet);
+		for(IPPacket p : packets) {
+			EthernetFrame frame = createEthernetFrame(
+					destMac, p.toBytes());
+			sendFrame(frame);
+		}
+		
 	}
 
 }

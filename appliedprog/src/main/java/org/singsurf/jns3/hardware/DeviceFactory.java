@@ -7,6 +7,8 @@ import org.singsurf.jns3.data_link_layer.DefaultFrameHandler;
 import org.singsurf.jns3.data_link_layer.FrameChecker;
 import org.singsurf.jns3.data_link_layer.FrameFactory;
 import org.singsurf.jns3.data_link_layer.MACAddress;
+import org.singsurf.jns3.network_layer.DefaultPacketReceiver;
+import org.singsurf.jns3.network_layer.FragmentCombiner;
 import org.singsurf.jns3.network_layer.IPAddress;
 
 public class DeviceFactory {
@@ -54,8 +56,10 @@ public class DeviceFactory {
         IPAddress ip = createLocalIPAddress();
         var pc = new PC(name, mac, ip);
         // boot logic for the PC
+        pc.setPacketReceiver(new DefaultPacketReceiver(pc.getName()));
         pc.addFrameHandler(new FrameChecker(pc));
         pc.addFrameHandler(pc.getArpController());
+        pc.addFrameHandler(new FragmentCombiner(pc, pc.getPacketReceiver()));
         pc.addFrameHandler(new DefaultFrameHandler(pc));
         return pc;
     }
