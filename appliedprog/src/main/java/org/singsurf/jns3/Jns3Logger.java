@@ -27,5 +27,14 @@ public class Jns3Logger {
     static public void clearLog() {
         logItems.clear();
     }
+
+	public static boolean isErrorFree() {
+		for(LogItem item : logItems) {
+			if(item.level == LogLevel.ERROR) {
+				return false;
+			}
+		}
+		return true;
+	}
     
 }
