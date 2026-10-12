@@ -36,5 +36,13 @@ public class Jns3Logger {
 		}
 		return true;
 	}
+
+	public static String asString() {
+		StringBuilder sb = new StringBuilder();
+		for(LogItem item : logItems) {
+			sb.append(item.toString()).append("\n");
+		}	
+		return sb.toString();
+	}
     
 }
