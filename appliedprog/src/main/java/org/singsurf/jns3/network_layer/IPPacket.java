@@ -112,11 +112,11 @@ public class IPPacket {
     public short getIdentification() {
         return identification;
     }
-    public boolean getDontFragment() {
+    public boolean isDontFragment() {
         return (flags & 0x02) != 0;
     }
 
-    public boolean getMoreFragments() {
+    public boolean isMoreFragments() {
         return (flags & 0x04) != 0;
     }  
 
@@ -207,4 +207,22 @@ public class IPPacket {
             sourceAddress, destinationAddress, data
         );
     }
+
+	public IPPacket createFragment(int offset, int dataSize, boolean moreFrag, int id) {
+	    var frag = new FragmentInfo((short) id, false, moreFrag, (short) offset);
+	    byte[] dataSection = Arrays.copyOfRange(data, 8*offset, 8*offset + dataSize);
+	    return new IPPacket(protocol, frag, timeToLive, sourceAddress, destinationAddress, dataSection);
+	}
+
+	public int getDataLength() {
+		return data.length;
+	}
+
+	public byte getProtocol() {
+		return protocol;
+	}
+
+	public byte getTimeToLive() {
+		return timeToLive;
+	}
 }

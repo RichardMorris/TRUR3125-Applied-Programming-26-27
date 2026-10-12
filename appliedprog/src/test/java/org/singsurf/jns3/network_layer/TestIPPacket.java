@@ -21,8 +21,8 @@ public class TestIPPacket {
         assertEquals(5, packet.getHeaderLength());
         assertEquals((byte) 0x00, packet.getTypeOfService());
         assertEquals((short) 0, packet.getIdentification());
-        assertEquals(true, packet.getDontFragment());
-        assertEquals(false, packet.getMoreFragments());
+        assertEquals(true, packet.isDontFragment());
+        assertEquals(false, packet.isMoreFragments());
         assertEquals((short) 0, packet.getFragmentOffset());
         assertEquals((short) 20 + data.length, packet.getTotalLength());
         assertEquals(source, packet.getSourceAddress());
@@ -46,8 +46,8 @@ public class TestIPPacket {
         assertEquals(5, packet.getHeaderLength());
         assertEquals((byte) 0x00, packet.getTypeOfService());
         assertEquals((short) 3, packet.getIdentification());
-        assertEquals(false, packet.getDontFragment());
-        assertEquals(true, packet.getMoreFragments());
+        assertEquals(false, packet.isDontFragment());
+        assertEquals(true, packet.isMoreFragments());
         assertEquals((short) 13, packet.getFragmentOffset());
         assertEquals((short) 20 + data.length, packet.getTotalLength());
         assertEquals(source, packet.getSourceAddress());
@@ -91,8 +91,8 @@ public class TestIPPacket {
         assertEquals(packet.getTypeOfService(), reconstructed.getTypeOfService());
         assertEquals(packet.getTotalLength(), reconstructed.getTotalLength());
         assertEquals(packet.getIdentification(), reconstructed.getIdentification());
-        assertEquals(packet.getDontFragment(), reconstructed.getDontFragment());
-        assertEquals(packet.getMoreFragments(), reconstructed.getMoreFragments());
+        assertEquals(packet.isDontFragment(), reconstructed.isDontFragment());
+        assertEquals(packet.isMoreFragments(), reconstructed.isMoreFragments());
         assertEquals(packet.getFragmentOffset(), reconstructed.getFragmentOffset());
         assertEquals(packet.getChecksum(), reconstructed.getChecksum());
         assertEquals(packet.getSourceAddress(), reconstructed.getSourceAddress());
