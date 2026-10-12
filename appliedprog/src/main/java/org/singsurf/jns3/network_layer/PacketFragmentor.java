@@ -6,7 +6,7 @@ public class PacketFragmentor {
     final int dataSize; // the size of the data portion of each fragment
     final int offsetIncrement; // how much the offset should increase for each fragment
     
-    int indetificationCounter = 0; // to generate unique identification for each packet
+    int identificationCounter = 0; // to generate unique identification for each packet
     
     public PacketFragmentor(int maxLength) {
         this.maxLength = maxLength;
@@ -22,16 +22,16 @@ public class PacketFragmentor {
             fragments.add(packet);
             return fragments;
         }
-        ++indetificationCounter;
+        ++identificationCounter;
         int offset = 0;
         int packetDataLength = packet.getData().length;
         while(packetDataLength - 8 * offset > dataSize) { 
-            IPPacket fragment = packet.createFragment(offset, dataSize, true,indetificationCounter);
+            IPPacket fragment = packet.createFragment(offset, dataSize, true,identificationCounter);
             fragments.add(fragment);
             offset += offsetIncrement;
         }
         if(packetDataLength - 8 * offset > 0) { 
-            IPPacket fragment = packet.createFragment(offset, packetDataLength - 8 * offset, false,indetificationCounter);
+            IPPacket fragment = packet.createFragment(offset, packetDataLength - 8 * offset, false,identificationCounter);
             fragments.add(fragment);
             offset += offsetIncrement;
         }

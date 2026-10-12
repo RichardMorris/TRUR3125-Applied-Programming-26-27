@@ -12,6 +12,8 @@ import org.singsurf.jns3.hardware.PC;
 public class FragmentCombiner implements FrameHandler {
 	PC pc;
 	PacketReceiver receiver;
+	Map<IPAddress, Map<Integer, FragmentCollector>> collectorsBySource = new HashMap<>();
+
 	
 	public FragmentCombiner(PC pc, PacketReceiver receiver) {
 		this.pc = pc;
@@ -110,8 +112,6 @@ public class FragmentCombiner implements FrameHandler {
 		}
 	}
 	
-	Map<Integer, FragmentCollector> collectors = new HashMap<>();
-	Map<IPAddress, Map<Integer, FragmentCollector>> collectorsBySource = new HashMap<>();
 
 	@Override
 	public boolean handleFrame(EthernetFrame frame) {

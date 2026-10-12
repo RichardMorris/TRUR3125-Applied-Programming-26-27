@@ -167,7 +167,7 @@ public class IPPacket {
 		return calculateHeaderChecksum().equals(OnesComplementNumber.MINUS_ZERO);
 	}
 
-    byte[] toBytes() {
+    public byte[] toBytes() {
         byte[] bytes = new byte[totalLength];
         bytes[0] = getVersionAndHeaderLength();
         bytes[1] = typeOfService;
@@ -224,5 +224,9 @@ public class IPPacket {
 
 	public byte getTimeToLive() {
 		return timeToLive;
+	}
+
+	public String getDataAsString() {
+		return new String(data);
 	}
 }
