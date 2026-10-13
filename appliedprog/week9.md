@@ -41,4 +41,9 @@ Several option were considered:
 1. Each PC runs in a single thread, EndPoints can be used to manage communication between threads.
 2. Connections could use threads internally   
 
-There are many options for threaded communication in Java, you can create a simple `Runnable` object with a `run()` method, and then create a `Thread` with the Runnable as  arguemnen. Finally call the `Thread` `start()` method. 
+There are many options for threaded communication in Java, you can create a simple `Runnable` object with a `run()` method, and then create a `Thread` with the Runnable as  arguement. Finally call the `Thread` `start()` method to start the thread running. Better is to use a ExecutorService that is better at reusing threads. Communication between threads can be used by setting atomic variables or through syncronous methods. Mechanism like the Publisher Subscriber, ConcurentHashMap allow better communication and syncronisation of threads.
+
+Threads have some dificulties. They are an advanced topic beyond the scope of this module. They make it hard to test applications as you can't rely the order that each thread perform its operations.
+
+Using our global wall clock, eliminates some of these problems, it does not require advanced topics, allows good determanistic control while testing, is sufficient for our simulation needs. It also allows an example of the Singleton pattern [singleton](https://refactoring.guru/design-patterns/singleton)
+"a creational design pattern that lets you ensure that a class has only one instance, while providing a global access point to this instance."
