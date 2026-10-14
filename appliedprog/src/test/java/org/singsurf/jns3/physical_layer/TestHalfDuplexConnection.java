@@ -1,0 +1,148 @@
+package org.singsurf.jns3.physical_layer;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.singsurf.jns3.Jns3Logger.LogLevel.RECEIVED;
+import static org.singsurf.jns3.Jns3Logger.LogLevel.SENT;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.singsurf.jns3.Jns3Logger;
+import org.singsurf.jns3.Jns3Logger.LogItem;
+import org.singsurf.jns3.data_link_layer.NICCard;
+import org.singsurf.jns3.hardware.DeviceFactory;
+import org.singsurf.jns3.hardware.GlobalWallClock;
+import org.singsurf.jns3.hardware.PC;
+
+public class TestHalfDuplexConnection {
+    private PC pc1;
+    private PC pc2;
+
+    @BeforeEach
+    public void setup() {
+        Jns3Logger.clearLog();
+        DeviceFactory deviceFactory = new DeviceFactory();
+        pc1 = deviceFactory.createPC("PC1");
+        pc1.setEndPoint(new NICCard("PC1-EP",pc1));
+        pc2 = deviceFactory.createPC("PC2");
+        pc2.setEndPoint(new NICCard("PC2-EP",pc2));
+        var connection = new HalfDuplexConnection(pc1.getEndPoint(), pc2.getEndPoint(),
+        		ThrottledConnection.CAT3);
+        
+        assertNotNull(connection);
+        assertEquals(Jns3Logger.getLogItems().size(), 0);
+    }
+
+    @Test
+    public void only_transmit_frames_in_one_direction_per_tick() {
+        Jns3Logger.clearLog();
+        var frame1 = pc1.createEthernetFrame(pc2.getMACAddress(), "Forward 1");
+        pc1.sendFrame(frame1);
+     
+        var frame2 = pc2.createEthernetFrame(pc1.getMACAddress(), "Reversed 1");  
+        pc2.sendFrame(frame2);
+        
+        var logs = Jns3Logger.getLogItems();
+        
+        assertEquals(1, logs.size());
+        assertEquals(new LogItem("PC2",RECEIVED,"Forward 1"), logs.get(0));
+        assertTrue(Jns3Logger.isErrorFree());
+        
+        Jns3Logger.clearLog();
+        GlobalWallClock.getInstance().advanceTime();
+        assertEquals(1, logs.size()); 
+        assertEquals(new LogItem("PC1",RECEIVED,"Reversed 1"), logs.get(0));
+        assertTrue(Jns3Logger.isErrorFree());
+
+        Jns3Logger.clearLog();
+        GlobalWallClock.getInstance().advanceTime();
+        assertEquals(0, logs.size()); 
+
+        Jns3Logger.clearLog();
+        var frame3 = pc2.createEthernetFrame(pc1.getMACAddress(), "Reversed 2"); 
+        var frame4 = pc1.createEthernetFrame(pc2.getMACAddress(), "Forward 2");
+        var frame5 = pc2.createEthernetFrame(pc1.getMACAddress(), "Reversed 3");
+        
+        pc2.sendFrame(frame3);
+        pc1.sendFrame(frame4);
+        pc2.sendFrame(frame5);
+        
+        assertEquals(2, logs.size()); 
+        assertEquals(new LogItem("PC1",RECEIVED,"Reversed 2"), logs.get(0));
+        assertEquals(new LogItem("PC1",RECEIVED,"Reversed 3"), logs.get(1));
+        assertTrue(Jns3Logger.isErrorFree());
+        
+        Jns3Logger.clearLog();
+        GlobalWallClock.getInstance().advanceTime();
+        assertEquals(1, logs.size()); 
+        assertEquals(new LogItem("PC2",RECEIVED,"Forward 2"), logs.get(0));
+        assertTrue(Jns3Logger.isErrorFree());
+    }
+
+    @Test
+    public void two_ticks_for_arp_negotiation() {
+        Jns3Logger.clearLog();
+        pc1.sendGARPRequest();
+
+        assertEquals(3, Jns3Logger.size());
+        var logs = Jns3Logger.getLogItems();
+        assertEquals(new LogItem("PC1",SENT,"Sent GARP request frame"), logs.get(0));
+        assertEquals(new LogItem("PC2",RECEIVED,"Received ARP frame"), logs.get(1));
+        assertEquals(new LogItem("PC2",SENT,"Sent ARP reply frame"), logs.get(2));
+        
+        Jns3Logger.clearLog();
+        GlobalWallClock.getInstance().advanceTime();
+        assertEquals(1, Jns3Logger.size());
+        logs = Jns3Logger.getLogItems();
+        assertEquals(new LogItem("PC1",RECEIVED,"Received ARP frame"), logs.get(0));
+        
+        Jns3Logger.clearLog();
+        GlobalWallClock.getInstance().advanceTime();
+        var mac1 = pc2.lookup(pc1.getIPAddress());
+        var mac2 = pc1.lookup(pc2.getIPAddress());
+        
+        var frame1 = pc1.createEthernetFrame(mac2, "Forward 1");
+        pc1.sendFrame(frame1);
+     
+        var frame2 = pc2.createEthernetFrame(mac1, "Reversed 1");  
+        pc2.sendFrame(frame2);
+        
+        logs = Jns3Logger.getLogItems();
+        
+        assertEquals(1, logs.size());
+        assertEquals(new LogItem("PC2",RECEIVED,"Forward 1"), logs.get(0));
+        assertTrue(Jns3Logger.isErrorFree());
+        
+        Jns3Logger.clearLog();
+        GlobalWallClock.getInstance().advanceTime();
+        assertEquals(1, logs.size()); 
+        assertEquals(new LogItem("PC1",RECEIVED,"Reversed 1"), logs.get(0));
+        assertTrue(Jns3Logger.isErrorFree());
+
+        Jns3Logger.clearLog();
+        GlobalWallClock.getInstance().advanceTime();
+        assertEquals(0, logs.size()); 
+
+        Jns3Logger.clearLog();
+        var frame3 = pc2.createEthernetFrame(mac1, "Reversed 2"); 
+        var frame4 = pc1.createEthernetFrame(mac2, "Forward 2");
+        var frame5 = pc2.createEthernetFrame(mac1, "Reversed 3");
+        
+        pc2.sendFrame(frame3);
+        pc1.sendFrame(frame4);
+        pc2.sendFrame(frame5);
+        
+        assertEquals(2, logs.size()); 
+        assertEquals(new LogItem("PC1",RECEIVED,"Reversed 2"), logs.get(0));
+        assertEquals(new LogItem("PC1",RECEIVED,"Reversed 3"), logs.get(1));
+        assertTrue(Jns3Logger.isErrorFree());
+        
+        Jns3Logger.clearLog();
+        GlobalWallClock.getInstance().advanceTime();
+        assertEquals(1, logs.size()); 
+        assertEquals(new LogItem("PC2",RECEIVED,"Forward 2"), logs.get(0));
+        assertTrue(Jns3Logger.isErrorFree());
+    }
+
+}
