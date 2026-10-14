@@ -26,7 +26,7 @@ public class PC implements NamedDevice, MACAddressable, IPAddressable, FrameSend
     FrameFactory frameFactory;
     MACAddress macAddress;
     IPAddress ipAddress;
-    EthernetEndPoint ethernetEndPoint;
+    FrameSender ethernetEndPoint;
     PacketReceiver packetReceiver;
     PacketFragmentor packetFragmentor;
 
@@ -99,8 +99,12 @@ public class PC implements NamedDevice, MACAddressable, IPAddressable, FrameSend
     }
 
     public PhysicalEndPoint getEndPoint() {
-        return ethernetEndPoint;
+        return (PhysicalEndPoint) ethernetEndPoint;
     }
+    
+    public void setEndPoint(FrameSender endPoint) {
+		this.ethernetEndPoint = endPoint;
+	}
 
     public FrameFactory getFrameFactory() {
         return frameFactory;
