@@ -1,4 +1,4 @@
-# Cables, Throttling and NIC cards
+# Cables, Throttling and NIC cards - State Machines
 
 ## User Story
 
@@ -48,13 +48,15 @@ but not in as direct a fashion. Other factors like length and quality of cable a
 Indeed, the whole physical_layer package is looking like an essential part of our test rig.
 
 The `NICCard` mimic real network interface controllers that perform buffering on its
-input and output. 
+input and output.
 
 The `HalfDuplexConnection` mimics two-wire cables that can only transmit data in one direction at a time. Cat5 cables have two twisted pair one for sending and one of receiving, so is a Full Duplex connection that can have packets going in both directions at the same time. It is include primarily as an example of the [state](https://refactoring.guru/design-patterns/state) design pattern:
 > " a behavioural design pattern that lets an object alter its behaviour when its internal state changes. It appears as if the object changed its class."
 It has three states IDLE, FORWARD and REVERSED and the behaviour of the `blocked(boolean)` method changes according to the sate.
 
-`ThrottledConnection` is als an example of the state patten, it has two state: blocked and unblocked.
+`ThrottledConnection` is als an example of the state patten, it has two state: blocked and unblocked, it could also be considered as an n-state machine. We will look at more complex state machine when we look at the Border Gateway Protocol.
+
+State machines are useful for many task, such as parsing a text file like the VRML 3D object format [VRML parser](https://github.com/RichardMorris/SingSurf4/blob/main/src/org/singsurf/singsurf/asurf/Vrml2Obj.java) that has states depending on which part of the file is being read: vertices, normals and faces.
 
 ## Challenges
 
