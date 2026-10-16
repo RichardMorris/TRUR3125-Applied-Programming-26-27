@@ -229,4 +229,8 @@ public class IPPacket {
 	public String getDataAsString() {
 		return new String(data);
 	}
+
+	public void decrementTTL() {
+		--timeToLive;
+	}
 }
