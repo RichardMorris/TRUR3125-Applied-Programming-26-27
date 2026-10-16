@@ -287,7 +287,7 @@ class TestPacketCombiner {
 		// Act
 		var packet = pc2.createIPPacket(IPPacket.TCP,pc.getIPAddress(), 
 				new byte[] {1,2,3,4,5,6,7,8,9,10});
-		pc2.sendIPPacket(packet);
+		pc2.sendPacket(packet);
 		// Assert
         assertEquals(1, receiver.size());
         var receivedPacket = receiver.get(0);
@@ -323,7 +323,7 @@ class TestPacketCombiner {
 				IPPacket.TCP,
 				pc.getIPAddress(), 
 				dataString);
-		pc2.sendIPPacket(packet);
+		pc2.sendPacket(packet);
 		
 		// Assert
         assertEquals(1, receiver.size());

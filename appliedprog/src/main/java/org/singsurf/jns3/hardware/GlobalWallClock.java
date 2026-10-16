@@ -68,5 +68,9 @@ public class GlobalWallClock {
 		return instance;
 	}
 
+	public static int getTime() {
+		return getInstance().getTickCount();
+	}
+
 }
 

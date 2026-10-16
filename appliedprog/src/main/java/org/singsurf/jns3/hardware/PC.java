@@ -17,9 +17,11 @@ import org.singsurf.jns3.network_layer.IPAddressable;
 import org.singsurf.jns3.network_layer.IPPacket;
 import org.singsurf.jns3.network_layer.PacketFragmentor;
 import org.singsurf.jns3.network_layer.PacketReceiver;
+import org.singsurf.jns3.network_layer.PacketSender;
 import org.singsurf.jns3.physical_layer.PhysicalEndPoint;
 
-public class PC implements NamedDevice, MACAddressable, IPAddressable, FrameSender, FrameReceiver {
+public class PC implements NamedDevice, MACAddressable, IPAddressable, 
+	FrameSender, FrameReceiver, PacketSender {
     String name;
     List<FrameHandler> frameHandlers = new ArrayList<>();
     ARPController arpController;
@@ -142,7 +144,7 @@ public class PC implements NamedDevice, MACAddressable, IPAddressable, FrameSend
 		return packet;
 	}
 
-	public void sendIPPacket(IPPacket packet) {
+	public void sendPacket(IPPacket packet) {
 		var destMac = arpController.getArpTable().get(packet.getDestinationAddress());
 		List<IPPacket> packets = packetFragmentor.getFragments(packet);
 		for(IPPacket p : packets) {
@@ -152,5 +154,10 @@ public class PC implements NamedDevice, MACAddressable, IPAddressable, FrameSend
 		}
 		
 	}
+
+	public void display(String string) {
+		System.out.println(string);
+	}
+
 
 }
