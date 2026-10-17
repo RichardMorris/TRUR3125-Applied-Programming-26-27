@@ -9,7 +9,6 @@ import org.singsurf.jns3.network_layer.IPAddress;
 
 public class ARPController implements FrameHandler {
     FrameFactory frameFactory;
-    public static short ARP_ETHER_TYPE = 0x0806; // EtherType for ARP
     Map<IPAddress, MACAddress> arpTable = new HashMap<>();
     Map<MACAddress, IPAddress> reverseArpTable = new HashMap<>();
 
@@ -22,7 +21,7 @@ public class ARPController implements FrameHandler {
     
     @Override
     public boolean handleFrame(EthernetFrame frame) {
-        if(frame.getEtherType() != ARP_ETHER_TYPE) return false;
+        if(frame.getEtherType() != ARPMessage.ARP_ETHER_TYPE) return false;
 
         if(frame.getDestination().equals(MACAddress.BROADCAST_MAC)
             || frame.getDestination().equals(device.getMACAddress())) {
@@ -44,7 +43,7 @@ public class ARPController implements FrameHandler {
                     var replyFrame = frameFactory.createEthernetFrame(
                         arpMessage.getSenderMac(), 
                         device.getMACAddress(), 
-                        ARP_ETHER_TYPE,
+                        ARPMessage.ARP_ETHER_TYPE,
                         reply.toBytes());
                 Jns3Logger.log(device.getName(), Jns3Logger.LogLevel.SENT,  "Sent ARP reply frame");
                     device.sendFrame(replyFrame);
@@ -65,7 +64,7 @@ public class ARPController implements FrameHandler {
         var garpFrame = frameFactory.createEthernetFrame(
             MACAddress.BROADCAST_MAC,
             device.getMACAddress(),
-            ARP_ETHER_TYPE,
+            ARPMessage.ARP_ETHER_TYPE,
             garpMessage.toBytes());
         Jns3Logger.log(device.getName(), Jns3Logger.LogLevel.SENT,  "Sent GARP request frame");
         device.sendFrame(garpFrame);
@@ -81,7 +80,7 @@ public class ARPController implements FrameHandler {
         var requestFrame = frameFactory.createEthernetFrame(
             MACAddress.BROADCAST_MAC,
             device.getMACAddress(),
-            ARP_ETHER_TYPE,
+            ARPMessage.ARP_ETHER_TYPE,
             request.toBytes());
         Jns3Logger.log(device.getName(), Jns3Logger.LogLevel.SENT,  "Sent ARP Probe request frame");
         device.sendFrame(requestFrame);

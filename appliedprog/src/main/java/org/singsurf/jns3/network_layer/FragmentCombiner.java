@@ -119,7 +119,7 @@ public class FragmentCombiner implements FrameHandler {
 		if(payload.length == 0) {
 			return false;
 		}
-		if(payload[0]  != (byte) 0x45) {
+		if(payload[0]  != IPPacket.IPV4_ID) {
 			return false;
 		}
 		if(payload.length < 20) {

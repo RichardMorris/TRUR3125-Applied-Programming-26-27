@@ -7,6 +7,7 @@ public class IPPacket {
     public static final byte IMCP = 0x01;
     public static final byte TCP = 0x06;
     public static final byte UDP = 0x11;
+	public static final int IPV4_ID = 0x45;
 
     byte version = 0x4; // 4 bits
     byte headerLength = 0x5; // 4 bits
@@ -186,8 +187,17 @@ public class IPPacket {
         System.arraycopy(data, 0, bytes, 20, data.length);
         return bytes;
     }
+    
+    public static boolean isIPPacket(byte[] bytes) {
+		if (bytes.length < 20) {
+			return false;
+		}
+		byte versionAndHeaderLength = bytes[0];
+		byte version = (byte) ((versionAndHeaderLength >> 4) & 0x0F);
+		return version == 4;
+	}
 
-    static IPPacket fromBytes(byte[] bytes) {
+    public static IPPacket fromBytes(byte[] bytes) {
         byte versionAndHeaderLength = bytes[0];
         byte typeOfService = bytes[1];
         short totalLength = (short) ((bytes[2] << 8) | (bytes[3] & 0xFF));
@@ -232,5 +242,15 @@ public class IPPacket {
 
 	public void decrementTTL() {
 		--timeToLive;
+	}
+	
+	@Override
+	public String toString() {
+		return String.format("IPPacket[ver=%d,hlen=%d,tos=%d,len=%d,id=%d,flags=0x%02X,offset=%d,ttl=%d,proto=%d,checksum=0x%04X,src=%s,dst=%s,dataLen=%d]",
+				version, headerLength, typeOfService, totalLength,
+				identification, flags, fragmentOffset,
+				timeToLive, protocol, headerChecksum & 0xFFFF,
+				sourceAddress.toString(), destinationAddress.toString(),
+				data.length);
 	}
 }

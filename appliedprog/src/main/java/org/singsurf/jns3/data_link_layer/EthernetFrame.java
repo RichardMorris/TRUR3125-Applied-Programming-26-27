@@ -20,7 +20,7 @@ public class EthernetFrame {
         this.etherType = etherType;
         this.payload = payload;
         this.frameCheck = calcFrameCheck();
-        if(etherType == ARPController.ARP_ETHER_TYPE)  
+        if(etherType == ARPMessage.ARP_ETHER_TYPE)  
             return; // Skip further checks for ARP frames
 
         if(etherType <= 0 || etherType > 1500) {

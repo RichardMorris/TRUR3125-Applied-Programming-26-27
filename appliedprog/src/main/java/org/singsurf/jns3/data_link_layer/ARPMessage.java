@@ -8,6 +8,7 @@ public class ARPMessage {
     private MACAddress targetMac;
     private IPAddress senderIp;
     private IPAddress targetIp;
+	public static short ARP_ETHER_TYPE = 0x0806; // EtherType for ARP
     static private MACAddress zeroMac = new MACAddress(new byte[6]);
 
     public ARPMessage(boolean isRequest, MACAddress senderMac, IPAddress senderIp, MACAddress targetMac, IPAddress targetIp) {
@@ -62,6 +63,10 @@ public class ARPMessage {
         return res;
     }
 
+    public static boolean isARPMessage(EthernetFrame frame) {
+		return frame.getEtherType() == ARP_ETHER_TYPE;
+	}
+    
     static ARPMessage fromFrame(EthernetFrame frame) {
         byte[] data = frame.getPayload();
         boolean isRequest = data[6] == 0x00 && data[7] == 0x01;

@@ -280,6 +280,7 @@ class TestPacketCombiner {
 		// Arrange
 		PC pc2 = deviceFactory.createPC("Sender PC");
 		pc.clearFrameHandlers();
+		pc.addFrameHandler(pc.getArpController());
 		pc.addFrameHandler(combiner);
 		var connection = new SimpleConnection(pc.getEndPoint(), pc2.getEndPoint());
 		assertNotNull(connection);

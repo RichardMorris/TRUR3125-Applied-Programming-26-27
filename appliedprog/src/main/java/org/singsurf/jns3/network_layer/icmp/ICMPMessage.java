@@ -4,6 +4,9 @@ import org.singsurf.jns3.network_layer.IPPacket;
 import org.singsurf.jns3.network_layer.OnesComplementNumber;
 
 public class ICMPMessage {
+	static final byte PING_REQUEST_TYPE = 0x08;
+	static final byte PING_REPLY_TYPE = 0x00;
+
 	byte type;
 	byte code;
 	short checksum;
@@ -114,4 +117,22 @@ public class ICMPMessage {
 		return bytes;
 	}
 	
+	@Override
+	public String toString() {
+		return String.format("ICMP[%d, %d, 0x%08X, %d]", 
+				type & 0xFF, code & 0xFF, restOfHeader, data != null ? data.length : 0);
+	}
+
+	public static boolean isICMPMessage(IPPacket packet) {
+		return packet.getProtocol() == 1;
+	}
+
+	public boolean isPingRequest() {
+		return type == PING_REQUEST_TYPE;
+	}
+
+	public boolean isPingReply() {
+		return type == PING_REPLY_TYPE;
+	}
+
 }
