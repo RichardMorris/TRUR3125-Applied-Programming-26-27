@@ -33,7 +33,7 @@ public class PingRequestHandler implements ICMPMessageHandler {
 			Jns3Logger.logRec(name, 
 					"Received ping request from " + sourceAddress 
 					+ " " + message.toString()
-					+ " TTL: " + packet.getTimeToLive() + " ms");
+					+ " TTL: " + packet.getTimeToLive() + " ticks");
 
 			// Create an ICMP Echo Reply message
 			ICMPMessage replyMessage = new PingReply(rest);

@@ -2,6 +2,7 @@ package org.singsurf.jns3.network_layer.icmp;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,7 +24,7 @@ class TestICMPHandler {
 	void can_log_an_imcp_message() {
 		PC pc = deviceFactory.createPC("PC1");
 
-		var packetLogger = new DefaultPacketReceiver("PacketLogger",Jns3Logger.LogLevel.ERROR);
+		var packetLogger = new DefaultPacketReceiver("PacketLogger");
 		var icmpHandler = new ICMPPacketReceiver(pc.getName(), packetLogger);
 
 		icmpHandler.addHandler(new ICMPPacketLogger("ICMPLogger"));
@@ -45,6 +46,7 @@ class TestICMPHandler {
 		icmpHandler.receivePacket(tcpPacket);
 		assertEquals(1, Jns3Logger.size());
 		assertEquals("PacketLogger", Jns3Logger.getItem(0).deviceName());
+		assertTrue(Jns3Logger.isErrorFree());
 	}
 
 	@Test
@@ -53,7 +55,7 @@ class TestICMPHandler {
 
 		// set packet handlers using chain of responsibility pattern
 		// ICMPPacketReceiver will handle ICMP packets and pass others to packetLogger
-		var packetLogger = new DefaultPacketReceiver("PacketLogger",Jns3Logger.LogLevel.ERROR);
+		var packetLogger = new DefaultPacketReceiver("PacketLogger");
 		var icmpHandler = new ICMPPacketReceiver(pc.getName(), packetLogger);
 
 		icmpHandler.addHandler(new ICMPPacketLogger("ICMPLogger"));
@@ -89,6 +91,7 @@ class TestICMPHandler {
 		// assert
 		assertEquals(1, Jns3Logger.size());
 		assertEquals("PacketLogger", Jns3Logger.getItem(0).deviceName());
+		assertTrue(Jns3Logger.isErrorFree());
 	}
 	
 	@Test
@@ -131,9 +134,16 @@ class TestICMPHandler {
 		pingcont.sendPingRequest(pc2.getIPAddress(), 64);
 
 		System.out.println(Jns3Logger.asString());
-//		assertEquals(2, Jns3Logger.size());
-//		assertEquals("ICMPLogger", Jns3Logger.getItem(0).deviceName());
-//		assertEquals("ICMPLogger", Jns3Logger.getItem(1).deviceName());
+		assertEquals(2, Jns3Logger.size());
+		var item0 = Jns3Logger.getItem(0);
+		var item1 = Jns3Logger.getItem(1);
+		assertEquals("PC2", item0.deviceName());
+		assertEquals(Jns3Logger.LogLevel.RECEIVED, item0.level());
+		assertTrue(item0.message().startsWith("Received ping request from "+pc1.getIPAddress()));
+		assertEquals("PC1", item1.deviceName());
+		assertEquals(Jns3Logger.LogLevel.RECEIVED, item1.level());
+		assertTrue(item1.message().startsWith("Received ping reply from "+pc2.getIPAddress()));
+		assertTrue(Jns3Logger.isErrorFree());
 	}
 
 }

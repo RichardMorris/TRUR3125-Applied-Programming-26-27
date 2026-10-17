@@ -73,7 +73,7 @@ public class PingController implements PacketSender, ICMPMessageHandler{
 						"Received ping reply from " + sourceAddress 
 						+ " " + message.toString()
 						+ " RTT: " + rtt + " ticks");
-				pc.display("Received ping reply from " + sourceAddress + " with sequence number " + sequenceNumber + ". RTT: " + rtt + " ms");
+				pc.display("Received ping reply from " + sourceAddress + " with sequence number " + sequenceNumber + ". RTT: " + rtt + " ticks");
 
 				pingRequests.remove(sequenceNumber); // Remove the entry after processing
 				completed.add(new PingReplyRecord(sourceAddress, message, packet.getTimeToLive())); // Store the received ping reply
