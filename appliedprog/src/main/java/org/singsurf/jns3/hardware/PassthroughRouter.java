@@ -10,7 +10,6 @@ import org.singsurf.jns3.data_link_layer.FrameFactory;
 import org.singsurf.jns3.data_link_layer.FrameHandler;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPPacket;
-import org.singsurf.jns3.network_layer.icmp.ICMPErrorMessage;
 import org.singsurf.jns3.network_layer.icmp.ICMPMessage;
 
 /**
@@ -47,9 +46,9 @@ public class PassthroughRouter extends MultiPortDevice {
 				return;
 			}				
 			if(ICMPMessage.isICMPMessage(packet)) {
-				var icmp = ICMPMessage.fromPacket(packet);
+				var icmp = ICMPMessage.createErrorFromPacket(packet);
 				if(icmp.isPingRequest()) {
-					var errorMsg = ICMPErrorMessage.createTTLExceeded(packet);
+					var errorMsg = ICMPMessage.createTTLExceeded(packet);
 					var errorPacket = new IPPacket(
 						IPPacket.IMCP, 64,
 						address, packet.getSourceAddress(), 

@@ -53,27 +53,6 @@ public class ICMPMessage {
 		return sum;
 	}
 
-	public static ICMPMessage fromPacket(IPPacket packet) {
-		if(packet.getProtocol() != 1 ) {
-			throw new IllegalArgumentException("Not an ICMP packet");
-		}
-		var data = packet.getData();
-		if(data.length < 8) {
-			return ICMPErrorMessage.tooShort(packet);
-		}
-		byte type = data[0];
-		byte code = data[1];
-		short checksum = (short) ((data[2] & 0xFF) | ((data[3] & 0xFF) << 8) );
-		short restLow = (short) ((data[4] & 0xFF) | ((data[5] & 0xFF) << 8));
-		short restHigh = (short) ((data[6] & 0xFF) | ((data[7] & 0xFF) << 8));
-		byte[] icmpData = new byte[data.length - 8];
-		System.arraycopy(data, 8, icmpData, 0, icmpData.length);
-		var res = new ICMPMessage(type, code, checksum, restLow, restHigh, icmpData);
-		if(!res.calculateChecksum().equals(OnesComplementNumber.MINUS_ZERO)) {
-			return ICMPErrorMessage.badChecksum(packet);
-		}
-		return res;
-	}
 
 	public byte getType() {
 		return type;
@@ -99,6 +78,15 @@ public class ICMPMessage {
 		return (short) ((restOfHeader >> 16) & 0xFFFF);
 	}
 	
+	public short getIdentifier() {
+		return getRestLow();
+	}
+
+	public short getSequenceNumber() {
+		return getRestHigh();
+	}
+
+	
 	public byte[] getData() {
 		return data;
 	}
@@ -123,9 +111,6 @@ public class ICMPMessage {
 				type & 0xFF, code & 0xFF, restOfHeader, data != null ? data.length : 0);
 	}
 
-	public static boolean isICMPMessage(IPPacket packet) {
-		return packet.getProtocol() == 1;
-	}
 
 	public boolean isPingRequest() {
 		return type == PING_REQUEST_TYPE;
@@ -139,6 +124,10 @@ public class ICMPMessage {
 		return type == 11 && code == 0;
 	}
 
+	public static boolean isICMPMessage(IPPacket packet) {
+		return packet.getProtocol() == 1;
+	}
+
 	public static ICMPMessage createPingRequest(short id, short cd) {
 		return new ICMPMessage(PING_REQUEST_TYPE, (byte) 0, id, cd);
 	}
@@ -147,12 +136,52 @@ public class ICMPMessage {
 		return new ICMPMessage(PING_REPLY_TYPE, (byte) 0, (short) id,  (short) cd);
 	}
 
-	public short getIdentifier() {
-		return getRestLow();
+	public static ICMPMessage createErrorFromPacket(IPPacket packet) {
+		if(packet.getProtocol() != 1 ) {
+			throw new IllegalArgumentException("Not an ICMP packet");
+		}
+		var data = packet.getData();
+		if(data.length < 8) {
+			return ICMPMessage.createTooShortError(packet);
+		}
+		byte type = data[0];
+		byte code = data[1];
+		short checksum = (short) ((data[2] & 0xFF) | ((data[3] & 0xFF) << 8) );
+		short restLow = (short) ((data[4] & 0xFF) | ((data[5] & 0xFF) << 8));
+		short restHigh = (short) ((data[6] & 0xFF) | ((data[7] & 0xFF) << 8));
+		byte[] icmpData = new byte[data.length - 8];
+		System.arraycopy(data, 8, icmpData, 0, icmpData.length);
+		var res = new ICMPMessage(type, code, checksum, restLow, restHigh, icmpData);
+		if(!res.calculateChecksum().equals(OnesComplementNumber.MINUS_ZERO)) {
+			return ICMPMessage.createBadChecksumError(packet);
+		}
+		return res;
 	}
 
-	public short getSequenceNumber() {
-		return getRestHigh();
+
+	public static ICMPMessage createTTLExceeded(IPPacket packet) {
+		return createMessage((byte) 11, (byte) 0, packet);
+	}
+
+	public static ICMPMessage createBadChecksumError(IPPacket packet) {
+		return new ICMPMessage((byte) 12, (byte) 2, 0, packet.getData());
+	}
+
+	public static ICMPMessage createTooShortError(IPPacket packet) {
+		return new ICMPMessage((byte) 12, (byte) 2, 0, new byte[0]);
+	}
+
+	public static ICMPMessage createMessage(byte type, byte code, IPPacket packet) {
+		var data = packet.getData();
+		if (data.length < 8) {
+		}
+		short restLow = (short) ((data[4] & 0xFF) | ((data[5] & 0xFF) << 8));
+		short restHigh = (short) ((data[6] & 0xFF) | ((data[7] & 0xFF) << 8));
+		byte[] newData = new byte[data.length - 8];
+		System.arraycopy(data, 8, newData, 0, newData.length);
+		return new ICMPMessage(
+				type, code, ((restHigh & 0xFFFF) << 16) | (restLow & 0xFFFF), 
+				newData);
 	}
 
 }
