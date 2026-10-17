@@ -8,7 +8,7 @@ public class ICMPErrorMessage extends ICMPMessage {
 		super(type, code, rest, data);
 	}
 
-	public ICMPErrorMessage createMessage(byte type, IPPacket packet) {
+	public static ICMPErrorMessage createMessage(byte type, byte code, IPPacket packet) {
 		var data = packet.getData();
 		if (data.length < 8) {
 		}
@@ -17,7 +17,7 @@ public class ICMPErrorMessage extends ICMPMessage {
 		byte[] newData = new byte[data.length - 8];
 		System.arraycopy(data, 8, newData, 0, newData.length);
 		return new ICMPErrorMessage(
-				type, (byte) 0, ((restHigh & 0xFFFF) << 16) | (restLow & 0xFFFF), 
+				type, code, ((restHigh & 0xFFFF) << 16) | (restLow & 0xFFFF), 
 				newData);
 	}
 
@@ -28,4 +28,9 @@ public class ICMPErrorMessage extends ICMPMessage {
 	public static ICMPMessage badChecksum(IPPacket packet) {
 		return new ICMPErrorMessage((byte) 12, (byte) 2, 0, packet.getData());
 	}
+
+	public static ICMPErrorMessage createTTLExceeded(IPPacket packet) {
+		return createMessage((byte) 11, (byte) 0, packet);
+	}
+
 }

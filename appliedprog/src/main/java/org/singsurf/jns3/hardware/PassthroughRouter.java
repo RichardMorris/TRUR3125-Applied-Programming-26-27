@@ -49,13 +49,14 @@ public class PassthroughRouter extends MultiPortDevice {
 			if(ICMPMessage.isICMPMessage(packet)) {
 				var icmp = ICMPMessage.fromPacket(packet);
 				if(icmp.isPingRequest()) {
-					var errorMsg = ICMPErrorMessage.fromPacket(packet);
+					var errorMsg = ICMPErrorMessage.createTTLExceeded(packet);
 					var errorPacket = new IPPacket(
 						IPPacket.IMCP, 64,
 						address, packet.getSourceAddress(), 
 						errorMsg.getBytes());
 					var errorFrame = frameFactory.createEthernetFrame(
 						frame.getSource(),frame.getDestination(), errorPacket.toBytes());
+					Jns3Logger.logInfo(name, "Expired ping "+icmp);
 
 					sendFrame(portNumber,errorFrame);
 					return;
