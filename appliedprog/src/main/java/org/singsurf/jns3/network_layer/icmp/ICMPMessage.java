@@ -135,4 +135,8 @@ public class ICMPMessage {
 		return type == PING_REPLY_TYPE;
 	}
 
+	public boolean isTTLError() {
+		return type == 11 && code == 0;
+	}
+
 }

@@ -224,7 +224,64 @@ class TestPassthroughRouter {
 		// tick
 		GlobalWallClock.advanceBy(1);
 		System.out.println(Jns3Logger.asString());
+		assertEquals(2, Jns3Logger.size());
+		var item1 = Jns3Logger.getItem(1);
+		assertEquals("PC1", item1.deviceName());
+		assertEquals(Jns3Logger.LogLevel.ERROR, item1.level());
+		assertTrue(item1.message().startsWith("Received error from "+router.getIPAddress()));
+		
+	}
+
+	@Test
+	public void traceroute_with_ttl_1_is_replies_with_error() {
+		var connection1 = new BufferedConnection(pc1.getEndPoint(), router.getEndPoint(0));
+		var connection2 = new BufferedConnection(pc2.getEndPoint(), router.getEndPoint(1));
+		assertNotNull(connection1);
+		assertNotNull(connection2);
+		
+		pc1.sendGARPRequest();
+		GlobalWallClock.advanceBy(4);
+		// Act
+		Jns3Logger.clearLog();
+		
+		pingcont.sendTraceroute(pc2.getIPAddress());
+//		assertEquals(0, Jns3Logger.size());
+		// tick
+		GlobalWallClock.advanceBy(1);
 		assertEquals(1, Jns3Logger.size());
+		var item0 = Jns3Logger.getItem(0);
+		assertEquals("Router1", item0.deviceName());
+		assertEquals(Jns3Logger.LogLevel.INFO, item0.level());
+		assertTrue(item0.message().startsWith("Expired ping"));
+		// tick
+		Jns3Logger.clearLog();
+		GlobalWallClock.advanceBy(1);
+		assertEquals(0, Jns3Logger.size());
+		// tick
+		Jns3Logger.clearLog();
+		GlobalWallClock.advanceBy(1);
+		assertEquals(0, Jns3Logger.size());
+		// tick
+		Jns3Logger.clearLog();
+		GlobalWallClock.advanceBy(1);
+		assertEquals(1, Jns3Logger.size());
+		item0 = Jns3Logger.getItem(0);
+		assertEquals("PC2", item0.deviceName());
+		assertEquals(Jns3Logger.LogLevel.RECEIVED, item0.level());
+		assertTrue(item0.message().startsWith("Received ping request from "+pc1.getIPAddress()));
+		// tick
+		Jns3Logger.clearLog();
+		GlobalWallClock.advanceBy(1);
+		assertEquals(0, Jns3Logger.size());
+		// tick
+		Jns3Logger.clearLog();
+		GlobalWallClock.advanceBy(1);
+
+		assertEquals(1, Jns3Logger.size());
+		item0 = Jns3Logger.getItem(0);
+		assertEquals("PC1", item0.deviceName());
+		assertEquals(Jns3Logger.LogLevel.INFO, item0.level());
+		assertTrue(item0.message().startsWith("Traceroute completed"));
 	}
 
 }

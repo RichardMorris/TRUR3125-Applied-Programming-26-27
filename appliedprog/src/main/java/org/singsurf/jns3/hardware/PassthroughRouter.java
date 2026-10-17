@@ -70,4 +70,8 @@ public class PassthroughRouter extends MultiPortDevice {
 		}
 	}
 
+	public IPAddress getIPAddress() {
+		return address;
+	}
+
 }

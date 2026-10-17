@@ -10,19 +10,21 @@ import org.singsurf.jns3.hardware.GlobalWallClock;
 import org.singsurf.jns3.hardware.PC;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPPacket;
-import org.singsurf.jns3.network_layer.PacketSender;
 
 /**
  * Controller for handling ping requests and replies.
  * Can start a ping request and handle incoming ping replies.
  */
-public class PingController implements PacketSender, ICMPMessageHandler{
+public class PingController implements  ICMPMessageHandler{
 	static short currentIdentifier=0;
+	static final short TRACEROUTE_OFFSET = (short) 0x4000; 
 	short indetifier = 0;
 	short sequenceNumber = 0;
 	PC pc;
 	
-	Map<Short, Integer> pingRequests = new HashMap<>();
+	record SentPing(PingRequest request, long sentTime, IPAddress dest, int ttl) {}
+	Map<Short, SentPing> pingRequests = new HashMap<>();
+
 	record PingReplyRecord(IPAddress ip, ICMPMessage msg, int ttl) {}
 	List<PingReplyRecord> completed = new ArrayList<>();
 
@@ -33,28 +35,37 @@ public class PingController implements PacketSender, ICMPMessageHandler{
 
 	public void sendPingRequest(IPAddress destinationIP,int ttl) {
 		++sequenceNumber;
+		var packet = sendPingOrTracerroute(indetifier, sequenceNumber, destinationIP, ttl);
+		pc.display("PING " + destinationIP + " " + packet.getTotalLength()+ " bytes of data.");
+	}
+
+	public void sendTraceroute(IPAddress destinationIP) {
+		++sequenceNumber;
+		sendPingOrTracerroute(indetifier+ TRACEROUTE_OFFSET, sequenceNumber, destinationIP, 1);
+		pc.display(String.format("traceroute to %s, 64 hops max", destinationIP));
+	}
+
+	private IPPacket sendPingOrTracerroute(int id, int code, IPAddress destinationIP, int ttl) {
 		// Create a ping request message
-		PingRequest pingRequest = new PingRequest(indetifier,sequenceNumber);
+		PingRequest pingRequest = new PingRequest((short) id,(short) code);
 		// Create an IP packet with the ping request as payload
 		IPPacket packet = new IPPacket(
 				IPPacket.IMCP,ttl,
 				pc.getIPAddress(), destinationIP, pingRequest.getBytes());
 		// Send the packet using the provided PacketSender
-		pingRequests.put(sequenceNumber, GlobalWallClock.getTime()); // Store the sequence number for tracking
+		pingRequests.put((short) code,
+				new SentPing(pingRequest, GlobalWallClock.getTime(), destinationIP,ttl)); // Store the sequence number for tracking
 		// PING 106.8.139.92 56 bytes of data.
-		pc.display("PING " + destinationIP + " " + packet.getTotalLength()+ " bytes of data.");
-		sendPacket(packet);
-	}
-
-	@Override
-	public void sendPacket(IPPacket packet) {
+//		Jns3Logger.logSend(pc.getName(), "Sending ping request to " + destinationIP + " ttl " + ttl + " " + pingRequest.toString());
 		pc.sendPacket(packet);
+		return packet;
 	}
 
 
 	@Override
 	public boolean matches(ICMPMessage message) {
-		return message.getType() == 0; // Type 0 is for ping replies
+		return (message.isPingReply() 
+				|| message.isTTLError() );
 	}
 
 	@Override
@@ -62,13 +73,28 @@ public class PingController implements PacketSender, ICMPMessageHandler{
 		var sourceAddress = packet.getSourceAddress();
 		var destinationAddress = packet.getDestinationAddress();
 //		var rest = message.getRestOfHeader();
-		if(destinationAddress.equals(pc.getIPAddress())) {
-			var sequenceNumber = message.getRestHigh();
-			if(pingRequests.containsKey(sequenceNumber)) {
-				var sentTime = pingRequests.get(sequenceNumber);
-				var currentTime = GlobalWallClock.getTime();
-				var rtt = currentTime - sentTime;
-				
+		if(!destinationAddress.equals(pc.getIPAddress())) {
+			Jns3Logger.logError(pc.getName(), "Received ping reply not for this host: " + packet);
+			return;
+		}
+		var sequenceNumber = message.getRestHigh();
+		if(!pingRequests.containsKey(sequenceNumber)) {
+			Jns3Logger.logError(pc.getName(), 
+					"Received orphaned ping reply from " + sourceAddress 
+					+ " " + message.toString());
+			return;
+		}
+		
+		var sentReq = pingRequests.get(sequenceNumber);
+		var sentTime = sentReq.sentTime();
+		var currentTime = GlobalWallClock.getTime();
+		var rtt = currentTime - sentTime;
+		
+		if(sentReq.request().getIdentifier() >= TRACEROUTE_OFFSET) {
+			receiveTraceroute(packet, sentReq, rtt);	
+			return;
+		}
+		if(message.isPingReply()) {				
 				Jns3Logger.logRec(pc.getName(), 
 						"Received ping reply from " + sourceAddress 
 						+ " " + message.toString()
@@ -77,17 +103,29 @@ public class PingController implements PacketSender, ICMPMessageHandler{
 
 				pingRequests.remove(sequenceNumber); // Remove the entry after processing
 				completed.add(new PingReplyRecord(sourceAddress, message, packet.getTimeToLive())); // Store the received ping reply
-			} else {
-				Jns3Logger.logError(pc.getName(), 
-						"Received ping reply from " + sourceAddress 
-						+ " " + message.toString());
-			}
-
 		} else {
-			// Log an error if the ping reply is not for this host
-			Jns3Logger.logError(pc.getName(), "Received ping reply not for this host: " + packet);
+			Jns3Logger.logError(pc.getName(), 
+					"Received error from " + sourceAddress 
+					+ " " + message.toString()
+					+ " RTT: " + rtt + " ticks");
+		
+		}
+
+		
+	}
+
+	private void receiveTraceroute(IPPacket packet, SentPing sentReq, long rtt) {
+		//   1   172.22.64.1  1.439ms  0.612ms  0.358ms
+		pc.display(String.format("%4d\t%s\t%d ticks",
+			sentReq.ttl(), packet.getSourceAddress(), rtt));
+		if(packet.getSourceAddress().equals(sentReq.dest())) {
+			Jns3Logger.logInfo(pc.getName(),"Traceroute completed");
+			return;
 		}
 		
+		sendPingOrTracerroute(indetifier+ TRACEROUTE_OFFSET,
+				sentReq.request().getCode(), sentReq.dest(), sentReq.ttl()+1);
+
 	}
 	
 	static PingController newInstance(PC pc) {
