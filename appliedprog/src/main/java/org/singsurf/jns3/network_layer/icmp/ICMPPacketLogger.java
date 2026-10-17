@@ -17,7 +17,7 @@ public class ICMPPacketLogger implements ICMPMessageHandler {
 
 	@Override
 	public void handle(IPPacket packet, ICMPMessage message) {
-		Jns3Logger.logRec(name, "Received ICMP packet: " + packet);
+		Jns3Logger.logRec(name, "Received ICMP message: " + message + " " + packet);
 		
 	}
 
