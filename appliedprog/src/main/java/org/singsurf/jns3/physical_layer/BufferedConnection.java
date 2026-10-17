@@ -7,6 +7,7 @@ import org.singsurf.jns3.hardware.GlobalWallClock;
 
 public class BufferedConnection extends PhysicalConnection implements GlobalWallClock.TickListener {
 	List<BufferedFrame> buffer = new ArrayList<>();
+	List<BufferedFrame> outbuffer;
 	
 	record BufferedFrame(byte[] frame, boolean reversed) {	}
 	
@@ -14,6 +15,12 @@ public class BufferedConnection extends PhysicalConnection implements GlobalWall
 		super(dev1, dev2);
 		
 		GlobalWallClock.getInstance().addTickListener(this);
+		GlobalWallClock.getInstance().addTickListener(GlobalWallClock.INIT,
+			() -> {
+				outbuffer = buffer;
+				buffer = new ArrayList<>();
+				
+			});
 	}
 
 	@Override
@@ -23,9 +30,8 @@ public class BufferedConnection extends PhysicalConnection implements GlobalWall
 
 	@Override
 	public void onTick() {
-		
-		while (!buffer.isEmpty()) {
-			BufferedFrame bufferedFrame = buffer.remove(0);
+		while (!outbuffer.isEmpty()) {
+			BufferedFrame bufferedFrame = outbuffer.remove(0);
 			receive(bufferedFrame.frame(), bufferedFrame.reversed());
 		}
 	}
