@@ -242,6 +242,7 @@ public class IPPacket {
 
 	public void decrementTTL() {
 		--timeToLive;
+		recalculateHeaderChecksum();
 	}
 	
 	@Override
@@ -252,5 +253,15 @@ public class IPPacket {
 				timeToLive, protocol, headerChecksum & 0xFFFF,
 				sourceAddress.toString(), destinationAddress.toString(),
 				data.length);
+	}
+
+	public void setTimeToLive(int i) {
+		timeToLive = (byte) i;
+		recalculateHeaderChecksum();
+	}
+
+	private void recalculateHeaderChecksum() {
+		headerChecksum = 0;
+		headerChecksum = this.calculateHeaderChecksum().getComplement().getValue();
 	}
 }
