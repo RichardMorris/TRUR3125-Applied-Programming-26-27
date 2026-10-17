@@ -63,6 +63,9 @@ public class Jns3Logger {
 	}
 
 	public static String asString() {
+		if(logItems.isEmpty()) {
+			return "[EMPTY]";
+		}
 		StringBuilder sb = new StringBuilder();
 		for(LogItem item : logItems) {
 			sb.append(item.toString()).append("\n");
