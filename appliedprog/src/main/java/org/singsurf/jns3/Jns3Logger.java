@@ -5,7 +5,9 @@ public class Jns3Logger {
     public enum LogLevel {
         RECEIVED, // Frame was received successfully
         IGNORED, // Frame was ignored 
-        ERROR, SENT
+        ERROR, 
+        SENT,
+        INFO
     }
     public static record LogItem(String deviceName, LogLevel level, String message) {
         @Override
@@ -32,6 +34,9 @@ public class Jns3Logger {
     static public void logError(String deviceName, String message) {
         logItems.add(new LogItem(deviceName, LogLevel.ERROR, message));
     }
+	public static void logInfo(String name, String message) {
+        logItems.add(new LogItem(name, LogLevel.INFO, message));
+	}
 
 
     static public List<LogItem> getLogItems() {
@@ -68,5 +73,6 @@ public class Jns3Logger {
 	public static int size() {
 		return logItems.size();
 	}
+
     
 }
