@@ -72,5 +72,12 @@ public class GlobalWallClock {
 		return getInstance().getTickCount();
 	}
 
+	public static void advanceBy(int ticks) {
+		for (int i = 0; i < ticks; i++) {
+			getInstance().advanceTime();
+		}
+		
+	}
+
 }
 
