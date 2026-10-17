@@ -28,7 +28,6 @@ public class PingRequestHandler implements ICMPMessageHandler {
 	public void handle(IPPacket packet, ICMPMessage message) {
 		var sourceAddress = packet.getSourceAddress();
 		var destinationAddress = packet.getDestinationAddress();
-		var rest = message.getRestOfHeader();
 		if(destinationAddress.equals(hostAddress)) {
 			Jns3Logger.logRec(name, 
 					"Received ping request from " + sourceAddress 
@@ -36,7 +35,7 @@ public class PingRequestHandler implements ICMPMessageHandler {
 					+ " TTL: " + packet.getTimeToLive() + " ticks");
 
 			// Create an ICMP Echo Reply message
-			ICMPMessage replyMessage = new PingReply(rest);
+			ICMPMessage replyMessage = ICMPMessage.createPingReply(message.getRestLow(), message.getRestHigh());
 			IPPacket replyPacket = new IPPacket(
 					IPPacket.IMCP, 64, 
 					hostAddress, sourceAddress,

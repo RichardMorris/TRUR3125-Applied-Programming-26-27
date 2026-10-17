@@ -22,7 +22,7 @@ public class PingController implements  ICMPMessageHandler{
 	short sequenceNumber = 0;
 	PC pc;
 	
-	record SentPing(PingRequest request, long sentTime, IPAddress dest, int ttl) {}
+	record SentPing(ICMPMessage request, long sentTime, IPAddress dest, int ttl) {}
 	Map<Short, SentPing> pingRequests = new HashMap<>();
 
 	record PingReplyRecord(IPAddress ip, ICMPMessage msg, int ttl) {}
@@ -47,7 +47,7 @@ public class PingController implements  ICMPMessageHandler{
 
 	private IPPacket sendPingOrTracerroute(int id, int code, IPAddress destinationIP, int ttl) {
 		// Create a ping request message
-		PingRequest pingRequest = new PingRequest((short) id,(short) code);
+		ICMPMessage pingRequest = ICMPMessage.createPingRequest((short) id,(short) code);
 		// Create an IP packet with the ping request as payload
 		IPPacket packet = new IPPacket(
 				IPPacket.IMCP,ttl,

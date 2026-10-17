@@ -139,4 +139,20 @@ public class ICMPMessage {
 		return type == 11 && code == 0;
 	}
 
+	public static ICMPMessage createPingRequest(short id, short cd) {
+		return new ICMPMessage(PING_REQUEST_TYPE, (byte) 0, id, cd);
+	}
+
+	public static ICMPMessage createPingReply(int id, int cd) {
+		return new ICMPMessage(PING_REPLY_TYPE, (byte) 0, (short) id,  (short) cd);
+	}
+
+	public short getIdentifier() {
+		return getRestLow();
+	}
+
+	public short getSequenceNumber() {
+		return getRestHigh();
+	}
+
 }
