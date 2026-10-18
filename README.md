@@ -13,4 +13,4 @@ model network operations.
 See [week 4 data link layer](appliedprog/Week4.md)
 
 * Week 5 - Address Resolution Protocol - allows devices to find each other's mac addresses. 
-See [week 5](appliedprog/Week4.md)
+See [week 5](appliedprog/Week5.md)
