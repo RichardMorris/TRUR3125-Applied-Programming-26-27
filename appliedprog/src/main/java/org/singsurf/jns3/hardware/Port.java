@@ -2,7 +2,7 @@ package org.singsurf.jns3.hardware;
 
 
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
-import org.singsurf.jns3.data_link_layer.EthernetEndPoint;
+import org.singsurf.jns3.physical_layer.EthernetEndPoint;
 
 public class Port extends EthernetEndPoint {
     MultiPortDevice hostDevice;

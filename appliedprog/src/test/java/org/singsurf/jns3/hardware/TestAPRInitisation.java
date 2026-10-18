@@ -1,17 +1,16 @@
 package org.singsurf.jns3.hardware;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.BeforeEach;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
-import org.singsurf.jns3.physical_layer.SimpleConnection;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.Jns3Logger.LogItem;
+import org.singsurf.jns3.physical_layer.SimpleConnection;
 
 public class TestAPRInitisation {
 
