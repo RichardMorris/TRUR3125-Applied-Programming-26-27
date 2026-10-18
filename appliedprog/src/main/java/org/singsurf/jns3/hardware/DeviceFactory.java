@@ -8,10 +8,11 @@ import org.singsurf.jns3.data_link_layer.FrameChecker;
 import org.singsurf.jns3.data_link_layer.FrameFactory;
 import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.network_layer.DefaultPacketReceiver;
-import org.singsurf.jns3.network_layer.IPFragmentHandler;
 import org.singsurf.jns3.network_layer.IPAddress;
+import org.singsurf.jns3.network_layer.IPFragmentHandler;
 
 public class DeviceFactory {
+	static DeviceFactory instance = new DeviceFactory();
     List<MACAddress> macAddresses = new ArrayList<>();
     List<IPAddress> ipAddresses = new ArrayList<>();
     FrameFactory frameFactory = new FrameFactory();
@@ -73,4 +74,8 @@ public class DeviceFactory {
         var hub = new Hub(name, numPorts);
         return hub;
     }
+
+	public static DeviceFactory getInstance() {
+		return instance;
+	}
 }

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FrameFactory {
-
+	static FrameFactory instance = new FrameFactory();
     /**
      * A Factory method to create an Ethernet frame.
      * @param destination the destination MAC address
@@ -90,5 +90,9 @@ public class FrameFactory {
         }
         return sb.toString();
     }
+
+	public static FrameFactory getInstance() {
+		return instance;
+	}
 
 }
