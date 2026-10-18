@@ -1,7 +1,7 @@
 package org.singsurf.jns3.data_link_layer;
 
-import java.util.zip.CRC32;
 import java.util.Arrays;
+import java.util.zip.CRC32;
 
 public class EthernetFrame {
     MACAddress destination;
@@ -109,7 +109,10 @@ public class EthernetFrame {
     public long getFrameCheck() {
         return frameCheck;
     }
-
+    public boolean isValidFrameCheck() {
+		return frameCheck == calcFrameCheck();
+	}
+    
     @Override
     public String toString() {
         return "EthernetFrame{" +
