@@ -129,5 +129,5 @@ is used "a behavioural design pattern that lets you traverse elements of a colle
 
 ## Challenges
 
-1. Allow the `PacketFragmenter` to split packets that are already fragments, ensuring
+1. Allow the `PacketFragmentor` to split packets that are already fragments, ensuring
     that they can still be reconstructed.
