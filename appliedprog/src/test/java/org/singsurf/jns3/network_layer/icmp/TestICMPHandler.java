@@ -10,7 +10,7 @@ import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.hardware.DeviceFactory;
 import org.singsurf.jns3.hardware.PC;
 import org.singsurf.jns3.network_layer.DefaultPacketReceiver;
-import org.singsurf.jns3.network_layer.FragmentCombiner;
+import org.singsurf.jns3.network_layer.IPFragmentHandler;
 import org.singsurf.jns3.network_layer.IPPacket;
 import org.singsurf.jns3.physical_layer.SimpleConnection;
 
@@ -61,7 +61,7 @@ class TestICMPHandler {
 		icmpHandler.addHandler(new ICMPPacketLogger("ICMPLogger"));
 		
 		pc.setPacketReceiver(icmpHandler);
-		var combiner = new FragmentCombiner(pc,pc.getPacketReceiver());
+		var combiner = new IPFragmentHandler(pc,pc.getPacketReceiver());
 		pc.clearFrameHandlers();
 		pc.addFrameHandler(combiner);
 		
@@ -107,7 +107,7 @@ class TestICMPHandler {
 		icmpHandler1.addHandler(pingcont);
 		icmpHandler1.addHandler(new ICMPPacketLogger("ICMPLogger1"));
 		
-		var combiner1 = new FragmentCombiner(pc1,pc1.getPacketReceiver());
+		var combiner1 = new IPFragmentHandler(pc1,pc1.getPacketReceiver());
 		pc1.clearFrameHandlers();
 		pc1.addFrameHandler(pc1.getArpController());
 		pc1.addFrameHandler(combiner1);
@@ -119,7 +119,7 @@ class TestICMPHandler {
 		var pingreq = new PingRequestHandler(pc2.getName(),pc2.getIPAddress(), pc2);
 		icmpHandler2.addHandler(pingreq);
 		
-		var combiner2 = new FragmentCombiner(pc2,pc2.getPacketReceiver());
+		var combiner2 = new IPFragmentHandler(pc2,pc2.getPacketReceiver());
 		pc2.clearFrameHandlers();
 		pc2.addFrameHandler(pc2.getArpController());
 		pc2.addFrameHandler(combiner2);

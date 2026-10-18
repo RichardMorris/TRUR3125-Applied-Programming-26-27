@@ -9,13 +9,13 @@ import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.data_link_layer.FrameHandler;
 import org.singsurf.jns3.hardware.PC;
 
-public class FragmentCombiner implements FrameHandler {
+public class IPFragmentHandler implements FrameHandler {
 	PC pc;
 	PacketReceiver receiver;
 	Map<IPAddress, Map<Integer, FragmentCollector>> collectorsBySource = new HashMap<>();
 
 	
-	public FragmentCombiner(PC pc, PacketReceiver receiver) {
+	public IPFragmentHandler(PC pc, PacketReceiver receiver) {
 		this.pc = pc;
 		this.receiver = receiver;
 	}

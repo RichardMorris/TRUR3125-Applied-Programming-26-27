@@ -16,7 +16,7 @@ class TestPacketCombiner {
 	PacketFragmentor fragmentor = new PacketFragmentor(100);
 
 	PC pc;
-	FragmentCombiner combiner;
+	IPFragmentHandler combiner;
 
 	private DefaultPacketReceiver receiver;
 	DeviceFactory deviceFactory = new DeviceFactory();
@@ -25,7 +25,7 @@ class TestPacketCombiner {
 	void setUp() throws Exception {
 		pc = deviceFactory.createPC("TestPC");
 		receiver = new DefaultPacketReceiver(pc.getName());
-		combiner = new FragmentCombiner(pc,receiver);
+		combiner = new IPFragmentHandler(pc,receiver);
 	}
 
 	@Test

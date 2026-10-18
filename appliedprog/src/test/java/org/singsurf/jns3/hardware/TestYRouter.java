@@ -12,7 +12,7 @@ import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.data_link_layer.FrameFactory;
 import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.network_layer.DefaultPacketReceiver;
-import org.singsurf.jns3.network_layer.FragmentCombiner;
+import org.singsurf.jns3.network_layer.IPFragmentHandler;
 import org.singsurf.jns3.network_layer.IPPacket;
 import org.singsurf.jns3.network_layer.OnesComplementNumber;
 import org.singsurf.jns3.physical_layer.BufferedConnection;
@@ -128,7 +128,7 @@ class TestYRouter {
 		
 		PC pc = deviceFactory.createPC("Receiver PC");
 		var receiver = new DefaultPacketReceiver(pc.getName());
-		var combiner = new FragmentCombiner(pc,receiver);
+		var combiner = new IPFragmentHandler(pc,receiver);
 		pc.clearFrameHandlers(); // Need set our own frame handlers to protect against later changes.
 		pc.addFrameHandler(pc.getArpController());
 		pc.addFrameHandler(combiner);
