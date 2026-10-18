@@ -11,17 +11,14 @@ import org.singsurf.jns3.data_link_layer.FrameHandler;
 import org.singsurf.jns3.data_link_layer.FrameReceiver;
 import org.singsurf.jns3.data_link_layer.FrameSender;
 import org.singsurf.jns3.data_link_layer.MACAddress;
-import org.singsurf.jns3.data_link_layer.MACAddressable;
 import org.singsurf.jns3.network_layer.IPAddress;
-import org.singsurf.jns3.network_layer.IPAddressable;
 import org.singsurf.jns3.network_layer.IPPacket;
 import org.singsurf.jns3.network_layer.PacketFragmentor;
 import org.singsurf.jns3.network_layer.PacketReceiver;
 import org.singsurf.jns3.network_layer.PacketSender;
 import org.singsurf.jns3.physical_layer.PhysicalEndPoint;
 
-public class PC implements NamedDevice, MACAddressable, IPAddressable, 
-	FrameSender, FrameReceiver, PacketSender {
+public class PC implements AddressableDevice, FrameSender, FrameReceiver, PacketSender {
     String name;
     List<FrameHandler> frameHandlers = new ArrayList<>();
     ARPController arpController;
@@ -38,7 +35,7 @@ public class PC implements NamedDevice, MACAddressable, IPAddressable,
         this.ipAddress = ipAddress;
         this.ethernetEndPoint = new EthernetEndPoint(name, this);
         this.frameFactory = new FrameFactory();
-        this.arpController = new ARPController(this);
+        this.arpController = new ARPController(this,this);
         this.packetFragmentor = new PacketFragmentor(140);
     }
 
@@ -146,6 +143,10 @@ public class PC implements NamedDevice, MACAddressable, IPAddressable,
 
 	public void sendPacket(IPPacket packet) {
 		var destMac = arpController.getArpTable().get(packet.getDestinationAddress());
+		if(destMac == null) {
+			Jns3Logger.logError(getName(), "No ARP entry for " + packet.getDestinationAddress() + ". Cannot send packet.");
+			return;
+		}
 		List<IPPacket> packets = packetFragmentor.getFragments(packet);
 		for(IPPacket p : packets) {
 			EthernetFrame frame = createEthernetFrame(

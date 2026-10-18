@@ -4,20 +4,21 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.singsurf.jns3.Jns3Logger;
-import org.singsurf.jns3.hardware.PC;
+import org.singsurf.jns3.hardware.AddressableDevice;
 import org.singsurf.jns3.network_layer.IPAddress;
 
 public class ARPController implements FrameHandler {
-    FrameFactory frameFactory;
+    FrameFactory frameFactory = FrameFactory.getInstance();
     Map<IPAddress, MACAddress> arpTable = new HashMap<>();
     Map<MACAddress, IPAddress> reverseArpTable = new HashMap<>();
 
-    PC device;
+    AddressableDevice device;
+    FrameSender sender;
 
-    public ARPController(PC device) {
-        this.device = device;
-        this.frameFactory = device.getFrameFactory();
-    }
+    public ARPController(AddressableDevice device, FrameSender sender) {
+		this.device = device;
+		this.sender = sender;
+	}
     
     @Override
     public boolean handleFrame(EthernetFrame frame) {
@@ -46,7 +47,7 @@ public class ARPController implements FrameHandler {
                         ARPMessage.ARP_ETHER_TYPE,
                         reply.toBytes());
                 Jns3Logger.log(device.getName(), Jns3Logger.LogLevel.SENT,  "Sent ARP reply frame");
-                    device.sendFrame(replyFrame);
+                    sender.sendFrame(replyFrame);
                 }
         } else {
             Jns3Logger.log(device.getName(), Jns3Logger.LogLevel.IGNORED,  "Received ARP frame not for this device");
@@ -67,7 +68,7 @@ public class ARPController implements FrameHandler {
             ARPMessage.ARP_ETHER_TYPE,
             garpMessage.toBytes());
         Jns3Logger.log(device.getName(), Jns3Logger.LogLevel.SENT,  "Sent GARP request frame");
-        device.sendFrame(garpFrame);
+        sender.sendFrame(garpFrame);
     }
 
     public void sendArpRequest(IPAddress ip) {
@@ -83,7 +84,7 @@ public class ARPController implements FrameHandler {
             ARPMessage.ARP_ETHER_TYPE,
             request.toBytes());
         Jns3Logger.log(device.getName(), Jns3Logger.LogLevel.SENT,  "Sent ARP Probe request frame");
-        device.sendFrame(requestFrame);
+        sender.sendFrame(requestFrame);
     }
 
     public Map<IPAddress, MACAddress> getArpTable() {
