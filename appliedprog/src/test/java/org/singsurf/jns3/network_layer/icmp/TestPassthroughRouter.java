@@ -107,6 +107,37 @@ class TestPassthroughRouter {
 	}
 
 	@Test
+	public void can_ping_the_router() throws IOException {		
+		var connection1 = new SimpleConnection(pc1.getEndPoint(), router.getEndPoint(0));
+		var connection2 = new SimpleConnection(pc2.getEndPoint(), router.getEndPoint(1));
+		assertNotNull(connection1);
+		assertNotNull(connection2);
+		
+		pc1.sendGARPRequest();
+		System.out.println(Jns3Logger.asString());
+		// Act
+		Jns3Logger.clearLog();
+		Jns3Logger.startCapture();
+		pingcont.sendPingRequest(router.getIPAddress(), 64);
+		var output = Jns3Logger.endCapture();
+		var lines = output.split("\n");
+		assertEquals("PING " + router.getIPAddress() + " 28 bytes of data.", lines[0].trim());
+//		assertEquals("28 bytes from "+router.getIPAddress()+": icmp_seq=1 ttl=64 time=0 ticks", lines[1].trim());
+		System.out.println(output);
+		System.out.println(Jns3Logger.asString());
+		assertEquals(2, Jns3Logger.size());
+		var item0 = Jns3Logger.getItem(0);
+		var item1 = Jns3Logger.getItem(1);
+		assertEquals("Router1", item0.deviceName());
+		assertEquals(Jns3Logger.LogLevel.RECEIVED, item0.level());
+		assertTrue(item0.message().startsWith("Received ping request from "+pc1.getIPAddress()));
+		assertEquals("PC1", item1.deviceName());
+		assertEquals(Jns3Logger.LogLevel.RECEIVED, item1.level());
+		assertTrue(item1.message().startsWith("Received ping reply from "+router.getIPAddress()));
+		assertTrue(Jns3Logger.isErrorFree());
+	}
+
+	@Test
 	public void can_ping_across_a_buffered_network() throws IOException {
 		var connection1 = new BufferedConnection(pc1.getEndPoint(), router.getEndPoint(0));
 		var connection2 = new BufferedConnection(pc2.getEndPoint(), router.getEndPoint(1));
