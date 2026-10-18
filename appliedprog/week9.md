@@ -4,6 +4,17 @@
 
 As a network engineer working with a wide area network where packets my take different routes and experience delays I want to combine out of sequence fragments on the receiving machine so that large messages can reliably be transmitted  long distances.
 
+## Acceptance criteria
+
+Scenario: fragments sent over different routes
+
+* Given: a network consisting of two PC's, and two YRouters
+* And: The PC are connected to the legs of the YRouters
+* And: The arms of the YRouter are connected to each other
+* And: One with a SimpleConnection
+* And: One with a BufferedConnection
+* Then: Fragmented Packets can be sent across the network and successfully recombined.
+
 ## Specification
 
 1. Time is modelled using a `GlobalWallClock`
@@ -25,12 +36,6 @@ As a network engineer working with a wide area network where packets my take dif
     * When the connection receives the `tick` message from the clock
         all frames in the buffer are sent to its receive message, and the buffer
         is cleared.
-4. A network can be constructed consisting of two PC's, and two YRouters
-    * The PC are connected to the legs of the YRouters
-    * The arms of the YRouter are connected to each other
-    * One with a SimpleConnection
-    * One with a BufferedConnection
-    * Fragmented Packets can be sent across the network and successfully recombined.
 
 ## Design
 
@@ -67,7 +72,7 @@ method can be used to add our subscriber/listener.
 
 The Observer pattern is frequently used in Event driven programming often used in GUI programming
 to respond to button click or mouse actions. You may well have used this in JavaScript with the [addEventListener](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener) method. In Java there are classes like the
-[MouseListener](https://docs.oracle.com/en/java/javase/21/docs/api/java.desktop/java/awt/event/MouseListener.html) class to track mouse events. 
+[MouseListener](https://docs.oracle.com/en/java/javase/21/docs/api/java.desktop/java/awt/event/MouseListener.html) class to track mouse events.
 
 Java used to have an [Observable](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Observable.html)/[Observer](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Observer.html) system, but it had problems with its event model and has been Deprecated and replaced by the more complex
 [Flow](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/Flow.html) publisher/subscriber model.

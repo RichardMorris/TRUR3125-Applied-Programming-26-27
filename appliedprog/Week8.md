@@ -6,6 +6,18 @@ As a network engineer I want to transmit large message broken into frames
 over networks that do not always preserve frame order so that end users can
 send and receive large documents reliably.
 
+## Acceptance criteria
+
+Scenario: packet fragmentation and recombination
+
+* Given: a network of two PC with a simple connection
+* When: a large packet is sent across the network
+* Then: the packet broken into fragments
+* Then: the packets are converted into frames and send across the network
+* Then: the second PC collects the fragments
+* Then: the fragments are combined into a single packet
+* Then: the packet matches the original packet
+
 ## Specification
 
 1. An `IPPacket` contains header and a data section. The header has the format
@@ -129,5 +141,5 @@ is used "a behavioural design pattern that lets you traverse elements of a colle
 
 ## Challenges
 
-1. Allow the `PacketFragmentor` to split packets that are already fragments, ensuring
+1. Allow the `PacketFragmenter` to split packets that are already fragments, ensuring
     that they can still be reconstructed.
