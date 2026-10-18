@@ -35,17 +35,19 @@ public class PingController implements  ICMPMessageHandler{
 
 	public void sendPingRequest(IPAddress destinationIP,int ttl) {
 		++sequenceNumber;
-		var packet = sendPingOrTracerroute(indetifier, sequenceNumber, destinationIP, ttl);
+		var packet = makePingPacket(indetifier, sequenceNumber, destinationIP, ttl);
 		pc.display("PING " + destinationIP + " " + packet.getTotalLength()+ " bytes of data.");
+		pc.sendPacket(packet);
 	}
 
 	public void sendTraceroute(IPAddress destinationIP) {
 		++sequenceNumber;
-		sendPingOrTracerroute(indetifier+ TRACEROUTE_OFFSET, sequenceNumber, destinationIP, 1);
+		var packet = makePingPacket(indetifier+ TRACEROUTE_OFFSET, sequenceNumber, destinationIP, 1);
 		pc.display(String.format("traceroute to %s, 64 hops max", destinationIP));
+		pc.sendPacket(packet);
 	}
 
-	private IPPacket sendPingOrTracerroute(int id, int code, IPAddress destinationIP, int ttl) {
+	private IPPacket makePingPacket(int id, int code, IPAddress destinationIP, int ttl) {
 		// Create a ping request message
 		ICMPMessage pingRequest = ICMPMessage.createPingRequest((short) id,(short) code);
 		// Create an IP packet with the ping request as payload
@@ -55,9 +57,6 @@ public class PingController implements  ICMPMessageHandler{
 		// Send the packet using the provided PacketSender
 		pingRequests.put((short) code,
 				new SentPing(pingRequest, GlobalWallClock.getTime(), destinationIP,ttl)); // Store the sequence number for tracking
-		// PING 106.8.139.92 56 bytes of data.
-//		Jns3Logger.logSend(pc.getName(), "Sending ping request to " + destinationIP + " ttl " + ttl + " " + pingRequest.toString());
-		pc.sendPacket(packet);
 		return packet;
 	}
 
@@ -99,7 +98,11 @@ public class PingController implements  ICMPMessageHandler{
 						"Received ping reply from " + sourceAddress 
 						+ " " + message.toString()
 						+ " RTT: " + rtt + " ticks");
-				pc.display("Received ping reply from " + sourceAddress + " with sequence number " + sequenceNumber + ". RTT: " + rtt + " ticks");
+				// 64 bytes from 106.8.139.92: icmp_seq=3 ttl=47 time=294 ms
+				pc.display(String.format(
+						"%d bytes from %s: icmp_seq=%d ttl=%d time=%d ticks",
+						packet.getTotalLength(), sourceAddress,
+						message.getSequenceNumber(), packet.getTimeToLive(), rtt));
 
 				pingRequests.remove(sequenceNumber); // Remove the entry after processing
 				completed.add(new PingReplyRecord(sourceAddress, message, packet.getTimeToLive())); // Store the received ping reply
@@ -123,9 +126,9 @@ public class PingController implements  ICMPMessageHandler{
 			return;
 		}
 		
-		sendPingOrTracerroute(indetifier+ TRACEROUTE_OFFSET,
+		var pack = makePingPacket(indetifier+ TRACEROUTE_OFFSET,
 				sentReq.request().getCode(), sentReq.dest(), sentReq.ttl()+1);
-
+		pc.sendPacket(pack);
 	}
 	
 	static PingController newInstance(PC pc) {

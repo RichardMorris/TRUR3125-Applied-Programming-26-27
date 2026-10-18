@@ -1,4 +1,7 @@
 package org.singsurf.jns3;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 public class Jns3Logger {
@@ -77,5 +80,20 @@ public class Jns3Logger {
 		return logItems.size();
 	}
 
+	static PrintStream originalOut = System.out;
+	static ByteArrayOutputStream baos;
+	
+    public static void startCapture() {
+        baos = new ByteArrayOutputStream();
+        PrintStream ps = new PrintStream(baos);
+        originalOut = System.out;
+        System.setOut(ps);
+    }
     
+    public static String endCapture() throws IOException {
+		System.setOut(originalOut);
+    	baos.close();
+		System.setOut(originalOut);
+        return baos.toString();
+	}
 }
