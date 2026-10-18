@@ -6,6 +6,23 @@ As a WAN network engineer I want to ensure that I do not send more data
 down a connection than it can support, so end users can send their data
 and ensure it eventually gets through.
 
+## Acceptance criteria
+
+Scenario: large numbers of frames can be transmitted through slow connections
+
+* Given: two PC's connected with a throttled connection
+* When: One PC send a large IPPacket.
+* Then: The packet is fragmented
+* Then: the fragments are packaged in frames and sent to the NIC card.
+* Then: the NIC card sends frames until the connection is blocked
+* Then: the connection send frames to the other PC
+* Then: fragments are collected as by the other PC
+* When: time is advanced
+* Then: the NIC card sends the next block of packets
+* When: time is advanced by 10 tick
+* Then: the second PC combines fragments into a complete package
+* And: the recombined packet matches the original
+
 ## Specification
 
 1. A `ThrottledConnection` can only accepts a given number of frames a clock tick.

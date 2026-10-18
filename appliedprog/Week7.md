@@ -6,6 +6,15 @@ As a network engineer working with imperfect network cables I need to
 ensure only good frames get through
 so errors are not created due to corrupted frames.
 
+## Acceptance criteria
+
+Scenario: transmission over imperfect cables
+
+* Given: two PC connected with a CorruptedConnection
+* When: A large number of frames are transmitted
+* Then: some frames have their data changed
+* Then: frames with invalid checksums are dropped.
+
 ## Specification
 
 Too model the physical layer we have two key classes
@@ -24,14 +33,14 @@ Too model the physical layer we have two key classes
     * It has a `FrameReceiver` field set in the constructor.
     * It implements `FrameSender` providing a `sendFrame(EthernetFrame frame)` method
         that extracts bytes from the frame and calls `send(byte[] frame)`
-    * It provides a `void receive(byte[] frame)` that creates and EthernetFrame from the 
+    * It provides a `void receive(byte[] frame)` that creates and EthernetFrame from the
         bytes and calls the `receiveFrame(ethernetFrame)` implemented by subclasses.
 4. There are a number of concrete implementation:
     * `SimpleConnection` simply transmits a frame from `send(byte[],boolean)` to `receive(byte[] boolean)`
     * `LossyConnection` drops every 10th byte.
     * `OneWayConnection` only allows frames in one direction, dropping others
     * `CorruptedConnection` on every 10th frame, modifies 1 bit.
-5. Corrupted frames can be detected by using CRC-32 checksum. 
+5. Corrupted frames can be detected by using CRC-32 checksum.
     * An `EthernetFrame` has an 4 byte `frameCheck` field calculated during construction.
     * The frame check of a frame can retrieved using `int getFrameCheck()`
     * A recalculated frame check can found with `int calcFrameCheck()`
@@ -69,19 +78,19 @@ The sequence of operations for sending a frame from PC1 to PC2.
 ## Design Patterns
 
 1. `EthernetEndPoint` is an [adapter](https://refactoring.guru/design-patterns/adapter)
-"Adapter is a structural design pattern that allows objects with incompatible interfaces to collaborate." Here the two interfaces are the physical layer that works with `byte[]` and the 
-data-link layer that works with `EthernetFrame`. 
+"Adapter is a structural design pattern that allows objects with incompatible interfaces to collaborate." Here the two interfaces are the physical layer that works with `byte[]` and the
+data-link layer that works with `EthernetFrame`.
 
 2. The different `Connection` classes are an example of the [strategy](https://refactoring.guru/design-patterns/strategy) pattern.
 
-"Strategy is a behavioural design pattern that lets you define a family of algorithms, put each of them into a separate class, and make their objects interchangeable."
+    "Strategy is a behavioural design pattern that lets you define a family of algorithms, put each of them into a separate class, and make their objects interchangeable."
 
-Here the algorithm is transferring data from one end of a cable to the other, and
+    Here the algorithm is transferring data from one end of a cable to the other, and
 the different subclasses have different implementations.
 
 3. PC is becoming much more like a  [Facade](https://refactoring.guru/design-patterns/facade). It provides a simple interface to a complex set of classes. It provides several methods that represent operating systems calls.
     * `sendFrame(EthernetFrame frame)`
-    * `receiveFrame(EthernetFrame frame)` 
+    * `receiveFrame(EthernetFrame frame)`
     * `EthernetFrame createEthernetFrame(MACAddress destinationMac, String payload)`
     * `EthernetFrame createEthernetFrame(MACAddress destinationMac, byte[] payload)`
     * `sendGARPRequest()`
