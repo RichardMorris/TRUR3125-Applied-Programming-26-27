@@ -6,6 +6,25 @@ As a network engineer when I connect two machines with assigned local IP address
 they need to find the corresponding MAC Addresses so they
 can then send messages to each other.
 
+## Acceptance criteria
+
+Scenario: two PC's can find each others MAC addresses
+Given: a network of two PC's, that do not know each other's MAC addresses
+When: the first PC sends a GARP request
+Then: the second PC receives the request
+Then: it replies with a ArpMessage containing it's MAC address.
+And: it updates its arp table with the sender MAC address.
+Then: the first PC receives the reply
+Then: it updates its arp table
+
+Scenario: two PC that know each others MAC addresses
+When: the first machine sends a frame to the other IP address
+Then: it looks up the mac address in the arp table
+Then: it creates a frame using the found MAC address
+Then: it sends the frame
+Then: the second PC receives the frame
+Then: the second PC checks the MAC address matches and logs the message.
+
 ## Specification
 
 1. An `ARPMessage` message has the format
@@ -26,7 +45,7 @@ can then send messages to each other.
     * to the MAC address of sender.
     * an etherType 0f 0x0806.
 4. A Gratuitous ARP message (GARP) is a ARP request with
-    * Sended MAC and Sender IP of the sender
+    * Sender MAC and Sender IP of the sender
     * Target MAC of 0x0
     * Target IP the same as the Sender IP
     * This is sent to all connected devices to announce the presence of
@@ -58,7 +77,6 @@ can then send messages to each other.
     * It implement `FrameSender` but provides no `sendFrame()` as PC's and network devices differ.
     * It has utility methods `EthernetFrame createEthernetFrame(MACAddress destinationMac, String payload)` and `createEthernetFrame(MACAddress destinationMac, byte[] payload)`
     that create frames using the devices MacAddress as the source address.
-
 
 10. The transport layer is modelled by an interface `Connection` that has a methods
     * `void send(EthernetFrame frame)` to start transmission of the frame down the wire
@@ -92,14 +110,14 @@ See [cisco overview of layer 2](https://community.cisco.com/t5/networking-knowle
 
 ### Design Pattern Usage
 
-1. "Favour Composition over Inheritance". The Device base class delegates much of it work to other components. It could be considered a [Facade](https://refactoring.guru/design-patterns/facade) 
+1. "Favour Composition over Inheritance". The Device base class delegates much of it work to other components. It could be considered a [Facade](https://refactoring.guru/design-patterns/facade)
 2. The Connection and SimpleConnection form part of the  [Strategy](https://refactoring.guru/design-patterns/strategy) pattern.
-    * "Strategy is a behavioral design pattern that lets you define a family of algorithms, put each of them into a separate class, and make their objects interchangeable."
+    * "Strategy is a behavioural design pattern that lets you define a family of algorithms, put each of them into a separate class, and make their objects interchangeable."
     * Here the algorithm is sending a frame across a simulated connection, define in `Connection` interface.
     * There is currently only one concrete implementation: `SimpleConnection`
     * Other types of connection could be defined that loose or corrupt frames, add buffering or create conflicts if both ends try to send messages at the same time.
 3. The way multiple `FrameHandlers` process incoming frames is an example of the [Chain of Responsibility](https://refactoring.guru/design-patterns/chain-of-responsibility)
-    * "Chain of Responsibility is a behavioral design pattern that lets you pass requests along a chain of handlers. Upon receiving a request, each handler decides either to process the request or to pass it to the next handler in the chain."
+    * "Chain of Responsibility is a behavioural design pattern that lets you pass requests along a chain of handlers. Upon receiving a request, each handler decides either to process the request or to pass it to the next handler in the chain."
     * Here the request is `boolean handleFrame(EthernetFrame frame)`
     * Each element in the chain attempts to process the frame returning true
         if it has handled the request ending the chain.
