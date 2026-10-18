@@ -229,4 +229,15 @@ public class IPPacket {
 	public String getDataAsString() {
 		return new String(data);
 	}
+	
+	@Override
+	public String toString() {
+		return String.format("IPPacket[ver=%d,hlen=%d,tos=%d,len=%d,id=%d,flags=0x%02X,offset=%d,ttl=%d,proto=%d,checksum=0x%04X,src=%s,dst=%s,dataLen=%d]",
+				version, headerLength, typeOfService, totalLength,
+				identification, flags, fragmentOffset,
+				timeToLive, protocol, headerChecksum & 0xFFFF,
+				sourceAddress.toString(), destinationAddress.toString(),
+				data.length);
+	}
+
 }
