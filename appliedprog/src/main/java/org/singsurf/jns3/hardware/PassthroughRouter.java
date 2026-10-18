@@ -29,7 +29,7 @@ public class PassthroughRouter extends MultiPortDevice implements AddressableDev
     List<FrameHandler> frameHandlers = new ArrayList<>();
     IPAddress address;
     FrameFactory frameFactory = FrameFactory.getInstance();
-    MACAddress macAddress1 = DeviceFactory.getInstance().createMACAddress();
+    MACAddress macAddress = DeviceFactory.getInstance().createMACAddress();
     ARPController arpController1;
     ARPController arpController2;
 	private Sender sender1;
@@ -49,9 +49,9 @@ public class PassthroughRouter extends MultiPortDevice implements AddressableDev
 		}
 		@Override
 		public void sendPacket(IPPacket packet) {
-			var errorFrame = frameFactory.createEthernetFrame(
-					macAddress1,destMac, packet.toBytes());
-			sendFrame(errorFrame);
+			var frame = frameFactory.createEthernetFrame(
+					macAddress,destMac, packet.toBytes());
+			sendFrame(frame);
 		}
 		public void setDestMac(MACAddress dest) {
 			destMac = dest;
@@ -85,9 +85,9 @@ public class PassthroughRouter extends MultiPortDevice implements AddressableDev
 		this.address = address;
 	    sender1 = new Sender(0);
 	    sender2 = new Sender(1);
-		arpController1 = new ARPController(new Addressable(name,address,macAddress1), 
+		arpController1 = new ARPController(new Addressable(name,address,macAddress), 
 	    		sender1);
-	    arpController2 = new ARPController(new Addressable(name,address,macAddress1), 
+	    arpController2 = new ARPController(new Addressable(name,address,macAddress), 
 	    		sender2);
 		pingreq1 = new PingRequestHandler(name,address, sender1);
 		pingreq2 = new PingRequestHandler(name,address, sender2);
@@ -184,7 +184,7 @@ public class PassthroughRouter extends MultiPortDevice implements AddressableDev
 
 	@Override
 	public MACAddress getMACAddress() {
-		return macAddress1;
+		return macAddress;
 	}
 
 }

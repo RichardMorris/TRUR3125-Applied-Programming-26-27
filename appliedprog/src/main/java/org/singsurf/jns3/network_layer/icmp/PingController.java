@@ -18,7 +18,7 @@ import org.singsurf.jns3.network_layer.IPPacket;
 public class PingController implements  ICMPMessageHandler{
 	static short currentIdentifier=0;
 	static final short TRACEROUTE_OFFSET = (short) 0x4000; 
-	short indetifier = 0;
+	short identifier = 0;
 	short sequenceNumber = 0;
 	PC pc;
 	
@@ -30,19 +30,19 @@ public class PingController implements  ICMPMessageHandler{
 
 	private PingController(PC pc2, short identifier) {
 		this.pc = pc2;
-		this.indetifier = identifier;
+		this.identifier = identifier;
 	}
 
 	public void sendPingRequest(IPAddress destinationIP,int ttl) {
 		++sequenceNumber;
-		var packet = makePingPacket(indetifier, sequenceNumber, destinationIP, ttl);
+		var packet = makePingPacket(identifier, sequenceNumber, destinationIP, ttl);
 		pc.display("PING " + destinationIP + " " + packet.getTotalLength()+ " bytes of data.");
 		pc.sendPacket(packet);
 	}
 
 	public void sendTraceroute(IPAddress destinationIP) {
 		++sequenceNumber;
-		var packet = makePingPacket(indetifier+ TRACEROUTE_OFFSET, sequenceNumber, destinationIP, 1);
+		var packet = makePingPacket(identifier+ TRACEROUTE_OFFSET, sequenceNumber, destinationIP, 1);
 		pc.display(String.format("traceroute to %s, 64 hops max", destinationIP));
 		pc.sendPacket(packet);
 	}
@@ -126,7 +126,7 @@ public class PingController implements  ICMPMessageHandler{
 			return;
 		}
 		
-		var pack = makePingPacket(indetifier+ TRACEROUTE_OFFSET,
+		var pack = makePingPacket(identifier+ TRACEROUTE_OFFSET,
 				sentReq.request().getCode(), sentReq.dest(), sentReq.ttl()+1);
 		pc.sendPacket(pack);
 	}
