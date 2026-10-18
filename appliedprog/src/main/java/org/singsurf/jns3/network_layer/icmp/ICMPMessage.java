@@ -4,9 +4,11 @@ import org.singsurf.jns3.network_layer.IPPacket;
 import org.singsurf.jns3.network_layer.OnesComplementNumber;
 
 public class ICMPMessage {
-	static final byte PING_REQUEST_TYPE = 0x08;
-	static final byte PING_REPLY_TYPE = 0x00;
-
+	static final byte PING_REPLY_TYPE = 0;
+	static final byte PING_REQUEST_TYPE = 8;
+	static final byte TIME_EXCEEDED = 11;
+	static final byte PARAMETER_PROBLEM = 12;
+	
 	byte type;
 	byte code;
 	short checksum;
@@ -120,8 +122,12 @@ public class ICMPMessage {
 		return type == PING_REPLY_TYPE;
 	}
 
-	public boolean isTTLError() {
-		return type == 11 && code == 0;
+	public boolean isTTLExpired() {
+		return type == TIME_EXCEEDED && code == 0;
+	}
+
+	public boolean isParemeterProblem() {
+		return type == PARAMETER_PROBLEM;
 	}
 
 	public static boolean isICMPMessage(IPPacket packet) {
@@ -136,7 +142,15 @@ public class ICMPMessage {
 		return new ICMPMessage(PING_REPLY_TYPE, (byte) 0, (short) id,  (short) cd);
 	}
 
-	public static ICMPMessage createErrorFromPacket(IPPacket packet) {
+	/**
+	 * Attempt to parse an ICMP message from an IP packet. 
+	 * If the packet if the data is too short, or if the checksum is invalid, 
+	 * an error message will be returned instead.
+	 * @param packet packet containing the ICMP message
+	 * @return the parsed ICMP message, or an error message if the packet is invalid
+	 * @throws IllegalArgumentException if the packet is not an ICMP packet
+	 */
+	public static ICMPMessage parsePacket(IPPacket packet) {
 		if(packet.getProtocol() != 1 ) {
 			throw new IllegalArgumentException("Not an ICMP packet");
 		}
@@ -159,21 +173,22 @@ public class ICMPMessage {
 	}
 
 
-	public static ICMPMessage createTTLExceeded(IPPacket packet) {
-		return createMessage((byte) 11, (byte) 0, packet);
+	public static ICMPMessage createTTLExpired(IPPacket packet) {
+		return createMessage(TIME_EXCEEDED, (byte) 0, packet);
 	}
 
 	public static ICMPMessage createBadChecksumError(IPPacket packet) {
-		return new ICMPMessage((byte) 12, (byte) 2, 0, packet.getData());
+		return new ICMPMessage(PARAMETER_PROBLEM, (byte) 0, 0, packet.getData());
 	}
 
 	public static ICMPMessage createTooShortError(IPPacket packet) {
-		return new ICMPMessage((byte) 12, (byte) 2, 0, new byte[0]);
+		return new ICMPMessage(PARAMETER_PROBLEM, (byte) 2, 0, packet.getData());
 	}
 
 	public static ICMPMessage createMessage(byte type, byte code, IPPacket packet) {
 		var data = packet.getData();
 		if (data.length < 8) {
+			throw new IllegalArgumentException("Packet data too short for ICMP message");
 		}
 		short restLow = (short) ((data[4] & 0xFF) | ((data[5] & 0xFF) << 8));
 		short restHigh = (short) ((data[6] & 0xFF) | ((data[7] & 0xFF) << 8));
@@ -183,5 +198,6 @@ public class ICMPMessage {
 				type, code, ((restHigh & 0xFFFF) << 16) | (restLow & 0xFFFF), 
 				newData);
 	}
+
 
 }

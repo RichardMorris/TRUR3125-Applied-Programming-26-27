@@ -64,7 +64,7 @@ public class PingController implements  ICMPMessageHandler{
 	@Override
 	public boolean matches(ICMPMessage message) {
 		return (message.isPingReply() 
-				|| message.isTTLError() );
+				|| message.isTTLExpired() );
 	}
 
 	@Override
