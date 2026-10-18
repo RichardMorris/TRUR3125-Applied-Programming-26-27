@@ -12,6 +12,7 @@ import org.singsurf.jns3.network_layer.FragmentCombiner;
 import org.singsurf.jns3.network_layer.IPAddress;
 
 public class DeviceFactory {
+	static DeviceFactory instance = new DeviceFactory();
     List<MACAddress> macAddresses = new ArrayList<>();
     List<IPAddress> ipAddresses = new ArrayList<>();
     FrameFactory frameFactory = new FrameFactory();
@@ -73,4 +74,8 @@ public class DeviceFactory {
         var hub = new Hub(name, numPorts);
         return hub;
     }
+
+	public static DeviceFactory getInstance() {
+		return instance;
+	}
 }
