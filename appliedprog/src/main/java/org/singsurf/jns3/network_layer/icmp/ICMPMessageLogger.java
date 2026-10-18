@@ -3,10 +3,10 @@ package org.singsurf.jns3.network_layer.icmp;
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.network_layer.IPPacket;
 
-public class ICMPPacketLogger implements ICMPMessageHandler {
+public class ICMPMessageLogger implements ICMPMessageHandler {
 	String name;
 
-	public ICMPPacketLogger(String name) {
+	public ICMPMessageLogger(String name) {
 		this.name = name;
 	}
 	

@@ -138,7 +138,7 @@ public class ICMPMessage {
 		return new ICMPMessage(PING_REQUEST_TYPE, (byte) 0, id, cd);
 	}
 
-	public static ICMPMessage createPingReply(int id, int cd) {
+	public static ICMPMessage createPingReply(short id, short cd) {
 		return new ICMPMessage(PING_REPLY_TYPE, (byte) 0, (short) id,  (short) cd);
 	}
 
@@ -185,7 +185,7 @@ public class ICMPMessage {
 		return new ICMPMessage(PARAMETER_PROBLEM, (byte) 2, 0, packet.getData());
 	}
 
-	public static ICMPMessage createMessage(byte type, byte code, IPPacket packet) {
+	static ICMPMessage createMessage(byte type, byte code, IPPacket packet) {
 		var data = packet.getData();
 		if (data.length < 8) {
 			throw new IllegalArgumentException("Packet data too short for ICMP message");

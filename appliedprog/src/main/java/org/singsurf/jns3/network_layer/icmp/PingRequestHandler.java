@@ -7,8 +7,8 @@ import org.singsurf.jns3.network_layer.PacketSender;
 
 public class PingRequestHandler implements ICMPMessageHandler {
 	String name;
-	PacketSender sender;
 	IPAddress hostAddress;
+	PacketSender sender;
 
 	public PingRequestHandler(String name, IPAddress hostAddress, PacketSender sender) {
 		this.name = name;

@@ -37,7 +37,7 @@ class TestPassthroughRouter {
 		
 		pingcont = PingController.newInstance(pc1);
 		icmpHandler1.addHandler(pingcont);
-		icmpHandler1.addHandler(new ICMPPacketLogger("ICMPLogger1"));
+		icmpHandler1.addHandler(new ICMPMessageLogger("ICMPLogger1"));
 		
 		var combiner1 = new IPFragmentHandler(pc1,pc1.getPacketReceiver());
 		pc1.clearFrameHandlers();

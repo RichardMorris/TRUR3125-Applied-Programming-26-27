@@ -27,7 +27,7 @@ class TestICMPHandler {
 		var packetLogger = new DefaultPacketReceiver("PacketLogger");
 		var icmpHandler = new ICMPPacketReceiver(pc.getName(), packetLogger);
 
-		icmpHandler.addHandler(new ICMPPacketLogger("ICMPLogger"));
+		icmpHandler.addHandler(new ICMPMessageLogger("ICMPLogger"));
 		
 		byte[] data = new byte[] { (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04,
 				(byte) 0x34, (byte) 0x12, (byte) 0x78, (byte) 0x56 };
@@ -58,7 +58,7 @@ class TestICMPHandler {
 		var packetLogger = new DefaultPacketReceiver("PacketLogger");
 		var icmpHandler = new ICMPPacketReceiver(pc.getName(), packetLogger);
 
-		icmpHandler.addHandler(new ICMPPacketLogger("ICMPLogger"));
+		icmpHandler.addHandler(new ICMPMessageLogger("ICMPLogger"));
 		
 		pc.setPacketReceiver(icmpHandler);
 		var combiner = new IPFragmentHandler(pc,pc.getPacketReceiver());
@@ -105,7 +105,7 @@ class TestICMPHandler {
 		
 		var pingcont = PingController.newInstance(pc1);
 		icmpHandler1.addHandler(pingcont);
-		icmpHandler1.addHandler(new ICMPPacketLogger("ICMPLogger1"));
+		icmpHandler1.addHandler(new ICMPMessageLogger("ICMPLogger1"));
 		
 		var combiner1 = new IPFragmentHandler(pc1,pc1.getPacketReceiver());
 		pc1.clearFrameHandlers();

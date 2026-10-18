@@ -36,7 +36,7 @@ class TestICMPPackage {
 
 	@Test
 	void can_create_a_ping_reply() {
-		var msg = ICMPMessage.createPingReply(0x5678,0x1234);
+		var msg = ICMPMessage.createPingReply((short) 0x5678,(short) 0x1234);
 		assertEquals((byte) 0x00, msg.getType());
 		assertEquals((byte) 0x00, msg.getCode());
 		assertEquals(0x5678, msg.getIdentifier());
