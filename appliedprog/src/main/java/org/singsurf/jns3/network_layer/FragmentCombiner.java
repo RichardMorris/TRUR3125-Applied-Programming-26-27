@@ -28,7 +28,7 @@ public class FragmentCombiner implements FrameHandler {
 		private IPAddress destinationAddress;
 		private byte ttl;
 		
-		public FragmentCollector(short identification) {
+		FragmentCollector(short identification) {
 			this.identification = identification;
 		}
 		
@@ -80,7 +80,7 @@ public class FragmentCombiner implements FrameHandler {
 		 * @param fragment
 		 * @return true if the fragment was added and the collector is complete, false otherwise
 		 */
-		public boolean addFragment(IPPacket fragment) {
+		boolean addFragment(IPPacket fragment) {
 			if(!matches(fragment)) {
 				return false;
 			}
@@ -97,7 +97,7 @@ public class FragmentCombiner implements FrameHandler {
 			}			
 		}
 
-		protected byte[] combineDataSections() {
+		byte[] combineDataSections() {
 			int totalLength = 0;
 			for(var frag : fragments.values()) {
 				totalLength += frag.getDataLength();
@@ -137,7 +137,7 @@ public class FragmentCombiner implements FrameHandler {
 		return handlePacket(packet);
 	}
 
-	protected boolean handlePacket(IPPacket packet) {
+	boolean handlePacket(IPPacket packet) {
 		if(!packet.isValidChecksum()) {
 			Jns3Logger.log(pc.getName(),Jns3Logger.LogLevel.ERROR, "Invalid IP packet checksum");
 			return true;

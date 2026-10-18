@@ -144,7 +144,7 @@ public class IPPacket {
         return data.clone();
     }
 
-    public OnesComplementNumber calculateHeaderChecksum() {
+    OnesComplementNumber calculateHeaderChecksum() {
         var sum = new OnesComplementNumber(
             getVersionAndHeaderLength(),
             typeOfService
@@ -208,7 +208,7 @@ public class IPPacket {
         );
     }
 
-	public IPPacket createFragment(int offset, int dataSize, boolean moreFrag, int id) {
+	IPPacket createFragment(int offset, int dataSize, boolean moreFrag, int id) {
 	    var frag = new FragmentInfo((short) id, false, moreFrag, (short) offset);
 	    byte[] dataSection = Arrays.copyOfRange(data, 8*offset, 8*offset + dataSize);
 	    return new IPPacket(protocol, frag, timeToLive, sourceAddress, destinationAddress, dataSection);
