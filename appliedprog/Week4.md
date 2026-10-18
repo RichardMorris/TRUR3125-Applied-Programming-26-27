@@ -1,13 +1,15 @@
 # Week 4 Data Link Layer
 
-## User Story
+## Ethernet Frames
+
+### User Story
 
 As a network engineer for a large company with thousands of PC's
 I want to set up a local area network using simple level 2 switches
 and PC's referenced by MAC addresses
 so that any message received by any switch is sent to the correct PC and displayed.
 
-## Specification
+### Specification
 
 1. A `MACAddress` consist of 6 octets or bytes.
    * As a MAC address and `IPAddr` are similar differing only in the number of bytes a common base class `AbstractAddress` is used.
@@ -34,7 +36,7 @@ so that any message received by any switch is sent to the correct PC and display
     * A unique name
     * It can receive frames and log them via the Jns3Logger.
 
-## Pattern Usage
+### Pattern Usage
 
 A factory method
 
