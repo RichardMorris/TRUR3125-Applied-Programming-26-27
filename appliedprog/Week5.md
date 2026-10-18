@@ -6,6 +6,25 @@ As a network engineer when I connect two machines with assigned local IP address
 they need to find the corresponding MAC Addresses so they
 can then send messages to each other.
 
+## Acceptance criteria
+
+Scenario: two PC's can find each others MAC addresses
+Given: a network of two PC's, that do not know each other's MAC addresses
+When: the first PC sends a GARP request
+Then: the second PC receives the request
+Then: it replies with a ArpMessage containing it's MAC address.
+And: it updates its arp table with the sender MAC address.
+Then: the first PC receives the reply
+Then: it updates its arp table
+
+Scenario: two PC that know each others MAC addresses
+When: the first machine sends a frame to the other IP address
+Then: it looks up the mac address in the arp table
+Then: it creates a frame using the found MAC address
+Then: it sends the frame
+Then: the second PC receives the frame
+Then: the second PC checks the MAC address matches and logs the message.
+
 ## Specification
 
 1. An `ARPMessage` message has the format
@@ -58,8 +77,6 @@ can then send messages to each other.
     * It implement `FrameSender` but provides no `sendFrame()` as PC's and network devices differ.
     * It has utility methods `EthernetFrame createEthernetFrame(MACAddress destinationMac, String payload)` and `createEthernetFrame(MACAddress destinationMac, byte[] payload)`
     that create frames using the devices MacAddress as the source address.
-
-
 10. The transport layer is modelled by an interface `Connection` that has a methods
     * `void send(EthernetFrame frame)` to start transmission of the frame down the wire
 11. The `SimpleConnection` represents a simple one way connection between two devices. It
