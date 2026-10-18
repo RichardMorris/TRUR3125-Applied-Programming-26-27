@@ -92,7 +92,7 @@ public class OnesComplementNumber implements Comparable<OnesComplementNumber> {
 		}
 	}
 
-    static Iterator<OnesComplementNumber> iterator(int start, int stop, int stepsize) {
+    public static Iterator<OnesComplementNumber> iterator(int start, int stop, int stepsize) {
         
         return new Iterator<OnesComplementNumber>() {
         	OnesComplementNumber stepSize = fromTwosComplement(stepsize);
