@@ -23,6 +23,7 @@ public class TestThrottledConnection {
         pc1 = deviceFactory.createPC("PC1");
         pc1.setEndPoint(new NICCard("PC1-EP",pc1));
         pc2 = deviceFactory.createPC("PC2");
+        pc2.setEndPoint(new NICCard("PC2-EP",pc1));
         var connection = new ThrottledConnection(pc1.getEndPoint(), pc2.getEndPoint(),
         		ThrottledConnection.CAT3);
         
