@@ -1,14 +1,10 @@
 package org.singsurf.jns3.hardware;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.data_link_layer.ARPController;
 import org.singsurf.jns3.data_link_layer.ARPMessage;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.data_link_layer.FrameFactory;
-import org.singsurf.jns3.data_link_layer.FrameHandler;
 import org.singsurf.jns3.data_link_layer.FrameSender;
 import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.network_layer.IPAddress;
@@ -26,71 +22,44 @@ import org.singsurf.jns3.network_layer.icmp.PingRequestHandler;
  *  otherwise it is dropped. This is a simple implementation of a router that does not perform any routing logic.
  */
 public class PassthroughRouter extends MultiPortDevice implements AddressableDevice {
-    List<FrameHandler> frameHandlers = new ArrayList<>();
-    IPAddress address;
-    FrameFactory frameFactory = FrameFactory.getInstance();
+    IPAddress ipAddress;
     MACAddress macAddress = DeviceFactory.getInstance().createMACAddress();
-    ARPController arpController1;
-    ARPController arpController2;
-	private Sender sender1;
-	private Sender sender2;
-	private PingRequestHandler pingreq1;
-	private PingRequestHandler pingreq2;
+    ARPController arpController;
+	Sender sender;
+	PingRequestHandler pingreq;
+    FrameFactory frameFactory = FrameFactory.getInstance();
     
     class Sender implements FrameSender, PacketSender {
 		int portNumber;
 		MACAddress destMac;
-		public Sender(int portNumber) {
-			this.portNumber = portNumber;
-		}
+
+		Sender() { }
+		
 		@Override
 		public void sendFrame(EthernetFrame frame) {
 			PassthroughRouter.this.sendFrame(portNumber, frame);
 		}
+		
 		@Override
 		public void sendPacket(IPPacket packet) {
 			var frame = frameFactory.createEthernetFrame(
 					macAddress,destMac, packet.toBytes());
 			sendFrame(frame);
 		}
-		public void setDestMac(MACAddress dest) {
+		
+		void setDestPortMac(int port,MACAddress dest) {
+			portNumber = port;
 			destMac = dest;
 		}
 	}
-    static class Addressable implements AddressableDevice {
-    	public Addressable(String name, IPAddress ipAddress, MACAddress macAddress) {
-			super();
-			this.name = name;
-			this.macAddress = macAddress;
-			this.ipAddress = ipAddress;
-		}
-		public String getName() {
-			return name;
-		}
-		public MACAddress getMACAddress() {
-			return macAddress;
-		}
-		public IPAddress getIPAddress() {
-			return ipAddress;
-		}
-		String name;
-    	MACAddress macAddress;
-    	IPAddress ipAddress;
-    	
-    	
-    }
     
     public PassthroughRouter(String name, IPAddress address) {
 		super(name, 2);
-		this.address = address;
-	    sender1 = new Sender(0);
-	    sender2 = new Sender(1);
-		arpController1 = new ARPController(new Addressable(name,address,macAddress), 
-	    		sender1);
-	    arpController2 = new ARPController(new Addressable(name,address,macAddress), 
-	    		sender2);
-		pingreq1 = new PingRequestHandler(name,address, sender1);
-		pingreq2 = new PingRequestHandler(name,address, sender2);
+		this.ipAddress = address;
+	    sender = new Sender();
+	    var addr1 = AddressableDevice.createAddressableDevice(name, macAddress, address);
+		arpController = new ARPController(addr1, sender);
+		pingreq = new PingRequestHandler(addr1, sender);
 
 	}
 
@@ -102,13 +71,8 @@ public class PassthroughRouter extends MultiPortDevice implements AddressableDev
 		}
 		if(ARPMessage.isARPMessage(frame)) {
 			sendFrame(1 - portNumber, frame);
-			if(portNumber == 0) {
-				sender1.setDestMac(frame.getSource());
-				arpController1.handleFrame(frame);
-			} else {
-				sender2.setDestMac(frame.getSource());
-				arpController2.handleFrame(frame);
-			}
+			sender.setDestPortMac(portNumber,frame.getSource());
+			arpController.handleFrame(frame);
 			return;
 		}
 		var payload = frame.getPayload();
@@ -123,7 +87,7 @@ public class PassthroughRouter extends MultiPortDevice implements AddressableDev
 		}
 		packet.decrementTTL();
 		if(packet.getTimeToLive() > 0) {
-			if(!packet.getDestinationAddress().equals(address) ) {
+			if(!packet.getDestinationAddress().equals(ipAddress) ) {
 				sendFrame(1 - portNumber, frame);
 				return;
 			}
@@ -140,7 +104,7 @@ public class PassthroughRouter extends MultiPortDevice implements AddressableDev
 		if(icmp.isParemeterProblem()) {
 			var errorPacket = new IPPacket(
 				IPPacket.IMCP, 64,
-				address, packet.getSourceAddress(), 
+				ipAddress, packet.getSourceAddress(), 
 				icmp.getBytes());
 			var errorFrame = frameFactory.createEthernetFrame(
 				frame.getSource(),frame.getDestination(), errorPacket.toBytes());
@@ -151,22 +115,17 @@ public class PassthroughRouter extends MultiPortDevice implements AddressableDev
 		} 
 
 		if(icmp.isPingRequest()) {
-			if(packet.getDestinationAddress().equals(address) 
+			if(packet.getDestinationAddress().equals(ipAddress) 
 					&& packet.getTimeToLive() > 0) {
 
-				if(portNumber == 0) {
-					sender1.setDestMac(frame.getSource());
-					pingreq1.handle(packet, icmp);
-				} else {
-					sender2.setDestMac(frame.getSource());
-					pingreq2.handle(packet, icmp);
-				}
+				sender.setDestPortMac(portNumber,frame.getSource());
+				pingreq.handle(packet, icmp);
 				return;
 			}
 			var errorMsg = ICMPMessage.createTTLExpired(packet);
 			var errorPacket = new IPPacket(
 				IPPacket.IMCP, 64,
-				address, packet.getSourceAddress(), 
+				ipAddress, packet.getSourceAddress(), 
 				errorMsg.getBytes());
 			var errorFrame = frameFactory.createEthernetFrame(
 				frame.getSource(),frame.getDestination(), errorPacket.toBytes());
@@ -179,7 +138,7 @@ public class PassthroughRouter extends MultiPortDevice implements AddressableDev
 	}
 
 	public IPAddress getIPAddress() {
-		return address;
+		return ipAddress;
 	}
 
 	@Override
