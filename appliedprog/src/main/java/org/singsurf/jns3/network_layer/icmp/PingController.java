@@ -15,18 +15,18 @@ import org.singsurf.jns3.network_layer.IPPacket;
  * Controller for handling ping requests and replies.
  * Can start a ping request and handle incoming ping replies.
  */
-public class PingController implements  ICMPMessageHandler{
+public class PingController implements  ICMPMessageHandler {
 	static short currentIdentifier=0;
 	static final short TRACEROUTE_OFFSET = (short) 0x4000; 
 	short identifier = 0;
 	short sequenceNumber = 0;
 	PC pc;
-	
-	record SentPing(ICMPMessage request, long sentTime, IPAddress dest, int ttl) {}
-	Map<Short, SentPing> pingRequests = new HashMap<>();
-
-	record PingReplyRecord(IPAddress ip, ICMPMessage msg, int ttl) {}
+	Map<Short, SentPing> sentPings = new HashMap<>();
 	List<PingReplyRecord> completed = new ArrayList<>();
+	
+	record SentPing(ICMPMessage request, int sentTime, IPAddress dest, int ttl) {}
+
+	record PingReplyRecord(IPAddress ip, ICMPMessage msg, int rtt) {}
 
 	private PingController(PC pc2, short identifier) {
 		this.pc = pc2;
@@ -55,7 +55,7 @@ public class PingController implements  ICMPMessageHandler{
 				IPPacket.IMCP,ttl,
 				pc.getIPAddress(), destinationIP, pingRequest.getBytes());
 		// Send the packet using the provided PacketSender
-		pingRequests.put((short) code,
+		sentPings.put((short) code,
 				new SentPing(pingRequest, GlobalWallClock.getTime(), destinationIP,ttl)); // Store the sequence number for tracking
 		return packet;
 	}
@@ -77,14 +77,14 @@ public class PingController implements  ICMPMessageHandler{
 			return;
 		}
 		var sequenceNumber = message.getRestHigh();
-		if(!pingRequests.containsKey(sequenceNumber)) {
+		if(!sentPings.containsKey(sequenceNumber)) {
 			Jns3Logger.logError(pc.getName(), 
 					"Received orphaned ping reply from " + sourceAddress 
 					+ " " + message.toString());
 			return;
 		}
 		
-		var sentReq = pingRequests.get(sequenceNumber);
+		var sentReq = sentPings.get(sequenceNumber);
 		var sentTime = sentReq.sentTime();
 		var currentTime = GlobalWallClock.getTime();
 		var rtt = currentTime - sentTime;
@@ -104,8 +104,8 @@ public class PingController implements  ICMPMessageHandler{
 						packet.getTotalLength(), sourceAddress,
 						message.getSequenceNumber(), packet.getTimeToLive(), rtt));
 
-				pingRequests.remove(sequenceNumber); // Remove the entry after processing
-				completed.add(new PingReplyRecord(sourceAddress, message, packet.getTimeToLive())); // Store the received ping reply
+				sentPings.remove(sequenceNumber); // Remove the entry after processing
+				completed.add(new PingReplyRecord(sourceAddress, message, rtt)); // Store the received ping reply
 		} else {
 			Jns3Logger.logError(pc.getName(), 
 					"Received error from " + sourceAddress 
@@ -131,7 +131,7 @@ public class PingController implements  ICMPMessageHandler{
 		pc.sendPacket(pack);
 	}
 	
-	static PingController newInstance(PC pc) {
+	public static PingController newInstance(PC pc) {
 		PingController controller = new PingController(pc, currentIdentifier++);
 		return controller;
 	}
