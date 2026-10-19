@@ -1,6 +1,7 @@
 package org.singsurf.jns3.network_layer.icmp;
 
 import org.singsurf.jns3.Jns3Logger;
+import org.singsurf.jns3.hardware.AddressableDevice;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPPacket;
 import org.singsurf.jns3.network_layer.PacketSender;
@@ -9,13 +10,13 @@ public class PingRequestHandler implements ICMPMessageHandler {
 	String name;
 	IPAddress hostAddress;
 	PacketSender sender;
-
-	public PingRequestHandler(String name, IPAddress hostAddress, PacketSender sender) {
-		this.name = name;
-		this.sender = sender;
-		this.hostAddress = hostAddress;
-	}
 	
+	public PingRequestHandler(AddressableDevice addr, PacketSender sender) {
+		this.name = addr.getName();
+		this.sender = sender;
+		this.hostAddress = addr.getIPAddress();
+	}
+
 	@Override
 	public boolean matches(ICMPMessage message) {
 		if (message.getType() == 8) {
