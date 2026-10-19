@@ -34,3 +34,6 @@ See [week 10](appliedprog/Week10.md)
 
 * Week 11 - IMCP, allows devices to ping each other.
 See [week 11](appliedprog/Week11.md)
+
+* Week 12 - UDP and Sockets. Simple applications.
+See [week 12](appliedprog/Week12.md)
