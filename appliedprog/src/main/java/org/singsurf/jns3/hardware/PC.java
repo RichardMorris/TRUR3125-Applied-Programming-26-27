@@ -11,9 +11,9 @@ import org.singsurf.jns3.data_link_layer.FrameHandler;
 import org.singsurf.jns3.data_link_layer.FrameReceiver;
 import org.singsurf.jns3.data_link_layer.FrameSender;
 import org.singsurf.jns3.data_link_layer.MACAddress;
+import org.singsurf.jns3.network_layer.EthernetPacketSender;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPPacket;
-import org.singsurf.jns3.network_layer.PacketFragmentor;
 import org.singsurf.jns3.network_layer.PacketReceiver;
 import org.singsurf.jns3.network_layer.PacketSender;
 import org.singsurf.jns3.physical_layer.PhysicalEndPoint;
@@ -27,7 +27,7 @@ public class PC implements AddressableDevice, FrameSender, FrameReceiver, Packet
     IPAddress ipAddress;
     FrameSender ethernetEndPoint;
     PacketReceiver packetReceiver;
-    PacketFragmentor packetFragmentor;
+    PacketSender packetSender;
 
     public PC(String name, MACAddress macAddress, IPAddress ipAddress) {
         this.name = name;
@@ -36,7 +36,7 @@ public class PC implements AddressableDevice, FrameSender, FrameReceiver, Packet
         this.ethernetEndPoint = new EthernetEndPoint(name, this);
         this.frameFactory = new FrameFactory();
         this.arpController = new ARPController(this,this);
-        this.packetFragmentor = new PacketFragmentor(140);
+        this.packetSender = new EthernetPacketSender(this, arpController, ethernetEndPoint);
     }
 
     @Override
@@ -124,9 +124,13 @@ public class PC implements AddressableDevice, FrameSender, FrameReceiver, Packet
 	public PacketReceiver getPacketReceiver() {
 		return packetReceiver;
 	}
-
-	public PacketFragmentor getPacketFragmentor() {
-		return packetFragmentor;
+	
+	public void setPacketSender(PacketSender packetSender) {
+		this.packetSender = packetSender;
+	}
+	
+	public PacketSender getPacketSender() {
+		return packetSender;
 	}
 	
 	public IPPacket createIPPacket(int protocol,IPAddress dest, byte[] data) {
@@ -142,18 +146,7 @@ public class PC implements AddressableDevice, FrameSender, FrameReceiver, Packet
 	}
 
 	public void sendPacket(IPPacket packet) {
-		var destMac = arpController.getArpTable().get(packet.getDestinationAddress());
-		if(destMac == null) {
-			Jns3Logger.logError(getName(), "No ARP entry for " + packet.getDestinationAddress() + ". Cannot send packet.");
-			return;
-		}
-		List<IPPacket> packets = packetFragmentor.getFragments(packet);
-		for(IPPacket p : packets) {
-			EthernetFrame frame = createEthernetFrame(
-					destMac, p.toBytes());
-			sendFrame(frame);
-		}
-		
+		packetSender.sendPacket(packet);
 	}
 
 	public void display(String string) {
