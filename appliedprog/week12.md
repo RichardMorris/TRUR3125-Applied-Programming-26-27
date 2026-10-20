@@ -2,12 +2,12 @@
 
 ## User Story
 
-As a family, we want to chat each other via our PC on a local network 
+As a family, we want to chat each other via our PC on a local network
 so we are kept up to date on everyone's messages.
 
 ## Acceptance Criteria
 
-Scenario: Document to local printer
+Scenario: A public lan chat application
 
 * Given: A network of 2 PC's connected to a `Switch`
 * When: The first PC starts the `ChatApplication`
@@ -29,6 +29,56 @@ Scenario: Document to local printer
 * When: The second chat application receives a `tick`
 * Then: The it calls the `poll` method of the socket
 * Then: It receives the datagram and displays the content
+
+Scenario: A private chat application
+Given: a network of 4 PC's connected by two linked switched via a BlockingConnector.
+When: PC1 starts the private chat application using PC4's IP address.
+Then: It connects to a `DatagramSocket` bound to port 43 and PC4's address.
+When: PC4 starts the private chat application using PC1's IP address.
+Then: It connects to a `DatagramSocket` bound to port 43 and PC1's address.
+When: PC1 `says` a message
+Then: PC1 checks it ARPTable for the IP address
+Then: It sends an ARPRequest
+And: stores the message in a table
+When: time is advance
+Then: PC4 replies to the ARPRequest and updates its table
+When: time is advanced
+Then: PC1 receives the arp request and updates its table
+Then: it recovers stored messages and sends them across the network.
+When: time is advanced
+Then: PC4 polls for messages
+Then: PC4 displays the message.
+
+Scenario: A private group chat
+Given: a network of 4 PC's connected by two linked switched via a BlockingConnector.
+When: PC1 starts the private chat application using PC4's IP address.
+Then: it create a socket bound to port 43 and PC4's address.
+Then: it create a socket bound to port 42 and multicast address.
+When: PC1 `adds` PC3 IP Address
+Then: it says `ADD_HOST 192.168.1.3` to current listeners PC4
+Then: it says `ADD_HOST 192.168.1.4` to PC3
+Then: it creates a socket  bound to port 43 and PC3's address.
+When: A PC receives an `ADD_HOST` message
+Then: creates a socket bound to port 42 and the IP address
+When: PC1 `says` a message
+Then: it is sent to PC3 and PC4 but not PC2
+When: PC4 `closes` the chat
+Then: it sends a `REMOVE_HOST 192.168.1.4` to both sockets
+Then: PC1 and PC3 `close` their sockets
+When: PC2 starts the public chat application
+And: PC2 say "Time for tea"
+Then: The message is sent to PC1 and PC3.
+
+Scenario: unreliable connection
+Given: two PC's connected by a blocking connector and lossy connector/corrupting connector
+And: both PC have the public chat application open
+When: PC1 `says` many large messages.
+Then: each message is broken into fragments and sent across the connector
+Then: some fragments are dropped
+Then: PC2 recombines the fragments
+When: a complete IP packet containing a UDP datagram is created
+Then: PC2 displays complete messages
+And: incomplete/corrupted message are never displayed
 
 ## Specification
 
@@ -69,6 +119,20 @@ Scenario: Document to local printer
     * Its `tick` method
         * repeatedly poll's the socket for a datagram
         * If a datagram is received displays the message it contains
+6. Connectors can be joined together
+    * PhysicalConnection has two `PhysicalEndPoint` inner classes.
+    * A connection can have either of its endpoint set to null
+        * If so `PhysicalEndPoint`
+    * A connection has a `setEndpoint1(PhysicalEndPoint)` and `setEndpoint2(PhysicalEndPoint)` methods
+    * A connection has a `PhysicalEndPoint getEndpoint1()` and `PhysicalEndPoint getEndpoint2()` methods
+    * connections can be joined together
+
+    ```java
+    var buf = new BufferedConnection(PC1.getEndPoint, null);
+    var loss = new LossyConnection(null,PC2);
+    buf.setEndPoint2(loss.getVirtualEndpoint(0));
+    loss.setEndPoint1(buf.getVirtualEndpoint(1));
+    ```
 
 ## Design
 
@@ -97,42 +161,18 @@ A common pattern should now become apparent:
 Can we encapsulate this using design patterns or Java language features. Here generics map play a role.
 Interfaces can be defined like
 
-    ```java
-    interface MessageMatcher<T> {
-        boolean match(T message);
-    }
-    ```
+```java
+interface MessageMatcher<T> {
+    boolean match(T message);
+}
+```
 
 and implementing class specify the actual message type
 
-    ```java
-    class IPPacketMatcher implements MessageMatcher<IPPacket> {
-        public boolean match(IPPacket message);
-    }
-    ```
+```java
+class IPPacketMatcher implements MessageMatcher<IPPacket> {
+    public boolean match(IPPacket message);
+}
+```
 
 We look at this major refactoring in the next week.
-
-* A protocol such  as ARP, IP, ICMP, and UDP has - represented by the `Protocol<T,L>` type
-  * Has a container type `T`
-  * Has a lower level protocol container type `L`
-  * A container type that hold the type of message - implements `ProtocolContainer`
-    * Has fields for each field in the protocol
-    * Can be constructed using values for the field
-    * Can be queried to extract the values for the field.
-    * Can be converted into a byte array - implements `byte[] getBytes()`
-    * Its content can be converted to a byte array - implements `byte[] getContents()`
-  * Can construct from a byte array - `T fromBytes()`
-  * Can check it can handle data from a lower level protocol `boolean match(L message)`
-  * Can be created from a lower level protocol - `T fromContainer(L message)`
-  * classes that receive messages - implement `MessageReceiver<T,H>`
-    * These have a set of handlers each handler is of type `H` a message handler.
-      * May match a higher level protocol or match a subtype of the protocol
-      * Checks if message matches - implements `boolean matches(T message)`
-      * handles matching messages - implements `T handle(T message)` 
-        * either return null to indicate no further processing
-        * or a, potentially modified, message to be passed to the next handler
-    * Have methods that register, and removes, handlers - implements `addHandler(H handler)`
-  * classes that send messages - implements `MessageSender<T,L>
-    * These package the message up in a lower level protocol - implements `L package()`
-    * Sends the package - implements `void send(L message)`
