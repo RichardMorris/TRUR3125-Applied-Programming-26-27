@@ -20,7 +20,8 @@ public class DatagramSocket {
 	}
 
 	public void receiveDatagram(DatagramPacket datagram) {
-		Jns3Logger.logInfo(name, "Received datagram " + datagram);
+		var len = Math.min(datagram.toString().length(), 200);
+		Jns3Logger.logInfo(name, "Received datagram " + datagram.toString().substring(0, len));
 		receiveQueue.add(datagram);
 	}
 	
