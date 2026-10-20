@@ -49,5 +49,13 @@ public class DatagramSocket {
 	public String toString() {
 		return "DatagramSocket ["+name+" " + boundAddress + ":" + port + "]";
 	}
+
+	public Object getAddress() {
+		return boundAddress;
+	}
+
+	public void close() {
+		udpController.close(this);
+	}
 	
 }

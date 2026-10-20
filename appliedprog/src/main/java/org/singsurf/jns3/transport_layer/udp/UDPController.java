@@ -75,5 +75,12 @@ public class UDPController implements PacketReceiver {
 
 	public void setMulticastAddress(IPAddress multiCastIP) {
 		this.multicastAddress = multiCastIP;
+	}
+
+	public void close(DatagramSocket datagramSocket) {
+		var table = bindings.get(datagramSocket.boundAddress);
+		if(table != null) {
+			table.remove(datagramSocket.port);
+		}		
 	}	
 }

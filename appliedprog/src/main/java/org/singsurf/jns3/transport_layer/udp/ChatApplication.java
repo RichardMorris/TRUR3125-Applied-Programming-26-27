@@ -40,12 +40,23 @@ public class ChatApplication implements TickListener{
 	}
 
 
-	public void say(String message) {
+	public void wisper(String string) {
+		say(string, false);
+		
+	}
+
+	public void say(String string) {
+		say(string, true);
+		
+	}
+
+	public void say(String message, boolean echo) {
 		if(!isPrivate) {
 			sayPublic(message);
 			return;
 		}
-		pc.display(pc.getName() + " says: " + message);
+		if(echo)
+			pc.display(pc.getName() + " says: " + message);
 		for(DatagramSocket socket : sockets) {
 			if(socket.getPort() == PRIVATE_PORT) {
 //				Jns3Logger.logInfo("ChatApplication", "Sending private message to " + socket);
@@ -70,6 +81,16 @@ public class ChatApplication implements TickListener{
 			}
 		}
 	}
+
+	public void removeHost(IPAddress ipAddress) {
+		for(DatagramSocket socket : sockets) {
+			if(socket.getPort() == PRIVATE_PORT && socket.getAddress().equals(ipAddress)) {
+				sockets.remove(socket);
+				socket.close();
+			}
+		}		
+	}
+
 
 	
 	
