@@ -456,4 +456,61 @@ class TestUDPChatApplication {
 		System.out.println(Jns3Logger.errorsAsString());
 	}
 
+	@Test
+	public void counting_large_messages_through_lossy_connection() throws IOException {
+		var connection1 = new CountingConnection(pc1.getEndPoint(), null);
+		var connection2 = new LossyConnection(null,null);
+		var connection3 = new CountingConnection(null, pc2.getEndPoint());
+		connection1.setEnpoint2(connection2.getVirtualEndPoint(0));
+		connection2.setEnpoint1(connection1.getVirtualEndPoint(1));
+		connection2.setEnpoint2(connection3.getVirtualEndPoint(0));
+		connection3.setEnpoint1(connection2.getVirtualEndPoint(1));
+		
+		pc1.sendGARPRequest();
+		GlobalWallClock.advanceBy(4);
+		// Act
+		Jns3Logger.clearLog();
+		var chat1 = new ChatApplication(pc1,pc2.getIPAddress());
+		var chat2 = new ChatApplication(pc2,pc1.getIPAddress());
+		assertNotNull(chat2);
+		
+		String dataString = Jns3Logger.generateOnesComplementTable();
+		var lines = dataString.split("\n");
+		var lineLength = lines.length;
+		System.out.println("Data length: " + dataString.length() + " lines: " + lines.length
+				+ " line len " + lines[0].length() + " num " + (500/lines[0].length()));
+		int fragmentSize = 50;
+		int startIndex = 0;
+		while (startIndex < lineLength) {
+		    int endIndex = Math.min(startIndex + fragmentSize, lineLength);
+		    StringBuilder fragmentBuilder = new StringBuilder();
+		    for (int i = startIndex; i < endIndex; i++) {
+		        fragmentBuilder.append(lines[i]).append("\n");
+		    }
+		    chat1.wisper(fragmentBuilder.toString());
+//		    System.out.println("Sent " + connection1.getForwardCount() + " frames, " + connection1.getReverseCount() + " frames received");
+		    startIndex = endIndex;
+		}
+		
+		Jns3Logger.startCapture();
+		GlobalWallClock.advanceBy(2);
+		var output = Jns3Logger.endCapture();
+//		System.out.println(output.length() + " chars");
+		System.out.println("Sent " + connection1.getForwardCount() + " frames, " + connection1.getReverseCount() + " frames received");
+		System.out.println("Sent " + connection3.getForwardCount() + " frames, " + connection3.getReverseCount() + " frames received");
+		assertTrue(output.length() > 3000 && output.length() < 3100);
+		assertEquals(56, connection1.getForwardCount());
+		assertEquals(51, connection3.getForwardCount());
+		chat2.wisper("Thanks for that");
+		Jns3Logger.startCapture();
+		GlobalWallClock.advanceBy(2);
+		output = Jns3Logger.endCapture();
+		System.out.print(output);
+		assertEquals(2, connection1.getReverseCount());
+		assertEquals(2, connection3.getReverseCount());
+		
+		assertEquals("PC1: " + pc2.getIPAddress() + " says: Thanks for that", output.trim()); 
+		assertTrue(Jns3Logger.isErrorFree());
+	}
+
 }
