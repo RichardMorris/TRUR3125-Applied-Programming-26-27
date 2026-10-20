@@ -57,6 +57,19 @@ public class DeviceFactory {
         return ip;
     }
 
+    byte nextSequentialIP = 1;
+    public IPAddress createSequentialLocalIPAddress() {
+        int[] bytes = new int[4];
+        bytes[0] = 192;
+        bytes[1] = 168;
+        bytes[2] = 1;
+        bytes[3] = nextSequentialIP;
+        var ip = new IPAddress(bytes);
+        ipAddresses.add(ip);
+        ++nextSequentialIP;
+        return ip;
+    }
+
     public PC createPC(String name) {
         MACAddress mac = createMACAddress();
         IPAddress ip = createLocalIPAddress();
