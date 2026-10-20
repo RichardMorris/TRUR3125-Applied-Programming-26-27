@@ -134,6 +134,17 @@ And: incomplete/corrupted message are never displayed
     loss.setEndPoint1(buf.getVirtualEndpoint(1));
     ```
 
+    * when PC1 sends a frame
+        * then `buf` is called with `send(frame,true)`
+        * `buf` calls its second endpoints `receive(frame)`- loss's virtual end point 0
+        * then virtual endpoint calls `loss.send(frame,true)`
+        * `loss` calls its PC2 `receive(frame)` method
+    * when PC2 sends a frame
+        * then loss is called with `send(frame,false)`
+        * `loss` calls it first end point's `receive(frame)` - buf's virtual end point 1
+        * the end point calls `buf.send(frame,false)`
+        * `buf` calls PC1 `receive (frame)` method.
+
 ## Design
 
 A common pattern should now become apparent:
