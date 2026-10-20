@@ -14,19 +14,19 @@ public class UDPController implements PacketReceiver {
 	PacketReceiver nextReceiver;
 	PacketSender packetSender;
 	String name;
-	
-	Map<Short, SocketBinding> bindings = new HashMap<>();
-	IPAddress sourceAddress;
+	AddressableDevice device;
+	Map<IPAddress,Map<Short, SocketBinding>> bindings = new HashMap<>();
+	private IPAddress multicastAddress;
 	
 	record SocketBinding(IPAddress ip, short port, DatagramSocket socket) {}
 	
-	record DatagramPacket(IPAddress ip, UDPDatagram datagram) {}
+	record DatagramPacket(IPAddress ip, IPAddress dest, UDPDatagram datagram) {}
 
 	public UDPController(AddressableDevice device, PacketSender packetSender,PacketReceiver nextReceiver) {
 		this.name = device.getName() + "-UDPController";
+		this.device = device;
 		this.nextReceiver = nextReceiver;
 		this.packetSender = packetSender;
-		this.sourceAddress = device.getIPAddress();
 	}
 
 	@Override
@@ -36,33 +36,44 @@ public class UDPController implements PacketReceiver {
 			return;
 		}
 		var datagram = UDPDatagram.fromPacket(packet);
-		var binding = bindings.get(datagram.getDestinationPort());
+		var lookupAddress = packet.getDestinationAddress().equals(multicastAddress) ? 
+				multicastAddress : packet.getSourceAddress();
+		var table = bindings.get(lookupAddress);
+		if(table == null) {
+			Jns3Logger.logError(name, "No socket found for IP address " + lookupAddress);
+			return;
+		}
+		var binding = table.get(datagram.getDestinationPort());
 		if(binding == null) {
 			Jns3Logger.logError(name, "No socket found for port " + datagram.getDestinationPort());
 			return;
 		}
 		Jns3Logger.logInfo(name, "Received datagram from " + packet.getSourceAddress() + " on port " + datagram.getDestinationPort());
-		binding.socket.receiveDatagram(new DatagramPacket(packet.getSourceAddress(), datagram));
+		binding.socket.receiveDatagram(new DatagramPacket(packet.getSourceAddress(), 
+				packet.getDestinationAddress(), datagram));
 	}
 	
 	public void bind(IPAddress ip, short port, DatagramSocket socket) {
-		bindings.put(port, new SocketBinding(ip, port, socket));
-		socket.setBinding(this, port);
+		var table = bindings.computeIfAbsent(ip, k -> new HashMap<>());
+		table.put(port, new SocketBinding(ip, port, socket));
+		socket.setBinding(this, port, ip);
 	}
 
-	public void unbind(short port) {
-		bindings.remove(port);
-	}
+	public void sendDatagram(short port, IPAddress boundAddress, UDPDatagram datagram) {
 
-	public void sendDatagram(short port, UDPDatagram datagram) {
-		var binding = bindings.get(port);
+		var table = bindings.get(boundAddress);
+		var binding = table.get(port);
 
 		if(binding == null) {
 			Jns3Logger.logError(name, "No socket found for port " + port);
 			return;
 		}
 		var packet = new IPPacket(IPPacket.UDP, 64,
-		        sourceAddress, binding.ip, datagram.toByteArray()); 
+				device.getIPAddress(), boundAddress, datagram.toByteArray()); 
 		packetSender.sendPacket(packet);		  
 	}
+
+	public void setMulticastAddress(IPAddress multiCastIP) {
+		this.multicastAddress = multiCastIP;
+	}	
 }
