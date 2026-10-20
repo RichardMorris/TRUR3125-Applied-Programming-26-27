@@ -2,19 +2,18 @@ package org.singsurf.jns3.network_layer.icmp;
 
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.hardware.AddressableDevice;
-import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPPacket;
 import org.singsurf.jns3.network_layer.PacketSender;
 
 public class PingRequestHandler implements ICMPMessageHandler {
 	String name;
-	IPAddress hostAddress;
+	AddressableDevice device;
 	PacketSender sender;
 	
 	public PingRequestHandler(AddressableDevice addr, PacketSender sender) {
 		this.name = addr.getName();
+		this.device = addr;
 		this.sender = sender;
-		this.hostAddress = addr.getIPAddress();
 	}
 
 	@Override
@@ -29,7 +28,7 @@ public class PingRequestHandler implements ICMPMessageHandler {
 	public void handle(IPPacket packet, ICMPMessage message) {
 		var sourceAddress = packet.getSourceAddress();
 		var destinationAddress = packet.getDestinationAddress();
-		if(destinationAddress.equals(hostAddress)) {
+		if(destinationAddress.equals(device.getIPAddress())) {
 			Jns3Logger.logRec(name, 
 					"Received ping request from " + sourceAddress 
 					+ " " + message.toString()
@@ -39,7 +38,7 @@ public class PingRequestHandler implements ICMPMessageHandler {
 			ICMPMessage replyMessage = ICMPMessage.createPingReply(message.getRestLow(), message.getRestHigh());
 			IPPacket replyPacket = new IPPacket(
 					IPPacket.IMCP, 64, 
-					hostAddress, sourceAddress,
+					device.getIPAddress(), sourceAddress,
 					replyMessage.getBytes());
 			sender.sendPacket(replyPacket);
 		} else {

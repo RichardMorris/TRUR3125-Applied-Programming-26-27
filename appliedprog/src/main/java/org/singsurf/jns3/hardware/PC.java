@@ -175,6 +175,7 @@ public class PC implements AddressableDevice, FrameSender, FrameReceiver, Packet
 	public void setMulticastAddress(IPAddress multiCastIP) {
 		this.multiCastIP = multiCastIP;
 		this.arpController.put(multiCastIP, new MACAddress("FF:FF:FF:FF:FF:FF"));
+		this.udpController.setMulticastAddress(multiCastIP);
 	}
 
 	public void setICMPHandler(ICMPPacketReceiver icmpPacketReceiver) {
@@ -207,5 +208,9 @@ public class PC implements AddressableDevice, FrameSender, FrameReceiver, Packet
 
 	public void sendTraceroute(IPAddress ipAddress2) {
 		pingController.sendTraceroute(ipAddress2);
+	}
+
+	public void setIPAddress(IPAddress ip) {
+		this.ipAddress = ip;
 	}
 }
