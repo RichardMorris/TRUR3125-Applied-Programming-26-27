@@ -1,6 +1,7 @@
 package org.singsurf.jns3.transport_layer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -14,6 +15,9 @@ import org.singsurf.jns3.hardware.DeviceFactory;
 import org.singsurf.jns3.hardware.GlobalWallClock;
 import org.singsurf.jns3.hardware.PC;
 import org.singsurf.jns3.physical_layer.BufferedConnection;
+import org.singsurf.jns3.physical_layer.CorruptedConnection;
+import org.singsurf.jns3.physical_layer.CountingConnection;
+import org.singsurf.jns3.physical_layer.LossyConnection;
 import org.singsurf.jns3.physical_layer.SimpleConnection;
 import org.singsurf.jns3.transport_layer.udp.ChatApplication;
 
@@ -280,7 +284,7 @@ class TestUDPChatApplication {
 	}
 	
 	@Test
-	public void adding_host_to_private_chat() throws IOException {
+	public void removing_host_from_private_chat() throws IOException {
 		var pc3 = deviceFactory.createPC("PC3");
 		var pc4 = deviceFactory.createPC("PC4");
 		var sw1 = DeviceFactory.getInstance().createSwitch("Switch1", 4);
@@ -309,6 +313,7 @@ class TestUDPChatApplication {
 		var chat2 = new ChatApplication(pc2);
 		var chat3 = new ChatApplication(pc3,pc1.getIPAddress());
 		var chat4 = new ChatApplication(pc4,pc1.getIPAddress());
+		chat1.removeHost(pc3.getIPAddress());
 		assertNotNull(chat1);
 		assertNotNull(chat2);
 		assertNotNull(chat3);
@@ -321,11 +326,134 @@ class TestUDPChatApplication {
 		System.out.println(Jns3Logger.asString());
 		System.out.print(output);
 		var lines = output.trim().split("\n");
-		assertEquals("PC3: " + pc1.getIPAddress() + " says: Hello from PC1", lines[0].trim());
-		assertEquals("PC4: " + pc1.getIPAddress() + " says: Hello from PC1", lines[1].trim());
+		assertEquals("PC4: " + pc1.getIPAddress() + " says: Hello from PC1", lines[0].trim());
 		
 		assertTrue(Jns3Logger.isErrorFree());
 	}
 
+
+	@Test
+	public void large_messages_through_simple_connection() throws IOException {
+		var connection1 = new CountingConnection(pc1.getEndPoint(), pc2.getEndPoint());
+		assertNotNull(connection1);
+		
+		pc1.sendGARPRequest();
+		GlobalWallClock.advanceBy(4);
+		// Act
+		Jns3Logger.clearLog();
+		connection1.reset();
+		var chat1 = new ChatApplication(pc1,pc2.getIPAddress());
+		var chat2 = new ChatApplication(pc2,pc1.getIPAddress());
+		assertNotNull(chat2);
+		
+		String dataString = Jns3Logger.generateOnesComplementTable();
+		var lines = dataString.split("\n");
+		var lineLength = lines.length;
+		System.out.println("Data length: " + dataString.length() + " lines: " + lines.length
+				+ " line len " + lines[0].length() );
+		int fragmentSize = 50;
+		int startIndex = 0;
+		while (startIndex < lineLength) {
+		    int endIndex = Math.min(startIndex + fragmentSize, lineLength);
+		    StringBuilder fragmentBuilder = new StringBuilder();
+		    for (int i = startIndex; i < endIndex; i++) {
+		        fragmentBuilder.append(lines[i]).append("\n");
+		    }
+		    chat1.wisper(fragmentBuilder.toString());
+		    System.out.println("Sent " + connection1.getForwardCount() + " frames, " + connection1.getReverseCount() + " frames received");
+		    startIndex = endIndex;
+		}
+		
+		chat1.say("Hello from PC1");
+		Jns3Logger.startCapture();
+		GlobalWallClock.advanceBy(2);
+		var output = Jns3Logger.endCapture();
+		System.out.print(output.length() + " chars");
+		assertTrue(output.length() > 6000 && output.length() < 6100);
+		assertTrue(Jns3Logger.isErrorFree());
+	}
+
+	@Test
+	public void large_messages_through_lossy_connection() throws IOException {
+		var connection1 = new LossyConnection(pc1.getEndPoint(), pc2.getEndPoint());
+		assertNotNull(connection1);
+		
+		pc1.sendGARPRequest();
+		GlobalWallClock.advanceBy(4);
+		// Act
+		Jns3Logger.clearLog();
+		var chat1 = new ChatApplication(pc1,pc2.getIPAddress());
+		var chat2 = new ChatApplication(pc2,pc1.getIPAddress());
+		assertNotNull(chat2);
+		
+		String dataString = Jns3Logger.generateOnesComplementTable();
+		var lines = dataString.split("\n");
+		var lineLength = lines.length;
+		System.out.println("Data length: " + dataString.length() + " lines: " + lines.length
+				+ " line len " + lines[0].length() + " num " + (500/lines[0].length()));
+		int fragmentSize = 50;
+		int startIndex = 0;
+		while (startIndex < lineLength) {
+		    int endIndex = Math.min(startIndex + fragmentSize, lineLength);
+		    StringBuilder fragmentBuilder = new StringBuilder();
+		    for (int i = startIndex; i < endIndex; i++) {
+		        fragmentBuilder.append(lines[i]).append("\n");
+		    }
+		    chat1.wisper(fragmentBuilder.toString());
+//		    System.out.println("Sent " + connection1.getForwardCount() + " frames, " + connection1.getReverseCount() + " frames received");
+		    startIndex = endIndex;
+		}
+		
+		Jns3Logger.startCapture();
+		GlobalWallClock.advanceBy(2);
+		var output = Jns3Logger.endCapture();
+		System.out.print(output.length() + " chars");
+		assertTrue(output.length() > 3000 && output.length() < 3100);
+		assertTrue(Jns3Logger.isErrorFree());
+	}
+
+	@Test
+	public void large_messages_through_corrupted_connection() throws IOException {
+		var connection1 = new CorruptedConnection(pc1.getEndPoint(), pc2.getEndPoint());
+		assertNotNull(connection1);
+		
+		pc1.sendGARPRequest();
+		GlobalWallClock.advanceBy(4);
+		// Act
+		Jns3Logger.clearLog();
+		var chat1 = new ChatApplication(pc1,pc2.getIPAddress());
+		var chat2 = new ChatApplication(pc2,pc1.getIPAddress());
+		assertNotNull(chat2);
+		
+		String dataString = Jns3Logger.generateOnesComplementTable();
+		var lines = dataString.split("\n");
+		var lineLength = lines.length;
+		System.out.println("Data length: " + dataString.length() + " lines: " + lines.length
+				+ " line len " + lines[0].length() + " num " + (500/lines[0].length()));
+		int fragmentSize = 50;
+		int startIndex = 0;
+		while (startIndex < lineLength) {
+		    int endIndex = Math.min(startIndex + fragmentSize, lineLength);
+		    StringBuilder fragmentBuilder = new StringBuilder();
+		    for (int i = startIndex; i < endIndex; i++) {
+		        fragmentBuilder.append(lines[i]).append("\n");
+		    }
+		    chat1.wisper(fragmentBuilder.toString());
+//		    System.out.println("Sent " + connection1.getForwardCount() + " frames, " + connection1.getReverseCount() + " frames received");
+		    startIndex = endIndex;
+		}
+		
+		Jns3Logger.startCapture();
+		GlobalWallClock.advanceBy(2);
+		var output = Jns3Logger.endCapture();
+		System.out.println(output.length() + " chars");
+		assertTrue(output.length() > 3000 && output.length() < 3100);
+		assertFalse(Jns3Logger.isErrorFree());
+		for(LogItem item : Jns3Logger.getErrorLogItems()) {
+				assertEquals("PC2", item.deviceName());
+				assertEquals("Detected invalid CRC in frame", item.message());
+		}
+		System.out.println(Jns3Logger.errorsAsString());
+	}
 
 }
