@@ -10,6 +10,11 @@ import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.network_layer.DefaultPacketReceiver;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPFragmentHandler;
+import org.singsurf.jns3.network_layer.icmp.ICMPMessageLogger;
+import org.singsurf.jns3.network_layer.icmp.ICMPPacketReceiver;
+import org.singsurf.jns3.network_layer.icmp.PingController;
+import org.singsurf.jns3.network_layer.icmp.PingRequestHandler;
+import org.singsurf.jns3.transport_layer.udp.UDPController;
 
 public class DeviceFactory {
 	static DeviceFactory instance = new DeviceFactory();
@@ -58,10 +63,24 @@ public class DeviceFactory {
         var pc = new PC(name, mac, ip);
         // boot logic for the PC
         pc.setPacketReceiver(new DefaultPacketReceiver(pc.getName()));
+		// Set up ICMP handler and add it to the packet receiver
+        pc.setICMPHandler(new ICMPPacketReceiver(pc.getName(), pc.getPacketReceiver()));
+		pc.setPacketReceiver(pc.getICMPHandler());
+		pc.setPingController(PingController.newInstance(pc));
+		pc.getICMPHandler().addHandler(pc.getPingController());
+		pc.getICMPHandler().addHandler(new PingRequestHandler(pc, pc));
+		pc.getICMPHandler().addHandler(new ICMPMessageLogger("ICMPLogger1"));
+		// Set up UDP controller and add it to the packet receiver
+		pc.setUDPController(new UDPController(pc, pc.getPacketSender(), pc.getPacketReceiver()));
+		pc.setPacketReceiver(pc.getUDPController());
+		// Add frame handlers to the PC
         pc.addFrameHandler(new FrameChecker(pc));
         pc.addFrameHandler(pc.getArpController());
         pc.addFrameHandler(new IPFragmentHandler(pc, pc.getPacketReceiver()));
         pc.addFrameHandler(new DefaultFrameHandler(pc));
+        
+		pc.setMulticastAddress(new IPAddress("192.168.1.255"));
+
         return pc;
     }
 

@@ -16,7 +16,11 @@ import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPPacket;
 import org.singsurf.jns3.network_layer.PacketReceiver;
 import org.singsurf.jns3.network_layer.PacketSender;
+import org.singsurf.jns3.network_layer.icmp.ICMPPacketReceiver;
+import org.singsurf.jns3.network_layer.icmp.PingController;
 import org.singsurf.jns3.physical_layer.PhysicalEndPoint;
+import org.singsurf.jns3.transport_layer.udp.DatagramSocket;
+import org.singsurf.jns3.transport_layer.udp.UDPController;
 
 public class PC implements AddressableDevice, FrameSender, FrameReceiver, PacketSender {
     String name;
@@ -28,7 +32,12 @@ public class PC implements AddressableDevice, FrameSender, FrameReceiver, Packet
     FrameSender ethernetEndPoint;
     PacketReceiver packetReceiver;
     PacketSender packetSender;
+    UDPController udpController;
+	IPAddress multiCastIP;
+	ICMPPacketReceiver icmpPacketReceiver;
+	PingController pingController;
 
+    
     public PC(String name, MACAddress macAddress, IPAddress ipAddress) {
         this.name = name;
         this.macAddress = macAddress;
@@ -153,5 +162,50 @@ public class PC implements AddressableDevice, FrameSender, FrameReceiver, Packet
 		System.out.println(string);
 	}
 
+	public void bind(DatagramSocket socket, IPAddress multicastAddress, short s) {
+		udpController.bind(multicastAddress, s, socket);
+		
+	}
+	
 
+	public IPAddress getMulticastAddress() {
+		return multiCastIP;
+	}
+
+	public void setMulticastAddress(IPAddress multiCastIP) {
+		this.multiCastIP = multiCastIP;
+		this.arpController.put(multiCastIP, new MACAddress("FF:FF:FF:FF:FF:FF"));
+	}
+
+	public void setICMPHandler(ICMPPacketReceiver icmpPacketReceiver) {
+		this.icmpPacketReceiver = icmpPacketReceiver;
+	}
+	
+	public ICMPPacketReceiver getICMPHandler() {
+		return icmpPacketReceiver;
+	}
+
+	public void setUDPController(UDPController udpController2) {
+		this.udpController = udpController2;
+	}
+
+	public UDPController getUDPController() {
+		return udpController;
+	}
+
+	public void sendPingRequest(IPAddress ipAddress2, int i) {
+		pingController.sendPingRequest(ipAddress2, i);
+	}
+
+	public void setPingController(PingController newInstance) {
+		this.pingController = newInstance;		
+	}
+	
+	public PingController getPingController() {
+		return pingController;
+	}
+
+	public void sendTraceroute(IPAddress ipAddress2) {
+		pingController.sendTraceroute(ipAddress2);
+	}
 }
