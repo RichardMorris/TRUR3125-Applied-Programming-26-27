@@ -47,8 +47,8 @@ public class TestAPRInitisation {
     public void testGRAP() {
         Jns3Logger.clearLog();
         var arpController = pc1.getArpController();
-        assertEquals(0, arpController.getArpTable().size());
-        assertEquals(0, arpController.getReverseArpTable().size());
+        assertEquals(1, arpController.getArpTable().size());
+        assertEquals(1, arpController.getReverseArpTable().size());
         arpController.sendGARPRequest();
 
         List<LogItem> logs = Jns3Logger.getLogItems();
@@ -86,6 +86,9 @@ public class TestAPRInitisation {
 
         for(var entry : arpController.getArpTable().entrySet()) {
             var ipAddress = entry.getKey();
+            if(ipAddress.equals(pc1.getMulticastAddress())) {
+				continue; // Skip multicast entry
+			}
             var macAddress = entry.getValue();
             var frameFactory = pc1.getFrameFactory();
             var frame = frameFactory.createEthernetFrame(
@@ -113,6 +116,9 @@ public class TestAPRInitisation {
         
         for(var entry : arpController.getArpTable().entrySet()) {
             var ipAddress = entry.getKey();
+            if(ipAddress.equals(pc1.getMulticastAddress())) {
+				continue; // Skip multicast entry
+			}
             var macAddress = entry.getValue();
             var frameFactory = pc2.getFrameFactory();
             var frame = frameFactory.createEthernetFrame(

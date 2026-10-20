@@ -94,4 +94,10 @@ public class ARPController implements FrameHandler {
     public Map<MACAddress, IPAddress> getReverseArpTable() {
         return reverseArpTable;
     }
+
+	public MACAddress put(IPAddress ip, MACAddress macAddress) {
+		var existingMac = arpTable.put(ip, macAddress);
+		reverseArpTable.put(macAddress, ip);
+		return existingMac;
+	}
 }
