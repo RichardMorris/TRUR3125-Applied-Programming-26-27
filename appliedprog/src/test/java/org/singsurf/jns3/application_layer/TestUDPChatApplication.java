@@ -14,6 +14,7 @@ import org.singsurf.jns3.Jns3Logger.LogItem;
 import org.singsurf.jns3.hardware.DeviceFactory;
 import org.singsurf.jns3.hardware.GlobalWallClock;
 import org.singsurf.jns3.hardware.PC;
+import org.singsurf.jns3.hardware.Switch;
 import org.singsurf.jns3.physical_layer.BufferedConnection;
 import org.singsurf.jns3.physical_layer.CorruptedConnection;
 import org.singsurf.jns3.physical_layer.CountingConnection;
@@ -581,6 +582,70 @@ class TestUDPChatApplication {
 			}
 		}
 		assertEquals(connection1.getForwardCount(), connection3.getReverseCount());
+		assertTrue(Jns3Logger.isErrorFree());
+	}
+
+	@Test
+	public void private_chat_with_no_arp() throws IOException {
+		var connection1 = new SimpleConnection(pc1.getEndPoint(), pc2.getEndPoint());
+		assertNotNull(connection1);
+		
+//		pc1.sendGARPRequest();
+//		GlobalWallClock.advanceBy(4);
+		// Act
+		Jns3Logger.clearLog();
+		var chat1 = new ChatApplication(pc1,pc2.getIPAddress());
+		var chat2 = new ChatApplication(pc2,pc1.getIPAddress());
+		assertNotNull(chat2);
+		chat1.say("Hello from PC1");
+		Jns3Logger.startCapture();
+		GlobalWallClock.advanceBy(2);
+		var output = Jns3Logger.endCapture();
+		System.out.print(output);
+		assertEquals("PC2: "+pc1.getIPAddress()+" says: Hello from PC1", output.trim());
+		System.out.println(Jns3Logger.asString());
+		assertEquals(7, Jns3Logger.size());
+
+		assertTrue(Jns3Logger.isErrorFree());
+	}
+
+	@Test
+	public void private_chat_with_no_arp_through_switch_with_delay() throws IOException {
+		PC pc3 = deviceFactory.createPC("PC3");
+		Switch sw1 = deviceFactory.createSwitch("Switch1", 4);
+		
+		// Need a blocking connector here to 
+		var connection1 = new BufferedConnection(pc1.getEndPoint(), sw1.getEndPoint(0));
+		var connection2 = new SimpleConnection(pc2.getEndPoint(), sw1.getEndPoint(1));
+		var connection3 = new BufferedConnection(pc3.getEndPoint(), sw1.getEndPoint(2));
+		assertNotNull(connection1);
+		assertNotNull(connection2);
+		assertNotNull(connection3);
+		
+//		pc1.sendGARPRequest();
+//		GlobalWallClock.advanceBy(4);
+		// Act
+		Jns3Logger.clearLog();
+		var chat1 = new ChatApplication(pc1,pc2.getIPAddress());
+		var chat2 = new ChatApplication(pc2,pc1.getIPAddress());
+		var chat3 = new ChatApplication(pc3,pc1.getIPAddress());
+		chat1.addHost(pc3.getIPAddress());
+		chat2.addHost(pc3.getIPAddress());
+		chat3.addHost(pc2.getIPAddress());
+		
+		chat1.say("Hello from PC1");
+		chat1.say("Is there anybody out there?");
+		
+		for(int i=0;i<10;i++) {
+			System.out.println("tick");
+			Jns3Logger.clearLog();
+			Jns3Logger.startCapture();
+			GlobalWallClock.advanceBy(1);
+			var output = Jns3Logger.endCapture();
+			System.out.println(Jns3Logger.asString());
+			System.out.print(output);
+		}
+		
 		assertTrue(Jns3Logger.isErrorFree());
 	}
 
