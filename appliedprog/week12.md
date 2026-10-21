@@ -145,6 +145,24 @@ And: incomplete/corrupted message are never displayed
         * the end point calls `buf.send(frame,false)`
         * `buf` calls PC1 `receive (frame)` method.
 
+## Status
+
+We can now build complex networks with a variety of devices and a range of connections. This system has 3 PC connected by 2 switches.
+
+```java
+var pc3 = deviceFactory.createPC("PC3");
+var sw1 = DeviceFactory.getInstance().createSwitch("Switch1", 4);
+var sw2 = DeviceFactory.getInstance().createSwitch("Switch2", 4);
+var connection1 = new BufferedConnection(pc1.getEndPoint(), sw1.getEndPoint(0));
+var connection2 = new SimpleConnection(pc2.getEndPoint(), sw1.getEndPoint(1));
+var connection3 = new CountingConnection(pc3.getEndPoint(), sw2.getEndPoint(0));
+var connection4 = new ThrottledConnection(sw1.getEndPoint(2), sw2.getEndPoint(2),ThrottledConnection.CAT3);
+```
+
+The `ChatApplication` is our first application layer program, communicating through network sockets. The interface is similar to the Java's
+[DatagramSocket](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/net/DatagramSocket.html) with one change to reflect our timing model.
+It can successfully conduct chats through these networks.
+
 ## Design
 
 The overall design is an example of the port and adapter, or hexagonal architecture. Each layer in the stack exposes a couple of interfaces:
@@ -161,6 +179,7 @@ The overall design is an example of the port and adapter, or hexagonal architect
     * `send(EthernetFrame frame)`
     * `receive(EthernetFrame frame)`
   * `NICCard` and `EthernetEndpoint`: are adapters between physical and data link layers
+  * `FrameHandler` defines a port to the network layer.
 * Network layer
   * `PacketSender` and `PacketReceiver`: define a port for the network layer
     * `send(IPPacket packet)`
