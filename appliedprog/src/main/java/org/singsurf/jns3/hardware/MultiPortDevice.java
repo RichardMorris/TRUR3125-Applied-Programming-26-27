@@ -1,7 +1,7 @@
 package org.singsurf.jns3.hardware;
 
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
-import org.singsurf.jns3.data_link_layer.EthernetEndPoint;
+import org.singsurf.jns3.physical_layer.PhysicalEndPoint;
 
 public abstract class MultiPortDevice implements NamedDevice {
     String name;
@@ -24,7 +24,7 @@ public abstract class MultiPortDevice implements NamedDevice {
         return ports[portNumber];
     }
 
-    public EthernetEndPoint getEndPoint(int portNumber) {
+    public PhysicalEndPoint getEndPoint(int portNumber) {
         return ports[portNumber].ethernetEndPoint;
     }
 
