@@ -147,6 +147,39 @@ And: incomplete/corrupted message are never displayed
 
 ## Design
 
+The overall design is an example of the port and adapter, or hexagonal architecture. Each layer in the stack exposes a couple of interfaces:
+
+* Physical layer
+  * `PhysicalConnection`: defines a port
+    * `send(byte[] frame, boolean reversed)`
+    * `receive(byte[] frame, boolean reversed)`
+  * `PhysicalEndpoint`: an adapter to physical connections, defines a port
+    * `send(byte[] frame)`
+    * `receive(byte[] frame)`
+* Data link layer
+  * `FrameSender` and `FrameReceiver`: define a port for the data link layer
+    * `send(EthernetFrame frame)`
+    * `receive(EthernetFrame frame)`
+  * `NICCard` and `EthernetEndpoint`: are adapters between physical and data link layers
+* Network layer
+  * `PacketSender` and `PacketReceiver`: define a port for the network layer
+    * `send(IPPacket packet)`
+    * `receive(IPPacket packet)`
+  * `IPFragmentHandler` is an adapter for the inward traffic from the data link layer it has
+    * `receive(EthernetFrame frame)` method
+    * that calls `receive(IPPacket packet)`
+  * `EthernetPacketSender` is an adapter for outward traffic to the data link layer, it has
+    * a `send(IPPacket packet)` that calls
+    * `send(EthernetFrame frame)`
+* ICMP
+  * `ICMPPacketReceiver` is an adapter for inbound traffic from the network layer
+  * `PingController` and `PingRequestHandler` use network layers `PacketSender` port for outbound traffic.
+* UDP
+  * `UDPController` is an adapter to the network layer
+  * `DatagramSocket` provides an adapter the the application layer
+    * `send(UDPDatagram message)`
+    * `DatagramPacket poll()`
+
 A common pattern should now become apparent:
 
 * A protocol such  as ARP, IP, ICMP, and UDP has
