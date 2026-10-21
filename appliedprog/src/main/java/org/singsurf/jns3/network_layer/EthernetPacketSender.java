@@ -106,7 +106,8 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 			}
 		}
 		for(var ip: toRemove) {
-			packetQueue.remove(ip);
+			if(packetQueue.get(ip).queue().isEmpty())
+				packetQueue.remove(ip);
 		}
 		for(var ip: packetQueue.keySet()) {
 			arpController.sendArpRequest(ip);
