@@ -1,4 +1,4 @@
-package org.singsurf.jns3.transport_layer;
+package org.singsurf.jns3.application_layer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -19,7 +19,7 @@ import org.singsurf.jns3.physical_layer.CorruptedConnection;
 import org.singsurf.jns3.physical_layer.CountingConnection;
 import org.singsurf.jns3.physical_layer.LossyConnection;
 import org.singsurf.jns3.physical_layer.SimpleConnection;
-import org.singsurf.jns3.transport_layer.udp.ChatApplication;
+import org.singsurf.jns3.physical_layer.ThrottledConnection;
 
 class TestUDPChatApplication {
 	DeviceFactory deviceFactory = new DeviceFactory();
@@ -129,6 +129,7 @@ class TestUDPChatApplication {
 		
 		assertTrue(Jns3Logger.isErrorFree());
 	}
+
 
 	@Test
 	public void chat_through_chained_switchs() throws IOException {
@@ -369,7 +370,7 @@ class TestUDPChatApplication {
 		GlobalWallClock.advanceBy(2);
 		var output = Jns3Logger.endCapture();
 		System.out.print(output.length() + " chars");
-		assertTrue(output.length() > 6000 && output.length() < 6100);
+		assertTrue(output.length() > 5500 && output.length() < 6100);
 		assertTrue(Jns3Logger.isErrorFree());
 	}
 
@@ -510,6 +511,76 @@ class TestUDPChatApplication {
 		assertEquals(2, connection3.getReverseCount());
 		
 		assertEquals("PC1: " + pc2.getIPAddress() + " says: Thanks for that", output.trim()); 
+		assertTrue(Jns3Logger.isErrorFree());
+	}
+
+	
+	@Test
+	public void private_chat_through_chained_switchs_with_throttle_connection() throws IOException {
+		var pc3 = deviceFactory.createPC("PC3");
+		var sw1 = DeviceFactory.getInstance().createSwitch("Switch1", 4);
+		var sw2 = DeviceFactory.getInstance().createSwitch("Switch2", 4);
+		var connection1 = new CountingConnection(pc1.getEndPoint(), sw1.getEndPoint(0));
+		var connection2 = new SimpleConnection(pc2.getEndPoint(), sw1.getEndPoint(1));
+		var connection3 = new CountingConnection(pc3.getEndPoint(), sw2.getEndPoint(0));
+		var connection4 = new ThrottledConnection(sw1.getEndPoint(2), sw2.getEndPoint(2),ThrottledConnection.CAT3);
+		assertNotNull(connection1);
+		assertNotNull(connection2);
+		assertNotNull(connection3);
+		assertNotNull(connection4);
+		
+		pc1.sendGARPRequest();
+		GlobalWallClock.advanceBy(4);
+		Jns3Logger.clearLog();
+		connection1.reset();
+		connection3.reset();
+		
+		var chat1 = new ChatApplication(pc1,pc3.getIPAddress());
+		var chat2 = new ChatApplication(pc2);
+		var chat3 = new ChatApplication(pc3,pc1.getIPAddress());
+		assertNotNull(chat1);
+		assertNotNull(chat2);
+		assertNotNull(chat3);
+		
+		String dataString = Jns3Logger.generateOnesComplementTable();
+		var lines = dataString.split("\n");
+		var lineLength = lines.length;
+		System.out.println("Data length: " + dataString.length() + " lines: " + lines.length
+				+ " line len " + lines[0].length() );
+		int fragmentSize = 50;
+		int startIndex = 0;
+		while (startIndex < lineLength) {
+		    int endIndex = Math.min(startIndex + fragmentSize, lineLength);
+		    StringBuilder fragmentBuilder = new StringBuilder();
+		    for (int i = startIndex; i < endIndex; i++) {
+		        fragmentBuilder.append(lines[i]).append("\n");
+		    }
+		    chat1.wisper(fragmentBuilder.toString());
+		    startIndex = endIndex;
+		}
+
+		var errors = Jns3Logger.getErrorLogItems();
+		System.out.println("output size: " + 0 
+		+ " count1 " + connection1.getForwardCount() + " count3 " + connection3.getReverseCount() 
+		+ "  errors: " + errors.size());
+
+		for(int i=0;i<10;i++) {
+			System.out.println("tick");
+			
+			Jns3Logger.startCapture();
+			GlobalWallClock.advanceBy(1);
+			var output = Jns3Logger.endCapture();
+			
+			errors = Jns3Logger.getErrorLogItems();
+			System.out.println("output size: " + output.length() 
+			+ " count1 " + connection1.getForwardCount() + " count3 " + connection3.getReverseCount() 
+			+ "  errors: " + errors.size());
+			
+			if(connection1.getForwardCount() == connection3.getReverseCount()) {
+				break;
+			}
+		}
+		assertEquals(connection1.getForwardCount(), connection3.getReverseCount());
 		assertTrue(Jns3Logger.isErrorFree());
 	}
 

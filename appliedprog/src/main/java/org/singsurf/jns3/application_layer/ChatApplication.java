@@ -1,4 +1,4 @@
-package org.singsurf.jns3.transport_layer.udp;
+package org.singsurf.jns3.application_layer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,20 +7,23 @@ import org.singsurf.jns3.hardware.GlobalWallClock;
 import org.singsurf.jns3.hardware.GlobalWallClock.TickListener;
 import org.singsurf.jns3.hardware.PC;
 import org.singsurf.jns3.network_layer.IPAddress;
+import org.singsurf.jns3.transport_layer.udp.DatagramSocket;
 import org.singsurf.jns3.transport_layer.udp.UDPController.DatagramPacket;
+import org.singsurf.jns3.transport_layer.udp.UDPDatagram;
 
 public class ChatApplication implements TickListener{
-	PC pc;
-	private List<DatagramSocket> sockets = new ArrayList<>();
-	static final short PORT = 42;
+	static final short PUBLIC_PORT = 42;
 	static final short PRIVATE_PORT = 43;
+
+	PC pc;
 	boolean isPrivate = false;
+	private List<DatagramSocket> sockets = new ArrayList<>();
 	
 	public ChatApplication(PC pc) {
 		this.pc = pc;
 		var socket = new DatagramSocket(pc.getName() + "-Chat");
 		var multicastAddress = pc.getMulticastAddress();
-		pc.bind(socket, multicastAddress, PORT);
+		pc.bind(socket, multicastAddress, PUBLIC_PORT);
 		sockets.add(socket);
 		GlobalWallClock.getInstance().addTickListener(this);
 	}
@@ -50,7 +53,7 @@ public class ChatApplication implements TickListener{
 		
 	}
 
-	public void say(String message, boolean echo) {
+	private void say(String message, boolean echo) {
 		if(!isPrivate) {
 			sayPublic(message);
 			return;
@@ -68,7 +71,7 @@ public class ChatApplication implements TickListener{
 	public void sayPublic(String message) {
 		pc.display(pc.getName() + " says: " + message);
 		var socket = sockets.get(0);
-		socket.send(new UDPDatagram(PORT, PORT, message.getBytes()));
+		socket.send(new UDPDatagram(PUBLIC_PORT, PUBLIC_PORT, message.getBytes()));
 	}
 
 	@Override
@@ -77,7 +80,7 @@ public class ChatApplication implements TickListener{
 		for(DatagramSocket socket : sockets) {
 			while((datagram = socket.poll()) != null) {
 				String message = new String(datagram.datagram().getContents());
-				pc.display(pc.getName()+ ": " +  datagram.ip() + " says: " + message);
+				pc.display(pc.getName()+ ": " +  datagram.source() + " says: " + message);
 			}
 		}
 	}
