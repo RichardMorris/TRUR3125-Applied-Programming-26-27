@@ -4,13 +4,13 @@ import java.util.List;
 
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.data_link_layer.ARPController;
-import org.singsurf.jns3.data_link_layer.EthernetEndPoint;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.data_link_layer.FrameFactory;
 import org.singsurf.jns3.data_link_layer.FrameHandler;
 import org.singsurf.jns3.data_link_layer.FrameReceiver;
 import org.singsurf.jns3.data_link_layer.FrameSender;
 import org.singsurf.jns3.data_link_layer.MACAddress;
+import org.singsurf.jns3.data_link_layer.NICCard;
 import org.singsurf.jns3.network_layer.EthernetPacketSender;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPPacket;
@@ -22,27 +22,28 @@ import org.singsurf.jns3.physical_layer.PhysicalEndPoint;
 import org.singsurf.jns3.transport_layer.udp.DatagramSocket;
 import org.singsurf.jns3.transport_layer.udp.UDPController;
 
-public class PC implements AddressableDevice, FrameSender, FrameReceiver, PacketSender {
+public class PC implements AddressableDevice, FrameSender, FrameReceiver, PacketSender, Console {
     String name;
+    MACAddress macAddress;
+    IPAddress ipAddress;
+	IPAddress multiCastIP;
+
     List<FrameHandler> frameHandlers = new ArrayList<>();
     ARPController arpController;
     FrameFactory frameFactory;
-    MACAddress macAddress;
-    IPAddress ipAddress;
-    FrameSender ethernetEndPoint;
+	FrameSender ethernetEndPoint;
     PacketReceiver packetReceiver;
     PacketSender packetSender;
-    UDPController udpController;
-	IPAddress multiCastIP;
 	ICMPPacketReceiver icmpPacketReceiver;
 	PingController pingController;
+    UDPController udpController;
 
     
     public PC(String name, MACAddress macAddress, IPAddress ipAddress) {
         this.name = name;
         this.macAddress = macAddress;
         this.ipAddress = ipAddress;
-        this.ethernetEndPoint = new EthernetEndPoint(name, this);
+        this.ethernetEndPoint = new NICCard(name, this);
         this.frameFactory = new FrameFactory();
         this.arpController = new ARPController(this,this);
         this.packetSender = new EthernetPacketSender(this, arpController, ethernetEndPoint);
@@ -174,8 +175,7 @@ public class PC implements AddressableDevice, FrameSender, FrameReceiver, Packet
 
 	public void setMulticastAddress(IPAddress multiCastIP) {
 		this.multiCastIP = multiCastIP;
-		this.arpController.put(multiCastIP, new MACAddress("FF:FF:FF:FF:FF:FF"));
-		this.udpController.setMulticastAddress(multiCastIP);
+		this.arpController.put(multiCastIP, MACAddress.BROADCAST_MAC);
 	}
 
 	public void setICMPHandler(ICMPPacketReceiver icmpPacketReceiver) {
@@ -194,7 +194,7 @@ public class PC implements AddressableDevice, FrameSender, FrameReceiver, Packet
 		return udpController;
 	}
 
-	public void sendPingRequest(IPAddress ipAddress2, int i) {
+	public void ping(IPAddress ipAddress2, int i) {
 		pingController.sendPingRequest(ipAddress2, i);
 	}
 
@@ -206,7 +206,7 @@ public class PC implements AddressableDevice, FrameSender, FrameReceiver, Packet
 		return pingController;
 	}
 
-	public void sendTraceroute(IPAddress ipAddress2) {
+	public void traceroute(IPAddress ipAddress2) {
 		pingController.sendTraceroute(ipAddress2);
 	}
 
