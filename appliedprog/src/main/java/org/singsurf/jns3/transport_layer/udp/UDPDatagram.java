@@ -37,7 +37,7 @@ public class UDPDatagram {
 		return contents;
 	}
 	
-	public byte[] toByteArray() {
+	public byte[] toBytes() {
 		byte[] datagram = new byte[length];
 		datagram[0] = (byte) (sourcePort >> 8);
 		datagram[1] = (byte) (sourcePort & 0xFF);
@@ -51,7 +51,7 @@ public class UDPDatagram {
 		return datagram;
 	}
 	
-	public static UDPDatagram fromByteArray(byte[] datagram) {
+	private static UDPDatagram fromBytes(byte[] datagram) {
 		short sourcePort = (short) ((datagram[0] << 8) | (datagram[1] & 0xFF));
 		short destinationPort = (short) ((datagram[2] << 8) | (datagram[3] & 0xFF));
 		short length = (short) ((datagram[4] << 8) | (datagram[5] & 0xFF));
@@ -60,19 +60,20 @@ public class UDPDatagram {
 		System.arraycopy(datagram, 8, contents, 0, contents.length);
 		return new UDPDatagram(sourcePort, destinationPort, contents);
 	}
-	
+
+	public String toString() {
+		return "UDPDatagram [sourcePort=" + sourcePort + ", destinationPort=" + destinationPort + ", length=" + length
+				+ ", checksum=" + checksum + ", contents=" + new String(contents) + "]";
+	}
+
 	public static boolean isUDPDatagram(IPPacket packet) {
 		byte protocol = packet.getProtocol();
 		return protocol == IPPacket.UDP; // 17 is the protocol number for UDP
 	}
 	
 	public static UDPDatagram fromPacket(IPPacket packet) {
-		return fromByteArray(packet.getData());
+		return fromBytes(packet.getData());
 	}
 	
-	public String toString() {
-		return "UDPDatagram [sourcePort=" + sourcePort + ", destinationPort=" + destinationPort + ", length=" + length
-				+ ", checksum=" + checksum + ", contents=" + new String(contents) + "]";
-	}
 	
 }
