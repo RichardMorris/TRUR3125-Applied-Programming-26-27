@@ -37,3 +37,6 @@ See [week 11](appliedprog/Week11.md)
 
 * Week 12 - UDP and Sockets. Simple applications.
 See [week 12](appliedprog/Week12.md)
+
+* Week 13 - Generics, creating a unified framework
+See [week 13](appliedprog/Week13.md)
