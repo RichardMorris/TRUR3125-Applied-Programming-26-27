@@ -1,0 +1,34 @@
+package org.singsurf.jns3.generic_protocol;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.singsurf.jns3.Jns3Logger;
+
+public class ProtocolDelegator<T extends ProtocolType> implements ProtocolReceiver<T> {
+	String name;
+	List<ProtocolHandler<T>> handlers = new ArrayList<>();
+	
+	public ProtocolDelegator(String name) {
+		this.name = name;
+	}
+	
+	@Override
+	public void receive(T message) {
+		for (var handler : handlers) {
+			if (handler.matches(message)) {
+				handler.handle(message);
+				return;
+			}
+		}
+		Jns3Logger.logError(name, "No handler found for message: " + message);		
+	}
+	
+	public void addHandler(ProtocolHandler<T> handler) {
+		handlers.add(handler);
+	}
+	
+	public void removeHandler(ProtocolHandler<T> handler) {
+		handlers.remove(handler);
+	}
+}
