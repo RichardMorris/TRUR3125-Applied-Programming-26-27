@@ -146,4 +146,9 @@ public class PassthroughRouter extends MultiPortDevice implements AddressableDev
 		return macAddress;
 	}
 
+	@Override
+	public IPAddress getMulticastAddress() {
+		return null;
+	}
+
 }

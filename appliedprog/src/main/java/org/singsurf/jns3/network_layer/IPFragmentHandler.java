@@ -142,7 +142,8 @@ public class IPFragmentHandler implements FrameHandler {
 			Jns3Logger.log(pc.getName(),Jns3Logger.LogLevel.ERROR, "Invalid IP packet checksum");
 			return true;
 		}
-		if(!packet.getDestinationAddress().equals(pc.getIPAddress())) {
+		if(!packet.getDestinationAddress().equals(pc.getIPAddress())
+				&& !packet.getDestinationAddress().equals(pc.getMulticastAddress())) {
 			Jns3Logger.log(pc.getName(),Jns3Logger.LogLevel.ERROR, "IP packet not for this PC: " + packet.getDestinationAddress());
 			return true;
 		}

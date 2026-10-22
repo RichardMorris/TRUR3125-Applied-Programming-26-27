@@ -5,7 +5,9 @@ import org.singsurf.jns3.data_link_layer.MACAddressable;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPAddressable;
 
-public interface AddressableDevice extends NamedDevice, MACAddressable, IPAddressable{
+public interface AddressableDevice extends NamedDevice, MACAddressable, IPAddressable {
+	
+	IPAddress getMulticastAddress();
 
 	public static AddressableDevice createAddressableDevice(String name, MACAddress mac, IPAddress ip) {
 		return new AddressableDevice() {
@@ -23,6 +25,11 @@ public interface AddressableDevice extends NamedDevice, MACAddressable, IPAddres
 			public IPAddress getIPAddress() {
 				return ip;
 			}
-		};
+			
+			@Override
+			public IPAddress getMulticastAddress() {
+				return null;
+			}
+		};	
 	}
 }

@@ -310,14 +310,7 @@ class TestPacketCombiner {
 		assertNotNull(connection);
 		pc.sendGARPRequest();
 		
-		StringBuilder sb = new StringBuilder();
-		var itt = OnesComplementNumber.iterator(-255,255,1);
-		while(itt.hasNext()) {
-			var num = itt.next();
-			sb.append(num.toString());
-			sb.append('\n');
-		}
-		String dataString = sb.toString();
+		String dataString = Jns3Logger.generateOnesComplementTable();
 		
 		// Act
 		var packet = pc2.createIPPacket(

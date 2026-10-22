@@ -14,7 +14,6 @@ import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.network_layer.DefaultPacketReceiver;
 import org.singsurf.jns3.network_layer.IPFragmentHandler;
 import org.singsurf.jns3.network_layer.IPPacket;
-import org.singsurf.jns3.network_layer.OnesComplementNumber;
 import org.singsurf.jns3.physical_layer.BufferedConnection;
 import org.singsurf.jns3.physical_layer.CountingConnection;
 import org.singsurf.jns3.physical_layer.SimpleConnection;
@@ -169,14 +168,7 @@ class TestYRouter {
 		leg2.reset();
 		GlobalWallClock.getInstance().advanceTime();
 		
-		StringBuilder sb = new StringBuilder();
-		var itt = OnesComplementNumber.iterator(-255,255,1);
-		while(itt.hasNext()) {
-			var num = itt.next();
-			sb.append(num.toString());
-			sb.append('\n');
-		}
-		String dataString = sb.toString();
+		String dataString = Jns3Logger.generateOnesComplementTable();
 		
 		// Act
 		var packet = pc2.createIPPacket(

@@ -2,12 +2,20 @@
 
 ## User Story
 
+<<<<<<< HEAD
 As a family, we want to chat each other via our PC on a local network 
+=======
+As a family, we want to chat each other via our PC on a local network
+>>>>>>> refs/remotes/origin/wk12_UDP_port_and_sockets
 so we are kept up to date on everyone's messages.
 
 ## Acceptance Criteria
 
+<<<<<<< HEAD
 Scenario: Document to local printer
+=======
+Scenario: A public lan chat application
+>>>>>>> refs/remotes/origin/wk12_UDP_port_and_sockets
 
 * Given: A network of 2 PC's connected to a `Switch`
 * When: The first PC starts the `ChatApplication`
@@ -29,6 +37,59 @@ Scenario: Document to local printer
 * When: The second chat application receives a `tick`
 * Then: The it calls the `poll` method of the socket
 * Then: It receives the datagram and displays the content
+<<<<<<< HEAD
+=======
+
+Scenario: A private chat application
+Given: a network of 4 PC's connected by two linked switched via a BlockingConnector.
+When: PC1 starts the private chat application using PC4's IP address.
+Then: It connects to a `DatagramSocket` bound to port 43 and PC4's address.
+When: PC4 starts the private chat application using PC1's IP address.
+Then: It connects to a `DatagramSocket` bound to port 43 and PC1's address.
+When: PC1 `says` a message
+Then: PC1 checks it ARPTable for the IP address
+Then: It sends an ARPRequest
+And: stores the message in a table
+When: time is advance
+Then: PC4 replies to the ARPRequest and updates its table
+When: time is advanced
+Then: PC1 receives the arp request and updates its table
+Then: it recovers stored messages and sends them across the network.
+When: time is advanced
+Then: PC4 polls for messages
+Then: PC4 displays the message.
+
+Scenario: A private group chat
+Given: a network of 4 PC's connected by two linked switched via a BlockingConnector.
+When: PC1 starts the private chat application using PC4's IP address.
+Then: it create a socket bound to port 43 and PC4's address.
+Then: it create a socket bound to port 42 and multicast address.
+When: PC1 `adds` PC3 IP Address
+Then: it says `ADD_HOST 192.168.1.3` to current listeners PC4
+Then: it says `ADD_HOST 192.168.1.4` to PC3
+Then: it creates a socket  bound to port 43 and PC3's address.
+When: A PC receives an `ADD_HOST` message
+Then: creates a socket bound to port 42 and the IP address
+When: PC1 `says` a message
+Then: it is sent to PC3 and PC4 but not PC2
+When: PC4 `closes` the chat
+Then: it sends a `REMOVE_HOST 192.168.1.4` to both sockets
+Then: PC1 and PC3 `close` their sockets
+When: PC2 starts the public chat application
+And: PC2 say "Time for tea"
+Then: The message is sent to PC1 and PC3.
+
+Scenario: unreliable connection
+Given: two PC's connected by a blocking connector and lossy connector/corrupting connector
+And: both PC have the public chat application open
+When: PC1 `says` many large messages.
+Then: each message is broken into fragments and sent across the connector
+Then: some fragments are dropped
+Then: PC2 recombines the fragments
+When: a complete IP packet containing a UDP datagram is created
+Then: PC2 displays complete messages
+And: incomplete/corrupted message are never displayed
+>>>>>>> refs/remotes/origin/wk12_UDP_port_and_sockets
 
 ## Specification
 
@@ -69,6 +130,7 @@ Scenario: Document to local printer
     * Its `tick` method
         * repeatedly poll's the socket for a datagram
         * If a datagram is received displays the message it contains
+<<<<<<< HEAD
 
 ## Design
 
@@ -136,3 +198,125 @@ We look at this major refactoring in the next week.
   * classes that send messages - implements `MessageSender<T,L>
     * These package the message up in a lower level protocol - implements `L package()`
     * Sends the package - implements `void send(L message)`
+=======
+6. Connectors can be joined together
+    * PhysicalConnection has two `PhysicalEndPoint` inner classes.
+    * A connection can have either of its endpoint set to null
+        * If so `PhysicalEndPoint`
+    * A connection has a `setEndpoint1(PhysicalEndPoint)` and `setEndpoint2(PhysicalEndPoint)` methods
+    * A connection has a `PhysicalEndPoint getEndpoint1()` and `PhysicalEndPoint getEndpoint2()` methods
+    * connections can be joined together
+
+    ```java
+    var buf = new BufferedConnection(PC1.getEndPoint, null);
+    var loss = new LossyConnection(null,PC2);
+    buf.setEndPoint2(loss.getVirtualEndpoint(0));
+    loss.setEndPoint1(buf.getVirtualEndpoint(1));
+    ```
+
+    * when PC1 sends a frame
+        * then `buf` is called with `send(frame,true)`
+        * `buf` calls its second endpoints `receive(frame)`- loss's virtual end point 0
+        * then virtual endpoint calls `loss.send(frame,true)`
+        * `loss` calls its PC2 `receive(frame)` method
+    * when PC2 sends a frame
+        * then loss is called with `send(frame,false)`
+        * `loss` calls it first end point's `receive(frame)` - buf's virtual end point 1
+        * the end point calls `buf.send(frame,false)`
+        * `buf` calls PC1 `receive (frame)` method.
+
+## Status
+
+We can now build complex networks with a variety of devices and a range of connections. This system has 3 PC connected by 2 switches.
+
+```java
+var pc3 = deviceFactory.createPC("PC3");
+var sw1 = DeviceFactory.getInstance().createSwitch("Switch1", 4);
+var sw2 = DeviceFactory.getInstance().createSwitch("Switch2", 4);
+var connection1 = new BufferedConnection(pc1.getEndPoint(), sw1.getEndPoint(0));
+var connection2 = new SimpleConnection(pc2.getEndPoint(), sw1.getEndPoint(1));
+var connection3 = new CountingConnection(pc3.getEndPoint(), sw2.getEndPoint(0));
+var connection4 = new ThrottledConnection(sw1.getEndPoint(2), sw2.getEndPoint(2),ThrottledConnection.CAT3);
+```
+
+The `ChatApplication` is our first application layer program, communicating through network sockets. The interface is similar to the Java's
+[DatagramSocket](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/net/DatagramSocket.html) with one change to reflect our timing model.
+It can successfully conduct chats through these networks.
+
+## Design
+
+The overall design is an example of the port and adapter, or hexagonal architecture. Each layer in the stack exposes a couple of interfaces:
+
+* Physical layer
+  * `PhysicalConnection`: defines a port
+    * `send(byte[] frame, boolean reversed)`
+    * `receive(byte[] frame, boolean reversed)`
+  * `PhysicalEndpoint`: an adapter to physical connections, defines a port
+    * `send(byte[] frame)`
+    * `receive(byte[] frame)`
+* Data link layer
+  * `FrameSender` and `FrameReceiver`: define a port for the data link layer
+    * `send(EthernetFrame frame)`
+    * `receive(EthernetFrame frame)`
+  * `NICCard` and `EthernetEndpoint`: are adapters between physical and data link layers
+  * `FrameHandler` defines a port to the network layer.
+* Network layer
+  * `PacketSender` and `PacketReceiver`: define a port for the network layer
+    * `send(IPPacket packet)`
+    * `receive(IPPacket packet)`
+  * `IPFragmentHandler` is an adapter for the inward traffic from the data link layer it has
+    * `receive(EthernetFrame frame)` method
+    * that calls `receive(IPPacket packet)`
+  * `EthernetPacketSender` is an adapter for outward traffic to the data link layer, it has
+    * a `send(IPPacket packet)` that calls
+    * `send(EthernetFrame frame)`
+* ICMP
+  * `ICMPPacketReceiver` is an adapter for inbound traffic from the network layer
+  * `PingController` and `PingRequestHandler` use network layers `PacketSender` port for outbound traffic.
+* UDP
+  * `UDPController` is an adapter to the network layer
+  * `DatagramSocket` provides an adapter the the application layer
+    * `send(UDPDatagram message)`
+    * `DatagramPacket poll()`
+
+A common pattern should now become apparent:
+
+* A protocol such  as ARP, IP, ICMP, and UDP has
+  * A container type that hold the type of message that
+    * Has fields for each field in the protocol
+    * Can be constructed using values for the field
+    * Can be queried to extract the values for the field.
+    * Can be converted into a byte array
+    * Its content can be converted to a byte array
+    * Can be constructed from a byte array using a static method
+    * static methods to check it can handle data from a lower level protocol
+    * static methods to constructed from a lower level protocol
+  * classes that receive messages
+    * These have a set of handlers each handler
+      * May match a higher level protocol or match a subtype of the protocol
+      * Checks if message matches
+      * handles matching messages
+    * Have methods that register, and removes, handlers.
+  * classes that send messages
+    * These package the message up in a lower level protocol
+    * Sends the package
+
+Can we encapsulate this using design patterns or Java language features. Here generics map play a role.
+Interfaces can be defined like
+
+```java
+interface MessageMatcher<T> {
+    boolean match(T message);
+}
+```
+
+and implementing class specify the actual message type
+
+```java
+class IPPacketMatcher implements MessageMatcher<IPPacket> {
+    public boolean match(IPPacket message);
+}
+```
+
+We look at this major refactoring in the next week.
+>>>>>>> refs/remotes/origin/wk12_UDP_port_and_sockets

@@ -1,5 +1,7 @@
 package org.singsurf.jns3.physical_layer;
 
+import org.singsurf.jns3.Jns3Logger;
+
 /**
  * Represents a physical ethernet cable connection between two devices.
  * Frames sent by one device are received by the other.
@@ -7,12 +9,35 @@ package org.singsurf.jns3.physical_layer;
 public abstract class PhysicalConnection {
     PhysicalEndPoint dev1;
     PhysicalEndPoint dev2;
+    
+    class VirtualEndPoint extends PhysicalEndPoint {
+    	int end;
+    	
+		public VirtualEndPoint(int end) {
+			super("VirtualEndPoint");
+			this.end = end;
+		}
+		@Override
+		public void send(byte[] frame) {
+			Jns3Logger.logError("VirtualEndPoint", "send() called on VirtualEndPoint, which should not happen.");
+		}
+		@Override
+		protected void receive(byte[] frame) {
+			if (end == 0) {
+				PhysicalConnection.this.send(frame, false);
+			} else {
+				PhysicalConnection.this.send(frame, true);
+			}
+		}
+	}
 
     public PhysicalConnection(PhysicalEndPoint dev1, PhysicalEndPoint dev2) {
         this.dev1 = dev1;
         this.dev2 = dev2;
-        dev1.setConnection(this,false);
-        dev2.setConnection(this,true);
+        if(dev1!=null) 
+        	dev1.setConnection(this,false);
+        if(dev2!=null) 
+            dev2.setConnection(this,true);
     }
 
     /**
@@ -38,5 +63,18 @@ public abstract class PhysicalConnection {
             dev2.receive(frame);
         }
     }
+
+    public PhysicalEndPoint getVirtualEndPoint(int index) {
+		return new VirtualEndPoint(index);
+	}
+    
+    public void setEnpoint1(PhysicalEndPoint dev) {
+		this.dev1 = dev;
+		dev1.setConnection(this,false);
+	}
+    public void setEnpoint2(PhysicalEndPoint dev) {
+		this.dev2 = dev;
+		dev2.setConnection(this,true);
+	}
 
 }

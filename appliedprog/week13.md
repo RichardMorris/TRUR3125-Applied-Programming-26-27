@@ -32,6 +32,8 @@ A common pattern should now become apparent:
 
 Can we encapsulate this using design patterns or Java language features. Here generics map play a role. The presence of many static methods may be a code smell.
 
+## Generics
+
 Interfaces can be defined like
 
     ```java
@@ -39,8 +41,8 @@ Interfaces can be defined like
         boolean match(T message);
     }
     ```
-
-and implementing class specify the actual message type
+using a wild-card type indicator `T`. 
+Implementing class specify the actual message type
 
     ```java
     class IPPacketMatcher implements MessageMatcher<IPPacket> {
@@ -48,7 +50,9 @@ and implementing class specify the actual message type
     }
     ```
 
-We look at this major refactoring in the next week.
+## Design idea
+
+Lets see how this maps on to the common patter above.
 
 * A protocol such  as ARP, IP, ICMP, and UDP has - represented by the `Protocol<T,L>` type
   * Has a container type `T`
@@ -95,3 +99,64 @@ The message handler uses the [template method](https://refactoring.guru/design-p
         }
     }
     ```
+
+## Specification
+
+Each protocol has
+
+1. An `Protocol` containing protocol specific information and array of bytes as contents.
+
+    * It has a method `byte[] getBytes()` to get the full data including headers
+    * It has a method `byte[] getContents()` to get just the contents.
+    * It has a method `boolean isValid()` to check the integrity of the data.
+
+2. A `BaseExtractor<E>` defines methods to work with Encapsulations.
+
+    * A method `E fromBytes(byte[])` to create the Encapsulation from an array of bytes
+
+3. A `Extractor<E,L>` defines method to convert from a lower level protocol to a higher level one
+
+    * A method `E extract(L)` to extract the higher level 
+    * A method `boolean matches(L)` to test if the data in the lower level protocol matches higher level one.
+
+4. An `Encapsulator<E,H>` defines method convert from a higher level protocol to a lower level one
+
+    * A method `E encapsulate(H)` to create a lower level type to a higher level one
+
+5. A `Receiver<E>` for messages receives
+
+    * A method `void recive(E)`
+
+6. A `Sender<E>` to send messages
+
+    * A method `void send(E)` 
+
+7. A `Handler<E>` for classes the attempt to handle incoming messages
+
+    * A method `boolean matches(E)` to check if the message can be handled by the class
+    * A method `E handle(E)` that returns
+      * `null` if the message has been handled and no further processing is needed
+      * The original message, if it can not be handled
+      * A modified version of the message, such as rewriting an IP address.
+
+8. A `Delegator<E>` a template method to process inbound traffic
+
+    * It implements `Receiver<E>`
+    * It has a list of `Handler<E>`
+    * Its `receive` method is
+
+```java
+public void receive(E message) {
+  for(var handler: handlers) {
+    if(handler.matches(message)) {
+      message = handler.handle(message);
+      if(message==null) {
+        return;
+      }
+    }
+  }
+  // log error
+}
+```
+
+
