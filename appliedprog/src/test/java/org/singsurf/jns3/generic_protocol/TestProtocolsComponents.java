@@ -11,7 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.singsurf.jns3.Jns3Logger;
 
-class TestSimpleProtocols {
+class TestProtocolsComponents {
 
 	ABConvertor converterAB = new ABConvertor();
 	BCConvertor converterBC = new BCConvertor();
