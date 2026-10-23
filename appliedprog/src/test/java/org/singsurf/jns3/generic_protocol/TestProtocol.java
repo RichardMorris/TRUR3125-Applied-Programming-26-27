@@ -78,6 +78,26 @@ class TestProtocol {
 	}
 
 
+	static class TypeD implements ProtocolType {
+		String message;
+		
+		public TypeD(String message) {
+			this.message = message;
+		}
+		@Override
+		public byte[] getBytes() {
+			return message.getBytes();
+		}
+
+		@Override
+		public byte[] getContents() {
+			return message.substring(1).getBytes();
+		}
+		public String toString() {
+			return "D["+message+"]";
+		}
+	}
+
 	static class ProtocolA implements UpperPort<TypeA> {
 
 		ProtocolSender<TypeA> senderA = new ALoggingSender();
@@ -193,7 +213,7 @@ class TestProtocol {
 		ProtocolSender<TypeB> senderB;
 		BCLoggingHandler loggerBC = new BCLoggingHandler();
 		BCConvertor converterBC = new BCConvertor();
-		CBLogic logicCB = new CBLogic();
+		CBTransmitter transCB = new CBTransmitter();
 
 		class BCLoggingHandler implements ProtocolHandler<TypeB> {
 
@@ -229,7 +249,7 @@ class TestProtocol {
 		}
 
 
-		class CBLogic implements ProtocolSender<TypeC> {
+		class CBTransmitter implements ProtocolSender<TypeC> {
 			@Override
 			public void send(TypeC c) {
 				var b = converterBC.encapsulate(c);
@@ -250,14 +270,119 @@ class TestProtocol {
 
 		public void outbound(String message) {
 			var packed = new TypeC(message);
-			logicCB.send(packed);
+			transCB.send(packed);
 		}
 
 	}
 
+	static class ProtocolD implements LowerAdapter<TypeB> {
+		ProtocolSender<TypeB> senderB;
+		BDLoggingHandler loggerBD = new BDLoggingHandler();
+		BDConvertor converterBD = new BDConvertor();
+		DBTransmitter transDB = new DBTransmitter();
+
+		class BDLoggingHandler implements ProtocolHandler<TypeB> {
+
+			@Override
+			public boolean matches(TypeB message) {
+				return message.message.charAt(0) == 'd';
+			}
+
+			@Override
+			public TypeB handle(TypeB message) {
+				if(!matches(message)) {
+					Jns3Logger.logError("BDHandler", "Message does not match: " + message);
+					return message;
+				}
+				TypeD d = converterBD.extract(message);
+				Jns3Logger.logInfo("BDHandler", "Message extracted: " + d);
+				return null;
+			}
+		}
+			
+		static class BDConvertor implements ProtocolConvertor<TypeB, TypeD> {
+
+			@Override
+			public TypeD extract(TypeB b) {
+				return  new TypeD(b.message.substring(1));
+			}
+
+			@Override
+			public TypeB encapsulate(TypeD d) {
+				return new TypeB("B"+d.message);
+			}
+			
+		}
+
+		class DBTransmitter implements ProtocolSender<TypeD> {
+			@Override
+			public void send(TypeD d) {
+				var b = converterBD.encapsulate(d);
+				senderB.send(b);
+			}
+		}
+
+		// protocol level methods
+
+		@Override
+		public List<ProtocolHandler<TypeB>> getHandlers() {
+			return List.of(loggerBD);
+		}
+
+		@Override
+		public void setOutboundSender(ProtocolSender<TypeB> s) {
+			senderB = s;
+		}
+
+		// Methods exposed to the PC/test environment
+		public void outbound(String message) {
+			var packed = new TypeD(message);
+			transDB.send(packed);
+		}
+
+	}
+
+	/**
+	 * Changes message type to C and adds an explanation mark.
+	 */
+	static class ProtocolE implements LowerAdapter<TypeB> {
+		EManipHandler manipHandler = new EManipHandler();
+		
+		class EManipHandler implements ProtocolHandler<TypeB> {
+
+			@Override
+			public boolean matches(TypeB message) {
+				return message.message.charAt(0) == 'e';
+			}
+
+			@Override
+			public TypeB handle(TypeB message) {
+				if(!matches(message)) {
+					Jns3Logger.logError("EHandler", "Message does not match: " + message);
+					return message;
+				}
+				var rest = message.message.substring(1);				
+				message.message = 'c' + rest + "!";
+				return message;
+			}
+		}
+		@Override
+		public List<ProtocolHandler<TypeB>> getHandlers() {
+			return List.of(manipHandler);
+		}
+
+		@Override
+		public void setOutboundSender(ProtocolSender<TypeB> s) {
+			
+		}
+	}	
+	
+	
 	ProtocolA protA;
 	ProtocolB protB;
 	ProtocolC protC;
+	ProtocolD protD;
+	ProtocolE protE;
 	
 
 	@BeforeEach
@@ -265,8 +390,12 @@ class TestProtocol {
 		protA = new ProtocolA();
 		protB = new ProtocolB();
 		protC = new ProtocolC();
+		protD = new ProtocolD();
+		protE = new ProtocolE();
 		protA.register(protB);
+		protB.register(protE);
 		protB.register(protC);
+		protB.register(protD);
 	}
 
 
@@ -298,6 +427,45 @@ class TestProtocol {
 		assertTrue(Jns3Logger.isErrorFree());
 	}
 
-	
-	
+
+	@Test
+	void D_inbound() {
+		// arrange
+		Jns3Logger.clearLog();
+		// act
+		protA.inbound("ABDHello");
+		// assert
+		System.out.println(Jns3Logger.asString());
+		assertEquals(1, Jns3Logger.getLogItems().size());
+		assertEquals("[INFO] BDHandler: Message extracted: D[hello]", Jns3Logger.getItem(0).toString());
+		assertTrue(Jns3Logger.isErrorFree());
+	}
+
+	@Test
+	void D_outbound() {
+		Jns3Logger.clearLog();
+		// act
+		protD.outbound("And Welcome");
+		// assert
+		assertEquals(1, Jns3Logger.getLogItems().size());
+		System.out.println(Jns3Logger.asString());
+		assertEquals("[INFO] ALoggingSender: Message extracted: A[ABAND WELCOME]", 
+				Jns3Logger.getItem(0).toString());
+
+		assertTrue(Jns3Logger.isErrorFree());
+	}
+
+	@Test
+	void maipulation_inbound() {
+		// arrange
+		Jns3Logger.clearLog();
+		// act
+		protA.inbound("ABEHello");
+		// assert
+		assertEquals(1, Jns3Logger.getLogItems().size());
+		System.out.println(Jns3Logger.asString());
+		assertEquals("[INFO] BCHandler: Message extracted: C[hello!]", Jns3Logger.getItem(0).toString());
+		assertTrue(Jns3Logger.isErrorFree());
+	}
+
 }
