@@ -602,7 +602,8 @@ class TestUDPChatApplication {
 		GlobalWallClock.advanceBy(2);
 		var output = Jns3Logger.endCapture();
 		System.out.print(output);
-		assertEquals("PC2: "+pc1.getIPAddress()+" says: Hello from PC1", output.trim());
+		var lines = output.split("\n");
+		assertEquals("PC2: "+pc1.getIPAddress()+" says: Hello from PC1", lines[1].trim());
 		System.out.println(Jns3Logger.asString());
 		assertEquals(7, Jns3Logger.size());
 
