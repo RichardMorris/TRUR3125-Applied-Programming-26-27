@@ -2,7 +2,6 @@ package org.singsurf.jns3.generic_protocol;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -125,13 +124,13 @@ class TestProtocolsComponents {
 		}
 
 		@Override
-		public Status<ProtocolA> handle(ProtocolA message) {
+		public Status handle(ProtocolA message, ProtocolDelegator<ProtocolA> delegator) {
 			if(!matches(message)) {
-				return ProtocolHandler.Ignored();
+				return ProtocolHandler.IGNORED;
 			}
 			var b = converterAB.extract(message);
 			Jns3Logger.logInfo("ABHandler", "Message extracted: " + b);
-			return ProtocolHandler.Handled();
+			return ProtocolHandler.HANDLED;
 		}
 	}
 	
@@ -142,14 +141,15 @@ class TestProtocolsComponents {
 		}
 
 		@Override
-		public Status<ProtocolB> handle(ProtocolB message) {
+		public Status handle(ProtocolB message, ProtocolDelegator<ProtocolB> delegator) {
 			if(!matches(message)) {
-				return ProtocolHandler.Ignored();
+				return ProtocolHandler.IGNORED;
 			}
 			ProtocolC c = converterBC.extract(message);
 			Jns3Logger.logInfo("BCHandler", "Message extracted: " + c);
-			return ProtocolHandler.Handled();
+			return ProtocolHandler.HANDLED;
 		}
+
 	}
 
 	class ABLogicHandler implements ProtocolHandler<ProtocolA> {
@@ -160,14 +160,15 @@ class TestProtocolsComponents {
 		}
 
 		@Override
-		public Status<ProtocolA> handle(ProtocolA message) {
+		public Status handle(ProtocolA message, ProtocolDelegator<ProtocolA> delegator) {
 			if(!matches(message)) {
-				return ProtocolHandler.Ignored();
+				return ProtocolHandler.IGNORED;
 			}
 			ProtocolB b = converterAB.extract(message);
 			logic.handle(message, b);
-			return ProtocolHandler.Handled();
+			return ProtocolHandler.HANDLED;
 		}
+
 	}
 
 	class ABLogic implements InboundLogic<ProtocolA,ProtocolB> {
@@ -239,8 +240,8 @@ class TestProtocolsComponents {
 		Jns3Logger.clearLog();
 		var a = new ProtocolA("ABHello");
 		assertTrue(loggingHandlerAB.matches(a));
-		var res = loggingHandlerAB.handle(a);
-		assertInstanceOf(ProtocolHandler.Handled.class, res);
+		var res = loggingHandlerAB.handle(a,pdA);
+		assertEquals(ProtocolHandler.HANDLED, res);
 		assertEquals(1, Jns3Logger.getLogItems().size());
 		assertTrue(Jns3Logger.isErrorFree());
 		
@@ -248,8 +249,8 @@ class TestProtocolsComponents {
 		var a2 = new ProtocolA("ACHello");
 		assertFalse(loggingHandlerAB.matches(a2));
 		
-		res = loggingHandlerAB.handle(a2);
-		assertInstanceOf(ProtocolHandler.Ignored.class, res);
+		res = loggingHandlerAB.handle(a2,pdA);
+		assertEquals(ProtocolHandler.IGNORED, res);
 		assertEquals(0, Jns3Logger.getLogItems().size());
 		assertTrue(Jns3Logger.isErrorFree());
 	}
@@ -268,8 +269,8 @@ class TestProtocolsComponents {
 		Jns3Logger.clearLog();
 		var a2 = new ProtocolA("ACHello");		
 		pdA.receive(a2);
-		assertEquals(1, Jns3Logger.getLogItems().size());
 		System.out.println(Jns3Logger.asString());
+		assertEquals(1, Jns3Logger.getLogItems().size());
 		assertFalse(Jns3Logger.isErrorFree());
 		assertEquals("pda",Jns3Logger.getItem(0).deviceName());
 	}

@@ -1,6 +1,7 @@
 package org.singsurf.jns3.generic_protocol;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
@@ -166,14 +167,15 @@ class TestProtocol {
 			}
 
 			@Override
-			public Status<TypeA> handle(TypeA message) {
+			public Status handle(TypeA message, ProtocolDelegator<TypeA> delegator) {
 				if(!matches(message)) {
-					return ProtocolHandler.Ignored();
+					return ProtocolHandler.IGNORED;
 				}
 				TypeB b = converterAB.extract(message);
 				logicAB.handle(message, b);
-				return ProtocolHandler.Handled();
+				return ProtocolHandler.HANDLED;
 			}
+
 		}
 
 		class ABLogic implements InboundLogic<TypeA,TypeB> {
@@ -220,15 +222,17 @@ class TestProtocol {
 				return message.message.charAt(0) == 'c';
 			}
 
+
 			@Override
-			public Status<TypeB> handle(TypeB message) {
+			public Status handle(TypeB message, ProtocolDelegator<TypeB> delegator) {
 				if(!matches(message)) {
-					return ProtocolHandler.Ignored();
+					return ProtocolHandler.IGNORED;
 				}
 				TypeC c = converterBC.extract(message);
 				Jns3Logger.logInfo("BCHandler", "Message extracted: " + c);
-				return ProtocolHandler.Handled();
+				return ProtocolHandler.HANDLED;
 			}
+
 		}
 			
 		static class BCConvertor implements ProtocolConvertor<TypeB, TypeC> {
@@ -285,15 +289,13 @@ class TestProtocol {
 			}
 
 			@Override
-			public Status<TypeB> handle(TypeB message) {
+			public Status handle(TypeB message, ProtocolDelegator<TypeB> delegator) {
 				if(!matches(message)) {
-					if(!matches(message)) {
-						return ProtocolHandler.Ignored();
-					}
+					return ProtocolHandler.IGNORED;
 				}
 				TypeD d = converterBD.extract(message);
 				Jns3Logger.logInfo("BDHandler", "Message extracted: " + d);
-				return ProtocolHandler.Handled();
+				return ProtocolHandler.HANDLED;
 			}
 		}
 			
@@ -352,16 +354,18 @@ class TestProtocol {
 			}
 
 			@Override
-			public Status<TypeB> handle(TypeB message) {
+			public Status handle(TypeB message, ProtocolDelegator<TypeB> delegator) {
 				if(!matches(message)) {
 					if(!matches(message)) {
-						return ProtocolHandler.Ignored();
+						return ProtocolHandler.IGNORED;
 					}
 				}
 				var rest = message.message.substring(1);				
 				message.message = 'c' + rest + "!";
-				return new Modifies<TypeB>(message);
+				delegator.receive(message);
+				return ProtocolHandler.HANDLED;
 			}
+
 		}
 		@Override
 		public List<ProtocolHandler<TypeB>> getHandlers() {
@@ -374,12 +378,86 @@ class TestProtocol {
 		}
 	}	
 	
-	
+
+	/**
+	 * Always fails.
+	 */
+	static class ProtocolF implements LowerAdapter<TypeB> {
+		EManipHandler manipHandler = new EManipHandler();
+		
+		class EManipHandler implements ProtocolHandler<TypeB> {
+
+			public boolean matches(TypeB message) {
+				return message.message.charAt(0) == 'f';
+			}
+
+			@Override
+			public Status handle(TypeB message, ProtocolDelegator<TypeB> delegator) {
+				if(!matches(message)) {
+					if(!matches(message)) {
+						return ProtocolHandler.IGNORED;
+					}
+				}
+				return new ProtocolHandler.Invalid("Failed: "+message);
+			}
+
+		}
+		@Override
+		public List<ProtocolHandler<TypeB>> getHandlers() {
+			return List.of(manipHandler);
+		}
+
+		@Override
+		public void setOutboundSender(ProtocolSender<TypeB> s) {
+			
+		}
+	}	
+
+	/**
+	 * Always fails.
+	 */
+	static class ProtocolG implements LowerAdapter<TypeB> {
+		GDoublerHandler manipHandler = new GDoublerHandler();
+		
+		class GDoublerHandler implements ProtocolHandler<TypeB> {
+
+			public boolean matches(TypeB message) {
+				return message.message.charAt(0) == 'g';
+			}
+
+			@Override
+			public Status handle(TypeB message, ProtocolDelegator<TypeB> delegator) {
+				if(!matches(message)) {
+					if(!matches(message)) {
+						return ProtocolHandler.IGNORED;
+					}
+				}
+				var msgC = new TypeB("c"+message.message.substring(1));
+				var msgD = new TypeB("d"+message.message.substring(1));
+				delegator.receive(msgC);
+				delegator.receive(msgD);
+				return ProtocolHandler.HANDLED;
+			}
+
+		}
+		@Override
+		public List<ProtocolHandler<TypeB>> getHandlers() {
+			return List.of(manipHandler);
+		}
+
+		@Override
+		public void setOutboundSender(ProtocolSender<TypeB> s) {
+			
+		}
+	}	
+
 	ProtocolA protA;
 	ProtocolB protB;
 	ProtocolC protC;
 	ProtocolD protD;
 	ProtocolE protE;
+	ProtocolF protF;
+	ProtocolG protG;
 	
 
 	@BeforeEach
@@ -389,10 +467,14 @@ class TestProtocol {
 		protC = new ProtocolC();
 		protD = new ProtocolD();
 		protE = new ProtocolE();
+		protF = new ProtocolF();
+		protG = new ProtocolG();
 		protA.register(protB);
 		protB.register(protC);
 		protB.register(protD);
 		protB.register(protE);
+		protB.register(protF);
+		protB.register(protG);
 	}
 
 
@@ -453,7 +535,7 @@ class TestProtocol {
 	}
 
 	@Test
-	void maipulation_inbound() {
+	void protE_manipulates_inbound() {
 		// arrange
 		Jns3Logger.clearLog();
 		// act
@@ -462,6 +544,33 @@ class TestProtocol {
 		assertEquals(1, Jns3Logger.getLogItems().size());
 		System.out.println(Jns3Logger.asString());
 		assertEquals("[INFO] BCHandler: Message extracted: C[hello!]", Jns3Logger.getItem(0).toString());
+		assertTrue(Jns3Logger.isErrorFree());
+	}
+
+	@Test
+	void protF_always_fails() {
+		// arrange
+		Jns3Logger.clearLog();
+		// act
+		protA.inbound("ABFHello");
+		// assert
+		System.out.println(Jns3Logger.asString());
+		assertEquals(1, Jns3Logger.getLogItems().size());
+		assertEquals("[ERROR] pdb: Invalid message: Failed: B[fhello]", Jns3Logger.getItem(0).toString());
+		assertFalse(Jns3Logger.isErrorFree());
+	}
+
+	@Test
+	void protocolG_doubles_redirecting_to_C_and_D() {
+		// arrange
+		Jns3Logger.clearLog();
+		// act
+		protA.inbound("ABGHello");
+		// assert
+		System.out.println(Jns3Logger.asString());
+		assertEquals(2, Jns3Logger.getLogItems().size());
+		assertEquals("[INFO] BCHandler: Message extracted: C[hello]", Jns3Logger.getItem(0).toString());
+		assertEquals("[INFO] BDHandler: Message extracted: D[hello]", Jns3Logger.getItem(1).toString());
 		assertTrue(Jns3Logger.isErrorFree());
 	}
 
