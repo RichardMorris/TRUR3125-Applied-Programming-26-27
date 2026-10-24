@@ -2,8 +2,7 @@ package org.singsurf.jns3.generic_protocol;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -121,58 +120,53 @@ class TestProtocolsComponents {
 
 	class ABLoggingHandler implements ProtocolHandler<ProtocolA> {
 
-		@Override
 		public boolean matches(ProtocolA message) {
 			return message.message.charAt(1) == 'B';
 		}
 
 		@Override
-		public ProtocolA handle(ProtocolA message) {
+		public Status<ProtocolA> handle(ProtocolA message) {
 			if(!matches(message)) {
-				Jns3Logger.logError("ABHandler", "Message does not match: " + message);
-				return message;
+				return ProtocolHandler.Ignored();
 			}
 			var b = converterAB.extract(message);
 			Jns3Logger.logInfo("ABHandler", "Message extracted: " + b);
-			return null;
+			return ProtocolHandler.Handled();
 		}
 	}
 	
 	class BCLoggingHandler implements ProtocolHandler<ProtocolB> {
 
-		@Override
 		public boolean matches(ProtocolB message) {
 			return message.message.charAt(0) == 'c';
 		}
 
 		@Override
-		public ProtocolB handle(ProtocolB message) {
+		public Status<ProtocolB> handle(ProtocolB message) {
 			if(!matches(message)) {
-				Jns3Logger.logError("BCHandler", "Message does not match: " + message);
-				return message;
+				return ProtocolHandler.Ignored();
 			}
 			ProtocolC c = converterBC.extract(message);
 			Jns3Logger.logInfo("BCHandler", "Message extracted: " + c);
-			return null;
+			return ProtocolHandler.Handled();
 		}
 	}
 
 	class ABLogicHandler implements ProtocolHandler<ProtocolA> {
 		InboundLogic<ProtocolA,ProtocolB> logic;
-		@Override
+		
 		public boolean matches(ProtocolA message) {
 			return message.message.charAt(1) == 'B';
 		}
 
 		@Override
-		public ProtocolA handle(ProtocolA message) {
+		public Status<ProtocolA> handle(ProtocolA message) {
 			if(!matches(message)) {
-				Jns3Logger.logError("ABHandler", "Message does not match: " + message);
-				return message;
+				return ProtocolHandler.Ignored();
 			}
 			ProtocolB b = converterAB.extract(message);
 			logic.handle(message, b);
-			return null;
+			return ProtocolHandler.Handled();
 		}
 	}
 
@@ -246,7 +240,7 @@ class TestProtocolsComponents {
 		var a = new ProtocolA("ABHello");
 		assertTrue(loggingHandlerAB.matches(a));
 		var res = loggingHandlerAB.handle(a);
-		assertNull(res);
+		assertInstanceOf(ProtocolHandler.Handled.class, res);
 		assertEquals(1, Jns3Logger.getLogItems().size());
 		assertTrue(Jns3Logger.isErrorFree());
 		
@@ -255,9 +249,9 @@ class TestProtocolsComponents {
 		assertFalse(loggingHandlerAB.matches(a2));
 		
 		res = loggingHandlerAB.handle(a2);
-		assertNotNull(res);
-		assertEquals(1, Jns3Logger.getLogItems().size());
-		assertFalse(Jns3Logger.isErrorFree());
+		assertInstanceOf(ProtocolHandler.Ignored.class, res);
+		assertEquals(0, Jns3Logger.getLogItems().size());
+		assertTrue(Jns3Logger.isErrorFree());
 	}
 
 	@Test

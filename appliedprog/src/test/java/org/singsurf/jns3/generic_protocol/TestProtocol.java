@@ -160,20 +160,19 @@ class TestProtocol {
 		}
 
 		class ABLogicHandler implements ProtocolHandler<TypeA> {
-			@Override
+			
 			public boolean matches(TypeA message) {
 				return message.message.charAt(1) == 'B';
 			}
 
 			@Override
-			public TypeA handle(TypeA message) {
+			public Status<TypeA> handle(TypeA message) {
 				if(!matches(message)) {
-					Jns3Logger.logError("ABHandler", "Message does not match: " + message);
-					return message;
+					return ProtocolHandler.Ignored();
 				}
 				TypeB b = converterAB.extract(message);
 				logicAB.handle(message, b);
-				return null;
+				return ProtocolHandler.Handled();
 			}
 		}
 
@@ -217,20 +216,18 @@ class TestProtocol {
 
 		class BCLoggingHandler implements ProtocolHandler<TypeB> {
 
-			@Override
 			public boolean matches(TypeB message) {
 				return message.message.charAt(0) == 'c';
 			}
 
 			@Override
-			public TypeB handle(TypeB message) {
+			public Status<TypeB> handle(TypeB message) {
 				if(!matches(message)) {
-					Jns3Logger.logError("BCHandler", "Message does not match: " + message);
-					return message;
+					return ProtocolHandler.Ignored();
 				}
 				TypeC c = converterBC.extract(message);
 				Jns3Logger.logInfo("BCHandler", "Message extracted: " + c);
-				return null;
+				return ProtocolHandler.Handled();
 			}
 		}
 			
@@ -283,20 +280,20 @@ class TestProtocol {
 
 		class BDLoggingHandler implements ProtocolHandler<TypeB> {
 
-			@Override
 			public boolean matches(TypeB message) {
 				return message.message.charAt(0) == 'd';
 			}
 
 			@Override
-			public TypeB handle(TypeB message) {
+			public Status<TypeB> handle(TypeB message) {
 				if(!matches(message)) {
-					Jns3Logger.logError("BDHandler", "Message does not match: " + message);
-					return message;
+					if(!matches(message)) {
+						return ProtocolHandler.Ignored();
+					}
 				}
 				TypeD d = converterBD.extract(message);
 				Jns3Logger.logInfo("BDHandler", "Message extracted: " + d);
-				return null;
+				return ProtocolHandler.Handled();
 			}
 		}
 			
@@ -350,20 +347,20 @@ class TestProtocol {
 		
 		class EManipHandler implements ProtocolHandler<TypeB> {
 
-			@Override
 			public boolean matches(TypeB message) {
 				return message.message.charAt(0) == 'e';
 			}
 
 			@Override
-			public TypeB handle(TypeB message) {
+			public Status<TypeB> handle(TypeB message) {
 				if(!matches(message)) {
-					Jns3Logger.logError("EHandler", "Message does not match: " + message);
-					return message;
+					if(!matches(message)) {
+						return ProtocolHandler.Ignored();
+					}
 				}
 				var rest = message.message.substring(1);				
 				message.message = 'c' + rest + "!";
-				return message;
+				return new Modifies<TypeB>(message);
 			}
 		}
 		@Override
@@ -393,9 +390,9 @@ class TestProtocol {
 		protD = new ProtocolD();
 		protE = new ProtocolE();
 		protA.register(protB);
-		protB.register(protE);
 		protB.register(protC);
 		protB.register(protD);
+		protB.register(protE);
 	}
 
 
