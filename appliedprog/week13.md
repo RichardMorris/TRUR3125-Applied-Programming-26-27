@@ -41,7 +41,8 @@ Interfaces can be defined like
         boolean match(T message);
     }
     ```
-using a wild-card type indicator `T`. 
+
+using a wild-card type indicator `T`.
 Implementing class specify the actual message type
 
     ```java
@@ -70,7 +71,7 @@ Lets see how this maps on to the common patter above.
     * These have a set of handlers each handler is of type `H` a message handler.
       * May match a higher level protocol or match a subtype of the protocol
       * Checks if message matches - implements `boolean matches(T message)`
-      * handles matching messages - implements `T handle(T message)` 
+      * handles matching messages - implements `T handle(T message)`
         * either return null to indicate no further processing
         * or a, potentially modified, message to be passed to the next handler
     * Have methods that register, and removes, handlers - implements `addHandler(H handler)`
@@ -116,7 +117,7 @@ Each protocol has
 
 3. A `Extractor<E,L>` defines method to convert from a lower level protocol to a higher level one
 
-    * A method `E extract(L)` to extract the higher level 
+    * A method `E extract(L)` to extract the higher level
     * A method `boolean matches(L)` to test if the data in the lower level protocol matches higher level one.
 
 4. An `Encapsulator<E,H>` defines method convert from a higher level protocol to a lower level one
@@ -125,11 +126,11 @@ Each protocol has
 
 5. A `Receiver<E>` for messages receives
 
-    * A method `void recive(E)`
+    * A method `void receive(E)`
 
 6. A `Sender<E>` to send messages
 
-    * A method `void send(E)` 
+    * A method `void send(E)`
 
 7. A `Handler<E>` for classes the attempt to handle incoming messages
 
@@ -145,18 +146,30 @@ Each protocol has
     * It has a list of `Handler<E>`
     * Its `receive` method is
 
-```java
-public void receive(E message) {
-  for(var handler: handlers) {
-    if(handler.matches(message)) {
-      message = handler.handle(message);
-      if(message==null) {
-        return;
-      }
+    ```java
+    public void receive(E message) {
+    for(var handler: handlers) {
+        if(handler.matches(message)) {
+        message = handler.handle(message);
+        if(message==null) {
+            return;
+        }
+        }
     }
-  }
-  // log error
-}
-```
+    // log error
+    }
+    ```
 
+## Development
 
+A large refactoring needs a careful plan, especially using generics, which are hard to get right.
+
+1. Perform analysis on the current system, to find the classes and methods used in the actual processing of inbound and outbound message.
+2. Develop a set of generic template class, that capture the key parts of the system.
+3. Develop a simple set of test classes implementing the templates.
+4. Expand the behaviour of test classes to match all current behaviour and expected future behaviour.
+5. Replace current components in the system one by one with generic implementations, re-running whole test set as we go.
+
+## Analysis
+
+![current operation](diagrams/week13 analysis.png)

@@ -2,20 +2,12 @@
 
 ## User Story
 
-<<<<<<< HEAD
-As a family, we want to chat each other via our PC on a local network 
-=======
 As a family, we want to chat each other via our PC on a local network
->>>>>>> refs/remotes/origin/wk12_UDP_port_and_sockets
 so we are kept up to date on everyone's messages.
 
 ## Acceptance Criteria
 
-<<<<<<< HEAD
-Scenario: Document to local printer
-=======
 Scenario: A public lan chat application
->>>>>>> refs/remotes/origin/wk12_UDP_port_and_sockets
 
 * Given: A network of 2 PC's connected to a `Switch`
 * When: The first PC starts the `ChatApplication`
@@ -37,8 +29,6 @@ Scenario: A public lan chat application
 * When: The second chat application receives a `tick`
 * Then: The it calls the `poll` method of the socket
 * Then: It receives the datagram and displays the content
-<<<<<<< HEAD
-=======
 
 Scenario: A private chat application
 Given: a network of 4 PC's connected by two linked switched via a BlockingConnector.
@@ -89,7 +79,6 @@ Then: PC2 recombines the fragments
 When: a complete IP packet containing a UDP datagram is created
 Then: PC2 displays complete messages
 And: incomplete/corrupted message are never displayed
->>>>>>> refs/remotes/origin/wk12_UDP_port_and_sockets
 
 ## Specification
 
@@ -130,75 +119,6 @@ And: incomplete/corrupted message are never displayed
     * Its `tick` method
         * repeatedly poll's the socket for a datagram
         * If a datagram is received displays the message it contains
-<<<<<<< HEAD
-
-## Design
-
-A common pattern should now become apparent:
-
-* A protocol such  as ARP, IP, ICMP, and UDP has
-  * A container type that hold the type of message that
-    * Has fields for each field in the protocol
-    * Can be constructed using values for the field
-    * Can be queried to extract the values for the field.
-    * Can be converted into a byte array
-    * Its content can be converted to a byte array
-    * Can be constructed from a byte array using a static method
-    * static methods to check it can handle data from a lower level protocol
-    * static methods to constructed from a lower level protocol
-  * classes that receive messages
-    * These have a set of handlers each handler
-      * May match a higher level protocol or match a subtype of the protocol
-      * Checks if message matches
-      * handles matching messages
-    * Have methods that register, and removes, handlers.
-  * classes that send messages
-    * These package the message up in a lower level protocol
-    * Sends the package
-
-Can we encapsulate this using design patterns or Java language features. Here generics map play a role.
-Interfaces can be defined like
-
-    ```java
-    interface MessageMatcher<T> {
-        boolean match(T message);
-    }
-    ```
-
-and implementing class specify the actual message type
-
-    ```java
-    class IPPacketMatcher implements MessageMatcher<IPPacket> {
-        public boolean match(IPPacket message);
-    }
-    ```
-
-We look at this major refactoring in the next week.
-
-* A protocol such  as ARP, IP, ICMP, and UDP has - represented by the `Protocol<T,L>` type
-  * Has a container type `T`
-  * Has a lower level protocol container type `L`
-  * A container type that hold the type of message - implements `ProtocolContainer`
-    * Has fields for each field in the protocol
-    * Can be constructed using values for the field
-    * Can be queried to extract the values for the field.
-    * Can be converted into a byte array - implements `byte[] getBytes()`
-    * Its content can be converted to a byte array - implements `byte[] getContents()`
-  * Can construct from a byte array - `T fromBytes()`
-  * Can check it can handle data from a lower level protocol `boolean match(L message)`
-  * Can be created from a lower level protocol - `T fromContainer(L message)`
-  * classes that receive messages - implement `MessageReceiver<T,H>`
-    * These have a set of handlers each handler is of type `H` a message handler.
-      * May match a higher level protocol or match a subtype of the protocol
-      * Checks if message matches - implements `boolean matches(T message)`
-      * handles matching messages - implements `T handle(T message)` 
-        * either return null to indicate no further processing
-        * or a, potentially modified, message to be passed to the next handler
-    * Have methods that register, and removes, handlers - implements `addHandler(H handler)`
-  * classes that send messages - implements `MessageSender<T,L>
-    * These package the message up in a lower level protocol - implements `L package()`
-    * Sends the package - implements `void send(L message)`
-=======
 6. Connectors can be joined together
     * PhysicalConnection has two `PhysicalEndPoint` inner classes.
     * A connection can have either of its endpoint set to null
@@ -319,4 +239,3 @@ class IPPacketMatcher implements MessageMatcher<IPPacket> {
 ```
 
 We look at this major refactoring in the next week.
->>>>>>> refs/remotes/origin/wk12_UDP_port_and_sockets
