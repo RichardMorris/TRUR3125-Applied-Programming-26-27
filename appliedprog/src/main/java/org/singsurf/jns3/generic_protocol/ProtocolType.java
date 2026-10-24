@@ -4,4 +4,5 @@ public interface ProtocolType {
 
 	public byte[] getBytes();
 	public byte[] getContents();
+	public boolean isValid();
 }

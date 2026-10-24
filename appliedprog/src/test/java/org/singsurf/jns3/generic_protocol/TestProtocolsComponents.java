@@ -45,6 +45,10 @@ class TestProtocolsComponents {
 		public String toString() {
 			return "A["+message+"]";
 		}
+		@Override
+		public boolean isValid() {
+			return true;
+		}
 	}
 
 	
@@ -66,6 +70,10 @@ class TestProtocolsComponents {
 		public String toString() {
 			return "B["+message+"]";
 		}
+		@Override
+		public boolean isValid() {
+			return true;
+		}
 	}
 	
 	
@@ -86,6 +94,10 @@ class TestProtocolsComponents {
 		}
 		public String toString() {
 			return "C["+message+"]";
+		}
+		@Override
+		public boolean isValid() {
+			return true;
 		}
 	}
 	

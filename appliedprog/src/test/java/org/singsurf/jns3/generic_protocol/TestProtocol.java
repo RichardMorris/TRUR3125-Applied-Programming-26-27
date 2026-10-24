@@ -34,6 +34,10 @@ class TestProtocol {
 		public String toString() {
 			return "A["+message+"]";
 		}
+		@Override
+		public boolean isValid() {
+			return true;
+		}
 	}
 
 	
@@ -54,6 +58,10 @@ class TestProtocol {
 		}
 		public String toString() {
 			return "B["+message+"]";
+		}
+		@Override
+		public boolean isValid() {
+			return true;
 		}
 	}
 	
@@ -76,6 +84,10 @@ class TestProtocol {
 		public String toString() {
 			return "C["+message+"]";
 		}
+		@Override
+		public boolean isValid() {
+			return true;
+		}
 	}
 
 
@@ -96,6 +108,10 @@ class TestProtocol {
 		}
 		public String toString() {
 			return "D["+message+"]";
+		}
+		@Override
+		public boolean isValid() {
+			return true;
 		}
 	}
 
