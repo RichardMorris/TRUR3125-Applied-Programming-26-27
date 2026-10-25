@@ -25,5 +25,4 @@ replay_pid*
 
 appliedprog/target/*
 /.project
-
-appliedprog/target/*
+/.settings

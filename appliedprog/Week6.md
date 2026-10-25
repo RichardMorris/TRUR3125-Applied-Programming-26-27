@@ -9,29 +9,32 @@ any PC can send a frame to any other PC on the network.
 ## Acceptance criteria
 
 Scenario: arp initialisation of multiple PC's connected by a hub
-Given: three PC's connected by a hub, that do not know each others MAC addresses
-When: one pc tries to send a message to another IP address
-Then: the arp table is consulted and does not find the MAC address
-Then: and arp request is sent to the hub
-Then: the arp request is forwarded to the other PC's
-Then: the requested PC replies with an arp response
-Then: the hub forward the reply to all other PC's
-Then: the original PC updates its arp table.
-And: other PC have their arp tables updated
+
+* Given: three PC's connected by a hub, that do not know each others MAC addresses
+* When: one pc tries to send a message to another IP address
+* Then: the arp table is consulted and does not find the MAC address
+* Then: and arp request is sent to the hub
+* Then: the arp request is forwarded to the other PC's
+* Then: the requested PC replies with an arp response
+* Then: the hub forward the reply to all other PC's
+* Then: the original PC updates its arp table.
+* And: other PC have their arp tables updated
 
 Scenario: sending messages across network of 3 PC's connected by a hub
-Given: three PC's connected by a hub, that know each others MAC addresses
-When: one pc tries to send a frame to another IP address
-Then: the frame is sent to the hub
-Then: the frame is forwarded to the other PC's
-Then: the requested PC receives and processes the frame
+
+* Given: three PC's connected by a hub, that know each others MAC addresses
+* When: one pc tries to send a frame to another IP address
+* Then: the frame is sent to the hub
+* Then: the frame is forwarded to the other PC's
+* Then: the requested PC receives and processes the frame
 
 Scenario: sending messages across network of 3 PC's connected by a switch
-Given: three PC's connected by a hub, with ARP initialisation
-When: one pc tries to send a frame to another IP address
-Then: the frame is sent to the hub
-Then: the frame is forwarded to the correct PC's
-Then: the requested PC receives and processes the frame
+
+* Given: three PC's connected by a hub, with ARP initialisation
+* When: one pc tries to send a frame to another IP address
+* Then: the frame is sent to the hub
+* Then: the frame is forwarded to the correct PC's
+* Then: the requested PC receives and processes the frame
 
 ## Specification
 
@@ -67,3 +70,7 @@ Then: the requested PC receives and processes the frame
     * It has no ARPConnection
     * It cannot initiate its own messages
     * Messages sent to its own MACAddress are recorded with an Error in the log.
+
+## Class Diagram
+
+![class diagram](diagrams/week6.png)
