@@ -16,7 +16,7 @@ Scenario: two PC's pinging each other
 * Then: The second PC replies to the request
 * Then: The first PC displays a message like "64 bytes from 106.8.139.92: ttl=47 time=2 tick"
 
-Scenario: two PC's and a router pinging each other 
+Scenario: two PC's and a router pinging each other
 
 * Given: A network of two PC's connected by a PassthroughRouter by buffered connections
 * When: One PC sends an ping request to the other
@@ -24,7 +24,7 @@ Scenario: two PC's and a router pinging each other
 * Then: The router forwards the request
 * Then: The second PC replies to the request
 * Then: The router forwards the reply
-* Then: The first PC displays a message like "64 bytes 
+* Then: The first PC displays a message like "64 bytes
 from 106.8.139.92: ttl=47 time=4 tick"
 
 Scenario: sending a traceroute request
