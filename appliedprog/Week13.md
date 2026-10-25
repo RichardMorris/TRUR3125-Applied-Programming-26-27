@@ -113,7 +113,7 @@ A large refactoring needs a careful plan, especially using generics, which are h
 
 ## Analysis
 
-![current operation](diagrams/week13 analysis.png)
+![current operation](diagrams/week13%20analysis.png)
 
 Inbound logic has two or three phases.
 
