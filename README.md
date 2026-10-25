@@ -1,17 +1,33 @@
 # TRUR3125-Applied-Programming-26-27
 
-Code for the TRUR3125 Applied Programming unit at Truro and Penwith College
+## Code for the TRUR3125 Applied Programming unit at Truro and Penwith College
 
+This year we will use design patterns to attempt to simulate network operations.
+The Java Network Simulator 3 models the various layers of the network stack,
+with faithful representations of the protocols, and a test suite that
+model network operations.
 
-* [Week 3 the Imaginary Protocol](appliedprog/src/main/java/org/singsurf/netsym/netswitch/README.md)
+Each week is stored in a separate branch in the repo.
 
-* [Week 4 data-link-layer](appliedprog/Week4.md)
-* [Week 5 ARP](appliedprog/Week5.md)
-* [Week 6 Hubs and Switches](appliedprog/Week6.md)
-* [Week 7 Physical Layer](appliedprog/Week7.md)
-* [Week 8 Network layer](appliedprog/Week8.md)
-* [Week 9 Time](appliedprog/Week9.md)
+* Week 3 - JNS3 and the Imaginary Protocol. The first experimental attempt. See [netswitch](appliedprog/src/main/java/org/singsurf/netsym/netswitch/README.md)
 
+* Week 4 - Data Link Layer - basic ethernet frames with MAC address, and a PC that can receive a frame.
+See [week 4](appliedprog/Week4.md)
 
+* Week 5 - Address Resolution Protocol - allows devices to find each other's mac addresses.
+See [week 5](appliedprog/Week5.md)
 
- 
+* Week 6 - Hubs and Switches - simple implementation of these devices
+See [week 6](appliedprog/Week6.md)
+
+* Week 7 - An improved physical layer, allowing connections that can modify the data passing through
+See [week 7](appliedprog/Week7.md)
+
+* Week 8 - Network layer, IPPackets, fragmentation and recombination.
+See [week 8](appliedprog/Week8.md)
+
+* Week 9 - Modelling time, allows rate limiting of connections and buffering of connections
+See [week 9](appliedprog/Week9.md)
+
+* Week 10 - Buffering of output , devices can buffer their output over slow connections.
+See [week 10](appliedprog/Week10.md)

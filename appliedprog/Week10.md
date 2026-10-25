@@ -75,7 +75,7 @@ It has three states IDLE, FORWARD and REVERSED and the behaviour of the `blocked
 
 State machines are useful for many task, such as parsing a text file like the VRML 3D object format [VRML parser](https://github.com/RichardMorris/SingSurf4/blob/main/src/org/singsurf/singsurf/asurf/Vrml2Obj.java) that has states depending on which part of the file is being read: vertices, normals and faces.
 
-### State Diagram
+### State Diagrams
 
 ![state machines](diagrams/week10-state-diagram.png)
 
