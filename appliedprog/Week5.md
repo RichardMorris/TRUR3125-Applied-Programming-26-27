@@ -9,21 +9,23 @@ can then send messages to each other.
 ## Acceptance criteria
 
 Scenario: two PC's can find each others MAC addresses
-Given: a network of two PC's, that do not know each other's MAC addresses
-When: the first PC sends a GARP request
-Then: the second PC receives the request
-Then: it replies with a ArpMessage containing it's MAC address.
-And: it updates its arp table with the sender MAC address.
-Then: the first PC receives the reply
-Then: it updates its arp table
+
+* Given: a network of two PC's, that do not know each other's MAC addresses
+* When: the first PC sends a GARP request
+* Then: the second PC receives the request
+* Then: it replies with a ArpMessage containing it's MAC address.
+* And: it updates its arp table with the sender MAC address.
+* Then: the first PC receives the reply
+* Then: it updates its arp table
 
 Scenario: two PC that know each others MAC addresses
-When: the first machine sends a frame to the other IP address
-Then: it looks up the mac address in the arp table
-Then: it creates a frame using the found MAC address
-Then: it sends the frame
-Then: the second PC receives the frame
-Then: the second PC checks the MAC address matches and logs the message.
+
+* When: the first machine sends a frame to the other IP address
+* Then: it looks up the mac address in the arp table
+* Then: it creates a frame using the found MAC address
+* Then: it sends the frame
+* Then: the second PC receives the frame
+* Then: the second PC checks the MAC address matches and logs the message.
 
 ## Specification
 
@@ -127,3 +129,7 @@ See [cisco overview of layer 2](https://community.cisco.com/t5/networking-knowle
         * The `DefaultFrameHandler` handles all other requests.
     * Our implementation is simpler than the standard pattern. In that elements in the chain can modify the request before passing it on.
     * Rather that implementing the Linked List structure in the pattern we simply use a List of Handlers.
+
+## Class Diagram
+
+![class diagram](diagrams/week5.png)
