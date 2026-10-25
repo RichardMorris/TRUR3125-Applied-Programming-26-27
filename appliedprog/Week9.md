@@ -1,4 +1,4 @@
-# week 9 - time
+# week 9 - Time
 
 ## User story
 
@@ -76,3 +76,7 @@ to respond to button click or mouse actions. You may well have used this in Java
 
 Java used to have an [Observable](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Observable.html)/[Observer](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Observer.html) system, but it had problems with its event model and has been Deprecated and replaced by the more complex
 [Flow](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/Flow.html) publisher/subscriber model.
+
+## Class diagram
+
+![class diagram](diagrams/week9.png)
