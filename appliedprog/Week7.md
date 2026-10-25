@@ -111,6 +111,8 @@ Some simple getters are also provided:
     * `ARPController getArpController()` returning the `ARPController`
 Boot logic setting all the PC components is currently provided in the `DeviceFactory.createPC()` factory method.
 
+![Class diagram for the PC](diagrams/week7_PC.png)
+
 ## Challenges
 
 1. Implement some other types of connection
@@ -125,3 +127,7 @@ Implementing classes should:
         `receive(byte[] frame, boolean reversed)` normally passing through the `reversed` parameter.
 2. (Hard) implement a `DelayedConnection` adding a delay to transmission. The `send` method should return before `received` is called allowing the sending device to continue operating. This will
 require using Threads allowing different part of the system to run in parallel.
+
+## Class diagram
+
+![class diagram](diagrams/week7.png)

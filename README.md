@@ -12,7 +12,7 @@ model network operations.
 * Week 4 - Data Link Layer - basic ethernet frames with MAC addresss, and a PC that can receive a frame.
 See [week 4](appliedprog/Week4.md)
 
-* Week 5 - Address Resolution Protocol - allows devices to find each other's mac addresses. 
+* Week 5 - Address Resolution Protocol - allows devices to find each other's mac addresses.
 See [week 5](appliedprog/Week5.md)
 
 * Week 6 - Hubs and Switches - simple implementation of these devices
