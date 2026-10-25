@@ -1,4 +1,4 @@
-# IMCP, Ping and Traceroute - chain of responsibility
+# IMCP, Ping and Traceroute
 
 ## User Story
 
@@ -16,7 +16,7 @@ Scenario: two PC's pinging each other
 * Then: The second PC replies to the request
 * Then: The first PC displays a message like "64 bytes from 106.8.139.92: ttl=47 time=2 tick"
 
-Scenario: two PC's and a router pinging each other 
+Scenario: two PC's and a router pinging each other
 
 * Given: A network of two PC's connected by a PassthroughRouter by buffered connections
 * When: One PC sends an ping request to the other
@@ -24,25 +24,25 @@ Scenario: two PC's and a router pinging each other
 * Then: The router forwards the request
 * Then: The second PC replies to the request
 * Then: The router forwards the reply
-* Then: The first PC displays a message like "64 bytes 
+* Then: The first PC displays a message like "64 bytes
 from 106.8.139.92: ttl=47 time=4 tick"
 
 Scenario: sending a traceroute request
 
-Given: A network of two PC's connected by a PassthroughRouter by buffered connections
-When: One PC sends an traceroute request to the other
-Then: a message like "traceroute to 192.168.217.188, 64 hops max" is displayed
-Then: The PC sends a ping request with ttl 1.
-Then: The router decrements the ttl
-Then: The router replies with a TTLExpired
-Then: The first PC displays a message like "1  192.168.112.118 2 ticks"
-Then: The PC sends a ping request with ttl 2.
-Then: The router decrements the ttl
-Then: The router forwards the message
-Then: The second PC replies to the request
-Then: The router decrements the ttl
-Then: The router forwards the reply
-Then: The first PC displays a message like "2  192.168.57.39   4 ticks"
+* Given: A network of two PC's connected by a PassthroughRouter by buffered connections
+* When: One PC sends an traceroute request to the other
+* Then: a message like "traceroute to 192.168.217.188, 64 hops max" is displayed
+* Then: The PC sends a ping request with ttl 1.
+* Then: The router decrements the ttl
+* Then: The router replies with a TTLExpired
+* Then: The first PC displays a message like "1  192.168.112.118 2 ticks"
+* Then: The PC sends a ping request with ttl 2.
+* Then: The router decrements the ttl
+* Then: The router forwards the message
+* Then: The second PC replies to the request
+* Then: The router decrements the ttl
+* Then: The router forwards the reply
+* Then: The first PC displays a message like "2  192.168.57.39   4 ticks"
 
 ## Specification
 
@@ -84,18 +84,18 @@ Then: The first PC displays a message like "2  192.168.57.39   4 ticks"
      * If so calls the `handleICMP(ICMPMessage)`
      * If no handler matches, it logs an error.
 7. A `PingRequest` is a `ICMPMessage` with
-     * Type 0x08
-     * Code 0x00
+     * Type: 8
+     * Code: 0
      * The rest section containing
           * `identifier` 2 bytes: specified by constructor
           * `sequenceNumber` 2 bytes: unique number for each ping
 8. A `PingReply` is a `ICMPMessage` with
-     * Type 0
-     * Code 0
+     * Type: 0
+     * Code: 0
      * rest section matching the original message
 9. An `IMCPError` is an `ICMPMessage` with
-     * Type 11
-     * Code 0
+     * Type: 11
+     * Code: 0
      * rest section matching the original message
      * Data section containing:
           * The IP header of sending request
@@ -103,7 +103,7 @@ Then: The first PC displays a message like "2  192.168.57.39   4 ticks"
 10. The `PingRequestHandler` handles ping requests. It
      * checks if the message has type 8.
      * If so creates a `IMCPMessage` with
-          * type 0x00, code 0x00, rest 0x0000, and no data section.
+          * type: 0, code: 0, rest: 0x0000, and no data section.
      * Creates an `IPPacket` with a `PingReply` message
           * protocol 0x01
           * Destination IP with Source IP of the packet.
@@ -195,3 +195,7 @@ to create the different types
  determine their types.
 
 7. The calling PC responds to ping and traceroute replies by comparing the reply with the original request stored in the table.
+
+## Class diagrams
+
+![class diagram](diagrams/week11.png)
