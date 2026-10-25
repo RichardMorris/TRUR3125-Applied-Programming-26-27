@@ -127,12 +127,12 @@ And: incomplete/corrupted message are never displayed
     * A connection has a `PhysicalEndPoint getEndpoint1()` and `PhysicalEndPoint getEndpoint2()` methods
     * connections can be joined together
 
-    ```java
-    var buf = new BufferedConnection(PC1.getEndPoint, null);
-    var loss = new LossyConnection(null,PC2);
-    buf.setEndPoint2(loss.getVirtualEndpoint(0));
-    loss.setEndPoint1(buf.getVirtualEndpoint(1));
-    ```
+        ```java
+        var buf = new BufferedConnection(PC1.getEndPoint, null);
+        var loss = new LossyConnection(null,PC2);
+        buf.setEndPoint2(loss.getVirtualEndpoint(0));
+        loss.setEndPoint1(buf.getVirtualEndpoint(1));
+        ```
 
     * when PC1 sends a frame
         * then `buf` is called with `send(frame,true)`
@@ -162,6 +162,8 @@ var connection4 = new ThrottledConnection(sw1.getEndPoint(2), sw2.getEndPoint(2)
 The `ChatApplication` is our first application layer program, communicating through network sockets. The interface is similar to the Java's
 [DatagramSocket](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/net/DatagramSocket.html) with one change to reflect our timing model.
 It can successfully conduct chats through these networks.
+
+![class diagram](diagrams/week12.png)
 
 ## Design
 
