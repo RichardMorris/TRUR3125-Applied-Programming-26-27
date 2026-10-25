@@ -1,8 +1,8 @@
-# week 9 - Time
+# Week 9 - Modelling Time
 
 ## User story
 
-As a network engineer working with a wide area network where packets my take different routes and experience delays I want to combine out of sequence fragments on the receiving machine so that large messages can reliably be transmitted  long distances.
+As a network engineer working with a wide area network where packets may take different routes and experience delays I want to combine out of sequence fragments on the receiving machine so that large messages can reliably be transmitted  long distances.
 
 ## Acceptance criteria
 
@@ -65,7 +65,7 @@ The `tick` method is an simple example of the [Observer](https://refactoring.gur
 Here the `tick()` is the notification sent to subscribers. The
 
 ```java
-    GlobalWallClock.getInstance().addTickListener(this);
+GlobalWallClock.getInstance().addTickListener(this);
  ```
 
 method can be used to add our subscriber/listener.
