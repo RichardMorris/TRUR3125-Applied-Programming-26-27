@@ -18,21 +18,17 @@ public class ProtocolDelegator<T extends ProtocolType> implements ProtocolReceiv
 	
 	@Override
 	public void receive(T message) {
-		for (var handler : handlers) {
-			
-			var state = handler.handle(message, this);
+		for (var handler : handlers) {			
+			var state = handler.handle(message);
 			switch(state) {
-			
 			case Handled h -> { return; }
 			case Ignored i -> { break; }
 			case Invalid i -> {
-				Jns3Logger.logError(name, "Invalid message: " + i.reason);
+				Jns3Logger.logError(name, "Invalid message: " + i.reason());
 				return;
 				}
-			default -> {
-				Jns3Logger.logError(name, "Unknown return state: " + state);		
-				}				}
-		}			
+			}
+		}
 		Jns3Logger.logError(name, "No handler found for message: " + message);		
 	}
 	

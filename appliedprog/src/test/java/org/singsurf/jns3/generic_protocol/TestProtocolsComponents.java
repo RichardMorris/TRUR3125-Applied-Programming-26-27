@@ -136,7 +136,7 @@ class TestProtocolsComponents {
 		}
 
 		@Override
-		public Status handle(ProtocolA message, ProtocolDelegator<ProtocolA> delegator) {
+		public Status handle(ProtocolA message) {
 			if(!matches(message)) {
 				return ProtocolHandler.IGNORED;
 			}
@@ -153,7 +153,7 @@ class TestProtocolsComponents {
 		}
 
 		@Override
-		public Status handle(ProtocolB message, ProtocolDelegator<ProtocolB> delegator) {
+		public Status handle(ProtocolB message) {
 			if(!matches(message)) {
 				return ProtocolHandler.IGNORED;
 			}
@@ -172,7 +172,7 @@ class TestProtocolsComponents {
 		}
 
 		@Override
-		public Status handle(ProtocolA message, ProtocolDelegator<ProtocolA> delegator) {
+		public Status handle(ProtocolA message) {
 			if(!matches(message)) {
 				return ProtocolHandler.IGNORED;
 			}
@@ -252,7 +252,7 @@ class TestProtocolsComponents {
 		Jns3Logger.clearLog();
 		var a = new ProtocolA("ABHello");
 		assertTrue(loggingHandlerAB.matches(a));
-		var res = loggingHandlerAB.handle(a,pdA);
+		var res = loggingHandlerAB.handle(a);
 		assertEquals(ProtocolHandler.HANDLED, res);
 		assertEquals(1, Jns3Logger.getLogItems().size());
 		assertTrue(Jns3Logger.isErrorFree());
@@ -261,7 +261,7 @@ class TestProtocolsComponents {
 		var a2 = new ProtocolA("ACHello");
 		assertFalse(loggingHandlerAB.matches(a2));
 		
-		res = loggingHandlerAB.handle(a2,pdA);
+		res = loggingHandlerAB.handle(a2);
 		assertEquals(ProtocolHandler.IGNORED, res);
 		assertEquals(0, Jns3Logger.getLogItems().size());
 		assertTrue(Jns3Logger.isErrorFree());

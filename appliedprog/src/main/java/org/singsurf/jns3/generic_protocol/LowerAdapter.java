@@ -4,10 +4,9 @@ import java.util.List;
 
 public interface LowerAdapter<A extends ProtocolType> {
 
-//	public void register(UpperPort<A> port);
-	
-	public List<ProtocolHandler<A>> getHandlers();
+	public List<ProtocolHandler<A>> getInboundHandlers();
+
+	public void setInboundCallback(ProtocolReceiver<A> r);
 	
 	public void setOutboundSender(ProtocolSender<A> s);
-
 }

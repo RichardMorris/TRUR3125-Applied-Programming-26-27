@@ -130,7 +130,7 @@ class TestProtocol {
 		
 		@Override
 		public void register(LowerAdapter<TypeA> port) {
-			for(var h: port.getHandlers()) {
+			for(var h: port.getInboundHandlers()) {
 				pdA.addHandler(h);
 			}
 			port.setOutboundSender(senderA);
@@ -144,12 +144,13 @@ class TestProtocol {
 	
 
 	static class ProtocolB implements UpperPort<TypeB>, LowerAdapter<TypeA> {		
+		ProtocolSender<TypeA> senderA;
+		ProtocolReceiver<TypeA> callbackA;
+		ProtocolDelegator<TypeB> delegatorB = new ProtocolDelegator<>("pdb");
 		ABConvertor converterAB = new ABConvertor();
-		ProtocolDelegator<TypeB> pdB = new ProtocolDelegator<>("pdb");
 		ABLogicHandler logicHandlerAB = new ABLogicHandler();
 		BALogic logicBA = new BALogic();
 		ABLogic logicAB = new ABLogic();
-		ProtocolSender<TypeA> senderA;
 
 		static class ABConvertor implements ProtocolConvertor<TypeA, TypeB> {
 
@@ -183,7 +184,7 @@ class TestProtocol {
 			}
 
 			@Override
-			public Status handle(TypeA message, ProtocolDelegator<TypeA> delegator) {
+			public Status handle(TypeA message) {
 				if(!matches(message)) {
 					return ProtocolHandler.IGNORED;
 				}
@@ -200,27 +201,34 @@ class TestProtocol {
 			public void handle(TypeA container, TypeB extracted) {
 				var s = extracted.message.substring(1).toLowerCase();
 				extracted.message = s;
-				pdB.receive(extracted);
+				delegatorB.receive(extracted);
 			}	
 		}
 
 
+
 		@Override
-		public List<ProtocolHandler<TypeA>> getHandlers() {
-			return List.of(logicHandlerAB);
+		public void register(LowerAdapter<TypeB> adapter) {
+			for(var h: adapter.getInboundHandlers()) {
+				delegatorB.addHandler(h);
+			}
+			adapter.setOutboundSender(logicBA);
+			adapter.setInboundCallback(delegatorB);
 		}
 
 		@Override
-		public void register(LowerAdapter<TypeB> port) {
-			for(var h: port.getHandlers()) {
-				pdB.addHandler(h);
-			}
-			port.setOutboundSender(logicBA);
+		public List<ProtocolHandler<TypeA>> getInboundHandlers() {
+			return List.of(logicHandlerAB);
 		}
 
 		@Override
 		public void setOutboundSender(ProtocolSender<TypeA> s) {
 			senderA = s;			
+		}
+
+		@Override
+		public void setInboundCallback(ProtocolReceiver<TypeA> r) {
+			callbackA = r;
 		}
 
 	}
@@ -240,7 +248,7 @@ class TestProtocol {
 
 
 			@Override
-			public Status handle(TypeB message, ProtocolDelegator<TypeB> delegator) {
+			public Status handle(TypeB message) {
 				if(!matches(message)) {
 					return ProtocolHandler.IGNORED;
 				}
@@ -275,7 +283,7 @@ class TestProtocol {
 		}
 
 		@Override
-		public List<ProtocolHandler<TypeB>> getHandlers() {
+		public List<ProtocolHandler<TypeB>> getInboundHandlers() {
 			return List.of(loggerBC);
 		}
 
@@ -289,6 +297,11 @@ class TestProtocol {
 			var packed = new TypeC(message);
 			transCB.send(packed);
 		}
+		
+		@Override
+		public void setInboundCallback(ProtocolReceiver<TypeB> r) {
+		}
+
 
 	}
 
@@ -305,7 +318,7 @@ class TestProtocol {
 			}
 
 			@Override
-			public Status handle(TypeB message, ProtocolDelegator<TypeB> delegator) {
+			public Status handle(TypeB message) {
 				if(!matches(message)) {
 					return ProtocolHandler.IGNORED;
 				}
@@ -340,13 +353,17 @@ class TestProtocol {
 		// protocol level methods
 
 		@Override
-		public List<ProtocolHandler<TypeB>> getHandlers() {
+		public List<ProtocolHandler<TypeB>> getInboundHandlers() {
 			return List.of(loggerBD);
 		}
 
 		@Override
 		public void setOutboundSender(ProtocolSender<TypeB> s) {
 			senderB = s;
+		}
+
+		@Override
+		public void setInboundCallback(ProtocolReceiver<TypeB> r) {
 		}
 
 		// Methods exposed to the PC/test environment
@@ -361,6 +378,7 @@ class TestProtocol {
 	 * Changes message type to C and adds an explanation mark.
 	 */
 	static class ProtocolE implements LowerAdapter<TypeB> {
+		ProtocolReceiver<TypeB> delegator;
 		EManipHandler manipHandler = new EManipHandler();
 		
 		class EManipHandler implements ProtocolHandler<TypeB> {
@@ -370,7 +388,7 @@ class TestProtocol {
 			}
 
 			@Override
-			public Status handle(TypeB message, ProtocolDelegator<TypeB> delegator) {
+			public Status handle(TypeB message) {
 				if(!matches(message)) {
 					if(!matches(message)) {
 						return ProtocolHandler.IGNORED;
@@ -384,13 +402,18 @@ class TestProtocol {
 
 		}
 		@Override
-		public List<ProtocolHandler<TypeB>> getHandlers() {
+		public List<ProtocolHandler<TypeB>> getInboundHandlers() {
 			return List.of(manipHandler);
 		}
 
 		@Override
 		public void setOutboundSender(ProtocolSender<TypeB> s) {
 			
+		}
+		
+		@Override
+		public void setInboundCallback(ProtocolReceiver<TypeB> r) {
+			delegator = r;
 		}
 	}	
 	
@@ -408,7 +431,7 @@ class TestProtocol {
 			}
 
 			@Override
-			public Status handle(TypeB message, ProtocolDelegator<TypeB> delegator) {
+			public Status handle(TypeB message) {
 				if(!matches(message)) {
 					if(!matches(message)) {
 						return ProtocolHandler.IGNORED;
@@ -419,13 +442,16 @@ class TestProtocol {
 
 		}
 		@Override
-		public List<ProtocolHandler<TypeB>> getHandlers() {
+		public List<ProtocolHandler<TypeB>> getInboundHandlers() {
 			return List.of(manipHandler);
 		}
 
 		@Override
 		public void setOutboundSender(ProtocolSender<TypeB> s) {
 			
+		}
+		@Override
+		public void setInboundCallback(ProtocolReceiver<TypeB> r) {
 		}
 	}	
 
@@ -434,7 +460,7 @@ class TestProtocol {
 	 */
 	static class ProtocolG implements LowerAdapter<TypeB> {
 		GDoublerHandler manipHandler = new GDoublerHandler();
-		
+		ProtocolReceiver<TypeB> delegator;
 		class GDoublerHandler implements ProtocolHandler<TypeB> {
 
 			public boolean matches(TypeB message) {
@@ -442,7 +468,7 @@ class TestProtocol {
 			}
 
 			@Override
-			public Status handle(TypeB message, ProtocolDelegator<TypeB> delegator) {
+			public Status handle(TypeB message) {
 				if(!matches(message)) {
 					if(!matches(message)) {
 						return ProtocolHandler.IGNORED;
@@ -457,7 +483,7 @@ class TestProtocol {
 
 		}
 		@Override
-		public List<ProtocolHandler<TypeB>> getHandlers() {
+		public List<ProtocolHandler<TypeB>> getInboundHandlers() {
 			return List.of(manipHandler);
 		}
 
@@ -465,6 +491,12 @@ class TestProtocol {
 		public void setOutboundSender(ProtocolSender<TypeB> s) {
 			
 		}
+		
+		@Override
+		public void setInboundCallback(ProtocolReceiver<TypeB> r) {
+			delegator = r;
+		}
+
 	}	
 
 	ProtocolA protA;
