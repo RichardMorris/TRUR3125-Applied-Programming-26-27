@@ -1,8 +1,6 @@
-package org.singsurf.jns3.data_link_layer;
+package org.singsurf.jns3;
 
 import java.util.Arrays;
-
-import org.singsurf.jns3.AbstractAddress;
 
 public class IPAddress extends AbstractAddress {
 
