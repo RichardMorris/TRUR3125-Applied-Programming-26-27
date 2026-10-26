@@ -24,7 +24,7 @@ class TestPassthroughRouter {
 	private PassthroughRouter router;
 	private PC pc1;
 	private PC pc2;
-	private PingController pingcont;
+//	private PingController pingcont;
 	
 	@BeforeEach
 	void setUp() throws Exception {
@@ -35,8 +35,8 @@ class TestPassthroughRouter {
 		var icmpHandler1 = new ICMPPacketReceiver(pc1.getName(), packetLogger1);
 		pc1.setPacketReceiver(icmpHandler1);
 		
-		pingcont = PingController.newInstance(pc1);
-		icmpHandler1.addHandler(pingcont);
+//		pingcont = PingController.newInstance(pc1);
+		icmpHandler1.addHandler(pc1.getPingController());
 		icmpHandler1.addHandler(new ICMPMessageLogger("ICMPLogger1"));
 		
 		var combiner1 = new IPFragmentHandler(pc1,pc1.getPacketReceiver());
@@ -88,7 +88,7 @@ class TestPassthroughRouter {
 		// Act
 		Jns3Logger.clearLog();
 		Jns3Logger.startCapture();
-		pingcont.sendPingRequest(pc2.getIPAddress(), 64);
+		pc1.ping(pc2.getIPAddress(), 64);
 		var output = Jns3Logger.endCapture();
 		var lines = output.split("\n");
 		assertEquals("PING " + pc2.getIPAddress() + " 28 bytes of data.", lines[0].trim());
@@ -118,7 +118,7 @@ class TestPassthroughRouter {
 		// Act
 		Jns3Logger.clearLog();
 		Jns3Logger.startCapture();
-		pingcont.sendPingRequest(router.getIPAddress(), 64);
+		pc1.ping(router.getIPAddress(), 64);
 		var output = Jns3Logger.endCapture();
 		var lines = output.split("\n");
 		assertEquals("PING " + router.getIPAddress() + " 28 bytes of data.", lines[0].trim());
@@ -149,7 +149,7 @@ class TestPassthroughRouter {
 		// Act
 		Jns3Logger.clearLog();		
 		Jns3Logger.startCapture();
-		pingcont.sendPingRequest(pc2.getIPAddress(), 64);
+		pc1.ping(pc2.getIPAddress(), 64);
 		var output = Jns3Logger.endCapture();
 		assertEquals("PING " + pc2.getIPAddress() + " 28 bytes of data.", output.trim());
 		System.out.print(output);
@@ -256,7 +256,7 @@ class TestPassthroughRouter {
 		// Act
 		Jns3Logger.clearLog();		
 		Jns3Logger.startCapture();
-		pingcont.sendPingRequest(pc2.getIPAddress(), 1);
+		pc1.ping(pc2.getIPAddress(), 1);
 		var output = Jns3Logger.endCapture();
 		assertEquals("PING " + pc2.getIPAddress() + " 28 bytes of data.", output.trim());
 		System.out.print(output);
@@ -293,7 +293,7 @@ class TestPassthroughRouter {
 		// Act
 		Jns3Logger.clearLog();		
 		Jns3Logger.startCapture();
-		pingcont.sendTraceroute(pc2.getIPAddress());
+		pc1.traceroute(pc2.getIPAddress());
 		String output = Jns3Logger.endCapture();
 		assertEquals("traceroute to "+pc2.getIPAddress()+", 64 hops max", output.trim());
 		System.out.print(output);

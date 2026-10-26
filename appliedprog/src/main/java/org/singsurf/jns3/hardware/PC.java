@@ -16,18 +16,24 @@ import org.singsurf.jns3.network_layer.IPPacket;
 import org.singsurf.jns3.network_layer.PacketFragmentor;
 import org.singsurf.jns3.network_layer.PacketReceiver;
 import org.singsurf.jns3.network_layer.PacketSender;
+import org.singsurf.jns3.network_layer.icmp.ICMPPacketReceiver;
+import org.singsurf.jns3.network_layer.icmp.PingController;
 import org.singsurf.jns3.physical_layer.PhysicalEndPoint;
 
 public class PC implements AddressableDevice, FrameSender, FrameReceiver, PacketSender {
     String name;
+    MACAddress macAddress;
+    IPAddress ipAddress;
+	IPAddress multiCastIP;
+
     List<FrameHandler> frameHandlers = new ArrayList<>();
     ARPController arpController;
     FrameFactory frameFactory;
-    MACAddress macAddress;
-    IPAddress ipAddress;
-    FrameSender ethernetEndPoint;
+	FrameSender ethernetEndPoint;
     PacketReceiver packetReceiver;
     PacketFragmentor packetFragmentor;
+	ICMPPacketReceiver icmpPacketReceiver;
+	PingController pingController;
 
     public PC(String name, MACAddress macAddress, IPAddress ipAddress) {
         this.name = name;
@@ -159,6 +165,33 @@ public class PC implements AddressableDevice, FrameSender, FrameReceiver, Packet
 	public void display(String string) {
 		System.out.println(string);
 	}
+	
+	public void setICMPHandler(ICMPPacketReceiver icmpPacketReceiver) {
+		this.icmpPacketReceiver = icmpPacketReceiver;
+	}
+	
+	public ICMPPacketReceiver getICMPHandler() {
+		return icmpPacketReceiver;
+	}
 
+	public void setPingController(PingController pingController) {
+		this.pingController = pingController;
+	}
+	
+	public PingController getPingController() {
+		return pingController;
+	}
+	
+	public void ping(IPAddress ipAddress2, int i) {
+		pingController.sendPingRequest(ipAddress2, i);
+	}
+
+	public void traceroute(IPAddress ipAddress2) {
+		pingController.sendTraceroute(ipAddress2);
+	}
+
+	public void sendTraceroute(IPAddress ipAddress2) {
+		pingController.sendTraceroute(ipAddress2);
+	}
 
 }
