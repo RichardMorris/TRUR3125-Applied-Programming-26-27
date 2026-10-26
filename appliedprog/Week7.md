@@ -75,15 +75,22 @@ The sequence of operations for sending a frame from PC1 to PC2.
 6. The connection calls the `receive(byte[])` method of the other end point
 7. The end point calls the `receiveFrame(ethernetFrame)` of PC2.
 
+A simplified class diagram showing the passage of date through the system. It shows the path of outbound and inbound traffic, and also how classes in the chain are related to each other: either by inheritance, aggregation or composition.
+
+![transmission class diagram](diagrams/week7-transmission.png)
+
 ## Design Patterns
 
 1. `EthernetEndPoint` is an [adapter](https://refactoring.guru/design-patterns/adapter)
-"Adapter is a structural design pattern that allows objects with incompatible interfaces to collaborate." Here the two interfaces are the physical layer that works with `byte[]` and the
+
+    > "Adapter is a structural design pattern that allows objects with incompatible interfaces to collaborate."
+
+    Here the two interfaces are the physical layer that works with `byte[]` and the
 data-link layer that works with `EthernetFrame`.
 
 2. The different `Connection` classes are an example of the [strategy](https://refactoring.guru/design-patterns/strategy) pattern.
 
-    "Strategy is a behavioural design pattern that lets you define a family of algorithms, put each of them into a separate class, and make their objects interchangeable."
+    > "Strategy is a behavioural design pattern that lets you define a family of algorithms, put each of them into a separate class, and make their objects interchangeable."
 
     Here the algorithm is transferring data from one end of a cable to the other, and
 the different subclasses have different implementations.
@@ -91,8 +98,8 @@ the different subclasses have different implementations.
 3. PC is becoming much more like a  [Facade](https://refactoring.guru/design-patterns/facade). It provides a simple interface to a complex set of classes. It provides several methods that represent operating systems calls.
     * `sendFrame(EthernetFrame frame)`
     * `receiveFrame(EthernetFrame frame)`
-    * `EthernetFrame createEthernetFrame(MACAddress destinationMac, String payload)`
-    * `EthernetFrame createEthernetFrame(MACAddress destinationMac, byte[] payload)`
+    * `createEthernetFrame(MACAddress destinationMac, String payload)`
+    * `createEthernetFrame(MACAddress destinationMac, byte[] payload)`
     * `sendGARPRequest()`
     * `sendArpRequest(IPAddress targetIP)`
     * `MACAddress lookup(IPAddress ipAddress)`
@@ -110,6 +117,8 @@ Some simple getters are also provided:
     * `FrameFactory getFrameFactory()` returning the `FrameFactory`
     * `ARPController getArpController()` returning the `ARPController`
 Boot logic setting all the PC components is currently provided in the `DeviceFactory.createPC()` factory method.
+
+A simplified class diagram showing the PC and all the classes it depends on is shown below.
 
 ![Class diagram for the PC](diagrams/week7_PC.png)
 
