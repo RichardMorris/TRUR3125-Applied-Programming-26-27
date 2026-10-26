@@ -3,7 +3,7 @@
 ## Code for the TRUR3125 Applied Programming unit at Truro and Penwith College
 
 This year we will use design patterns to attempt to simulate network operations.
-The Java Network Simulator 3 models the various layers of the network stack,
+The **Java Network Simulator 3** models the various layers of the network stack,
 with faithful representations of the protocols, and a test suite that
 model network operations.
 
