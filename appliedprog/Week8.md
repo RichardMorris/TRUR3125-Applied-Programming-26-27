@@ -96,6 +96,7 @@ Scenario: packet fragmentation and recombination
 6. A `FrameReorderingConnector` change the order physical frames are transmitted.
 7. A network of two PC and one FrameReorderingConnector can successfully send a large packet broken into fragments.
 
+![Packet recombination](diagrams/week8_fragments.png)
 ## Design
 
 Not too many design pattern's this week but the design of an IPPacket uses quite a bit binary bit manipulation, with `b << 4` to shift the bit in a byte 4 steps to the left;
@@ -133,13 +134,19 @@ map of `FragmentCollector` by IPAddress.
     * A similar iteration through the map is used to assemble the data section for the recombined package.
     * The package is then assembled and sent to `PackageReceiver`.
 7. To test large messages a message listing all the ones complement numbers between two bounds. Here the [iterator](https://refactoring.guru/design-patterns/iterator) design pattern
-is used "a behavioural design pattern that lets you traverse elements of a collection without exposing its underlying representation (list, stack, tree, etc.)."
+is used
+    > "a behavioural design pattern that lets you traverse elements of a collection without exposing its underlying representation (list, stack, tree, etc.)."
+
     * The iterator has two methods
     * `boolean hasNext()` that report if more elements are available
     * `OnesComplementNumber next()` returns the next number in the sequence
-    * We need a custom iterator as the order of One's complement numbers is different.
+    * We need a custom iterator as the order of One's complement numbers is different to the natural ordering of the underling short.
 
 ## Challenges
 
-1. Allow the `PacketFragmenter` to split packets that are already fragments, ensuring
+1. Allow the `PacketFragmentor` to split packets that are already fragments, ensuring
     that they can still be reconstructed.
+
+## Class Diagram
+
+![class diagram](diagrams/week8.png)
