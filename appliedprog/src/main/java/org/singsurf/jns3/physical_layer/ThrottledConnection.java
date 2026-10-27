@@ -4,6 +4,13 @@ import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.hardware.GlobalWallClock;
 import org.singsurf.jns3.hardware.GlobalWallClock.TickListener;
 
+/**
+ * A {@link BlockingConnection} that limits the number of frames that
+ * can be sent per tick.
+ * <p>
+ * It has a number of bandwidth levels that can be used to simulate different types of
+ * of CAT cables.
+ */
 public class ThrottledConnection extends PhysicalConnection implements BlockingConnection, TickListener {
 	public static final int CAT3 = 16; // 16 MHz
 	public static final int CAT4 = 20; // 20 MHz

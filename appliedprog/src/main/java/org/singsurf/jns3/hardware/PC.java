@@ -167,8 +167,8 @@ public class PC implements AddressableDevice, FrameSender, FrameReceiver, Packet
 		System.out.println(string);
 	}
 
-	public void bind(DatagramSocket socket, IPAddress multicastAddress, short s) {
-		udpController.bind(multicastAddress, s, socket);
+	public void bind(DatagramSocket socket, IPAddress multicastAddress, short portNumber) {
+		udpController.bind(multicastAddress, portNumber, socket);
 		
 	}
 	

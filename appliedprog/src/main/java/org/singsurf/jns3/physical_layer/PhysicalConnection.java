@@ -3,8 +3,16 @@ package org.singsurf.jns3.physical_layer;
 import org.singsurf.jns3.Jns3Logger;
 
 /**
- * Represents a physical ethernet cable connection between two devices.
- * Frames sent by one device are received by the other.
+ * Base class for all physical connections.
+ * To configure two end-point devices must be supplied,
+ * messages send via one end-points to the 
+ * {@code send(byte[] frame, boolean reversed)} 
+ * receive method of subclasses are normally 
+ * delivered to the other end-point using the
+ * {@code receive(byte[] frame, boolean reversed)} method.
+ * <p>
+ * Two connections can be joined end to end 
+ * by using the {@code getVirtualEndPoint(int index)} method.
  */
 public abstract class PhysicalConnection {
     PhysicalEndPoint dev1;

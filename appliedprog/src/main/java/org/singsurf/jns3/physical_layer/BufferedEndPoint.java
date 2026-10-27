@@ -7,6 +7,11 @@ import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.hardware.GlobalWallClock;
 import org.singsurf.jns3.hardware.GlobalWallClock.TickListener;
 
+/**
+ * An endpoint that can be used with blocking connections.
+ * It the connection is blocked it stores the frames in a buffer and tries to
+ * sends them on the next tick.
+ */
 public abstract class BufferedEndPoint extends PhysicalEndPoint implements TickListener {
 	Queue<byte[]> buffer = new LinkedList<>();
 	

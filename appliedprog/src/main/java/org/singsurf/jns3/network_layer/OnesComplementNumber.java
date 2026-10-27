@@ -1,13 +1,10 @@
 package org.singsurf.jns3.network_layer;
 import java.util.Iterator;
 /**
- * See https://www.rfc-editor.org/rfc/rfc1071.txt for the RFC
- * Implementation of 1's complement arithmetic in Java.
- * 
+ * Class representing a number in 1's complement representation.
+ * <p>
+ * See https://www.rfc-editor.org/rfc/rfc1071.txt for the RFC. 
  * See https://stackoverflow.com/questions/66449588/what-is-1s-complement-addition
- * 
- * 
- * OnesComplement
  */
 public class OnesComplementNumber implements Comparable<OnesComplementNumber> {
     public static final OnesComplementNumber MINUS_ZERO = new OnesComplementNumber((short) 0xFFFF);

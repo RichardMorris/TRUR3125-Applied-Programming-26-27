@@ -4,7 +4,12 @@ import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.hardware.GlobalWallClock;
 import org.singsurf.jns3.hardware.GlobalWallClock.TickListener;
 
+/**
+ * Models a half-duplex connection.
+ * Only allows traffic through in one dirction per tick.
+ */
 public class HalfDuplexConnection extends PhysicalConnection implements BlockingConnection, TickListener {
+	/** State of the connection. */
 	enum State {
 		IDLE, FORWARD, REVERSE
 	}

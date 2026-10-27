@@ -2,6 +2,20 @@ package org.singsurf.jns3.transport_layer.udp;
 
 import org.singsurf.jns3.network_layer.IPPacket;
 
+/**
+ * Represents a UDP datagram.
+ * <p>
+ * They are encapsulated in IP packets with protocol number is 0x11 (17),
+ * It is connection less, unreliable, not ordered, and fast.
+ * <p>
+ *  A UDPDatagram header contains:
+ * <ul>
+ * <li>Source Port: 2 bytes
+ * <li>Destination Port: 2 bytes
+   <li>Length: 2 bytes
+   <li> Checksum: 2 bytes, unused
+  </ul>
+   */
 public class UDPDatagram {
 	short sourcePort;
 	short destinationPort;

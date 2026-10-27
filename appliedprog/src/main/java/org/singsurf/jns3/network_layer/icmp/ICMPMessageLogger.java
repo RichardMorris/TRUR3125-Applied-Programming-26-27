@@ -3,6 +3,9 @@ package org.singsurf.jns3.network_layer.icmp;
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.network_layer.IPPacket;
 
+/**
+ *  Default handler that logs the message.
+ */
 public class ICMPMessageLogger implements ICMPMessageHandler {
 	String name;
 

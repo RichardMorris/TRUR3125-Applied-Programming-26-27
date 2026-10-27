@@ -16,6 +16,12 @@ import org.singsurf.jns3.hardware.AddressableDevice;
 import org.singsurf.jns3.hardware.GlobalWallClock;
 import org.singsurf.jns3.hardware.GlobalWallClock.TickListener;
 
+/**
+ * Sends IP packets over Ethernet. 
+ * It uses ARP to resolve IP addresses to MAC addresses
+ * and fragments packets if they are too large for the Ethernet frame.
+ * Our implementation uses the low size of 140 bytes.
+ */
 public class EthernetPacketSender implements PacketSender, TickListener {
 	String name;
 	MACAddress sourceMac;
