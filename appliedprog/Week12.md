@@ -163,7 +163,15 @@ The `ChatApplication` is our first application layer program, communicating thro
 [DatagramSocket](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/net/DatagramSocket.html) with one change to reflect our timing model.
 It can successfully conduct chats through these networks.
 
-![class diagram](diagrams/week12.png)
+### Note
+
+The ability to automatically add and remove hosts from both sides
+of a private chat was dropped. This was an attempt to get round the
+connection less nature of UDP. On reflection it was felt better not to implement this and show the problems that can occur when one
+machine closes it's socket, but the other leaves it open.
+
+There is some part of the UDP spec that does allow for Multi-cast groups,
+but that is not implemented yet and left as a backlog item.
 
 ## Design
 
@@ -241,3 +249,7 @@ class IPPacketMatcher implements MessageMatcher<IPPacket> {
 ```
 
 We look at this major refactoring in the next week.
+
+## Class diagram
+
+![class diagram](diagrams/week12.png)

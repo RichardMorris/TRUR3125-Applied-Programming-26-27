@@ -35,7 +35,7 @@ Scenario: packet fragmentation and recombination
     * `timeToLive` 8 bit, 1 byte. Number of hops before the packet is dropped. Each passage through
         a router decreases by 1, when it reaches zero the packet is dropped.
     * `protocol` 8 bit, 1 byte. 0x01 for IMCP, 0x06 for TCP, 17, 0x11 for UDP.
-    * `headerChecksum` 16-bit 2 byte. Calculated by taking the 1's complement of the 1's complement sum of the 5 16 bit words in the header.
+    * `headerChecksum` 16-bit 2 byte. Calculated by taking the 1's complement of the 1's complement sum of the five 16-bit words in the header.
     * `sourceAddress` 4 byte, source IP address
     * `destinationAddress` 4 byte, destination IP address
     * `options` not used 0 bytes.
