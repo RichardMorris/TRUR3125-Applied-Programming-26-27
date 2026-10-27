@@ -7,6 +7,11 @@ package org.singsurf.jns3.generic_protocol;
  */
 public interface InboundLogic<A extends ProtocolType,B extends ProtocolType> {
 
-	public void handle(A container, B extracted);
+	/**
+	 * Process an inbound message.
+	 * @param container the lower level container
+	 * @param extracted the extracted higher level message with its headers.
+	 */
+	public void process(A container, B extracted);
 
 }

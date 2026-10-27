@@ -101,7 +101,7 @@ class TestProtocolsComponents {
 		}
 	}
 	
-	static class ABConvertor implements ProtocolConvertor<ProtocolA, ProtocolB> {
+	static class ABConvertor implements ProtocolConverter<ProtocolA, ProtocolB> {
 
 		@Override
 		public ProtocolB extract(ProtocolA a) {
@@ -115,7 +115,7 @@ class TestProtocolsComponents {
 		
 	}
 
-	static class BCConvertor implements ProtocolConvertor<ProtocolB, ProtocolC> {
+	static class BCConvertor implements ProtocolConverter<ProtocolB, ProtocolC> {
 
 		@Override
 		public ProtocolC extract(ProtocolB b) {
@@ -177,7 +177,7 @@ class TestProtocolsComponents {
 				return ProtocolHandler.IGNORED;
 			}
 			ProtocolB b = converterAB.extract(message);
-			logic.handle(message, b);
+			logic.process(message, b);
 			return ProtocolHandler.HANDLED;
 		}
 
@@ -187,7 +187,7 @@ class TestProtocolsComponents {
 		ProtocolReceiver<ProtocolB> receiver;
 
 		@Override
-		public void handle(ProtocolA container, ProtocolB extracted) {
+		public void process(ProtocolA container, ProtocolB extracted) {
 			var s = extracted.message.substring(1).toLowerCase();
 			extracted.message = s;
 			receiver.receive(extracted);

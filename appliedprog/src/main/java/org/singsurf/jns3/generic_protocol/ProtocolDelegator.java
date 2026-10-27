@@ -8,6 +8,13 @@ import org.singsurf.jns3.generic_protocol.ProtocolHandler.Handled;
 import org.singsurf.jns3.generic_protocol.ProtocolHandler.Ignored;
 import org.singsurf.jns3.generic_protocol.ProtocolHandler.Invalid;
 
+/**
+ * Delegates processing of a message to handlers
+ * provided either by this protocol, or those provided
+ * by a higher level protocol.
+ * 
+ * @param <T> container type for this protocol
+ */
 public class ProtocolDelegator<T extends ProtocolType> implements ProtocolReceiver<T> {
 	String name;
 	List<ProtocolHandler<T>> handlers = new ArrayList<>();

@@ -152,7 +152,7 @@ class TestProtocol {
 		BALogic logicBA = new BALogic();
 		ABLogic logicAB = new ABLogic();
 
-		static class ABConvertor implements ProtocolConvertor<TypeA, TypeB> {
+		static class ABConvertor implements ProtocolConverter<TypeA, TypeB> {
 
 			@Override
 			public TypeB extract(TypeA a) {
@@ -189,7 +189,7 @@ class TestProtocol {
 					return ProtocolHandler.IGNORED;
 				}
 				TypeB b = converterAB.extract(message);
-				logicAB.handle(message, b);
+				logicAB.process(message, b);
 				return ProtocolHandler.HANDLED;
 			}
 
@@ -198,7 +198,7 @@ class TestProtocol {
 		class ABLogic implements InboundLogic<TypeA,TypeB> {
 
 			@Override
-			public void handle(TypeA container, TypeB extracted) {
+			public void process(TypeA container, TypeB extracted) {
 				var s = extracted.message.substring(1).toLowerCase();
 				extracted.message = s;
 				delegatorB.receive(extracted);
@@ -259,7 +259,7 @@ class TestProtocol {
 
 		}
 			
-		static class BCConvertor implements ProtocolConvertor<TypeB, TypeC> {
+		static class BCConvertor implements ProtocolConverter<TypeB, TypeC> {
 
 			@Override
 			public TypeC extract(TypeB b) {
@@ -328,7 +328,7 @@ class TestProtocol {
 			}
 		}
 			
-		static class BDConvertor implements ProtocolConvertor<TypeB, TypeD> {
+		static class BDConvertor implements ProtocolConverter<TypeB, TypeD> {
 
 			@Override
 			public TypeD extract(TypeB b) {

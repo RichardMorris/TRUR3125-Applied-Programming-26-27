@@ -1,7 +1,15 @@
 package org.singsurf.jns3.generic_protocol;
 
+/**
+ * Defines method that receive a out-bound messages
+ * @param <T> container type for this protocol.
+ */
 public interface ProtocolSender<T extends ProtocolType> {
 
-	public void send(T protocolType);
+	/**
+	 * Sends a message down the pipeline
+	 * @param container container of the message
+	 */
+	public void send(T container);
 
 }
