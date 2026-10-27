@@ -31,8 +31,8 @@ public class IPMessage {
      * It may be necessary to change the address at some point in the future.
      * @param ipaddr
      */
-    public void setAddress(IPAddr ipaddr2) {
-        this.ipaddr = ipaddr2;
+    public void setAddress(IPAddr ipaddr) {
+        this.ipaddr = ipaddr;
     }
 
     /**

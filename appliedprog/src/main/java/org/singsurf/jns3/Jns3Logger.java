@@ -71,18 +71,6 @@ public class Jns3Logger {
 		return true;
 	}
 
-	public static String errorsAsString() {
-		if(logItems.isEmpty()) {
-			return "[EMPTY]";
-		}
-		StringBuilder sb = new StringBuilder();
-		for(LogItem item : logItems) {
-			if(item.level == LogLevel.ERROR)
-				sb.append(item.toString()).append("\n");
-		}	
-		return sb.toString();
-	}
-
 	public static String asString() {
 		if(logItems.isEmpty()) {
 			return "[EMPTY]";

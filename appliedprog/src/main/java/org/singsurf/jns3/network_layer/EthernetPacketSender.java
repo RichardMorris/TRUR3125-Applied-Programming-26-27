@@ -15,7 +15,6 @@ import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.hardware.AddressableDevice;
 import org.singsurf.jns3.hardware.GlobalWallClock;
 import org.singsurf.jns3.hardware.GlobalWallClock.TickListener;
-import org.singsurf.jns3.transport_layer.udp.UDPDatagram;
 
 public class EthernetPacketSender implements PacketSender, TickListener {
 	String name;
@@ -97,8 +96,6 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 			if(destMac != null) {
 				while(!queue.queue().isEmpty()) {
 					IPPacket packet = queue.queue().poll();
-					var datagram = UDPDatagram.fromPacket(packet);
-					System.out.println("Sending queued packet to " + destIp + ": " + datagram);
 					sendPacket(packet,destMac);
 				}
 				toRemove.add(destIp);
