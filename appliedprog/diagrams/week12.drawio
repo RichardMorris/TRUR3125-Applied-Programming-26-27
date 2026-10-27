@@ -2044,7 +2044,7 @@
             <mxPoint x="1070" y="2054" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="SEjD3UZ2cxKW0A9pua8D-133" parent="1" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" value="&amp;lt;&amp;lt;Interface&amp;gt;&amp;gt;&lt;br&gt;Console" vertex="1">
+        <mxCell id="SEjD3UZ2cxKW0A9pua8D-133" parent="1" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" value="&amp;lt;&amp;lt;Interface&amp;gt;&amp;gt;&lt;br&gt;Terminal" vertex="1">
           <mxGeometry height="74" width="160" x="-310" y="1687" as="geometry" />
         </mxCell>
         <mxCell id="SEjD3UZ2cxKW0A9pua8D-134" parent="SEjD3UZ2cxKW0A9pua8D-133" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" value="" vertex="1">
