@@ -3,10 +3,39 @@ package org.singsurf.jns3.data_link_layer;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 
 public class TestFrameFactory {
     FrameFactory factory = new FrameFactory();
+    
+    /**
+     * A Factory method to create multiple Ethernet frames from a message string.
+     * @param destination the destination MAC address
+     * @param source the source MAC address
+     * @param message the message to be converted into the payload
+     * @return the list of created Ethernet frames
+     */
+    public List<EthernetFrame> createEthernetFrames(
+        MACAddress destination,
+        MACAddress source,
+        String message) {
+
+        byte[] payload = message.getBytes();
+        List<EthernetFrame> frames = new ArrayList<>();
+        int pos = 0;
+        while(pos < payload.length) {
+            int chunkSize = Math.min(1500, payload.length - pos);
+            byte[] chunk = new byte[chunkSize];
+            System.arraycopy(payload, pos, chunk, 0, chunkSize);
+            frames.add(new EthernetFrame(destination, source, (short) chunkSize, chunk));
+            pos += chunkSize;
+        }
+        return frames;
+    }
+
 
     @Test
     public void create_from_string() {
@@ -18,7 +47,7 @@ public class TestFrameFactory {
         assertEquals(source, frame.getSource());
         assertEquals((short) message.length(), frame.getEtherType());
         assertArrayEquals(message.getBytes(), frame.getPayload());
-        assertEquals(message, FrameFactory.decode(frame));
+        assertEquals(message, new String(frame.getPayload()));
     }
 
     @Test
@@ -31,7 +60,7 @@ public class TestFrameFactory {
         assertEquals(source, frame.getSource());
         assertEquals(6, frame.getEtherType());
         assertArrayEquals(message.getBytes(), frame.getPayload());
-        assertEquals(message, FrameFactory.decode(frame));
+        assertEquals(message, new String(frame.getPayload()));
     }
 
     @Test
@@ -43,7 +72,7 @@ public class TestFrameFactory {
             sb.append((char) ('A' + (i % 26)));
         }
         String message = sb.toString();
-        var frames = factory.createEthernetFrames(destination, source, message);
+        var frames = createEthernetFrames(destination, source, message);
         assertEquals(2,frames.size());
         EthernetFrame frame1 = frames.get(0);
         EthernetFrame frame2 = frames.get(1);
@@ -57,7 +86,11 @@ public class TestFrameFactory {
         assertEquals(source, frame2.getSource());
         assertEquals((short) (message.length() - 1500), frame2.getEtherType());
         assertArrayEquals(message.substring(1500).getBytes(), frame2.getPayload());
-        String res = FrameFactory.decode(frames);
+		StringBuilder sb1 = new StringBuilder();
+		for (EthernetFrame frame : frames) {
+		    sb1.append(new String(frame.getPayload()));
+		}
+        String res = sb1.toString();
         assertEquals(message, res);
         System.out.println(res);
     }

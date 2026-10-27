@@ -1,8 +1,5 @@
 package org.singsurf.jns3.data_link_layer;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class FrameFactory {
 	static FrameFactory instance = new FrameFactory();
     /**
@@ -54,44 +51,7 @@ public class FrameFactory {
         return new EthernetFrame(destination, source, etherType, payload);
     }
 
-    /**
-     * A Factory method to create multiple Ethernet frames from a message string.
-     * @param destination the destination MAC address
-     * @param source the source MAC address
-     * @param message the message to be converted into the payload
-     * @return the list of created Ethernet frames
-     */
-    public List<EthernetFrame> createEthernetFrames(
-        MACAddress destination,
-        MACAddress source,
-        String message) {
-
-        byte[] payload = message.getBytes();
-        List<EthernetFrame> frames = new ArrayList<>();
-        int pos = 0;
-        while(pos < payload.length) {
-            int chunkSize = Math.min(1500, payload.length - pos);
-            byte[] chunk = new byte[chunkSize];
-            System.arraycopy(payload, pos, chunk, 0, chunkSize);
-            frames.add(new EthernetFrame(destination, source, (short) chunkSize, chunk));
-            pos += chunkSize;
-        }
-        return frames;
-    }
-
-    public static String decode(EthernetFrame frame) {
-        return new String(frame.getPayload());
-    }
-
-    public static String decode(List<EthernetFrame> frames) {
-        StringBuilder sb = new StringBuilder();
-        for (EthernetFrame frame : frames) {
-            sb.append(new String(frame.getPayload()));
-        }
-        return sb.toString();
-    }
-
-	public static FrameFactory getInstance() {
+    public static FrameFactory getInstance() {
 		return instance;
 	}
 
