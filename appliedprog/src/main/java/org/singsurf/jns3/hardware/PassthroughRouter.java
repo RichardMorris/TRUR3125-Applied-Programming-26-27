@@ -17,9 +17,11 @@ import org.singsurf.jns3.network_layer.icmp.PingRequestHandler;
  * A PassthroughRouter is a simple router that forwards Ethernet frames between its two ports.
  * If the frame is an ARPMessage then forwarded to the other port,
  * hence the router is invisible to ARP. 
- * If the frame is an IPPacket then 
+ * If the frame is an IPPacket then the TTL is decremented.
+ * If the TTL is zero then and the packet is an IMCP then an ICMP error is generated. 
+ * This is a simple implementation of a router that does not perform any routing logic.
  * 
- *  otherwise it is dropped. This is a simple implementation of a router that does not perform any routing logic.
+ * See <a href="../../../../../../Week10.md">Week 10</a>.
  */
 public class PassthroughRouter extends MultiPortDevice implements AddressableDevice {
     IPAddress ipAddress;

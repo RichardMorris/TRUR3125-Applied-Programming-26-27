@@ -5,6 +5,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+/**
+ * A singleton class that represents a global wall clock for the network simulation.
+ * It maintains a tick count and allows listeners to be notified on each tick.
+ * 
+ * See <a href="../../../../../../Week9.md">Week 9</a> for details on modelling of time.
+ */
 public class GlobalWallClock {
 	public static final int INIT = 0;
 	public static final int RELEASE = 8;
@@ -15,6 +21,9 @@ public class GlobalWallClock {
 	List<TickListener> initListners = new ArrayList<>();
 	List<TickListener> releaseListners = new ArrayList<>();
 	
+	/**
+	 * An interface for classes that want to listen for tick events from the GlobalWallClock.
+	 */
 	public interface TickListener {
 		void onTick();
 	}
@@ -27,6 +36,9 @@ public class GlobalWallClock {
 		listnersByPriority.put(RELEASE, releaseListners);		
 	}
 
+	/**
+	 * Move the clock forward by one tick and notify all registered listeners in order of their priority.
+	 */
 	public void advanceTime() {
 		tickCount++;
 		for(var lst : listnersByPriority.entrySet()) {
@@ -37,13 +49,27 @@ public class GlobalWallClock {
 		}
 	}
 	
+	/**
+	 * Adds a tick listener with the default RELEASE priority.
+	 *
+	 * @param listener the listener to be added
+	 */
 	public void addTickListener(TickListener listener) {
 		releaseListners.add(listener);
 	}
 	
+	/**
+	 * Adds a tick listener with a specified priority. Listeners with lower priority values are notified first.
+	 *
+	 * @param priority the priority of the listener
+	 * @param listener the listener to be added
+	 */
 	public void addTickListener(int priority, TickListener listener) {
-		listnersByPriority.computeIfAbsent(priority, k -> new ArrayList<>()).add(listener);
+		listnersByPriority
+			.computeIfAbsent(priority, k -> new ArrayList<>())
+			.add(listener);
 	}
+	
 	public void removeTickListener(TickListener listener) {
 		for(var lst : listnersByPriority.entrySet()) {
 			lst.getValue().remove(listener);

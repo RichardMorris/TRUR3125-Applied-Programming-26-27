@@ -3,6 +3,9 @@ package org.singsurf.jns3.data_link_layer;
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.hardware.PC;
 
+/**
+ * DefaultFrameHandler that logs a message.
+ */
 public class DefaultFrameHandler implements FrameHandler {
     PC device;
 

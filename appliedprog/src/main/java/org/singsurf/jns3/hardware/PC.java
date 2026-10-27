@@ -22,7 +22,11 @@ import org.singsurf.jns3.physical_layer.PhysicalEndPoint;
 import org.singsurf.jns3.transport_layer.udp.DatagramSocket;
 import org.singsurf.jns3.transport_layer.udp.UDPController;
 
-public class PC implements AddressableDevice, FrameSender, FrameReceiver, PacketSender, Console {
+/**
+ * The main class representing a PC.
+ * Acts as a Facade to the various layers in the system.
+ */
+public class PC implements AddressableDevice, FrameSender, FrameReceiver, PacketSender, Terminal {
     String name;
     MACAddress macAddress;
     IPAddress ipAddress;
@@ -84,7 +88,7 @@ public class PC implements AddressableDevice, FrameSender, FrameReceiver, Packet
     }
 
     public MACAddress lookup(IPAddress ipAddress) {
-        return arpController.getArpTable().get(ipAddress);
+        return arpController.lookup(ipAddress);
     }
 
     @Override

@@ -9,6 +9,12 @@ import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.network_layer.IPPacket;
 
+/**
+ * A simple layer-2 Switch that forwards Ethernet frames received on one port 
+ * to the appropriate port based on the destination MAC address.
+ * 
+ * See <a href="../../../../../../Week6.md">Week 6</a> for details on Hub's and Switches.
+ */
 public class Switch extends MultiPortDevice {
     Map<Integer,Set<MACAddress>> connectedMacAddress = new HashMap<>();
     Map<MACAddress, Integer> macToPortMap = new HashMap<>();

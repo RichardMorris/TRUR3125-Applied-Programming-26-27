@@ -2,7 +2,13 @@ package org.singsurf.jns3.data_link_layer;
 
 import org.singsurf.jns3.AbstractAddress;
 
+/**
+ * Represents a MAC (Media Access Control) address, with 6 bytes.
+ */
 public class MACAddress extends AbstractAddress {
+	/**
+	 * The broadcast MAC address, which is used to send frames to all devices on a local network.
+	 */
     public static MACAddress BROADCAST_MAC = new MACAddress(new byte[] {(byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF});
     public static MACAddress ZERO_MAC = new MACAddress(new byte[] {0, 0, 0, 0, 0, 0});
 

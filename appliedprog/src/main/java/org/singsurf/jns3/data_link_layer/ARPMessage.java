@@ -2,13 +2,35 @@ package org.singsurf.jns3.data_link_layer;
 
 import org.singsurf.jns3.network_layer.IPAddress;
 
+/**
+ * Represents an ARP message.
+ * 
+ * An `ARPMessage` message has the format:
+ * <ul>
+    * <li>2 byte hardware type. Ethernet is 0x0001.
+    * <li>2 byte protocol type, IPv4 is 0x0800.
+    * <li>1 byte length of hardware address, 6 for MAC addresses for Ethernet
+    * <li>1 byte length of protocol address, 4 for IPv4 addresses.
+    * <li>2 bytes for operation, 0x0001 for a request 0x0002 for a reply
+    * <li>6 bytes for sender MacAddress
+    * <li>4 bytes for sender IPv4 protocol address
+    * <li>6 bytes for target MacAddress
+    * <li>4 bytes for target IPv4 protocol address
+    * </ul>
+    * 28 bytes in total.
+ * 
+ * See <a href="../../../../../../Week5.md">Week 5</a> for details on the ARP message format.
+ */
 public class ARPMessage {
     private boolean isRequest;
     private MACAddress senderMac;
     private MACAddress targetMac;
     private IPAddress senderIp;
     private IPAddress targetIp;
-	public static short ARP_ETHER_TYPE = 0x0806; // EtherType for ARP
+    /**
+	 * EtherType for ARP messages.
+	 */
+	public static short ARP_ETHER_TYPE = 0x0806;
     static private MACAddress zeroMac = new MACAddress(new byte[6]);
 
     public ARPMessage(boolean isRequest, MACAddress senderMac, IPAddress senderIp, MACAddress targetMac, IPAddress targetIp) {

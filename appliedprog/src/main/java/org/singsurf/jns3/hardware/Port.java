@@ -5,6 +5,11 @@ import org.singsurf.jns3.data_link_layer.FrameSender;
 import org.singsurf.jns3.data_link_layer.NICCard;
 import org.singsurf.jns3.physical_layer.PhysicalEndPoint;
 
+/**
+ * A Port on an @link MultiPortDevice.
+ * 
+ * Since week 10 it buffers output.
+ */
 public class Port implements NamedDevice, FrameReceiver, FrameSender {
     MultiPortDevice hostDevice;
     int portNumber;

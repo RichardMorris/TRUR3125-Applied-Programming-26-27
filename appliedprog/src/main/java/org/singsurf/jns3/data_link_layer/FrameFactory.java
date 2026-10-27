@@ -1,5 +1,8 @@
 package org.singsurf.jns3.data_link_layer;
 
+/**
+ * A factory class for creating Ethernet frames.
+ */
 public class FrameFactory {
 	static FrameFactory instance = new FrameFactory();
     /**

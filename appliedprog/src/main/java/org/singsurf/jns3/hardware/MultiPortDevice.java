@@ -3,6 +3,11 @@ package org.singsurf.jns3.hardware;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.physical_layer.PhysicalEndPoint;
 
+/**
+ * Base class for devices that have multiple ports. 
+ * 
+ * See <a href="../../../../../../Week6.md">Week 6</a> for details on Hub's and Switches.
+ */
 public abstract class MultiPortDevice implements NamedDevice {
     String name;
     int numPorts;

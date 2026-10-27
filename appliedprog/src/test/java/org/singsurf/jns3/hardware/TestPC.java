@@ -17,7 +17,7 @@ public class TestPC {
     FrameFactory frameFactory = new FrameFactory();
     @Test 
     public void createPC() {
-        Console pc = deviceFactory.createPC("TestPC");
+        Terminal pc = deviceFactory.createPC("TestPC");
         assertNotNull(pc);
     }
 

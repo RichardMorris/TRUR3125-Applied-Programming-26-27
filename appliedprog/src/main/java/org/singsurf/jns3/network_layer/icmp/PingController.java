@@ -7,7 +7,7 @@ import java.util.Map;
 
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.hardware.AddressableDevice;
-import org.singsurf.jns3.hardware.Console;
+import org.singsurf.jns3.hardware.Terminal;
 import org.singsurf.jns3.hardware.GlobalWallClock;
 import org.singsurf.jns3.hardware.PC;
 import org.singsurf.jns3.network_layer.IPAddress;
@@ -25,7 +25,7 @@ public class PingController implements  ICMPMessageHandler {
 	short sequenceNumber = 0;
 	AddressableDevice pc;
 	PacketSender packetSender;
-	Console console;
+	Terminal console;
 	Map<Short, SentPing> sentPings = new HashMap<>();
 	List<PingReplyRecord> completed = new ArrayList<>();
 	

@@ -1,5 +1,8 @@
 package org.singsurf.jns3.data_link_layer;
 
+/**
+ * Interface defining handlers for Ethernet frames.
+ */
 public interface FrameHandler {
     /**
      * Attempt to handle the given frame. Returns true if the frame was successfully handled, false otherwise.

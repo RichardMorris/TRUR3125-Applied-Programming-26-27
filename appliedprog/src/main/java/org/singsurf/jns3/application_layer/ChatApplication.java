@@ -11,6 +11,12 @@ import org.singsurf.jns3.transport_layer.udp.DatagramSocket;
 import org.singsurf.jns3.transport_layer.udp.UDPController.DatagramPacket;
 import org.singsurf.jns3.transport_layer.udp.UDPDatagram;
 
+/**
+ * A simple chat application that allows a PC to send and receive messages 
+ * over public and private channels.
+ * 
+ * See <a href="../../../../../../Week12.md">Week 12</a>.
+ */
 public class ChatApplication implements TickListener{
 	static final short PUBLIC_PORT = 42;
 	static final short PRIVATE_PORT = 43;

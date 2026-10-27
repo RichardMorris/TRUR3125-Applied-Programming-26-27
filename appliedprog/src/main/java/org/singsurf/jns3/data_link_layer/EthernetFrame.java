@@ -3,6 +3,18 @@ package org.singsurf.jns3.data_link_layer;
 import java.util.Arrays;
 import java.util.zip.CRC32;
 
+/**
+ * Represents an Ethernet frame:
+ * <ul>
+    * <li>6 byte destination mac address
+    * <li>6 byte source mac address
+    * <li>a 2 byte payload length &lt;= 1500 (value &gt; 1536 are special EtherType values)
+    * <li>the payload
+    * <li>4 byte frame check sum, CRC32
+    * </ul>
+ * See <a href="../../../../../../Week4.md">Week 4</a> for details on the Ethernet frame format.
+ */
+
 public class EthernetFrame {
     MACAddress destination;
     MACAddress source;
