@@ -3,6 +3,9 @@ package org.singsurf.jns3.data_link_layer;
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.hardware.PC;
 
+/**
+ * DefaultFrameHandler that logs a message.
+ */
 public class DefaultFrameHandler implements FrameHandler {
     PC device;
 
@@ -15,10 +18,10 @@ public class DefaultFrameHandler implements FrameHandler {
 
         if(frame.getDestination().equals(device.getMACAddress())) {
             Jns3Logger.log(device.getName(), Jns3Logger.LogLevel.RECEIVED,  
-                FrameFactory.decode(frame));
+                new String(frame.getPayload()));
         } else {
             Jns3Logger.log(device.getName(), Jns3Logger.LogLevel.IGNORED,  
-                FrameFactory.decode(frame));
+                new String(frame.getPayload()));
         }
 
         return true;

@@ -2,7 +2,29 @@ package org.singsurf.jns3.network_layer;
 
 import java.util.Arrays;
 
-
+/**
+ * Represents an IP packet with header and data.
+ * <p>
+ * The header consist of
+ * <ul>
+ * <li> `version` 4 bits with the value 0x4 for IPv4
+ * <li> `headerLength` 4 bits with value 0x5 when the options are omitted.
+ * <li> `typeOfService` 8 bits, 1 byte, unused here with value 0x00
+ * <li> `totalLength` 16 bit, 2 bytes, length of header and data sections.
+ * <li> `identification` 16 bit, 2 bytes, used for uniquely identifying the group of fragments of a single IP datagram.
+ * <li> `flagReserved` 1 bit, 0.
+ * <li> `flagDF` 1 bit, don't fragment. 0
+ * <li> `flagMF` 1 bit, whether there are more fragments, 1 for more 0 for last fragment.
+ * <li> `fragmentOffset` 13 bits, 0 for the first fragment or an un-fragmented datagram, otherwise the offset in 8-byte blocks of the fragment.
+ * <li> `timeToLive` 8 bit, 1 byte. Number of hops before the packet is dropped.
+ * <li> `protocol` 8 bit, 1 byte. 0x01 for IMCP, 0x06 for TCP, 17, 0x11 for UDP.
+ * <li> `headerChecksum` 16-bit 2 byte. Calculated by taking the 1's complement of the 1's complement sum of the 5 16 bit words in the header.
+ * <li> `sourceAddress` 4 byte, source IP address
+ * <li> `destinationAddress` 4 byte, destination IP address
+ * <li> `options` not used 0 bytes.
+ * </ul>
+ * 
+ */
 public class IPPacket {
     public static final byte IMCP = 0x01;
     public static final byte TCP = 0x06;
@@ -23,6 +45,9 @@ public class IPPacket {
     IPAddress destinationAddress;
     byte[] data;
 
+    /**
+     * Represents information about a fragment of a large fragment.
+     */
     public record FragmentInfo(short identification, boolean dontFragment, boolean moreFragments, short fragmentOffset) {
         public FragmentInfo() { 
             this((short) 0, true, false, (short) 0);

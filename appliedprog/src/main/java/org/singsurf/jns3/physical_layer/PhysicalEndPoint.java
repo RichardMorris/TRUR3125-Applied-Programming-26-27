@@ -1,8 +1,12 @@
 package org.singsurf.jns3.physical_layer;
 
-import org.singsurf.jns3.hardware.NamedDevice;
 import org.singsurf.jns3.Jns3Logger;
+import org.singsurf.jns3.hardware.NamedDevice;
 
+/**
+ * Represents a socket that a physical connection can be
+ * plugged into.
+ */
 public abstract class PhysicalEndPoint implements NamedDevice {
     PhysicalConnection connection;
     boolean reversed;

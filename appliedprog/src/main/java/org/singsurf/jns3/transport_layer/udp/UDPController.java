@@ -11,6 +11,10 @@ import org.singsurf.jns3.network_layer.IPPacket;
 import org.singsurf.jns3.network_layer.PacketReceiver;
 import org.singsurf.jns3.network_layer.PacketSender;
 
+/**
+ * Controller for incoming/outbound data
+ * sent via a {@link DatagramSocket} using the UDP protocol.
+ */
 public class UDPController implements PacketReceiver, NamedDevice {
 	String name;
 	AddressableDevice device;
@@ -18,8 +22,14 @@ public class UDPController implements PacketReceiver, NamedDevice {
 	PacketSender packetSender;
 	Map<IPAddress,Map<Short, SocketBinding>> bindings = new HashMap<>();
 	
+	/**
+	 * Represents a binding between a socket and this controller,
+	 */
 	record SocketBinding(IPAddress ip, short port, DatagramSocket socket) {}
 	
+	/**
+	 * 
+	 */
 	public record DatagramPacket(IPAddress source, IPAddress dest, UDPDatagram datagram) {}
 
 	public UDPController(AddressableDevice device, PacketSender packetSender,PacketReceiver nextReceiver) {

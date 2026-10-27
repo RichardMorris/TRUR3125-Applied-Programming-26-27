@@ -7,6 +7,13 @@ import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.hardware.AddressableDevice;
 import org.singsurf.jns3.network_layer.IPAddress;
 
+/**
+ * Controls the Address Resolution Protocol that
+ * allows PC's to request each each other MAC address
+ * from from an IP address.
+ * 
+ * For each device hold a table of IP to MAC address mappings and vice versa.
+ */
 public class ARPController implements FrameHandler {
     FrameFactory frameFactory = FrameFactory.getInstance();
     Map<IPAddress, MACAddress> arpTable = new HashMap<>();
@@ -57,6 +64,9 @@ public class ARPController implements FrameHandler {
         return true;
     }
 
+    /**
+     * Sends a Gratuitous ARP (GARP) request to announce the device's IP and MAC address to the network.
+     */
     public void sendGARPRequest() {
         var garpMessage = ARPMessage.createGarpRequest(
             device.getMACAddress(),
@@ -71,6 +81,10 @@ public class ARPController implements FrameHandler {
         sender.sendFrame(garpFrame);
     }
 
+    /**
+	 * Sends an ARP request to resolve the MAC address for the given IP address.
+	 * @param ip The IP address to resolve.
+	 */
     public void sendArpRequest(IPAddress ip) {
         var request = new ARPMessage(
             true,
@@ -95,9 +109,24 @@ public class ARPController implements FrameHandler {
         return reverseArpTable;
     }
 
+    /**
+     * Allows manual entry into the table.
+     * @param ip
+     * @param macAddress
+     * @return
+     */
 	public MACAddress put(IPAddress ip, MACAddress macAddress) {
 		var existingMac = arpTable.put(ip, macAddress);
 		reverseArpTable.put(macAddress, ip);
 		return existingMac;
+	}
+
+	/**
+	 * Looks up the MAC address for a given IP address in the ARP table.
+	 * @param ipAddress The IP address to look up.
+	 * @return The corresponding MAC address, or null if not found.
+	 */
+	public MACAddress lookup(IPAddress ipAddress) {
+		return arpTable.get(ipAddress);
 	}
 }

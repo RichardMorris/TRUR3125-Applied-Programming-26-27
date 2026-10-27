@@ -9,6 +9,15 @@ import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.data_link_layer.FrameHandler;
 import org.singsurf.jns3.hardware.PC;
 
+/**
+ * Handles incoming fragmented IP packets.
+ * Packets are held by the inner FragmentCollector
+ * until all fragments have been received,
+ * and then passed down the receiver chain as a complete packet.
+ * <p>
+ * See <a href="../../../../../../../Week11.md">Week 11</a> for the logic
+ * behind the fragment reassembly.
+ */
 public class IPFragmentHandler implements FrameHandler {
 	PC pc;
 	PacketReceiver receiver;

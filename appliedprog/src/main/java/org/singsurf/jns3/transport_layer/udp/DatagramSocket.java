@@ -8,7 +8,15 @@ import org.singsurf.jns3.hardware.NamedDevice;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.transport_layer.udp.UDPController.DatagramPacket;
 
-
+/**
+ * A socket that can be used by applications
+ * to send and receive UDP datagrams through the
+ * {@link UDPController}. 
+ * Sockets can be created by applications 
+ * and bound to a port and IP address using the
+ * {@link org.singsurf.jns3.hardware.PC#bind(DatagramSocket, IPAddress, short) PC.bind(DatagramSocket, IPAddress, portNumber)} method.
+ * 
+ */
 public class DatagramSocket implements NamedDevice {
 	String name;
 	short port;

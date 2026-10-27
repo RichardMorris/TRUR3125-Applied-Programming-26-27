@@ -5,6 +5,10 @@ import java.util.List;
 
 import org.singsurf.jns3.hardware.GlobalWallClock;
 
+/**
+ * A connection that buffers all it content
+ * until the next tick.
+ */
 public class BufferedConnection extends PhysicalConnection implements GlobalWallClock.TickListener {
 	List<BufferedFrame> inbuffer = new ArrayList<>();
 	List<BufferedFrame> outbuffer;

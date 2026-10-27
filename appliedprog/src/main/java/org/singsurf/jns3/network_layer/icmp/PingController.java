@@ -7,16 +7,25 @@ import java.util.Map;
 
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.hardware.AddressableDevice;
-import org.singsurf.jns3.hardware.Console;
 import org.singsurf.jns3.hardware.GlobalWallClock;
 import org.singsurf.jns3.hardware.PC;
+import org.singsurf.jns3.hardware.Terminal;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPPacket;
 import org.singsurf.jns3.network_layer.PacketSender;
 
 /**
  * Controller for handling ping requests and replies.
- * Can start a ping request and handle incoming ping replies.
+ * Can start a ping/traceroute requests and handle incoming ping replies
+ * and TTL expired messages.
+ * <p>
+ * Ping requests have: type: 8, code: 0 and a rest section containing
+ * a two byte "identifier" unique to each device,
+ *  and a two byte "sequence number" unique to each ping request.
+ * our implementation uses identifiers in the range 0-0x3FFF,
+ * for ping requests and 0x4000-0x7FFF for traceroute requests.
+ * <p>
+ * See <a href="../../../../../../../Week11.md">Week 11</a>.
  */
 public class PingController implements  ICMPMessageHandler {
 	static short currentIdentifier=0;
@@ -25,7 +34,7 @@ public class PingController implements  ICMPMessageHandler {
 	short sequenceNumber = 0;
 	AddressableDevice pc;
 	PacketSender packetSender;
-	Console console;
+	Terminal console;
 	Map<Short, SentPing> sentPings = new HashMap<>();
 	List<PingReplyRecord> completed = new ArrayList<>();
 	

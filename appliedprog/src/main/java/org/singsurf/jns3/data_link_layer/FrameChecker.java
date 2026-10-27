@@ -3,6 +3,10 @@ package org.singsurf.jns3.data_link_layer;
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.hardware.NamedDevice;
 
+/**
+ * A FrameHandler that checks the validity of Ethernet frames,
+ * error are logged for invalid frames.
+ */
 public class FrameChecker implements FrameHandler{
     NamedDevice device;
     public FrameChecker(NamedDevice device) {

@@ -6,14 +6,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.singsurf.jns3.network_layer.OnesComplementNumber;
+
+/**
+ * A simple logger class.
+ */
 public class Jns3Logger {
-    public enum LogLevel {
+	
+	/**
+	 * Log levels for the logger.
+	 */
+	public enum LogLevel {
         RECEIVED, // Frame was received successfully
         IGNORED, // Frame was ignored 
         ERROR, 
         SENT,
         INFO
     }
+	
+	/**
+	 * Represents a log item with device name, log level, and message.
+	 */
     public static record LogItem(String deviceName, LogLevel level, String message) {
         @Override
         public String toString() {
@@ -69,18 +81,6 @@ public class Jns3Logger {
 			}
 		}
 		return true;
-	}
-
-	public static String errorsAsString() {
-		if(logItems.isEmpty()) {
-			return "[EMPTY]";
-		}
-		StringBuilder sb = new StringBuilder();
-		for(LogItem item : logItems) {
-			if(item.level == LogLevel.ERROR)
-				sb.append(item.toString()).append("\n");
-		}	
-		return sb.toString();
 	}
 
 	public static String asString() {

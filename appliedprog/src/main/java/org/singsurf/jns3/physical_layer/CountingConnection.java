@@ -1,5 +1,9 @@
 package org.singsurf.jns3.physical_layer;
 
+/**
+ * Counts the number of frames that pass
+ * through the connection.
+ */
 public class CountingConnection extends PhysicalConnection {
 	int forwardCount = 0;
 	int reverseCount = 0;

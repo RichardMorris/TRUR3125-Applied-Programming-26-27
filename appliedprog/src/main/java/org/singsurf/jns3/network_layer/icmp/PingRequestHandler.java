@@ -5,6 +5,10 @@ import org.singsurf.jns3.hardware.AddressableDevice;
 import org.singsurf.jns3.network_layer.IPPacket;
 import org.singsurf.jns3.network_layer.PacketSender;
 
+/**
+ * Replies to ping/traceroute requests. Displays a message
+ * on the terminal.
+ */
 public class PingRequestHandler implements ICMPMessageHandler {
 	String name;
 	AddressableDevice device;

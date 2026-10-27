@@ -2,6 +2,9 @@ package org.singsurf.jns3.data_link_layer;
 
 import org.singsurf.jns3.physical_layer.PhysicalEndPoint;
 
+/**
+ * A non buffering adapter between the physical layer and the data link layer.
+ */
 public class EthernetEndPoint extends PhysicalEndPoint implements FrameSender {
     FrameReceiver frameReceiver;
 

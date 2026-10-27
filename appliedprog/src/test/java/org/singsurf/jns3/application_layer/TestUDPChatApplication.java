@@ -454,8 +454,8 @@ class TestUDPChatApplication {
 		for(LogItem item : Jns3Logger.getErrorLogItems()) {
 				assertEquals("PC2", item.deviceName());
 				assertEquals("Detected invalid CRC in frame", item.message());
+				System.out.println(item);
 		}
-		System.out.println(Jns3Logger.errorsAsString());
 	}
 
 	@Test
@@ -602,8 +602,7 @@ class TestUDPChatApplication {
 		GlobalWallClock.advanceBy(2);
 		var output = Jns3Logger.endCapture();
 		System.out.print(output);
-		var lines = output.split("\n");
-		assertEquals("PC2: "+pc1.getIPAddress()+" says: Hello from PC1", lines[1].trim());
+		assertEquals("PC2: "+pc1.getIPAddress()+" says: Hello from PC1", output.trim());
 		System.out.println(Jns3Logger.asString());
 		assertEquals(7, Jns3Logger.size());
 

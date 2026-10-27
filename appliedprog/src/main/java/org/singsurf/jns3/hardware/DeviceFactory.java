@@ -16,6 +16,10 @@ import org.singsurf.jns3.network_layer.icmp.PingController;
 import org.singsurf.jns3.network_layer.icmp.PingRequestHandler;
 import org.singsurf.jns3.transport_layer.udp.UDPController;
 
+/**
+ * A factory for creating network devices such as PCs, switches, and hubs.
+ * Also manages the creation of unique MAC and IP addresses for devices.
+ */
 public class DeviceFactory {
 	static DeviceFactory instance = new DeviceFactory();
     List<MACAddress> macAddresses = new ArrayList<>();

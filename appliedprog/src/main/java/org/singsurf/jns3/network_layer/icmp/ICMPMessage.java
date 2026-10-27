@@ -3,6 +3,21 @@ package org.singsurf.jns3.network_layer.icmp;
 import org.singsurf.jns3.network_layer.IPPacket;
 import org.singsurf.jns3.network_layer.OnesComplementNumber;
 
+/**
+ * An The  Internet Control Message Protocol (ICMP) message
+ * it is encapsulate in an `IPPackage` with protocol 0x01.
+ * It has an 8-byte header:
+ * <ul>
+  * <li>1 byte for the type of the ICMP message.
+  * <li>1 byte for the sub-type (code) of the ICMP message.
+  * <li>2 byte One's complement checksum of headers and data.
+  * <li>4 bytes for the 'rest' of the header, this can 
+  * be split into two 2-byte fields, or used as a single 4-byte field,
+  * <li> It had a data section with a maximum of 579 bytes.
+ *</ul>
+ *
+ * See <a href="../../../../../../../Week11.md">Week 11</a>.
+ */
 public class ICMPMessage {
 	static final byte PING_REPLY_TYPE = 0;
 	static final byte PING_REQUEST_TYPE = 8;

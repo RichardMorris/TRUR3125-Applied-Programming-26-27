@@ -7,6 +7,9 @@ import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.network_layer.IPPacket;
 import org.singsurf.jns3.network_layer.PacketReceiver;
 
+/** The receiver for ICMP packets,
+ * it delegates messages to the appropriate handler.
+ */
 public class ICMPPacketReceiver implements PacketReceiver {
 	PacketReceiver nextReceiver;
 	String name;
