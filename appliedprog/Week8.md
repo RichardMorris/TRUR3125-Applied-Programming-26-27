@@ -35,7 +35,7 @@ Scenario: packet fragmentation and recombination
     * `timeToLive` 8 bit, 1 byte. Number of hops before the packet is dropped. Each passage through
         a router decreases by 1, when it reaches zero the packet is dropped.
     * `protocol` 8 bit, 1 byte. 0x01 for IMCP, 0x06 for TCP, 17, 0x11 for UDP.
-    * `headerChecksum` 16-bit 2 byte. Calculated by taking the 1's complement of the 1's complement sum of the 5 16 bit words in the header.
+    * `headerChecksum` 16-bit 2 byte. Calculated by taking the 1's complement of the 1's complement sum of the five 16-bit words in the header.
     * `sourceAddress` 4 byte, source IP address
     * `destinationAddress` 4 byte, destination IP address
     * `options` not used 0 bytes.
@@ -96,6 +96,7 @@ Scenario: packet fragmentation and recombination
 6. A `FrameReorderingConnector` change the order physical frames are transmitted.
 7. A network of two PC and one FrameReorderingConnector can successfully send a large packet broken into fragments.
 
+![Packet recombination](diagrams/week8_fragments.png)
 ## Design
 
 Not too many design pattern's this week but the design of an IPPacket uses quite a bit binary bit manipulation, with `b << 4` to shift the bit in a byte 4 steps to the left;
@@ -133,13 +134,19 @@ map of `FragmentCollector` by IPAddress.
     * A similar iteration through the map is used to assemble the data section for the recombined package.
     * The package is then assembled and sent to `PackageReceiver`.
 7. To test large messages a message listing all the ones complement numbers between two bounds. Here the [iterator](https://refactoring.guru/design-patterns/iterator) design pattern
-is used "a behavioural design pattern that lets you traverse elements of a collection without exposing its underlying representation (list, stack, tree, etc.)."
+is used
+    > "a behavioural design pattern that lets you traverse elements of a collection without exposing its underlying representation (list, stack, tree, etc.)."
+
     * The iterator has two methods
     * `boolean hasNext()` that report if more elements are available
     * `OnesComplementNumber next()` returns the next number in the sequence
-    * We need a custom iterator as the order of One's complement numbers is different.
+    * We need a custom iterator as the order of One's complement numbers is different to the natural ordering of the underling short.
 
 ## Challenges
 
 1. Allow the `PacketFragmentor` to split packets that are already fragments, ensuring
     that they can still be reconstructed.
+
+## Class Diagram
+
+![class diagram](diagrams/week8.png)
