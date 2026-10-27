@@ -71,10 +71,24 @@ The `HalfDuplexConnection` mimics two-wire cables that can only transmit data in
 > " a behavioural design pattern that lets an object alter its behaviour when its internal state changes. It appears as if the object changed its class."
 It has three states IDLE, FORWARD and REVERSED and the behaviour of the `blocked(boolean)` method changes according to the sate.
 
-`ThrottledConnection` is als an example of the state patten, it has two state: blocked and unblocked, it could also be considered as an n-state machine. We will look at more complex state machine when we look at the Border Gateway Protocol.
+`ThrottledConnection` is also an example of the state patten, it has two state: blocked and unblocked, it could also be considered as an n-state machine. We will look at more complex state machine when we look at the Border Gateway Protocol.
 
 State machines are useful for many task, such as parsing a text file like the VRML 3D object format [VRML parser](https://github.com/RichardMorris/SingSurf4/blob/main/src/org/singsurf/singsurf/asurf/Vrml2Obj.java) that has states depending on which part of the file is being read: vertices, normals and faces.
+
+### State Diagrams
+
+![state machines](diagrams/week10-state-diagram.png)
+
+### Sequence Diagram
+
+The interaction between the buffered NIC card and a throttled connection that only lets one frame through per tick can be shown in a sequence diagram.
+
+![sequence diagram](diagrams/week10-sequence.png)
 
 ## Challenges
 
 1. Currently `ThrottledConnection` restricts the total number of packets in either direction. Create a `BiDirectionalThrottledConnection` that allows n packets in the forward direction and  n packets in the reversed direction per clock tick.
+
+## Class diagram
+
+![class diagram](diagrams/week10.png)

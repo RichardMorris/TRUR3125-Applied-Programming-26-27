@@ -24,4 +24,5 @@ hs_err_pid*
 replay_pid*
 appliedprog/target/*
 /.project
+/.settings
 /.vscode
