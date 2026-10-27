@@ -6,6 +6,84 @@ As a software engineer I want to refactor my protocol stack with
 a common interface so that it is easier to add new protocols
 later.
 
+## Acceptance Criteria
+
+Scenario: Creation of protocol handler components
+
+* Given: A protocol type `B` and a lower level protocol type `A`
+* When: Protocol B's handler components are created
+* Then: The handlers can test if the container `a` of type `A` matches this protocol
+* And: The handlers can convert the type `a` to a container `b` of type `B`
+* And: the handlers can pass a tuple `(a,b)` to it's internal in-bound logic.
+
+Scenario: Creation of a protocol delegator components
+
+* Given: A protocol of type `B`
+* When: Protocol B's delegator component is created
+* Then: handlers accepting type `B` can be added
+
+Scenario: Operation of a protocol delegator components
+
+* Given: A delegator for type `B` with a set of handlers for type `B`
+* When: The delegator receives a container `b` of type `B`
+  * Then: The handlers are called one by one
+* When: A handler is called
+  * Then: It can indicate whether it can handle the container `b`
+* When: The handler can handle the container
+  * Then: The container is passed to the handler for processing
+  * And: No further handlers are called.
+* When: The handler cannot handle the container
+  * Then: The next handler is called
+* When: The handler indicates a malformed container
+  * Then: A error is logged
+  * And: Processing stops
+* When: The handler modifies the container
+  * Then: The modified container can be passed back to the delegator.
+* When: No handler match the container
+  * Then: An error is logged
+  * And: processing stops
+
+Scenario: Inbound processing
+
+* Given: A low level protocol A, and intermediate protocol B and a higher level protocol C
+* When: Protocols A's delegator calls Protocol B's handler
+* And: The handler can process the message
+*Then: The container `a` is converted to a container `b` of type `B`.
+  * Then: The tuple `(a, b)` is passed to its internal logic.
+* When: The internal logic passes a container `b` to its delegator
+  * Then: Protocol C handlers are called
+* When: A handler matches
+  * Then: a success message is logged.
+
+Scenario: Outbound processing
+
+* Given: A low level protocol A, and intermediate protocol B and a higher level protocol C
+* When: Protocol C is sent a container `c` of type `C`
+  * Then: the container is encapsulated in a container `b` of type `B`
+  * And: `b` is passed to Protocol B's sender
+* When: Protocol B's sender receives container `b`
+  * Then: It is passed to the outbound logic
+* When: The outbound logic receives the container
+  * Then: It is encapsulated in a container of type `A`.
+  * And: Passed to Protocol A's sender.
+* When: Protocol A's sender receives a message
+  * Then: A success message is logged.
+
+Scenario: Registration of a protocol
+
+* Given: a lower level protocol, A, and a higher level protocol B
+* When: Protocol B is register with Protocol A
+  * Then: B's handler are added to A's delegator
+  * And: Protocol B is given A's sender
+
+Scenario: Transmission after registration
+
+* Given: A low level protocol A, and intermediate protocol B and a higher level protocol C
+* When: Protocol B is registered with Protocol A
+* And: Protocol C is registered with Protocol B
+  * Then: The inbound logic works
+  * And: The outbound logic works
+
 ## Design
 
 A common pattern should now become apparent:
@@ -274,4 +352,12 @@ Several generic interfaces define behaviour for internal components.
 * `public class ProtocolDelegator<T extends ProtocolType> implements ProtocolReceiver<T>` the template method for delegation.
   * `public void receive(T protocolType)`
 
+## Example configuration
+
+A typical configuration of three protocols that meets the acceptance criteria consist of the following classes.
+
 ![operation](diagrams/week13%20operation.png)
+
+## Class Diagram
+
+![class diagram](diagrams/week13.png)
