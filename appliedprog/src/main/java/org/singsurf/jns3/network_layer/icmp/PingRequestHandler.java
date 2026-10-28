@@ -1,6 +1,7 @@
 package org.singsurf.jns3.network_layer.icmp;
 
 import org.singsurf.jns3.Jns3Logger;
+import org.singsurf.jns3.generic_protocol.HandlerStatus;
 import org.singsurf.jns3.hardware.AddressableDevice;
 import org.singsurf.jns3.network_layer.IPPacket;
 import org.singsurf.jns3.network_layer.PacketSender;
@@ -20,23 +21,15 @@ public class PingRequestHandler implements ICMPMessageHandler {
 		this.sender = sender;
 	}
 
-	@Override
-	public boolean matches(ICMPMessage message) {
-		if (message.getType() == 8) {
-			return true;
-		}
-		return false;
-	}
 
-	@Override
-	public void handle(IPPacket packet, ICMPMessage message) {
-		var sourceAddress = packet.getSourceAddress();
-		var destinationAddress = packet.getDestinationAddress();
+	private void handle2(ICMPMessage message) {
+		var sourceAddress = message.getPsudoHeader().sourceIP();
+		var destinationAddress = message.getPsudoHeader().destIP();
 		if(destinationAddress.equals(device.getIPAddress())) {
 			Jns3Logger.logRec(name, 
 					"Received ping request from " + sourceAddress 
 					+ " " + message.toString()
-					+ " TTL: " + packet.getTimeToLive() + " ticks");
+					+ " TTL: " + message.getPsudoHeader().ttl() + " ticks");
 
 			// Create an ICMP Echo Reply message
 			ICMPMessage replyMessage = ICMPMessage.createPingReply(message.getRestLow(), message.getRestHigh());
@@ -46,10 +39,20 @@ public class PingRequestHandler implements ICMPMessageHandler {
 					replyMessage.getBytes());
 			sender.send(replyPacket);
 		} else {
-			// Forward the packet to the next hop
-			sender.send(packet);
+			sender.send(message.getPsudoHeader().packet());
 		}
 		
+	}
+
+	@Override
+	public HandlerStatus handle(ICMPMessage message) {
+		if (message.getType() != 8) {
+			return HandlerStatus.CONTINUE;
+		}
+		handle2(message);
+			// Forward the packet to the next hop
+
+		return HandlerStatus.COMPLETED;
 	}
 
 }

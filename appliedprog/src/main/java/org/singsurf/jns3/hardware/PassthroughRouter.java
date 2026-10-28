@@ -134,7 +134,7 @@ public class PassthroughRouter extends MultiPortDevice implements AddressableDev
 					&& packet.getTimeToLive() > 0) {
 
 				pSender.setDestPortMac(portNumber,frame.getSource());
-				pingreq.handle(packet, icmp);
+				pingreq.handle(icmp);
 				return;
 			}
 			var errorMsg = ICMPMessage.createTTLExpired(packet);

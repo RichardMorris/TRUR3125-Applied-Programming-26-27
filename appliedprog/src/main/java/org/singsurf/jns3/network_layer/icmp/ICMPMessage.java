@@ -1,6 +1,7 @@
 package org.singsurf.jns3.network_layer.icmp;
 
 import org.singsurf.jns3.generic_protocol.ProtocolContainer;
+import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPPacket;
 import org.singsurf.jns3.network_layer.OnesComplementNumber;
 
@@ -25,11 +26,15 @@ public class ICMPMessage implements ProtocolContainer {
 	static final byte TIME_EXCEEDED = 11;
 	static final byte PARAMETER_PROBLEM = 12;
 	
+	public record PsudoHeader(IPAddress sourceIP, IPAddress destIP, 
+			byte protocol, short length, byte ttl, IPPacket packet) { }
+
 	byte type;
 	byte code;
 	short checksum;
 	int restOfHeader; // 4 bytes, can be used for different purposes depending on the type and code
 	byte[] data; // variable length data
+	PsudoHeader psudoHeader;
 	
 	public ICMPMessage(byte type, byte code, int restOfHeader, byte[] data) {
 		this.type = type;
@@ -39,18 +44,20 @@ public class ICMPMessage implements ProtocolContainer {
 		this.data = data;
 		this.checksum = 0;
 		this.checksum = calculateChecksum().getComplement().getValue();
+		this.psudoHeader = new PsudoHeader(IPAddress.ZERO_ADDRESS, IPAddress.ZERO_ADDRESS, IPPacket.IMCP, (short) (data.length + 8), (byte) 0, null);
 	}
 
 	public ICMPMessage(byte type, byte code, short restLow, short restHigh) {
 		this(type, code, ((restHigh & 0xFFFF) << 16) | (restLow & 0xFFFF), new byte[0]);
 	}
 
-	private ICMPMessage(byte type, byte code, short checksum, short restLow, short restHigh, byte[] data) {
+	private ICMPMessage(byte type, byte code, short checksum, short restLow, short restHigh, byte[] data, PsudoHeader psudo) {
 		this.type = type;
 		this.code = code;
 		this.checksum = checksum;
 		this.restOfHeader = ((restHigh & 0xFFFF) << 16) | (restLow & 0xFFFF);
 		this.data = data;
+		this.psudoHeader = psudo;
 	}
 
 	public ICMPMessage(byte type, byte code, int rest) {
@@ -185,7 +192,13 @@ public class ICMPMessage implements ProtocolContainer {
 		short restHigh = (short) ((data[6] & 0xFF) | ((data[7] & 0xFF) << 8));
 		byte[] icmpData = new byte[data.length - 8];
 		System.arraycopy(data, 8, icmpData, 0, icmpData.length);
-		var res = new ICMPMessage(type, code, checksum, restLow, restHigh, icmpData);
+		var psudo = new PsudoHeader(
+				packet.getSourceAddress(), 
+				packet.getDestinationAddress(), IPPacket.IMCP, 
+				(short) packet.getTotalLength(), packet.getTimeToLive(),
+				packet);
+		
+		var res = new ICMPMessage(type, code, checksum, restLow, restHigh, icmpData, psudo);
 		if(!res.calculateChecksum().equals(OnesComplementNumber.MINUS_ZERO)) {
 			return ICMPMessage.createBadChecksumError(packet);
 		}
@@ -217,6 +230,10 @@ public class ICMPMessage implements ProtocolContainer {
 		return new ICMPMessage(
 				type, code, ((restHigh & 0xFFFF) << 16) | (restLow & 0xFFFF), 
 				newData);
+	}
+
+	public PsudoHeader getPsudoHeader() {
+		return psudoHeader;
 	}
 
 }

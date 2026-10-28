@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.singsurf.jns3.Jns3Logger;
+import org.singsurf.jns3.generic_protocol.HandlerStatus;
 import org.singsurf.jns3.hardware.AddressableDevice;
 import org.singsurf.jns3.hardware.GlobalWallClock;
 import org.singsurf.jns3.hardware.PC;
@@ -80,19 +81,13 @@ public class PingController implements  ICMPMessageHandler {
 	}
 
 
-	@Override
-	public boolean matches(ICMPMessage message) {
-		return (message.isPingReply() 
-				|| message.isTTLExpired() );
-	}
 
-	@Override
-	public void handle(IPPacket packet, ICMPMessage message) {
-		var sourceAddress = packet.getSourceAddress();
-		var destinationAddress = packet.getDestinationAddress();
+	private void handle2(ICMPMessage message) {
+		var sourceAddress = message.psudoHeader.sourceIP();
+		var destinationAddress = message.psudoHeader.destIP();
 //		var rest = message.getRestOfHeader();
 		if(!destinationAddress.equals(pc.getIPAddress())) {
-			Jns3Logger.logError(pc.getName(), "Received ping reply not for this host: " + packet);
+			Jns3Logger.logError(pc.getName(), "Received ping reply not for this host: " + message);
 			return;
 		}
 		var sequenceNumber = message.getRestHigh();
@@ -109,7 +104,7 @@ public class PingController implements  ICMPMessageHandler {
 		var rtt = currentTime - sentTime;
 		
 		if(sentReq.request().getIdentifier() >= TRACEROUTE_OFFSET) {
-			receiveTraceroute(packet, sentReq, rtt);	
+			receiveTraceroute(message, sentReq, rtt);	
 			return;
 		}
 		if(message.isPingReply()) {				
@@ -120,8 +115,8 @@ public class PingController implements  ICMPMessageHandler {
 				// 64 bytes from 106.8.139.92: icmp_seq=3 ttl=47 time=294 ms
 				console.display(String.format(
 						"%d bytes from %s: icmp_seq=%d ttl=%d time=%d ticks",
-						packet.getTotalLength(), sourceAddress,
-						message.getSequenceNumber(), packet.getTimeToLive(), rtt));
+						message.psudoHeader.length(), sourceAddress,
+						message.getSequenceNumber(), message.psudoHeader.ttl(), rtt));
 
 				sentPings.remove(sequenceNumber); // Remove the entry after processing
 				completed.add(new PingReplyRecord(sourceAddress, message, rtt)); // Store the received ping reply
@@ -136,11 +131,11 @@ public class PingController implements  ICMPMessageHandler {
 		
 	}
 
-	private void receiveTraceroute(IPPacket packet, SentPing sentReq, long rtt) {
+	private void receiveTraceroute(ICMPMessage message, SentPing sentReq, long rtt) {
 		//   1   172.22.64.1  1.439ms  0.612ms  0.358ms
 		console.display(String.format("%4d\t%s\t%d ticks",
-			sentReq.ttl(), packet.getSourceAddress(), rtt));
-		if(packet.getSourceAddress().equals(sentReq.dest())) {
+			sentReq.ttl(), message.psudoHeader.sourceIP(), rtt));
+		if(message.psudoHeader.sourceIP().equals(sentReq.dest())) {
 			Jns3Logger.logInfo(pc.getName(),"Traceroute completed");
 			return;
 		}
@@ -153,5 +148,16 @@ public class PingController implements  ICMPMessageHandler {
 	public static PingController newInstance(PC pc) {
 		PingController controller = new PingController(pc, currentIdentifier++);
 		return controller;
+	}
+
+	@Override
+	public HandlerStatus handle(ICMPMessage type) {
+		if(type.isPingReply() || type.isTTLExpired()) {
+			handle2(type);
+			return HandlerStatus.COMPLETED;
+		}
+		else {
+			return HandlerStatus.CONTINUE;
+		}
 	}
 }
