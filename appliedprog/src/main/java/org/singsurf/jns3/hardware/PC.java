@@ -12,7 +12,6 @@ import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.data_link_layer.NICCard;
 import org.singsurf.jns3.network_layer.EthernetPacketSender;
 import org.singsurf.jns3.network_layer.IPAddress;
-import org.singsurf.jns3.network_layer.IPPacket;
 import org.singsurf.jns3.network_layer.PacketReceiver;
 import org.singsurf.jns3.network_layer.PacketSender;
 import org.singsurf.jns3.network_layer.icmp.ICMPPacketReceiver;
@@ -116,10 +115,6 @@ public class PC implements AddressableDevice, Terminal {
 	public void clearFrameHandlers() {
 		frameHandlers.clear();		
 	}
-
-//	public void setFrameReceiver(FrameReceiver frameReceiver) {
-//		this.frameReceiver = frameReceiver;
-//	}
 	
 	public FrameReceiver getFrameReceiver() {
 		return frameReceiver;
@@ -145,10 +140,6 @@ public class PC implements AddressableDevice, Terminal {
 		return packetSender;
 	}
 	
-	public void send(IPPacket packet) {
-		packetSender.send(packet);
-	}
-
 	public void display(String string) {
 		System.out.println(string);
 	}

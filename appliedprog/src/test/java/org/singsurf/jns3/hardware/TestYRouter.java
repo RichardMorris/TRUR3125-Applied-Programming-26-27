@@ -176,7 +176,7 @@ class TestYRouter {
 		
 		// Act
 		var packet = packet1;
-		pc2.send(packet);
+		pc2.getPacketSender().send(packet);
 		
 		System.out.println("Leg 1 forward "+ leg1.getForwardCount() + " reversed " + leg1.getReverseCount());
 		System.out.println("Leg 2 forward "+ leg2.getForwardCount() + " reversed " + leg2.getReverseCount());

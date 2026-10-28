@@ -289,7 +289,7 @@ class TestPacketCombiner {
 		pc2.getIPAddress(), pc.getIPAddress(), new byte[] {1,2,3,4,5,6,7,8,9,10});
 		// Act
 		var packet = packet1;
-		pc2.send(packet);
+		pc2.getPacketSender().send(packet);
 		// Assert
         assertEquals(1, receiver.size());
         var receivedPacket = receiver.get(0);
@@ -317,7 +317,7 @@ class TestPacketCombiner {
 		
 		// Act
 		var packet = packet1;
-		pc2.send(packet);
+		pc2.getPacketSender().send(packet);
 		
 		// Assert
         assertEquals(1, receiver.size());
