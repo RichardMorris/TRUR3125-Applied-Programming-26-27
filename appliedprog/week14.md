@@ -152,4 +152,14 @@ Senders and Receiver these should be easy to implement with some method renaming
 
 Delegator and Handles are the trickiest parts to change.
 
-1. 
+1. Data Link layer was relatively painless.
+2. For ICMP, the ping request handler can forward the packet. Hence it needs a PsudoHeader and the original packet.
+3. UDP delegation uses the bind mechanism so we will not try to change that.
+4. For IP delegation: the current system uses Chain of Responsibility. Implementing classes are:
+    * IPFragmentHandler starts the call down the chain.
+    * ICMPPacketReceiver
+    * UDPController
+    * DefaultPacketReceiver at end of chain.
+5. This was relatively easy, only problems were with some tests, that used low level access. One test was dropped as there was a higher level test of the same behaviour. Other test used some ugly code to find the appropriate handler for checking logged packets.
+
+After the first stage, all 145 test pass with 95% coverage. 
