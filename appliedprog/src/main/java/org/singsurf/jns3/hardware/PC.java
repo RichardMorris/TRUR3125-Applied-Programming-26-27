@@ -25,7 +25,7 @@ import org.singsurf.jns3.transport_layer.udp.UDPController;
  * The main class representing a PC.
  * Acts as a Facade to the various layers in the system.
  */
-public class PC implements AddressableDevice, PacketSender, Terminal {
+public class PC implements AddressableDevice, Terminal {
     String name;
     MACAddress macAddress;
     IPAddress ipAddress;
@@ -63,15 +63,6 @@ public class PC implements AddressableDevice, PacketSender, Terminal {
         this.ethernetEndPoint = new NICCard(name, this.frameReceiver);
         this.arpController = new ARPController(this,ethernetEndPoint);
         this.packetSender = new EthernetPacketSender(this, arpController, ethernetEndPoint);
-    }
-
-    public void receive(EthernetFrame frame) {
-        for (FrameHandler handler : frameHandlers) {
-            if (handler.handleFrame(frame)) {
-                return;
-            }
-        }
-        Jns3Logger.log(getName(), Jns3Logger.LogLevel.ERROR, "Unhandled frame: " + frame);
     }
 
     public void addFrameHandler(FrameHandler frameHandler) {

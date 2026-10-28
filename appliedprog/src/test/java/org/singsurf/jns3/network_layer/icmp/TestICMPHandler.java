@@ -77,7 +77,7 @@ class TestICMPHandler {
 		var frame = new EthernetFrame(senderMAC, pc.getMACAddress(), (short) payload.length, payload);
 
 		Jns3Logger.clearLog();
-		pc.receive(frame);
+		pc.getFrameReceiver().receive(frame);
 		assertEquals(1, Jns3Logger.size());
 		assertEquals("ICMPLogger", Jns3Logger.getItem(0).deviceName());
 		
@@ -88,7 +88,7 @@ class TestICMPHandler {
 
 		// act
 		Jns3Logger.clearLog();
-		pc.receive(frame2);
+		pc.getFrameReceiver().receive(frame2);
 
 		// assert
 		assertEquals(1, Jns3Logger.size());
@@ -118,7 +118,7 @@ class TestICMPHandler {
 		var icmpHandler2 = new ICMPPacketReceiver(pc2.getName(), packetLogger2);
 		pc2.setPacketReceiver(icmpHandler2);
 
-		var pingreq = new PingRequestHandler(pc2, pc2);
+		var pingreq = new PingRequestHandler(pc2, pc2.getPacketSender());
 		icmpHandler2.addHandler(pingreq);
 		
 		var combiner2 = new IPFragmentHandler(pc2,pc2.getPacketReceiver());

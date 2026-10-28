@@ -48,7 +48,7 @@ class TestPassthroughRouter {
 		var icmpHandler2 = new ICMPPacketReceiver(pc2.getName(), packetLogger2);
 		pc2.setPacketReceiver(icmpHandler2);
 
-		var pingreq = new PingRequestHandler(pc2, pc2);
+		var pingreq = new PingRequestHandler(pc2, pc2.getPacketSender());
 		icmpHandler2.addHandler(pingreq);
 		
 		var combiner2 = new IPFragmentHandler(pc2,pc2.getPacketReceiver());

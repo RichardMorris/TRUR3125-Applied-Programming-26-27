@@ -83,7 +83,7 @@ public class DeviceFactory {
 		pc.setPacketReceiver(pc.getICMPHandler());
 		pc.setPingController(PingController.newInstance(pc));
 		pc.getICMPHandler().addHandler(pc.getPingController());
-		pc.getICMPHandler().addHandler(new PingRequestHandler(pc, pc));
+		pc.getICMPHandler().addHandler(new PingRequestHandler(pc, pc.getPacketSender()));
 		pc.getICMPHandler().addHandler(new ICMPMessageLogger("ICMPLogger1"));
 		// Set up UDP controller and add it to the packet receiver
 		pc.setUDPController(new UDPController(pc, pc.getPacketSender(), pc.getPacketReceiver()));
