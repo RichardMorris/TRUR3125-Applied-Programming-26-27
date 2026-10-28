@@ -56,10 +56,6 @@ public class PC implements AddressableDevice, Terminal {
         arpController.sendGARPRequest();
     }
 
-    public void sendArpRequest(IPAddress targetIP) {
-        arpController.sendArpRequest(targetIP);
-    }
-
     public MACAddress lookup(IPAddress ipAddress) {
         return arpController.lookup(ipAddress);
     }
@@ -110,18 +106,6 @@ public class PC implements AddressableDevice, Terminal {
 	
 	public FrameSender getFrameSender() {
 		return ethernetEndPoint;
-	}
-	
-	public void setPacketReceiver(PacketReceiver packetReceiver) {
-		this.packetReceiver = packetReceiver;
-	}
-	
-	public PacketReceiver getPacketReceiver() {
-		return packetReceiver;
-	}
-	
-	public void setPacketSender(PacketSender packetSender) {
-		this.packetSender = packetSender;
 	}
 	
 	public PacketSender getPacketSender() {

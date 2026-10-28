@@ -39,6 +39,7 @@ public class DatagramSocket implements NamedDevice {
 	public void send(UDPDatagram datagram) {
 		if(udpController == null) {
 			Jns3Logger.logError("DatagramSocket", "Socket is not bound to a controller");
+			return;
 		}
 		udpController.sendDatagram(boundAddress,port,datagram);
 	}

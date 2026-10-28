@@ -1,6 +1,5 @@
 package org.singsurf.jns3.physical_layer;
 
-import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.hardware.NamedDevice;
 
 /**
@@ -40,19 +39,6 @@ public abstract class PhysicalEndPoint implements NamedDevice {
     public boolean isConnected() {
         return connection != null;
     }
-
-    /**
-     * Sends a frame through the connection.
-     * If no connection is set, logs an error.
-     * @param frame the data to be sent
-     */
-    protected void send(byte[] frame) {
-        if (isConnected()) {
-            getConnection().send(frame, getReversed());
-        } else {
-            Jns3Logger.log(getName(), Jns3Logger.LogLevel.ERROR, "No connection set");
-        }
-    }   
 
     /**
      * Receives a frame from the connection.

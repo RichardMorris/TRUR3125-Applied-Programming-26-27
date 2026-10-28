@@ -40,7 +40,7 @@ public class UDPController implements PacketHandler, NamedDevice {
 	}
 
 	private void receive(IPPacket packet) {
-		var datagram = UDPDatagram.fromPacket(packet);
+		var datagram = udpExtractor.extract(packet);
 		var lookupAddress = packet.getDestinationAddress().equals(device.getMulticastAddress()) ? 
 				device.getMulticastAddress() : packet.getSourceAddress();
 		var table = bindings.get(lookupAddress);

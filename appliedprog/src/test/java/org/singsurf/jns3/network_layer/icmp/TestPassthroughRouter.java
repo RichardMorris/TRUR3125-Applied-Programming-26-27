@@ -284,7 +284,7 @@ class TestPassthroughRouter {
 		// Act
 		Jns3Logger.clearLog();		
 		Jns3Logger.startCapture();
-		pingcont.sendTraceroute(pc2.getIPAddress());
+		pc1.traceroute(pc2.getIPAddress());
 		String output = Jns3Logger.endCapture();
 		assertEquals("traceroute to "+pc2.getIPAddress()+", 64 hops max", output.trim());
 		System.out.print(output);

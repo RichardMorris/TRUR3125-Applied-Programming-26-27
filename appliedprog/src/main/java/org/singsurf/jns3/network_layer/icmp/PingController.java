@@ -125,10 +125,7 @@ public class PingController implements  ICMPMessageHandler {
 					"Received error from " + sourceAddress 
 					+ " " + message.toString()
 					+ " RTT: " + rtt + " ticks");
-		
 		}
-
-		
 	}
 
 	private void receiveTraceroute(ICMPMessage message, SentPing sentReq, long rtt) {

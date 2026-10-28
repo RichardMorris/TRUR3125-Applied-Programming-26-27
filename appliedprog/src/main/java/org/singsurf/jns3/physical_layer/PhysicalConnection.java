@@ -1,7 +1,5 @@
 package org.singsurf.jns3.physical_layer;
 
-import org.singsurf.jns3.Jns3Logger;
-
 /**
  * Base class for all physical connections.
  * To configure two end-point devices must be supplied,
@@ -25,10 +23,7 @@ public abstract class PhysicalConnection {
 			super("VirtualEndPoint");
 			this.end = end;
 		}
-		@Override
-		public void send(byte[] frame) {
-			Jns3Logger.logError("VirtualEndPoint", "send() called on VirtualEndPoint, which should not happen.");
-		}
+
 		@Override
 		protected void receive(byte[] frame) {
 			if (end == 0) {

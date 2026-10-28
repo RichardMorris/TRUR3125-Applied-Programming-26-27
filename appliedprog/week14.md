@@ -164,4 +164,14 @@ Delegator and Handles are the trickiest parts to change.
     * DefaultPacketReceiver at end of chain.
 5. This was relatively easy, only problems were with some tests, that used low level access. One test was dropped as there was a higher level test of the same behaviour. Other test used some ugly code to find the appropriate handler for checking logged packets.
 
-After the first stage, all 145 test pass with 95% coverage, and 97 main classes and 29 test classes.
+After the first stage, all 145 test pass with 95% coverage, and 97 main classes and 29 test classes. 10 more main classes. 
+
+Virtually every class has been changed but the process was made quite easy by the refactoring tools available in Eclipse. Renaming a method causes the name to be changed in all calling code as well. Inlining can be done in a couple of clicks, and methods can be pulled up to their super class. Search for places than call a particular method proved to be useful in identifying which classes needed to be changed.
+
+It's interesting to compare approaches of the different IDE's. In Eclipse it been in development for 20+ year with many tools designed for particular refactoring tasks. VSCode leaves most task to AI. I've found it much easier to use the hand crafted tools for this job, sometimes you don't want General Intelligence, but something crafted to do a particular job.
+
+AI has proved useful, GitHub CoPilot did help with writing some boiler-plate code.
+
+Examining coverage logs found some unused method, the `send(byte[] frame)` in `PhysicalEndPoint` and `PhysicalConnection` which are now dropped. The `PC.traceroute(IPAddress)` method was unused, test were changed to use this method rather than the lower level calls.
+
+## Stage 2
