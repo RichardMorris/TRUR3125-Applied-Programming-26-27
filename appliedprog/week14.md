@@ -1,4 +1,6 @@
-# Converting JNS3 to use generics
+# Generics Refactoring
+
+Now it's time to apply the Generic Framework to 
 
 ## User Story
 
@@ -162,4 +164,4 @@ Delegator and Handles are the trickiest parts to change.
     * DefaultPacketReceiver at end of chain.
 5. This was relatively easy, only problems were with some tests, that used low level access. One test was dropped as there was a higher level test of the same behaviour. Other test used some ugly code to find the appropriate handler for checking logged packets.
 
-After the first stage, all 145 test pass with 95% coverage. 
+After the first stage, all 145 test pass with 95% coverage, and 97 main classes and 29 test classes.
