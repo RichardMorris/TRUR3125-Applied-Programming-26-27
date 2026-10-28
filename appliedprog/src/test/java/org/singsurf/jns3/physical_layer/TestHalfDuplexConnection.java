@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.Jns3Logger.LogItem;
+import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.data_link_layer.NICCard;
 import org.singsurf.jns3.hardware.DeviceFactory;
 import org.singsurf.jns3.hardware.GlobalWallClock;
@@ -37,10 +38,14 @@ public class TestHalfDuplexConnection {
     @Test
     public void only_transmit_frames_in_one_direction_per_tick() {
         Jns3Logger.clearLog();
-        var frame1 = pc1.createEthernetFrame(pc2.getMACAddress(), "Forward 1");
+		byte[] payload = "Forward 1".getBytes();
+		short etherType = (short) payload.length;
+        var frame1 = new EthernetFrame(pc2.getMACAddress(), pc1.getMACAddress(), etherType, payload);
         pc1.sendFrame(frame1);
+		byte[] payload1 = "Reversed 1".getBytes();
+		short etherType1 = (short) payload1.length;
      
-        var frame2 = pc2.createEthernetFrame(pc1.getMACAddress(), "Reversed 1");  
+        var frame2 = new EthernetFrame(pc1.getMACAddress(), pc2.getMACAddress(), etherType1, payload1);  
         pc2.sendFrame(frame2);
         
         var logs = Jns3Logger.getLogItems();
@@ -60,9 +65,15 @@ public class TestHalfDuplexConnection {
         assertEquals(0, logs.size()); 
 
         Jns3Logger.clearLog();
-        var frame3 = pc2.createEthernetFrame(pc1.getMACAddress(), "Reversed 2"); 
-        var frame4 = pc1.createEthernetFrame(pc2.getMACAddress(), "Forward 2");
-        var frame5 = pc2.createEthernetFrame(pc1.getMACAddress(), "Reversed 3");
+		byte[] payload2 = "Reversed 2".getBytes();
+		short etherType2 = (short) payload2.length;
+        var frame3 = new EthernetFrame(pc1.getMACAddress(), pc2.getMACAddress(), etherType2, payload2);
+		byte[] payload3 = "Forward 2".getBytes();
+		short etherType3 = (short) payload3.length; 
+        var frame4 = new EthernetFrame(pc2.getMACAddress(), pc1.getMACAddress(), etherType3, payload3);
+		byte[] payload4 = "Reversed 3".getBytes();
+		short etherType4 = (short) payload4.length;
+        var frame5 = new EthernetFrame(pc1.getMACAddress(), pc2.getMACAddress(), etherType4, payload4);
         
         pc2.sendFrame(frame3);
         pc1.sendFrame(frame4);
@@ -101,11 +112,15 @@ public class TestHalfDuplexConnection {
         GlobalWallClock.getInstance().advanceTime();
         var mac1 = pc2.lookup(pc1.getIPAddress());
         var mac2 = pc1.lookup(pc2.getIPAddress());
+		byte[] payload = "Forward 1".getBytes();
+		short etherType = (short) payload.length;
         
-        var frame1 = pc1.createEthernetFrame(mac2, "Forward 1");
+        var frame1 = new EthernetFrame(mac2, pc1.getMACAddress(), etherType, payload);
         pc1.sendFrame(frame1);
+		byte[] payload1 = "Reversed 1".getBytes();
+		short etherType1 = (short) payload1.length;
      
-        var frame2 = pc2.createEthernetFrame(mac1, "Reversed 1");  
+        var frame2 = new EthernetFrame(mac1, pc2.getMACAddress(), etherType1, payload1);  
         pc2.sendFrame(frame2);
         
         logs = Jns3Logger.getLogItems();
@@ -125,9 +140,15 @@ public class TestHalfDuplexConnection {
         assertEquals(0, logs.size()); 
 
         Jns3Logger.clearLog();
-        var frame3 = pc2.createEthernetFrame(mac1, "Reversed 2"); 
-        var frame4 = pc1.createEthernetFrame(mac2, "Forward 2");
-        var frame5 = pc2.createEthernetFrame(mac1, "Reversed 3");
+		byte[] payload2 = "Reversed 2".getBytes();
+		short etherType2 = (short) payload2.length;
+        var frame3 = new EthernetFrame(mac1, pc2.getMACAddress(), etherType2, payload2);
+		byte[] payload3 = "Forward 2".getBytes();
+		short etherType3 = (short) payload3.length; 
+        var frame4 = new EthernetFrame(mac2, pc1.getMACAddress(), etherType3, payload3);
+		byte[] payload4 = "Reversed 3".getBytes();
+		short etherType4 = (short) payload4.length;
+        var frame5 = new EthernetFrame(mac1, pc2.getMACAddress(), etherType4, payload4);
         
         pc2.sendFrame(frame3);
         pc1.sendFrame(frame4);

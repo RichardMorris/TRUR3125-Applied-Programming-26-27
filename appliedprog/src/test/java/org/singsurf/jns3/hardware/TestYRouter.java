@@ -9,7 +9,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
-import org.singsurf.jns3.data_link_layer.FrameFactory;
 import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.network_layer.DefaultPacketReceiver;
 import org.singsurf.jns3.network_layer.IPFragmentHandler;
@@ -21,7 +20,6 @@ import org.singsurf.jns3.physical_layer.SimpleConnection;
 class TestYRouter {
 
 	DeviceFactory deviceFactory = new DeviceFactory();
-	FrameFactory frameFactory = new FrameFactory();
 	
 	@BeforeEach
 	void setUp() throws Exception {
@@ -48,7 +46,9 @@ class TestYRouter {
 				
 		Jns3Logger.clearLog();
 		for(int i=0; i<16; i++) {
-			EthernetFrame frame = pc1.createEthernetFrame(MACAddress.BROADCAST_MAC,"" + i);
+			byte[] payload = ("" + i).getBytes();
+			short etherType = (short) payload.length;
+			EthernetFrame frame = new EthernetFrame(MACAddress.BROADCAST_MAC, pc1.getMACAddress(), etherType, payload);
 			pc1.sendFrame(frame);
 		}
 		for(int i=0; i<3;++i) {
@@ -95,7 +95,9 @@ class TestYRouter {
 				
 		Jns3Logger.clearLog();
 		for(int i=0; i<16; i++) {
-			EthernetFrame frame = pc1.createEthernetFrame(pc2.getMACAddress(),"" + i);
+			byte[] payload = ("" + i).getBytes();
+			short etherType = (short) payload.length;
+			EthernetFrame frame = new EthernetFrame(pc2.getMACAddress(), pc1.getMACAddress(), etherType, payload);
 			pc1.sendFrame(frame);
 		}
 		
@@ -169,12 +171,11 @@ class TestYRouter {
 		GlobalWallClock.getInstance().advanceTime();
 		
 		String dataString = Jns3Logger.generateOnesComplementTable();
+		IPPacket packet1 = new IPPacket((int) IPPacket.TCP, 64,
+		pc2.getIPAddress(), pc.getIPAddress(), dataString.getBytes());
 		
 		// Act
-		var packet = pc2.createIPPacket(
-				IPPacket.TCP,
-				pc.getIPAddress(), 
-				dataString);
+		var packet = packet1;
 		pc2.sendPacket(packet);
 		
 		System.out.println("Leg 1 forward "+ leg1.getForwardCount() + " reversed " + leg1.getReverseCount());

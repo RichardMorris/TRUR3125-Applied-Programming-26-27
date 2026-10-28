@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.singsurf.jns3.Jns3Logger;
+import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.hardware.DeviceFactory;
 import org.singsurf.jns3.hardware.PC;
 
@@ -28,9 +29,9 @@ public class TestLossyConnection {
     public void drop_every_10th_frame() {
             Jns3Logger.clearLog();
             for(int i = 1; i <= 24; i++) {
-            var frame = pc1.createEthernetFrame(
-                pc2.getMACAddress(), 
-                "Hello #"+i);
+				byte[] payload = ("Hello #"+i).getBytes();
+				short etherType = (short) payload.length;
+			var frame = new EthernetFrame(pc2.getMACAddress(), pc1.getMACAddress(), etherType, payload);
                 pc1.sendFrame(frame);
             }
             var logs = Jns3Logger.getLogItems();

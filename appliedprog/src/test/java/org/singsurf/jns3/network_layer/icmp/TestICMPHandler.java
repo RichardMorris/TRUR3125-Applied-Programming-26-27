@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.singsurf.jns3.Jns3Logger;
+import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.hardware.DeviceFactory;
 import org.singsurf.jns3.hardware.PC;
 import org.singsurf.jns3.network_layer.DefaultPacketReceiver;
@@ -72,7 +73,8 @@ class TestICMPHandler {
 		byte[] data = new byte[] { (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04,
 				(byte) 0x34, (byte) 0x12, (byte) 0x78, (byte) 0x56 };
 		var packet = new IPPacket(IPPacket.IMCP, 64, senderIP, destinationIP, data);
-		var frame = pc.getFrameFactory().createEthernetFrame(senderMAC,pc.getMACAddress(), packet.getBytes());
+		byte[] payload = packet.getBytes();
+		var frame = new EthernetFrame(senderMAC, pc.getMACAddress(), (short) payload.length, payload);
 
 		Jns3Logger.clearLog();
 		pc.receiveFrame(frame);
@@ -81,8 +83,8 @@ class TestICMPHandler {
 		
 		// arrange for a TCP packet to be received and logged by the packetLogger
 		var tcpPacket = new IPPacket(IPPacket.TCP, 64, senderIP, destinationIP, data);
-		var frame2 = pc.getFrameFactory().createEthernetFrame(
-				senderMAC,pc.getMACAddress(), tcpPacket.getBytes());
+		byte[] payload1 = tcpPacket.getBytes();
+		var frame2 = new EthernetFrame(senderMAC, pc.getMACAddress(), (short) payload1.length, payload1);
 
 		// act
 		Jns3Logger.clearLog();

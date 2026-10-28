@@ -9,12 +9,10 @@ import org.junit.jupiter.api.Test;
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.Jns3Logger.LogItem;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
-import org.singsurf.jns3.data_link_layer.FrameFactory;
 import org.singsurf.jns3.data_link_layer.MACAddress;
 
 public class TestPC {
     DeviceFactory deviceFactory = new DeviceFactory();
-    FrameFactory frameFactory = new FrameFactory();
     @Test 
     public void createPC() {
         Terminal pc = deviceFactory.createPC("TestPC");
@@ -26,9 +24,10 @@ public class TestPC {
         PC pc = deviceFactory.createPC("TestPC");
         MACAddress destination = pc.getMACAddress();
         MACAddress source = deviceFactory.createMACAddress();
+		byte[] payload = "Hello, PC!".getBytes();
+		short etherType = (short) payload.length;
 
-        EthernetFrame frame = frameFactory.createEthernetFrame(destination, source, 
-            "Hello, PC!");
+        EthernetFrame frame = new EthernetFrame(destination, source, etherType, payload);
 
         Jns3Logger.clearLog();
         pc.receiveFrame(frame);
@@ -46,9 +45,10 @@ public class TestPC {
         PC pc = deviceFactory.createPC("TestPC");
         MACAddress destination = deviceFactory.createMACAddress();
         MACAddress source = pc.getMACAddress();
+		byte[] payload = "Hello, PC!".getBytes();
+		short etherType = (short) payload.length;
 
-        EthernetFrame frame = frameFactory.createEthernetFrame(destination, source, 
-            "Hello, PC!");
+        EthernetFrame frame = new EthernetFrame(destination, source, etherType, payload);
 
         Jns3Logger.clearLog();
         pc.receiveFrame(frame);

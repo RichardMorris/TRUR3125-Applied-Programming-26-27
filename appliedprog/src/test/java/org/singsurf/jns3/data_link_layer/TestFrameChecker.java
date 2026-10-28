@@ -29,9 +29,9 @@ public class TestFrameChecker {
     public void only_the_good_frames_get_through() {
         Jns3Logger.clearLog();
         for(int i=1;i<=20;++i) {
-            var frame = pc1.createEthernetFrame(
-                pc2.getMACAddress(), 
-                "Hello PC2 from PC1 "+i);
+			byte[] payload = ("Hello PC2 from PC1 "+i).getBytes();
+			short etherType = (short) payload.length;
+			var frame = new EthernetFrame(pc2.getMACAddress(), pc1.getMACAddress(), etherType, payload);
             pc1.sendFrame(frame);
         }
 

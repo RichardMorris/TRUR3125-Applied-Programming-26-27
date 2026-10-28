@@ -5,7 +5,6 @@ import java.util.List;
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.data_link_layer.ARPController;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
-import org.singsurf.jns3.data_link_layer.FrameFactory;
 import org.singsurf.jns3.data_link_layer.FrameHandler;
 import org.singsurf.jns3.data_link_layer.FrameReceiver;
 import org.singsurf.jns3.data_link_layer.FrameSender;
@@ -34,7 +33,6 @@ public class PC implements AddressableDevice, FrameSender, FrameReceiver, Packet
 
     List<FrameHandler> frameHandlers = new ArrayList<>();
     ARPController arpController;
-    FrameFactory frameFactory;
 	FrameSender ethernetEndPoint;
     PacketReceiver packetReceiver;
     PacketSender packetSender;
@@ -48,7 +46,6 @@ public class PC implements AddressableDevice, FrameSender, FrameReceiver, Packet
         this.macAddress = macAddress;
         this.ipAddress = ipAddress;
         this.ethernetEndPoint = new NICCard(name, this);
-        this.frameFactory = new FrameFactory();
         this.arpController = new ARPController(this,this);
         this.packetSender = new EthernetPacketSender(this, arpController, ethernetEndPoint);
     }
@@ -77,14 +74,6 @@ public class PC implements AddressableDevice, FrameSender, FrameReceiver, Packet
 
     public void sendArpRequest(IPAddress targetIP) {
         arpController.sendArpRequest(targetIP);
-    }
-
-    public EthernetFrame createEthernetFrame(MACAddress destinationMac, String payload) {
-        return frameFactory.createEthernetFrame(destinationMac, getMACAddress(), payload);
-    }
-
-    public EthernetFrame createEthernetFrame(MACAddress destinationMac, byte[] payload) {
-        return frameFactory.createEthernetFrame(destinationMac, getMACAddress(), payload);
     }
 
     public MACAddress lookup(IPAddress ipAddress) {
@@ -119,10 +108,6 @@ public class PC implements AddressableDevice, FrameSender, FrameReceiver, Packet
 		this.ethernetEndPoint = endPoint;
 	}
 
-    public FrameFactory getFrameFactory() {
-        return frameFactory;
-    }
-
     public ARPController getArpController() {
         return arpController;
     }
@@ -147,18 +132,6 @@ public class PC implements AddressableDevice, FrameSender, FrameReceiver, Packet
 		return packetSender;
 	}
 	
-	public IPPacket createIPPacket(int protocol,IPAddress dest, byte[] data) {
-        IPPacket packet = new IPPacket(protocol, 64,
-                getIPAddress(), dest, data);
-		return packet;
-	}
-
-	public IPPacket createIPPacket(int protocol,IPAddress dest, String data) {
-        IPPacket packet = new IPPacket(protocol, 64,
-                getIPAddress(), dest, data.getBytes());
-		return packet;
-	}
-
 	public void sendPacket(IPPacket packet) {
 		packetSender.sendPacket(packet);
 	}

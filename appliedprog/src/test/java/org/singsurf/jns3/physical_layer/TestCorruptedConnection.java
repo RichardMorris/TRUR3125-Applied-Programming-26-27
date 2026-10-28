@@ -82,9 +82,9 @@ public class TestCorruptedConnection {
 
     @Test
     public void test_modify_frame() {
-        var frame = pc1.createEthernetFrame(
-            receiver.getMACAddress(), 
-            "Hello PC2 from PC1");
+		byte[] payload = "Hello PC2 from PC1".getBytes();
+		short etherType = (short) payload.length;
+		var frame = new EthernetFrame(receiver.getMACAddress(), pc1.getMACAddress(), etherType, payload);
         int payload_len = frame.getContents().length;
         byte[] bytes = frame.getBytes();
 
@@ -118,9 +118,9 @@ public class TestCorruptedConnection {
 
     @Test
     public void test_corrupt_CRC() {
-        var frame = pc1.createEthernetFrame(
-            receiver.getMACAddress(), 
-            "Hello PC2 from PC1");
+		byte[] payload = "Hello PC2 from PC1".getBytes();
+		short etherType = (short) payload.length;
+		var frame = new EthernetFrame(receiver.getMACAddress(), pc1.getMACAddress(), etherType, payload);
         byte[] bytes = frame.getBytes();
 
         for(int i=0; i<14+frame.getContents().length+4; ++i) {
@@ -132,9 +132,9 @@ public class TestCorruptedConnection {
     @Test
     public void every_10th_frame_is_corrupted() {
         for(int i=1; i<=100;++i) {
-            var frame = pc1.createEthernetFrame(
-                receiver.getMACAddress(), 
-                "Hello PC2 from PC1 no " + i);
+			byte[] payload = ("Hello PC2 from PC1 no " + i).getBytes();
+			short etherType = (short) payload.length;
+			var frame = new EthernetFrame(receiver.getMACAddress(), pc1.getMACAddress(), etherType, payload);
             pc1.sendFrame(frame);
             var frame0 = receiver.lastReceivedFrame;
             if(i % 10 == 0) {

@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.Jns3Logger.LogItem;
+import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.physical_layer.SimpleConnection;
 
 public class TestHub {
@@ -48,9 +49,9 @@ public class TestHub {
         @Test 
         public void connection_to_known_mac_address() {
             Jns3Logger.clearLog();
-            var frame = pc1.createEthernetFrame(
-                pc2.getMACAddress(), 
-                "Hello All from PC1");
+			byte[] payload = "Hello All from PC1".getBytes();
+			short etherType = (short) payload.length;
+            var frame = new EthernetFrame(pc2.getMACAddress(), pc1.getMACAddress(), etherType, payload);
             pc1.sendFrame(frame);
             List<LogItem> logs = Jns3Logger.getLogItems();
             System.out.println(logs);
@@ -79,10 +80,10 @@ public class TestHub {
             destMAC = pc1.arpController.getArpTable().get(destIP);
             assertNotNull(destMAC);
             assertEquals(pc2.getMACAddress(), destMAC);
+			byte[] payload = "Hello PC2 from PC1".getBytes();
+			short etherType = (short) payload.length;
 
-            var frame = pc1.createEthernetFrame(
-                destMAC, 
-                "Hello PC2 from PC1");
+            var frame = new EthernetFrame(destMAC, pc1.getMACAddress(), etherType, payload);
             pc1.sendFrame(frame);
             logs = Jns3Logger.getLogItems();
             System.out.println(logs);
@@ -98,10 +99,10 @@ public class TestHub {
             destMAC = pc2.arpController.getArpTable().get(pc1.getIPAddress());
             assertNotNull(destMAC);
             assertEquals(pc1.getMACAddress(), destMAC);
+			byte[] payload1 = "Hello PC1 from PC2".getBytes();
+			short etherType1 = (short) payload1.length;
 
-            frame = pc2.createEthernetFrame(
-                destMAC, 
-                "Hello PC1 from PC2");
+            frame = new EthernetFrame(destMAC, pc2.getMACAddress(), etherType1, payload1);
             pc2.sendFrame(frame);
             logs = Jns3Logger.getLogItems();
             System.out.println(logs);
@@ -151,9 +152,9 @@ public class TestHub {
         @Test 
         public void connection_to_known_mac_address() {
             Jns3Logger.clearLog();
-            var frame = pc1.createEthernetFrame(
-                pc2.getMACAddress(), 
-                "Hello All from PC1");
+			byte[] payload = "Hello All from PC1".getBytes();
+			short etherType = (short) payload.length;
+            var frame = new EthernetFrame(pc2.getMACAddress(), pc1.getMACAddress(), etherType, payload);
             pc1.sendFrame(frame);
             List<LogItem> logs = Jns3Logger.getLogItems();
             System.out.println(logs);
@@ -188,10 +189,10 @@ public class TestHub {
             destMAC = pc1.arpController.getArpTable().get(destIP);
             assertNotNull(destMAC);
             assertEquals(pc2.getMACAddress(), destMAC);
+			byte[] payload = "Hello PC2 from PC1".getBytes();
+			short etherType = (short) payload.length;
 
-            var frame = pc1.createEthernetFrame(
-                destMAC, 
-                "Hello PC2 from PC1");
+            var frame = new EthernetFrame(destMAC, pc1.getMACAddress(), etherType, payload);
             pc1.sendFrame(frame);
             logs = Jns3Logger.getLogItems();
             System.out.println(logs);
@@ -213,10 +214,10 @@ public class TestHub {
             destMAC = pc2.arpController.getArpTable().get(pc1.getIPAddress());
             assertNotNull(destMAC);
             assertEquals(pc1.getMACAddress(), destMAC);
+			byte[] payload1 = "Hello PC1 from PC2".getBytes();
+			short etherType1 = (short) payload1.length;
 
-            frame = pc2.createEthernetFrame(
-                destMAC, 
-                "Hello PC1 from PC2");
+            frame = new EthernetFrame(destMAC, pc2.getMACAddress(), etherType1, payload1);
             pc2.sendFrame(frame);
             logs = Jns3Logger.getLogItems();
             System.out.println(logs);

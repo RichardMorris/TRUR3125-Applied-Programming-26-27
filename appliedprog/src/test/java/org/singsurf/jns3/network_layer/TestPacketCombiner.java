@@ -285,9 +285,10 @@ class TestPacketCombiner {
 		var connection = new SimpleConnection(pc.getEndPoint(), pc2.getEndPoint());
 		assertNotNull(connection);
 		pc.sendGARPRequest();
+		IPPacket packet1 = new IPPacket((int) IPPacket.TCP, 64,
+		pc2.getIPAddress(), pc.getIPAddress(), new byte[] {1,2,3,4,5,6,7,8,9,10});
 		// Act
-		var packet = pc2.createIPPacket(IPPacket.TCP,pc.getIPAddress(), 
-				new byte[] {1,2,3,4,5,6,7,8,9,10});
+		var packet = packet1;
 		pc2.sendPacket(packet);
 		// Assert
         assertEquals(1, receiver.size());
@@ -311,12 +312,11 @@ class TestPacketCombiner {
 		pc.sendGARPRequest();
 		
 		String dataString = Jns3Logger.generateOnesComplementTable();
+		IPPacket packet1 = new IPPacket((int) IPPacket.TCP, 64,
+		pc2.getIPAddress(), pc.getIPAddress(), dataString.getBytes());
 		
 		// Act
-		var packet = pc2.createIPPacket(
-				IPPacket.TCP,
-				pc.getIPAddress(), 
-				dataString);
+		var packet = packet1;
 		pc2.sendPacket(packet);
 		
 		// Assert

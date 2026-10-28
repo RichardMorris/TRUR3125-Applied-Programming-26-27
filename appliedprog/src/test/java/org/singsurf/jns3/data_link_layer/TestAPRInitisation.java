@@ -33,9 +33,9 @@ public class TestAPRInitisation {
     @Test 
     public void testConnection() {
         Jns3Logger.clearLog();
-        var frame = pc1.createEthernetFrame(
-            pc2.getMACAddress(), 
-            "Hello PC2 from PC1");
+		byte[] payload = "Hello PC2 from PC1".getBytes();
+		short etherType = (short) payload.length;
+        var frame = new EthernetFrame(pc2.getMACAddress(), pc1.getMACAddress(), etherType, payload);
         pc1.sendFrame(frame);
         List<LogItem> logs = Jns3Logger.getLogItems();
         System.out.println(logs);
@@ -90,11 +90,9 @@ public class TestAPRInitisation {
 				continue; // Skip multicast entry
 			}
             var macAddress = entry.getValue();
-            var frameFactory = pc1.getFrameFactory();
-            var frame = frameFactory.createEthernetFrame(
-                macAddress, 
-                pc1.getMACAddress(), 
-                "Hello " + ipAddress);
+			byte[] payload = ("Hello " + ipAddress).getBytes();
+			short etherType = (short) payload.length;
+            var frame = new EthernetFrame(macAddress, pc1.getMACAddress(), etherType, payload);
             pc1.sendFrame(frame);
             break;
         }
@@ -120,11 +118,9 @@ public class TestAPRInitisation {
 				continue; // Skip multicast entry
 			}
             var macAddress = entry.getValue();
-            var frameFactory = pc2.getFrameFactory();
-            var frame = frameFactory.createEthernetFrame(
-                macAddress, 
-                pc2.getMACAddress(), 
-                "Hello " + ipAddress);
+			byte[] payload = ("Hello " + ipAddress).getBytes();
+			short etherType = (short) payload.length;
+            var frame = new EthernetFrame(macAddress, pc2.getMACAddress(), etherType, payload);
             pc2.sendFrame(frame);
             break;
         }

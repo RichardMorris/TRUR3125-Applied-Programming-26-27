@@ -8,8 +8,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-public class TestFrameFactory {
-    FrameFactory factory = new FrameFactory();
+public class TestFrameCreation {
     
     /**
      * A Factory method to create multiple Ethernet frames from a message string.
@@ -42,7 +41,9 @@ public class TestFrameFactory {
         MACAddress destination = new MACAddress("00:11:22:33:44:55");
         MACAddress source = new MACAddress("66:77:88:99:AA:BB");
         String message = "Hello, Ethernet!";
-        EthernetFrame frame = factory.createEthernetFrame(destination, source, message);
+		byte[] payload = message.getBytes();
+		short etherType = (short) payload.length;
+        EthernetFrame frame = new EthernetFrame(destination, source, etherType, payload);
         assertEquals(destination, frame.getDestination());
         assertEquals(source, frame.getSource());
         assertEquals((short) message.length(), frame.getEtherType());
@@ -55,7 +56,9 @@ public class TestFrameFactory {
         MACAddress destination = new MACAddress("00:11:22:33:44:55");
         MACAddress source = new MACAddress("66:77:88:99:AA:BB");
         String message = "π r²";
-        EthernetFrame frame = factory.createEthernetFrame(destination, source, message);
+		byte[] payload = message.getBytes();
+		short etherType = (short) payload.length;
+        EthernetFrame frame = new EthernetFrame(destination, source, etherType, payload);
         assertEquals(destination, frame.getDestination());
         assertEquals(source, frame.getSource());
         assertEquals(6, frame.getEtherType());

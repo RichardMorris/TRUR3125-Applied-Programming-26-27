@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 import org.singsurf.jns3.Jns3Logger;
+import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.hardware.DeviceFactory;
 import org.singsurf.jns3.physical_layer.SimpleConnection;
 public class TestIPPacket {
@@ -125,8 +126,8 @@ public class TestIPPacket {
         byte[] data = new byte[] {1, 2, 3, 4};
         IPPacket packet = new IPPacket(IPPacket.TCP, 64,
             pc1.getIPAddress(), pc2.getIPAddress(), data);
-        var frame = pc1.createEthernetFrame(pc2.getMACAddress(), 
-        		packet.getBytes());
+		byte[] payload = packet.getBytes();
+        var frame = new EthernetFrame(pc2.getMACAddress(), pc1.getMACAddress(), (short) payload.length, payload);
         pc1.sendFrame(frame);
         assertEquals(Jns3Logger.getLogItems().size(), 1);
         var logItem = Jns3Logger.getLogItems().get(0);

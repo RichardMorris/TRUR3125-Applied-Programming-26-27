@@ -4,7 +4,6 @@ import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.data_link_layer.ARPController;
 import org.singsurf.jns3.data_link_layer.ARPMessage;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
-import org.singsurf.jns3.data_link_layer.FrameFactory;
 import org.singsurf.jns3.data_link_layer.FrameSender;
 import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.network_layer.IPAddress;
@@ -29,7 +28,6 @@ public class PassthroughRouter extends MultiPortDevice implements AddressableDev
     ARPController arpController;
 	Sender sender;
 	PingRequestHandler pingreq;
-    FrameFactory frameFactory = FrameFactory.getInstance();
     
     class Sender implements FrameSender, PacketSender {
 		int portNumber;
@@ -44,8 +42,8 @@ public class PassthroughRouter extends MultiPortDevice implements AddressableDev
 		
 		@Override
 		public void sendPacket(IPPacket packet) {
-			var frame = frameFactory.createEthernetFrame(
-					macAddress,destMac, packet.getBytes());
+			byte[] payload = packet.getBytes();
+			var frame = new EthernetFrame(macAddress, destMac, (short) payload.length, payload);
 			sendFrame(frame);
 		}
 		
@@ -108,8 +106,8 @@ public class PassthroughRouter extends MultiPortDevice implements AddressableDev
 				IPPacket.IMCP, 64,
 				ipAddress, packet.getSourceAddress(), 
 				icmp.getBytes());
-			var errorFrame = frameFactory.createEthernetFrame(
-				frame.getSource(),frame.getDestination(), errorPacket.getBytes());
+			byte[] payload1 = errorPacket.getBytes();
+			var errorFrame = new EthernetFrame(frame.getSource(), frame.getDestination(), (short) payload1.length, payload1);
 			Jns3Logger.logInfo(name, "Parameter problem "+icmp);
 
 			sendFrame(portNumber,errorFrame);
@@ -129,8 +127,8 @@ public class PassthroughRouter extends MultiPortDevice implements AddressableDev
 				IPPacket.IMCP, 64,
 				ipAddress, packet.getSourceAddress(), 
 				errorMsg.getBytes());
-			var errorFrame = frameFactory.createEthernetFrame(
-				frame.getSource(),frame.getDestination(), errorPacket.getBytes());
+			byte[] payload1 = errorPacket.getBytes();
+			var errorFrame = new EthernetFrame(frame.getSource(), frame.getDestination(), (short) payload1.length, payload1);
 			Jns3Logger.logInfo(name, "Expired ping "+icmp);
 
 			sendFrame(portNumber,errorFrame);

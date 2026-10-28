@@ -9,7 +9,6 @@ import java.util.Queue;
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.data_link_layer.ARPController;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
-import org.singsurf.jns3.data_link_layer.FrameFactory;
 import org.singsurf.jns3.data_link_layer.FrameSender;
 import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.hardware.AddressableDevice;
@@ -28,7 +27,6 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 	ARPController arpController;
 	FrameSender frameSender;
 
-	FrameFactory frameFactory = FrameFactory.getInstance();
 	PacketFragmentor packetFragmentor = new PacketFragmentor(140);
 	
 	Map<IPAddress, TaggedQueue> packetQueue = new HashMap<>();
@@ -85,8 +83,8 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 	private void sendPacket(IPPacket packet, MACAddress destMac) {
 		List<IPPacket> packets = packetFragmentor.getFragments(packet);
 		for(IPPacket p : packets) {
-			EthernetFrame frame = frameFactory.createEthernetFrame(
-					destMac, sourceMac, p.getBytes());
+			byte[] payload = p.getBytes();
+			EthernetFrame frame = new EthernetFrame(destMac, sourceMac, (short) payload.length, payload);
 			frameSender.sendFrame(frame);
 		}
 	}

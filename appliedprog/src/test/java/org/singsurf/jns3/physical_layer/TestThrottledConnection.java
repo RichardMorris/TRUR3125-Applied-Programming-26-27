@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.singsurf.jns3.Jns3Logger;
+import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.data_link_layer.NICCard;
 import org.singsurf.jns3.hardware.DeviceFactory;
 import org.singsurf.jns3.hardware.GlobalWallClock;
@@ -35,9 +36,9 @@ public class TestThrottledConnection {
     public void only_16_frames_get_through_per_tick() {
             Jns3Logger.clearLog();
             for(int i = 1; i <= 50; i++) {
-            var frame = pc1.createEthernetFrame(
-                pc2.getMACAddress(), 
-                "Hello #"+i);
+				byte[] payload = ("Hello #"+i).getBytes();
+				short etherType = (short) payload.length;
+			var frame = new EthernetFrame(pc2.getMACAddress(), pc1.getMACAddress(), etherType, payload);
                 pc1.sendFrame(frame);
             }
             var logs = Jns3Logger.getLogItems();

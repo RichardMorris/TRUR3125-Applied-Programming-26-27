@@ -59,3 +59,55 @@ Scenario: Physical Layer
 * When: the data link layer is registered with the physical layer
 * And: All tests are run
   * Then: all test pass
+
+## Implementation notes
+
+Converting the containers types proved relatively simple. The types converted are
+
+* EthernetFrame
+* ARPMessage
+* IPPacket
+* ICMPMessage
+* UDPDatagram - logic for created and validating checksums created.
+
+The process of encapsulating a container in a lower level type is more complex than last week as the creation process typically involves additional data.
+
+Currently we have
+
+1. `ARPMessages` to `EthernetFrames` in `ARPController`
+
+    ```java
+    var garpFrame = frameFactory.createEthernetFrame(
+        MACAddress.BROADCAST_MAC,
+        device.getMACAddress(),
+        ARPMessage.ARP_ETHER_TYPE,
+        garpMessage.getBytes());
+    ```
+
+2. `IPPacket` to  `EthernetFrames` in `EthernetPacketSender`
+
+    ```java
+    EthernetFrame frame = frameFactory.createEthernetFrame(
+        destMac, sourceMac, 
+        p.getBytes());
+    ```
+
+3. `ICMPMessage` to `IPPacket` in `PingController` and `PingRequestHandler`
+
+    ```java
+    IPPacket packet = new IPPacket(
+        IPPacket.IMCP, ttl,
+        pc.getIPAddress(), destinationIP, 
+        pingRequest.getBytes());
+    ```
+
+4. `UDPDatagram` to `IPPacket` in `UDPController`
+
+    ```java
+    var packet = new IPPacket(IPPacket.UDP, 64,
+        device.getIPAddress(), boundAddress, 
+        datagram.getBytes()); 
+    ```
+
+5. `PC` exposed some of creation methods used in tests than have been inlined.
+
