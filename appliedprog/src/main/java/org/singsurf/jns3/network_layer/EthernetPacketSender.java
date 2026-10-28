@@ -59,7 +59,7 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 	}
 
 	@Override
-	public void sendPacket(IPPacket packet) {
+	public void send(IPPacket packet) {
 		
 		var destIP = packet.getDestinationAddress();
 		var destMac = arpController.getArpTable().get(destIP);
@@ -87,7 +87,7 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 			if(!IPPacketExtractor.getInstance().isExtractable(frame)) {
 				Jns3Logger.logError(name, "Frame is not extractable as IP packet. Frame: " + frame);
 			}
-			frameSender.sendFrame(frame);
+			frameSender.send(frame);
 		}
 	}
 

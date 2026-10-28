@@ -44,10 +44,10 @@ public class PingRequestHandler implements ICMPMessageHandler {
 					IPPacket.IMCP, 64, 
 					device.getIPAddress(), sourceAddress,
 					replyMessage.getBytes());
-			sender.sendPacket(replyPacket);
+			sender.send(replyPacket);
 		} else {
 			// Forward the packet to the next hop
-			sender.sendPacket(packet);
+			sender.send(packet);
 		}
 		
 	}

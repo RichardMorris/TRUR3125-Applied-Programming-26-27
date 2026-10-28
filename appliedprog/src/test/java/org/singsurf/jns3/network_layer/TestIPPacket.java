@@ -132,7 +132,7 @@ public class TestIPPacket {
             pc1.getIPAddress(), pc2.getIPAddress(), data);
 		byte[] payload = packet.getBytes();
         var frame = new EthernetFrame(pc2.getMACAddress(), pc1.getMACAddress(), (short) payload.length, payload);
-        pc1.sendFrame(frame);
+        pc1.getFrameSender().send(frame);
         assertEquals(Jns3Logger.getLogItems().size(), 1);
         var logItem = Jns3Logger.getLogItems().get(0);
         assertEquals(new Jns3Logger.LogItem(pc2.getName(), Jns3Logger.LogLevel.RECEIVED, "Received packet"), logItem);

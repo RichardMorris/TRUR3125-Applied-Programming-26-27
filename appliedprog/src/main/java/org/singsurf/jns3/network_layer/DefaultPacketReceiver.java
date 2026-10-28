@@ -25,7 +25,7 @@ public class DefaultPacketReceiver implements PacketReceiver {
 	}
 	
 	@Override
-	public void receivePacket(IPPacket packet) {
+	public void receive(IPPacket packet) {
 		recivedPackets.add(packet);
 		Jns3Logger.log(device, logLevel, "Received packet: " + packet);
 	}

@@ -110,7 +110,7 @@ public class UDPDatagram implements ProtocolContainer {
 		return protocol == IPPacket.UDP; // 17 is the protocol number for UDP
 	}
 	
-	public static UDPDatagram fromPacket(IPPacket packet) {
+	static UDPDatagram fromPacket(IPPacket packet) {
 		var psudo = new PsudoHeader(packet.getSourceAddress(), packet.getDestinationAddress(), (byte) 0, IPPacket.UDP, (short) packet.getContents().length);
 		return fromBytes(packet.getContents(),psudo);
 	}

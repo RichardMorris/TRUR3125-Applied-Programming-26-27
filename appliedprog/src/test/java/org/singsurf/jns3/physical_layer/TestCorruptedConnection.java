@@ -35,7 +35,7 @@ public class TestCorruptedConnection {
             this.name = "Receiver";
             macAddress = new DeviceFactory().createMACAddress();
         }
-        public void receiveFrame(EthernetFrame frame) {
+        public void receive(EthernetFrame frame) {
             lastReceivedFrame = frame;
         }
 
@@ -135,7 +135,7 @@ public class TestCorruptedConnection {
 			byte[] payload = ("Hello PC2 from PC1 no " + i).getBytes();
 			short etherType = (short) payload.length;
 			var frame = new EthernetFrame(receiver.getMACAddress(), pc1.getMACAddress(), etherType, payload);
-            pc1.sendFrame(frame);
+            pc1.getFrameSender().send(frame);
             var frame0 = receiver.lastReceivedFrame;
             if(i % 10 == 0) {
                 assertNotEquals(frame, frame0);

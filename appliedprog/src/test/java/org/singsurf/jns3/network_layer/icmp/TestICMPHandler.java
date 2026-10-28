@@ -38,13 +38,13 @@ class TestICMPHandler {
 		var packet = new IPPacket(IPPacket.IMCP, 64, senderIP, destinationIP, data);
 
 		Jns3Logger.clearLog();
-		icmpHandler.receivePacket(packet);
+		icmpHandler.receive(packet);
 		assertEquals(1, Jns3Logger.size());
 		assertEquals("ICMPLogger", Jns3Logger.getItem(0).deviceName());
 		
 		var tcpPacket = new IPPacket(IPPacket.TCP, 64, senderIP, destinationIP, data);
 		Jns3Logger.clearLog();
-		icmpHandler.receivePacket(tcpPacket);
+		icmpHandler.receive(tcpPacket);
 		assertEquals(1, Jns3Logger.size());
 		assertEquals("PacketLogger", Jns3Logger.getItem(0).deviceName());
 		assertTrue(Jns3Logger.isErrorFree());
@@ -77,7 +77,7 @@ class TestICMPHandler {
 		var frame = new EthernetFrame(senderMAC, pc.getMACAddress(), (short) payload.length, payload);
 
 		Jns3Logger.clearLog();
-		pc.receiveFrame(frame);
+		pc.receive(frame);
 		assertEquals(1, Jns3Logger.size());
 		assertEquals("ICMPLogger", Jns3Logger.getItem(0).deviceName());
 		
@@ -88,7 +88,7 @@ class TestICMPHandler {
 
 		// act
 		Jns3Logger.clearLog();
-		pc.receiveFrame(frame2);
+		pc.receive(frame2);
 
 		// assert
 		assertEquals(1, Jns3Logger.size());

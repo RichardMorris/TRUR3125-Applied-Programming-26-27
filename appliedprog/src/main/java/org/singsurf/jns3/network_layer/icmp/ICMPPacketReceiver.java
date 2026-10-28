@@ -21,9 +21,9 @@ public class ICMPPacketReceiver implements PacketReceiver {
 	}
 	
 	@Override
-	public void receivePacket(IPPacket packet) {
+	public void receive(IPPacket packet) {
 		if(packet.getProtocol() != 1) {
-			nextReceiver.receivePacket(packet);
+			nextReceiver.receive(packet);
 			return;
 		}
 		// ICMP protocol number is 1

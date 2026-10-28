@@ -126,7 +126,24 @@ Extractors are still useful.
         L extends ProtocolContainer, 
         H extends ProtocolContainer> {
             public H extract(L type);
+            public boolean isExtractable(L type);
     }
     ```
 
-2. `ARPConverter` implements this
+2. `ARPExtractor` implements an `EthernetFrame` to `ARPMessage` extractor.
+
+3. `IPPackerExtractor` implements and `EthernetFrame` to  `IPPacket` extractor.
+
+4. A generic `ByteConverter` interface is user between the physical and data-link layers
+
+    ```java
+    public interface ByteConverter<H extends ProtocolContainer> {
+            public H fromBytes(byte[] bytes);
+            public byte[] toBytes(H type);
+    }
+    ```
+
+    With a single realisation `ByteToFrameConverter`.
+
+Senders and Receiver these should be easy to implement with some method renaming.
+

@@ -198,7 +198,7 @@ class TestPassthroughRouter {
 		pc1.getIPAddress(), pc2.getIPAddress(), new byte[] {1,2,3,4,5,6,7,8,9,10});
 		
 		var packet = packet1;
-		pc1.sendPacket(packet);
+		pc1.send(packet);
 
 		assertEquals(0, Jns3Logger.size());
 		// tick
@@ -230,7 +230,7 @@ class TestPassthroughRouter {
 		var packet = packet1;
 		packet.setTimeToLive(1);
 		assertTrue(packet.isValid());
-		pc1.sendPacket(packet);
+		pc1.send(packet);
 
 		assertEquals(0, Jns3Logger.size());
 		// tick

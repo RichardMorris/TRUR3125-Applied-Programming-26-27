@@ -49,7 +49,7 @@ class TestYRouter {
 			byte[] payload = ("" + i).getBytes();
 			short etherType = (short) payload.length;
 			EthernetFrame frame = new EthernetFrame(MACAddress.BROADCAST_MAC, pc1.getMACAddress(), etherType, payload);
-			pc1.sendFrame(frame);
+			pc1.getFrameSender().send(frame);
 		}
 		for(int i=0; i<3;++i) {
 			assertEquals("PC2", Jns3Logger.getItem(i).deviceName());
@@ -98,7 +98,7 @@ class TestYRouter {
 			byte[] payload = ("" + i).getBytes();
 			short etherType = (short) payload.length;
 			EthernetFrame frame = new EthernetFrame(pc2.getMACAddress(), pc1.getMACAddress(), etherType, payload);
-			pc1.sendFrame(frame);
+			pc1.getFrameSender().send(frame);
 		}
 		
 		assertEquals(6, Jns3Logger.size());
@@ -176,7 +176,7 @@ class TestYRouter {
 		
 		// Act
 		var packet = packet1;
-		pc2.sendPacket(packet);
+		pc2.send(packet);
 		
 		System.out.println("Leg 1 forward "+ leg1.getForwardCount() + " reversed " + leg1.getReverseCount());
 		System.out.println("Leg 2 forward "+ leg2.getForwardCount() + " reversed " + leg2.getReverseCount());

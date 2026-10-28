@@ -41,9 +41,9 @@ public class UDPController implements PacketReceiver, NamedDevice {
 	}
 
 	@Override
-	public void receivePacket(IPPacket packet) {
+	public void receive(IPPacket packet) {
 		if(!udpExtractor.isExtractable(packet)) {
-			nextReceiver.receivePacket(packet);
+			nextReceiver.receive(packet);
 			return;
 		}
 		var datagram = UDPDatagram.fromPacket(packet);
@@ -75,7 +75,7 @@ public class UDPController implements PacketReceiver, NamedDevice {
 		}
 		var packet = new IPPacket(IPPacket.UDP, 64,
 				device.getIPAddress(), boundAddress, datagram.getBytes()); 
-		packetSender.sendPacket(packet);		  
+		packetSender.send(packet);		  
 	}
 
 	public void bind(IPAddress ip, short port, DatagramSocket socket) {

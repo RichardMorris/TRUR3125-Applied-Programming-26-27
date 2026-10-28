@@ -15,5 +15,10 @@ public interface ProtocolExtractor<L extends ProtocolContainer, H extends Protoc
 	 */
 	public H extract(L type);
 	
+	/**
+	 * Check if the lower level type can be extracted to the higher level type.
+	 * @param type lower level container
+	 * @return true if extractable, false otherwise
+	 */
 	public boolean isExtractable(L type);
 }

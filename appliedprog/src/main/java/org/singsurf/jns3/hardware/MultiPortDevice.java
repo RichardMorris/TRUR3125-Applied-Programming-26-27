@@ -39,7 +39,7 @@ public abstract class MultiPortDevice implements NamedDevice {
 
     public void sendFrame(int portNumber, EthernetFrame frame) {
         if (ports[portNumber].isConnected()) {
-                    ports[portNumber].sendFrame(frame);
+                    ports[portNumber].send(frame);
         }
     }
 

@@ -25,7 +25,7 @@ import org.singsurf.jns3.transport_layer.udp.UDPController;
  * The main class representing a PC.
  * Acts as a Facade to the various layers in the system.
  */
-public class PC implements AddressableDevice, FrameSender, FrameReceiver, PacketSender, Terminal {
+public class PC implements AddressableDevice, PacketSender, Terminal {
     String name;
     MACAddress macAddress;
     IPAddress ipAddress;
@@ -34,28 +34,38 @@ public class PC implements AddressableDevice, FrameSender, FrameReceiver, Packet
     List<FrameHandler> frameHandlers = new ArrayList<>();
     ARPController arpController;
 	FrameSender ethernetEndPoint;
-    PacketReceiver packetReceiver;
+	FrameReceiver frameReceiver;
+	PacketReceiver packetReceiver;
     PacketSender packetSender;
 	ICMPPacketReceiver icmpPacketReceiver;
 	PingController pingController;
     UDPController udpController;
 
+    class FReceiver implements FrameReceiver {
+
+		@Override
+		public void receive(EthernetFrame frame) {
+	        for (FrameHandler handler : frameHandlers) {
+	            if (handler.handleFrame(frame)) {
+	                return;
+	            }
+	        }
+	        Jns3Logger.log(getName(), Jns3Logger.LogLevel.ERROR, "Unhandled frame: " + frame);
+		}
+    	
+    }
     
     public PC(String name, MACAddress macAddress, IPAddress ipAddress) {
         this.name = name;
         this.macAddress = macAddress;
         this.ipAddress = ipAddress;
-        this.ethernetEndPoint = new NICCard(name, this);
-        this.arpController = new ARPController(this,this);
+        this.frameReceiver = new FReceiver();
+        this.ethernetEndPoint = new NICCard(name, this.frameReceiver);
+        this.arpController = new ARPController(this,ethernetEndPoint);
         this.packetSender = new EthernetPacketSender(this, arpController, ethernetEndPoint);
     }
 
-    @Override
-    public void sendFrame(EthernetFrame frame) {
-        ethernetEndPoint.sendFrame(frame);
-    }
-
-    public void receiveFrame(EthernetFrame frame) {
+    public void receive(EthernetFrame frame) {
         for (FrameHandler handler : frameHandlers) {
             if (handler.handleFrame(frame)) {
                 return;
@@ -116,6 +126,18 @@ public class PC implements AddressableDevice, FrameSender, FrameReceiver, Packet
 		frameHandlers.clear();		
 	}
 
+//	public void setFrameReceiver(FrameReceiver frameReceiver) {
+//		this.frameReceiver = frameReceiver;
+//	}
+	
+	public FrameReceiver getFrameReceiver() {
+		return frameReceiver;
+	}
+	
+	public FrameSender getFrameSender() {
+		return ethernetEndPoint;
+	}
+	
 	public void setPacketReceiver(PacketReceiver packetReceiver) {
 		this.packetReceiver = packetReceiver;
 	}
@@ -132,8 +154,8 @@ public class PC implements AddressableDevice, FrameSender, FrameReceiver, Packet
 		return packetSender;
 	}
 	
-	public void sendPacket(IPPacket packet) {
-		packetSender.sendPacket(packet);
+	public void send(IPPacket packet) {
+		packetSender.send(packet);
 	}
 
 	public void display(String string) {

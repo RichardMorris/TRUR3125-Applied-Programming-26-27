@@ -24,7 +24,7 @@ public class Port implements NamedDevice, FrameReceiver, FrameSender {
     }
 
     @Override
-    public void receiveFrame(EthernetFrame frame) {
+    public void receive(EthernetFrame frame) {
         hostDevice.receiveFrame(portNumber, frame);
     }
 
@@ -36,8 +36,8 @@ public class Port implements NamedDevice, FrameReceiver, FrameSender {
         return ethernetEndPoint.isConnected();
     }
     @Override
-    public void sendFrame(EthernetFrame frame) {
-        ethernetEndPoint.sendFrame(frame);
+    public void send(EthernetFrame frame) {
+        ethernetEndPoint.send(frame);
     }   
 
     @Override

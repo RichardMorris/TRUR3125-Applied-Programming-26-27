@@ -99,7 +99,7 @@ public class IPFragmentHandler implements FrameHandler {
 				byte[] data = combineDataSections();
 				var completePacket = new IPPacket(protocol, ttl,
 						sourceAddress, destinationAddress, data);
-				receiver.receivePacket(completePacket);
+				receiver.receive(completePacket);
 				return true;
 			} else {
 				return false;
@@ -155,7 +155,7 @@ public class IPFragmentHandler implements FrameHandler {
 				return true;
 			}
 			else {
-				receiver.receivePacket(packet);
+				receiver.receive(packet);
 				return true;
 			}
 		}

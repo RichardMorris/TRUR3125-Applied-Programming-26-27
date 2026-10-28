@@ -56,14 +56,14 @@ public class PingController implements  ICMPMessageHandler {
 		if(!ICMPPacketExtractor.getInstance().isExtractable(packet)) {
 			Jns3Logger.logError(pc.getName(), "Bad packet: " + packet);
 		}
-		packetSender.sendPacket(packet);
+		packetSender.send(packet);
 	}
 
 	public void sendTraceroute(IPAddress destinationIP) {
 		++sequenceNumber;
 		var packet = makePingPacket(identifier+ TRACEROUTE_OFFSET, sequenceNumber, destinationIP, 1);
 		console.display(String.format("traceroute to %s, 64 hops max", destinationIP));
-		packetSender.sendPacket(packet);
+		packetSender.send(packet);
 	}
 
 	private IPPacket makePingPacket(int id, int code, IPAddress destinationIP, int ttl) {
@@ -147,7 +147,7 @@ public class PingController implements  ICMPMessageHandler {
 		
 		var pack = makePingPacket(identifier+ TRACEROUTE_OFFSET,
 				sentReq.request().getCode(), sentReq.dest(), sentReq.ttl()+1);
-		packetSender.sendPacket(pack);
+		packetSender.send(pack);
 	}
 	
 	public static PingController newInstance(PC pc) {

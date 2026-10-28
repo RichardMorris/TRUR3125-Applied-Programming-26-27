@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.Jns3Logger.LogItem;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
-import org.singsurf.jns3.data_link_layer.NICCard;
 import org.singsurf.jns3.hardware.DeviceFactory;
 import org.singsurf.jns3.hardware.GlobalWallClock;
 import org.singsurf.jns3.hardware.PC;
@@ -25,9 +24,7 @@ public class TestHalfDuplexConnection {
         Jns3Logger.clearLog();
         DeviceFactory deviceFactory = new DeviceFactory();
         pc1 = deviceFactory.createPC("PC1");
-        pc1.setEndPoint(new NICCard("PC1-EP",pc1));
         pc2 = deviceFactory.createPC("PC2");
-        pc2.setEndPoint(new NICCard("PC2-EP",pc2));
         var connection = new HalfDuplexConnection(pc1.getEndPoint(), pc2.getEndPoint(),
         		ThrottledConnection.CAT3);
         
@@ -41,12 +38,12 @@ public class TestHalfDuplexConnection {
 		byte[] payload = "Forward 1".getBytes();
 		short etherType = (short) payload.length;
         var frame1 = new EthernetFrame(pc2.getMACAddress(), pc1.getMACAddress(), etherType, payload);
-        pc1.sendFrame(frame1);
+        pc1.getFrameSender().send(frame1);
 		byte[] payload1 = "Reversed 1".getBytes();
 		short etherType1 = (short) payload1.length;
      
         var frame2 = new EthernetFrame(pc1.getMACAddress(), pc2.getMACAddress(), etherType1, payload1);  
-        pc2.sendFrame(frame2);
+        pc2.getFrameSender().send(frame2);
         
         var logs = Jns3Logger.getLogItems();
         
@@ -75,9 +72,9 @@ public class TestHalfDuplexConnection {
 		short etherType4 = (short) payload4.length;
         var frame5 = new EthernetFrame(pc1.getMACAddress(), pc2.getMACAddress(), etherType4, payload4);
         
-        pc2.sendFrame(frame3);
-        pc1.sendFrame(frame4);
-        pc2.sendFrame(frame5);
+        pc2.getFrameSender().send(frame3);
+        pc1.getFrameSender().send(frame4);
+        pc2.getFrameSender().send(frame5);
         
         assertEquals(2, logs.size()); 
         assertEquals(new LogItem("PC1",RECEIVED,"Reversed 2"), logs.get(0));
@@ -95,7 +92,7 @@ public class TestHalfDuplexConnection {
     public void two_ticks_for_arp_negotiation() {
         Jns3Logger.clearLog();
         pc1.sendGARPRequest();
-
+        System.out.println(Jns3Logger.asString());
         assertEquals(3, Jns3Logger.size());
         var logs = Jns3Logger.getLogItems();
         assertEquals(new LogItem("PC1",SENT,"Sent GARP request frame"), logs.get(0));
@@ -116,12 +113,12 @@ public class TestHalfDuplexConnection {
 		short etherType = (short) payload.length;
         
         var frame1 = new EthernetFrame(mac2, pc1.getMACAddress(), etherType, payload);
-        pc1.sendFrame(frame1);
+        pc1.getFrameSender().send(frame1);
 		byte[] payload1 = "Reversed 1".getBytes();
 		short etherType1 = (short) payload1.length;
      
         var frame2 = new EthernetFrame(mac1, pc2.getMACAddress(), etherType1, payload1);  
-        pc2.sendFrame(frame2);
+        pc2.getFrameSender().send(frame2);
         
         logs = Jns3Logger.getLogItems();
         
@@ -150,9 +147,9 @@ public class TestHalfDuplexConnection {
 		short etherType4 = (short) payload4.length;
         var frame5 = new EthernetFrame(mac1, pc2.getMACAddress(), etherType4, payload4);
         
-        pc2.sendFrame(frame3);
-        pc1.sendFrame(frame4);
-        pc2.sendFrame(frame5);
+        pc2.getFrameSender().send(frame3);
+        pc1.getFrameSender().send(frame4);
+        pc2.getFrameSender().send(frame5);
         
         assertEquals(2, logs.size()); 
         assertEquals(new LogItem("PC1",RECEIVED,"Reversed 2"), logs.get(0));

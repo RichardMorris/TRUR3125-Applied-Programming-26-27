@@ -22,9 +22,9 @@ public class TestThrottledConnection {
         Jns3Logger.clearLog();
         DeviceFactory deviceFactory = new DeviceFactory();
         pc1 = deviceFactory.createPC("PC1");
-        pc1.setEndPoint(new NICCard("PC1-EP",pc1));
+        pc1.setEndPoint(new NICCard("PC1-EP",pc1.getFrameReceiver()));
         pc2 = deviceFactory.createPC("PC2");
-        pc2.setEndPoint(new NICCard("PC2-EP",pc1));
+        pc2.setEndPoint(new NICCard("PC2-EP",pc1.getFrameReceiver()));
         var connection = new ThrottledConnection(pc1.getEndPoint(), pc2.getEndPoint(),
         		ThrottledConnection.CAT3);
         
@@ -39,7 +39,7 @@ public class TestThrottledConnection {
 				byte[] payload = ("Hello #"+i).getBytes();
 				short etherType = (short) payload.length;
 			var frame = new EthernetFrame(pc2.getMACAddress(), pc1.getMACAddress(), etherType, payload);
-                pc1.sendFrame(frame);
+                pc1.getFrameSender().send(frame);
             }
             var logs = Jns3Logger.getLogItems();
             assertEquals(16, logs.size()); 

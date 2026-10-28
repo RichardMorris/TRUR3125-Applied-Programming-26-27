@@ -15,13 +15,13 @@ public class EthernetEndPoint extends PhysicalEndPoint implements FrameSender {
     }
 
     @Override
-    public void sendFrame(EthernetFrame frame) {
+    public void send(EthernetFrame frame) {
         send(frame.getBytes());
     }   
 
     @Override
     protected void receive(byte[] frame) {
         EthernetFrame ethernetFrame = converter.fromBytes(frame);
-        frameReceiver.receiveFrame(ethernetFrame);
+        frameReceiver.receive(ethernetFrame);
     }
 }
