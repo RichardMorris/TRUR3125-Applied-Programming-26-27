@@ -40,9 +40,9 @@ class TestPassthroughRouter {
 		icmpHandler1.addHandler(new ICMPMessageLogger("ICMPLogger1"));
 		
 		var combiner1 = new IPFragmentHandler(pc1,pc1.getPacketReceiver());
-		pc1.clearFrameHandlers();
-		pc1.addFrameHandler(pc1.getArpController());
-		pc1.addFrameHandler(combiner1);
+		pc1.getFrameDelegator().clear();
+		pc1.getFrameDelegator().addHandler(pc1.getArpController());
+		pc1.getFrameDelegator().addHandler(combiner1);
 
 		var packetLogger2 = new DefaultPacketReceiver("PacketLogger2");
 		var icmpHandler2 = new ICMPPacketReceiver(pc2.getName(), packetLogger2);
@@ -52,9 +52,9 @@ class TestPassthroughRouter {
 		icmpHandler2.addHandler(pingreq);
 		
 		var combiner2 = new IPFragmentHandler(pc2,pc2.getPacketReceiver());
-		pc2.clearFrameHandlers();
-		pc2.addFrameHandler(pc2.getArpController());
-		pc2.addFrameHandler(combiner2);
+		pc2.getFrameDelegator().clear();
+		pc2.getFrameDelegator().addHandler(pc2.getArpController());
+		pc2.getFrameDelegator().addHandler(combiner2);
 
 		var routerIP = deviceFactory.createLocalIPAddress();
 		router = new PassthroughRouter("Router1", routerIP);

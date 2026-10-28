@@ -114,8 +114,8 @@ public class TestIPPacket {
         DeviceFactory deviceFactory = new DeviceFactory();
         var pc1 = deviceFactory.createPC("PC1");
         var pc2 = deviceFactory.createPC("PC2");
-        pc2.clearFrameHandlers();
-        pc2.addFrameHandler((frame) -> {
+        pc2.getFrameDelegator().clear();
+        pc2.getFrameDelegator().addHandler((frame) -> {
     		var packet = IPPacketExtractor.getInstance().extract(frame);
 			assertEquals(packet.getSourceAddress(), pc1.getIPAddress());
 			assertEquals(packet.getDestinationAddress(), pc2.getIPAddress());

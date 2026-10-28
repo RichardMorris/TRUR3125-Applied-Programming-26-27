@@ -1,12 +1,11 @@
 package org.singsurf.jns3.hardware;
 import org.singsurf.jns3.data_link_layer.ARPController;
-import org.singsurf.jns3.data_link_layer.EthernetFrame;
+import org.singsurf.jns3.data_link_layer.FrameDelegator;
 import org.singsurf.jns3.data_link_layer.FrameHandler;
 import org.singsurf.jns3.data_link_layer.FrameReceiver;
 import org.singsurf.jns3.data_link_layer.FrameSender;
 import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.data_link_layer.NICCard;
-import org.singsurf.jns3.generic_protocol.ProtocolDelegator;
 import org.singsurf.jns3.network_layer.EthernetPacketSender;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.PacketReceiver;
@@ -29,26 +28,18 @@ public class PC implements AddressableDevice, Terminal {
 
     ARPController arpController;
 	FrameSender ethernetEndPoint;
-	FReceiver frameReceiver;
+	FrameDelegator frameReceiver;
 	PacketReceiver packetReceiver;
     PacketSender packetSender;
 	ICMPPacketReceiver icmpPacketReceiver;
 	PingController pingController;
     UDPController udpController;
 
-    class FReceiver extends ProtocolDelegator<EthernetFrame> implements FrameReceiver {
-
-		public FReceiver(String name) {
-			super(name);
-		}
-    	
-    }
-    
     public PC(String name, MACAddress macAddress, IPAddress ipAddress) {
         this.name = name;
         this.macAddress = macAddress;
         this.ipAddress = ipAddress;
-        this.frameReceiver = new FReceiver(name);
+        this.frameReceiver = new FrameDelegator(name);
         this.ethernetEndPoint = new NICCard(name, this.frameReceiver);
         this.arpController = new ARPController(this,ethernetEndPoint);
         this.packetSender = new EthernetPacketSender(this, arpController, ethernetEndPoint);
@@ -94,6 +85,10 @@ public class PC implements AddressableDevice, Terminal {
         return (PhysicalEndPoint) ethernetEndPoint;
     }
     
+    public FrameDelegator getFrameDelegator() {
+		return frameReceiver;
+	}
+    
     public void setEndPoint(FrameSender endPoint) {
 		this.ethernetEndPoint = endPoint;
 	}
@@ -102,9 +97,9 @@ public class PC implements AddressableDevice, Terminal {
         return arpController;
     }
 
-	public void clearFrameHandlers() {
-		frameReceiver.clear();		
-	}
+//	public void clearFrameHandlers() {
+//		frameReceiver.clear();		
+//	}
 	
 	public FrameReceiver getFrameReceiver() {
 		return frameReceiver;

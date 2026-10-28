@@ -279,9 +279,9 @@ class TestPacketCombiner {
 	public void a_small_packet_can_be_transmission_over_a_simple_network() {
 		// Arrange
 		PC pc2 = deviceFactory.createPC("Sender PC");
-		pc.clearFrameHandlers();
-		pc.addFrameHandler(pc.getArpController());
-		pc.addFrameHandler(combiner);
+		pc.getFrameDelegator().clear();
+		pc.getFrameDelegator().addHandler(pc.getArpController());
+		pc.getFrameDelegator().addHandler(combiner);
 		var connection = new SimpleConnection(pc.getEndPoint(), pc2.getEndPoint());
 		assertNotNull(connection);
 		pc.sendGARPRequest();
@@ -304,9 +304,9 @@ class TestPacketCombiner {
 	public void a_large_packet_can_be_transmission_over_a_simple_network() {
 		// Arrange
 		PC pc2 = deviceFactory.createPC("Sender PC");
-		pc.clearFrameHandlers(); // Need set our own frame handlers to protect against later changes.
-		pc.addFrameHandler(pc.getArpController());
-		pc.addFrameHandler(combiner);
+		pc.getFrameDelegator().clear(); // Need set our own frame handlers to protect against later changes.
+		pc.getFrameDelegator().addHandler(pc.getArpController());
+		pc.getFrameDelegator().addHandler(combiner);
 		var connection = new SimpleConnection(pc.getEndPoint(), pc2.getEndPoint());
 		assertNotNull(connection);
 		pc.sendGARPRequest();

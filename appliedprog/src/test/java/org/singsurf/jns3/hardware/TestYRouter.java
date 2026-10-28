@@ -130,9 +130,9 @@ class TestYRouter {
 		PC pc = deviceFactory.createPC("Receiver PC");
 		var receiver = new DefaultPacketReceiver(pc.getName());
 		var combiner = new IPFragmentHandler(pc,receiver);
-		pc.clearFrameHandlers(); // Need set our own frame handlers to protect against later changes.
-		pc.addFrameHandler(pc.getArpController());
-		pc.addFrameHandler(combiner);
+		pc.getFrameDelegator().clear(); // Need set our own frame handlers to protect against later changes.
+		pc.getFrameDelegator().addHandler(pc.getArpController());
+		pc.getFrameDelegator().addHandler(combiner);
 
 		
 		PC pc2 = deviceFactory.createPC("Sender PC");
