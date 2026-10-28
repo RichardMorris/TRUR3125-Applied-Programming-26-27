@@ -47,6 +47,6 @@ public class TestARPMessage {
         expectedBytes[27] = 1;
         
         
-        assertArrayEquals(expectedBytes, garRequest.toBytes());
+        assertArrayEquals(expectedBytes, garRequest.getBytes());
     }
 }

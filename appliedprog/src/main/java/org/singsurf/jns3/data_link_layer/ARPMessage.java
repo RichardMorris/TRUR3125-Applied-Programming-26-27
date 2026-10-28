@@ -1,5 +1,6 @@
 package org.singsurf.jns3.data_link_layer;
 
+import org.singsurf.jns3.generic_protocol.ProtocolContainer;
 import org.singsurf.jns3.network_layer.IPAddress;
 
 /**
@@ -21,7 +22,7 @@ import org.singsurf.jns3.network_layer.IPAddress;
  * 
  * See <a href="../../../../../../Week5.md">Week 5</a> for details on the ARP message format.
  */
-public class ARPMessage {
+public class ARPMessage implements ProtocolContainer {
     private boolean isRequest;
     private MACAddress senderMac;
     private MACAddress targetMac;
@@ -61,7 +62,7 @@ public class ARPMessage {
         return targetIp;
     }
 
-    byte[] toBytes() {
+    public byte[] getBytes() {
         byte[] res = new byte[28];
         res[0] = 0x00; // Hardware type: Ethernet
         res[1] = 0x01;
@@ -117,4 +118,14 @@ public class ARPMessage {
     static ARPMessage createGarpRequest(MACAddress senderMac,  IPAddress senderIp) {
         return new ARPMessage(true, senderMac, senderIp, zeroMac, senderIp);
     }
+
+	@Override
+	public byte[] getContents() {
+		return new byte[0];
+	}
+//
+	@Override
+	public boolean isValid() {
+		return true;
+	}
 }
