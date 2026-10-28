@@ -6,7 +6,7 @@ import java.util.List;
  * An adapter on the lower side of a protocols handling code.
  * @param <A> data carrier for the lower level protocol.
  */
-public interface LowerAdapter<A extends ProtocolType> {
+public interface LowerAdapter<A extends ProtocolContainer> {
 
 	/**
 	 * Provides all the handlers used by the lower level's 

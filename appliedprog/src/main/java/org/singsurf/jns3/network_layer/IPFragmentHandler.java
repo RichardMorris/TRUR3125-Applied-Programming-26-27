@@ -114,7 +114,7 @@ public class IPFragmentHandler implements FrameHandler {
 			byte[] data = new byte[totalLength];
 			int pos = 0;
 			for(var frag : fragments.values()) {
-				System.arraycopy(frag.getData(), 0, data, pos, frag.getDataLength());
+				System.arraycopy(frag.getContents(), 0, data, pos, frag.getDataLength());
 				pos += frag.getDataLength();
 			}
 			return data;
@@ -124,7 +124,7 @@ public class IPFragmentHandler implements FrameHandler {
 
 	@Override
 	public boolean handleFrame(EthernetFrame frame) {
-		var payload = frame.getPayload();
+		var payload = frame.getContents();
 		if(payload.length == 0) {
 			return false;
 		}
@@ -147,7 +147,7 @@ public class IPFragmentHandler implements FrameHandler {
 	}
 
 	protected boolean handlePacket(IPPacket packet) {
-		if(!packet.isValidChecksum()) {
+		if(!packet.isValid()) {
 			Jns3Logger.log(pc.getName(),Jns3Logger.LogLevel.ERROR, "Invalid IP packet checksum");
 			return true;
 		}

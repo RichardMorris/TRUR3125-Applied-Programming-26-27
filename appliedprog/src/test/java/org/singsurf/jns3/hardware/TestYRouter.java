@@ -193,7 +193,7 @@ class TestYRouter {
         assertEquals(pc2.getIPAddress(), receivedPacket.getSourceAddress());
         assertEquals(pc.getIPAddress(), receivedPacket.getDestinationAddress());
         assertEquals(IPPacket.TCP, receivedPacket.getProtocol());
-        assertArrayEquals(packet.getData(), receivedPacket.getData());
+        assertArrayEquals(packet.getContents(), receivedPacket.getContents());
         System.out.println(receivedPacket.getDataAsString());
         assertTrue(Jns3Logger.isErrorFree());
 

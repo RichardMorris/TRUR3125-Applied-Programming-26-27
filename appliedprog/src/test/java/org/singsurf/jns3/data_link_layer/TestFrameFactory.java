@@ -46,8 +46,8 @@ public class TestFrameFactory {
         assertEquals(destination, frame.getDestination());
         assertEquals(source, frame.getSource());
         assertEquals((short) message.length(), frame.getEtherType());
-        assertArrayEquals(message.getBytes(), frame.getPayload());
-        assertEquals(message, new String(frame.getPayload()));
+        assertArrayEquals(message.getBytes(), frame.getContents());
+        assertEquals(message, new String(frame.getContents()));
     }
 
     @Test
@@ -59,8 +59,8 @@ public class TestFrameFactory {
         assertEquals(destination, frame.getDestination());
         assertEquals(source, frame.getSource());
         assertEquals(6, frame.getEtherType());
-        assertArrayEquals(message.getBytes(), frame.getPayload());
-        assertEquals(message, new String(frame.getPayload()));
+        assertArrayEquals(message.getBytes(), frame.getContents());
+        assertEquals(message, new String(frame.getContents()));
     }
 
     @Test
@@ -80,15 +80,15 @@ public class TestFrameFactory {
         assertEquals(destination, frame1.getDestination());
         assertEquals(source, frame1.getSource());
         assertEquals((short) 1500, frame1.getEtherType());
-        assertArrayEquals(message.substring(0, 1500).getBytes(), frame1.getPayload());
+        assertArrayEquals(message.substring(0, 1500).getBytes(), frame1.getContents());
 
         assertEquals(destination, frame2.getDestination());
         assertEquals(source, frame2.getSource());
         assertEquals((short) (message.length() - 1500), frame2.getEtherType());
-        assertArrayEquals(message.substring(1500).getBytes(), frame2.getPayload());
+        assertArrayEquals(message.substring(1500).getBytes(), frame2.getContents());
 		StringBuilder sb1 = new StringBuilder();
 		for (EthernetFrame frame : frames) {
-		    sb1.append(new String(frame.getPayload()));
+		    sb1.append(new String(frame.getContents()));
 		}
         String res = sb1.toString();
         assertEquals(message, res);

@@ -36,7 +36,7 @@ public class PacketFragmentor {
         }
         ++identificationCounter;
         int offset = 0;
-        int packetDataLength = packet.getData().length;
+        int packetDataLength = packet.getContents().length;
         while(packetDataLength - 8 * offset > dataSize) { 
             IPPacket fragment = packet.createFragment(offset, dataSize, true,identificationCounter);
             fragments.add(fragment);

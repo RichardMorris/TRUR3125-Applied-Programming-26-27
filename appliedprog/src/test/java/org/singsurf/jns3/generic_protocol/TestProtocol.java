@@ -15,7 +15,7 @@ class TestProtocol {
 	// foo
 	
 	
-	static class TypeA implements ProtocolType {
+	static class TypeA implements ProtocolContainer {
 		String message;
 		
 		public TypeA(String message) {
@@ -41,7 +41,7 @@ class TestProtocol {
 	}
 
 	
-	static class TypeB implements ProtocolType {
+	static class TypeB implements ProtocolContainer {
 		String message;
 		
 		public TypeB(String message) {
@@ -66,7 +66,7 @@ class TestProtocol {
 	}
 	
 	
-	static class TypeC implements ProtocolType {
+	static class TypeC implements ProtocolContainer {
 		String message;
 		
 		public TypeC(String message) {
@@ -91,7 +91,7 @@ class TestProtocol {
 	}
 
 
-	static class TypeD implements ProtocolType {
+	static class TypeD implements ProtocolContainer {
 		String message;
 		
 		public TypeD(String message) {

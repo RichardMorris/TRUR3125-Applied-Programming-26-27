@@ -90,7 +90,7 @@ public class ARPMessage {
 	}
     
     static ARPMessage fromFrame(EthernetFrame frame) {
-        byte[] data = frame.getPayload();
+        byte[] data = frame.getContents();
         boolean isRequest = data[6] == 0x00 && data[7] == 0x01;
         byte[] senderMacBytes = new byte[6];
         System.arraycopy(data, 8, senderMacBytes, 0, 6);

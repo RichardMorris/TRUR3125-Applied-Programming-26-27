@@ -24,7 +24,7 @@ class TestPacketFragmentor {
         var fragments = fragmentor.getFragments(packet);
         assertEquals(1, fragments.size());
         assertEquals(packet, fragments.get(0));
-        assertTrue(fragments.get(0).isValidChecksum());
+        assertTrue(fragments.get(0).isValid());
         assertFalse(fragments.get(0).isMoreFragments());
         assertTrue(fragments.get(0).getTotalLength() <= 100);
 	}
@@ -54,14 +54,14 @@ class TestPacketFragmentor {
         assertEquals(frag2.getDestinationAddress(), packet.getDestinationAddress());
         assertEquals(1, frag1.getIdentification());
         assertEquals(1, frag2.getIdentification());
-        assertTrue(frag1.isValidChecksum());
-        assertTrue(frag2.isValidChecksum());
+        assertTrue(frag1.isValid());
+        assertTrue(frag2.isValid());
         assertEquals(frag1.getProtocol(), packet.getProtocol());
         assertEquals(frag2.getProtocol(), packet.getProtocol());
         
-        byte [] combinedData = new byte[frag1.getData().length + frag2.getData().length];
-        System.arraycopy(frag1.getData(), 0, combinedData, 0, frag1.getData().length);
-        System.arraycopy(frag2.getData(), 0, combinedData, frag1.getData().length, frag2.getData().length);	
+        byte [] combinedData = new byte[frag1.getContents().length + frag2.getContents().length];
+        System.arraycopy(frag1.getContents(), 0, combinedData, 0, frag1.getContents().length);
+        System.arraycopy(frag2.getContents(), 0, combinedData, frag1.getContents().length, frag2.getContents().length);	
         assertArrayEquals(packet.data, combinedData);
 	}
 
@@ -96,16 +96,16 @@ class TestPacketFragmentor {
         assertEquals(1, frag1.getIdentification());
         assertEquals(1, frag2.getIdentification());
         assertEquals(1, frag3.getIdentification());
-        assertTrue(frag1.isValidChecksum());
-        assertTrue(frag2.isValidChecksum());
-        assertTrue(frag3.isValidChecksum());
+        assertTrue(frag1.isValid());
+        assertTrue(frag2.isValid());
+        assertTrue(frag3.isValid());
         
         byte [] combinedData = new byte[frag1.getDataLength() + frag2.getDataLength() + frag3.getDataLength()];
-        System.arraycopy(frag1.getData(), 0, combinedData, 0, frag1.getData().length);
-        System.arraycopy(frag2.getData(), 0, combinedData, 
-        		frag1.getData().length, frag2.getData().length);	
-        System.arraycopy(frag3.getData(), 0, combinedData, 
-        		frag1.getData().length + frag2.getData().length, frag3.getData().length);
+        System.arraycopy(frag1.getContents(), 0, combinedData, 0, frag1.getContents().length);
+        System.arraycopy(frag2.getContents(), 0, combinedData, 
+        		frag1.getContents().length, frag2.getContents().length);	
+        System.arraycopy(frag3.getContents(), 0, combinedData, 
+        		frag1.getContents().length + frag2.getContents().length, frag3.getContents().length);
         assertArrayEquals(packet.data, combinedData);
 	}
 

@@ -2,6 +2,8 @@ package org.singsurf.jns3.network_layer.icmp;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,8 +24,21 @@ class TestICMPPackage {
 		assertEquals((byte) 0x09, msg.getCode());
 		assertEquals(0x12345678, msg.getRestOfHeader());
 		assertEquals(OnesComplementNumber.MINUS_ZERO, msg.calculateChecksum());
+		assertTrue(msg.isValid());
 	}
-	
+
+	@Test
+	void can_detect_a_broken_icmp_message() {
+		var msg = new ICMPMessage((byte) 0x08, (byte) 0x09, 0x12345678);
+		assertEquals((byte) 0x08, msg.getType());
+		assertEquals((byte) 0x09, msg.getCode());
+		assertEquals(0x12345678, msg.getRestOfHeader());
+		assertEquals(OnesComplementNumber.MINUS_ZERO, msg.calculateChecksum());
+		assertTrue(msg.isValid());
+		++msg.restOfHeader;
+		assertFalse(msg.isValid());
+	}
+
 	@Test
 	void can_create_a_ping_request() {
 		var msg = ICMPMessage.createPingRequest((short) 0x1234, (short) 0x5678);
@@ -32,6 +47,7 @@ class TestICMPPackage {
 		assertEquals(0x1234, msg.getIdentifier());
 		assertEquals(0x5678, msg.getSequenceNumber());
 		assertEquals(OnesComplementNumber.MINUS_ZERO, msg.calculateChecksum());
+		assertTrue(msg.isValid());
 	}
 
 	@Test
@@ -42,6 +58,7 @@ class TestICMPPackage {
 		assertEquals(0x5678, msg.getIdentifier());
 		assertEquals(0x1234, msg.getSequenceNumber());
 		assertEquals(OnesComplementNumber.MINUS_ZERO, msg.calculateChecksum());
+		assertTrue(msg.isValid());
 	}
 
 	@Test
@@ -53,6 +70,7 @@ class TestICMPPackage {
 		assertEquals((byte) 0x00, msg.getCode());
 		assertEquals(0x12345678, msg.getRestOfHeader());
 		assertEquals(OnesComplementNumber.MINUS_ZERO, msg.calculateChecksum());
+		assertTrue(msg.isValid());
 	}
 
 	@Test
@@ -68,6 +86,7 @@ class TestICMPPackage {
 		assertEquals((byte) 0, msg.getCode());
 //		assertEquals(0x12345678, msg.getRestOfHeader());
 		assertEquals(OnesComplementNumber.MINUS_ZERO, msg.calculateChecksum());
+		assertTrue(msg.isValid());
 	}
 
 	@Test
@@ -82,6 +101,7 @@ class TestICMPPackage {
 		assertEquals((byte) 2, msg.getCode());
 //		assertEquals(0x12345678, msg.getRestOfHeader());
 		assertEquals(OnesComplementNumber.MINUS_ZERO, msg.calculateChecksum());
+		assertTrue(msg.isValid());
 	}
 
 	@Test
@@ -102,9 +122,11 @@ class TestICMPPackage {
 		assertEquals((byte) 0x08, reply.getType());
 		assertEquals((byte) 0x09, reply.getCode());
 		assertEquals(0xFEDCBA98, reply.getRestOfHeader());
-		var replyData = reply.getData();
+		var replyData = reply.getContents();
 		assertArrayEquals(data, replyData);
 		assertEquals(OnesComplementNumber.MINUS_ZERO, reply.calculateChecksum());
+		assertTrue(reply.isValid());
 	}
+
 
 }

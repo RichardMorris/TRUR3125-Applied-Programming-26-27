@@ -26,7 +26,7 @@ class TestProtocolsComponents {
 	ALoggingSender loggingSenderA = new ALoggingSender();
 	
 	
-	static class ProtocolA implements ProtocolType {
+	static class ProtocolA implements ProtocolContainer {
 		String message;
 		
 		public ProtocolA(String message) {
@@ -52,7 +52,7 @@ class TestProtocolsComponents {
 	}
 
 	
-	static class ProtocolB implements ProtocolType {
+	static class ProtocolB implements ProtocolContainer {
 		String message;
 		
 		public ProtocolB(String message) {
@@ -77,7 +77,7 @@ class TestProtocolsComponents {
 	}
 	
 	
-	static class ProtocolC implements ProtocolType {
+	static class ProtocolC implements ProtocolContainer {
 		String message;
 		
 		public ProtocolC(String message) {

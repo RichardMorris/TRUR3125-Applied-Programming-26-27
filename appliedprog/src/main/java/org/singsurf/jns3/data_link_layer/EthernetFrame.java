@@ -3,6 +3,8 @@ package org.singsurf.jns3.data_link_layer;
 import java.util.Arrays;
 import java.util.zip.CRC32;
 
+import org.singsurf.jns3.generic_protocol.ProtocolContainer;
+
 /**
  * Represents an Ethernet frame:
  * <ul>
@@ -15,7 +17,7 @@ import java.util.zip.CRC32;
  * See <a href="../../../../../../Week4.md">Week 4</a> for details on the Ethernet frame format.
  */
 
-public class EthernetFrame {
+public class EthernetFrame implements ProtocolContainer {
     MACAddress destination;
     MACAddress source;
     short etherType;
@@ -87,10 +89,12 @@ public class EthernetFrame {
         return etherType;
     }
 
-    public byte[] getPayload() {
+	@Override
+    public byte[] getContents() {
         return payload;
     }
 
+	@Override
     public byte[] getBytes() {
         byte[] frame = new byte[14 + payload.length + 4]; // 14 bytes for header, 4 bytes for CRC
         System.arraycopy(destination.getBytes(), 0, frame, 0, 6);
@@ -121,7 +125,7 @@ public class EthernetFrame {
     public long getFrameCheck() {
         return frameCheck;
     }
-    public boolean isValidFrameCheck() {
+    public boolean isValid() {
 		return frameCheck == calcFrameCheck();
 	}
     
@@ -163,5 +167,6 @@ public class EthernetFrame {
                 source.equals(that.source) &&
                 Arrays.equals(payload, that.payload);
     }
+
 
 }

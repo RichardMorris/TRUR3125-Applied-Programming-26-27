@@ -7,7 +7,7 @@ package org.singsurf.jns3.generic_protocol;
  * @param <T> data carrier for this protocol.
  */
 
-public interface UpperPort<T extends ProtocolType> {
+public interface UpperPort<T extends ProtocolContainer> {
 	/**
 	 * Register a {@link LowerAdapter}
 	 * @param adapter

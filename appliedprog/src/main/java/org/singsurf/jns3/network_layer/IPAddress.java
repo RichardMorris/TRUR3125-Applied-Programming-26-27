@@ -8,6 +8,7 @@ import org.singsurf.jns3.AbstractAddress;
  * A 4 byte IP address like 138.253.39.2 
  */
 public class IPAddress extends AbstractAddress {
+	public static final IPAddress ZERO_ADDRESS = new IPAddress(new byte[] {0, 0, 0, 0});
     public IPAddress(byte[] bytes) {
         super(4, bytes);
     }

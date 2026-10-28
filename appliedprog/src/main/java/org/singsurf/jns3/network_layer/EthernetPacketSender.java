@@ -86,7 +86,7 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 		List<IPPacket> packets = packetFragmentor.getFragments(packet);
 		for(IPPacket p : packets) {
 			EthernetFrame frame = frameFactory.createEthernetFrame(
-					destMac, sourceMac, p.toBytes());
+					destMac, sourceMac, p.getBytes());
 			frameSender.sendFrame(frame);
 		}
 	}

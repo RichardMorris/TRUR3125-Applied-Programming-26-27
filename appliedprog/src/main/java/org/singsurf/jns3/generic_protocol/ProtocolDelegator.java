@@ -15,7 +15,7 @@ import org.singsurf.jns3.generic_protocol.ProtocolHandler.Invalid;
  * 
  * @param <T> container type for this protocol
  */
-public class ProtocolDelegator<T extends ProtocolType> implements ProtocolReceiver<T> {
+public class ProtocolDelegator<T extends ProtocolContainer> implements ProtocolReceiver<T> {
 	String name;
 	List<ProtocolHandler<T>> handlers = new ArrayList<>();
 	

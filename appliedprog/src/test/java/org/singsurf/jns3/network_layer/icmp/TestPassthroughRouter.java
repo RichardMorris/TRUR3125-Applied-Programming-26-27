@@ -227,7 +227,7 @@ class TestPassthroughRouter {
 		var packet = pc1.createIPPacket(IPPacket.TCP,pc2.getIPAddress(), 
 				new byte[] {1,2,3,4,5,6,7,8,9,10});
 		packet.setTimeToLive(1);
-		assertTrue(packet.isValidChecksum());
+		assertTrue(packet.isValid());
 		pc1.sendPacket(packet);
 
 		assertEquals(0, Jns3Logger.size());

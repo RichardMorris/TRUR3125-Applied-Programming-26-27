@@ -45,7 +45,7 @@ public class PassthroughRouter extends MultiPortDevice implements AddressableDev
 		@Override
 		public void sendPacket(IPPacket packet) {
 			var frame = frameFactory.createEthernetFrame(
-					macAddress,destMac, packet.toBytes());
+					macAddress,destMac, packet.getBytes());
 			sendFrame(frame);
 		}
 		
@@ -67,7 +67,7 @@ public class PassthroughRouter extends MultiPortDevice implements AddressableDev
 
 	@Override
 	public void receiveFrame(int portNumber, EthernetFrame frame) {
-		if(!frame.isValidFrameCheck()) {
+		if(!frame.isValid()) {
 			Jns3Logger.logError(name, "Invalid frame check for frame "+frame);
 			return;
 		}
@@ -77,13 +77,13 @@ public class PassthroughRouter extends MultiPortDevice implements AddressableDev
 			arpController.handleFrame(frame);
 			return;
 		}
-		var payload = frame.getPayload();
+		var payload = frame.getContents();
 		if(!IPPacket.isIPPacket(payload)) {
 			Jns3Logger.logError(name, "Non IP packet dropped "+frame);
 			return;
 		}
 		var packet = IPPacket.fromBytes(payload);
-		if(!packet.isValidChecksum()) {
+		if(!packet.isValid()) {
 			Jns3Logger.logError(name, "Invalid checksum for packet "+packet);
 			return;
 		}
@@ -109,7 +109,7 @@ public class PassthroughRouter extends MultiPortDevice implements AddressableDev
 				ipAddress, packet.getSourceAddress(), 
 				icmp.getBytes());
 			var errorFrame = frameFactory.createEthernetFrame(
-				frame.getSource(),frame.getDestination(), errorPacket.toBytes());
+				frame.getSource(),frame.getDestination(), errorPacket.getBytes());
 			Jns3Logger.logInfo(name, "Parameter problem "+icmp);
 
 			sendFrame(portNumber,errorFrame);
@@ -130,7 +130,7 @@ public class PassthroughRouter extends MultiPortDevice implements AddressableDev
 				ipAddress, packet.getSourceAddress(), 
 				errorMsg.getBytes());
 			var errorFrame = frameFactory.createEthernetFrame(
-				frame.getSource(),frame.getDestination(), errorPacket.toBytes());
+				frame.getSource(),frame.getDestination(), errorPacket.getBytes());
 			Jns3Logger.logInfo(name, "Expired ping "+icmp);
 
 			sendFrame(portNumber,errorFrame);

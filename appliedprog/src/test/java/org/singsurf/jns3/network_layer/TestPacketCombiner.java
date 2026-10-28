@@ -44,7 +44,7 @@ class TestPacketCombiner {
         assertEquals(packet.getSourceAddress(), receivedPacket.getSourceAddress());
         assertEquals(packet.getDestinationAddress(), receivedPacket.getDestinationAddress());
         assertEquals(packet.getProtocol(), receivedPacket.getProtocol());
-        assertArrayEquals(packet.getData(), receivedPacket.getData());
+        assertArrayEquals(packet.getContents(), receivedPacket.getContents());
         assertTrue(Jns3Logger.isErrorFree());
 	}
 
@@ -70,7 +70,7 @@ class TestPacketCombiner {
         assertEquals(packet.getSourceAddress(), receivedPacket.getSourceAddress());
         assertEquals(packet.getDestinationAddress(), receivedPacket.getDestinationAddress());
         assertEquals(packet.getProtocol(), receivedPacket.getProtocol());
-        assertArrayEquals(packet.getData(), receivedPacket.getData());
+        assertArrayEquals(packet.getContents(), receivedPacket.getContents());
         assertTrue(Jns3Logger.isErrorFree());
 	}
 
@@ -95,7 +95,7 @@ class TestPacketCombiner {
         assertEquals(packet.getSourceAddress(), receivedPacket.getSourceAddress());
         assertEquals(packet.getDestinationAddress(), receivedPacket.getDestinationAddress());
         assertEquals(packet.getProtocol(), receivedPacket.getProtocol());
-        assertArrayEquals(packet.getData(), receivedPacket.getData());
+        assertArrayEquals(packet.getContents(), receivedPacket.getContents());
         assertTrue(Jns3Logger.isErrorFree());
 	}
 
@@ -123,7 +123,7 @@ class TestPacketCombiner {
         assertEquals(packet.getSourceAddress(), receivedPacket.getSourceAddress());
         assertEquals(packet.getDestinationAddress(), receivedPacket.getDestinationAddress());
         assertEquals(packet.getProtocol(), receivedPacket.getProtocol());
-        assertArrayEquals(packet.getData(), receivedPacket.getData());
+        assertArrayEquals(packet.getContents(), receivedPacket.getContents());
         assertTrue(Jns3Logger.isErrorFree());
 
         receiver.clear();
@@ -135,7 +135,7 @@ class TestPacketCombiner {
         assertEquals(packet.getSourceAddress(), receivedPacket.getSourceAddress());
         assertEquals(packet.getDestinationAddress(), receivedPacket.getDestinationAddress());
         assertEquals(packet.getProtocol(), receivedPacket.getProtocol());
-        assertArrayEquals(packet.getData(), receivedPacket.getData());
+        assertArrayEquals(packet.getContents(), receivedPacket.getContents());
         assertTrue(Jns3Logger.isErrorFree());
 
         receiver.clear();
@@ -147,7 +147,7 @@ class TestPacketCombiner {
         assertEquals(packet.getSourceAddress(), receivedPacket.getSourceAddress());
         assertEquals(packet.getDestinationAddress(), receivedPacket.getDestinationAddress());
         assertEquals(packet.getProtocol(), receivedPacket.getProtocol());
-        assertArrayEquals(packet.getData(), receivedPacket.getData());
+        assertArrayEquals(packet.getContents(), receivedPacket.getContents());
         assertTrue(Jns3Logger.isErrorFree());
 
         receiver.clear();
@@ -159,7 +159,7 @@ class TestPacketCombiner {
         assertEquals(packet.getSourceAddress(), receivedPacket.getSourceAddress());
         assertEquals(packet.getDestinationAddress(), receivedPacket.getDestinationAddress());
         assertEquals(packet.getProtocol(), receivedPacket.getProtocol());
-        assertArrayEquals(packet.getData(), receivedPacket.getData());
+        assertArrayEquals(packet.getContents(), receivedPacket.getContents());
         assertTrue(Jns3Logger.isErrorFree());
 
         receiver.clear();
@@ -171,7 +171,7 @@ class TestPacketCombiner {
         assertEquals(packet.getSourceAddress(), receivedPacket.getSourceAddress());
         assertEquals(packet.getDestinationAddress(), receivedPacket.getDestinationAddress());
         assertEquals(packet.getProtocol(), receivedPacket.getProtocol());
-        assertArrayEquals(packet.getData(), receivedPacket.getData());
+        assertArrayEquals(packet.getContents(), receivedPacket.getContents());
         assertTrue(Jns3Logger.isErrorFree());
 
         receiver.clear();
@@ -183,7 +183,7 @@ class TestPacketCombiner {
         assertEquals(packet.getSourceAddress(), receivedPacket.getSourceAddress());
         assertEquals(packet.getDestinationAddress(), receivedPacket.getDestinationAddress());
         assertEquals(packet.getProtocol(), receivedPacket.getProtocol());
-        assertArrayEquals(packet.getData(), receivedPacket.getData());
+        assertArrayEquals(packet.getContents(), receivedPacket.getContents());
         assertTrue(Jns3Logger.isErrorFree());
 	}
 	
@@ -220,13 +220,13 @@ class TestPacketCombiner {
         assertEquals(packet2.getSourceAddress(), receivedPacket.getSourceAddress());
         assertEquals(packet2.getDestinationAddress(), receivedPacket.getDestinationAddress());
         assertEquals(packet2.getProtocol(), receivedPacket.getProtocol());
-        assertArrayEquals(packet2.getData(), receivedPacket.getData());
+        assertArrayEquals(packet2.getContents(), receivedPacket.getContents());
         
         receivedPacket = receiver.get(1);
         assertEquals(packet1.getSourceAddress(), receivedPacket.getSourceAddress());
         assertEquals(packet1.getDestinationAddress(), receivedPacket.getDestinationAddress());
         assertEquals(packet1.getProtocol(), receivedPacket.getProtocol());
-        assertArrayEquals(packet1.getData(), receivedPacket.getData());
+        assertArrayEquals(packet1.getContents(), receivedPacket.getContents());
         
         assertTrue(Jns3Logger.isErrorFree());
 	}
@@ -264,13 +264,13 @@ class TestPacketCombiner {
         assertEquals(packet2.getSourceAddress(), receivedPacket.getSourceAddress());
         assertEquals(packet2.getDestinationAddress(), receivedPacket.getDestinationAddress());
         assertEquals(packet2.getProtocol(), receivedPacket.getProtocol());
-        assertArrayEquals(packet2.getData(), receivedPacket.getData());
+        assertArrayEquals(packet2.getContents(), receivedPacket.getContents());
         
         receivedPacket = receiver.get(1);
         assertEquals(packet1.getSourceAddress(), receivedPacket.getSourceAddress());
         assertEquals(packet1.getDestinationAddress(), receivedPacket.getDestinationAddress());
         assertEquals(packet1.getProtocol(), receivedPacket.getProtocol());
-        assertArrayEquals(packet1.getData(), receivedPacket.getData());
+        assertArrayEquals(packet1.getContents(), receivedPacket.getContents());
         
         assertTrue(Jns3Logger.isErrorFree());
 	}
@@ -295,7 +295,7 @@ class TestPacketCombiner {
         assertEquals(pc2.getIPAddress(), receivedPacket.getSourceAddress());
         assertEquals(pc.getIPAddress(), receivedPacket.getDestinationAddress());
         assertEquals(IPPacket.TCP, receivedPacket.getProtocol());
-        assertArrayEquals(packet.getData(), receivedPacket.getData());
+        assertArrayEquals(packet.getContents(), receivedPacket.getContents());
 
 	}
 
@@ -325,7 +325,7 @@ class TestPacketCombiner {
         assertEquals(pc2.getIPAddress(), receivedPacket.getSourceAddress());
         assertEquals(pc.getIPAddress(), receivedPacket.getDestinationAddress());
         assertEquals(IPPacket.TCP, receivedPacket.getProtocol());
-        assertArrayEquals(packet.getData(), receivedPacket.getData());
+        assertArrayEquals(packet.getContents(), receivedPacket.getContents());
         System.out.println(receivedPacket.getDataAsString());
         assertTrue(Jns3Logger.isErrorFree());
 

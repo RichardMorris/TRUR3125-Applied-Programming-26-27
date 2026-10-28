@@ -129,4 +129,23 @@ public class OnesComplementNumber implements Comparable<OnesComplementNumber> {
 			return Short.compare(that.num,num);
 		}
 	}
+
+	public OnesComplementNumber add(byte[] contents) {
+		
+		if(contents.length == 0) {
+			return this;
+		} else if(contents.length == 1) {
+			return add((short) (contents[0] & 0xFF));
+		} else {
+			short sum = 0;
+			for(int i=0; i<contents.length; i+=2) {
+				short word = (short) ((contents[i] & 0xFF) << 8);
+				if(i+1 < contents.length) {
+					word |= (contents[i+1] & 0xFF);
+				}
+				sum += word;
+			}
+			return add(sum);
+		}
+	}
 }

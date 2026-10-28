@@ -30,8 +30,8 @@ public class Switch extends MultiPortDevice {
     @Override
     public void receiveFrame(int portNumber, EthernetFrame frame) {
         var sourceMac = frame.getSource();
-        if(logIPPackets && IPPacket.isIPPacket(frame.getPayload())) {
-        	var packet = IPPacket.fromBytes(frame.getPayload());
+        if(logIPPackets && IPPacket.isIPPacket(frame.getContents())) {
+        	var packet = IPPacket.fromBytes(frame.getContents());
 			if(logIPPackets) {
 				Jns3Logger.logInfo(getName(), ": Received IP packet "+frame+" "+packet);
 			}

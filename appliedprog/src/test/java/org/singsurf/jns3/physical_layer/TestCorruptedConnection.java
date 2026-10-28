@@ -81,7 +81,7 @@ public class TestCorruptedConnection {
         var frame = pc1.createEthernetFrame(
             receiver.getMACAddress(), 
             "Hello PC2 from PC1");
-        int payload_len = frame.getPayload().length;
+        int payload_len = frame.getContents().length;
         byte[] bytes = frame.getBytes();
 
         for(int i=0;i<6;++i) {
@@ -102,7 +102,7 @@ public class TestCorruptedConnection {
         for(int i=14; i<14+payload_len; ++i) {
             var frame0 = EthernetFrame.parseBytes(cc.corrupt(bytes,i));
             assertNotEquals(frame, frame0);
-            assertNotEquals(frame.getPayload()[i-14], frame0.getPayload()[i-14]);
+            assertNotEquals(frame.getContents()[i-14], frame0.getContents()[i-14]);
             assertNotEquals(frame.getPayloadAsString(), frame0.getPayloadAsString());
         }
         for(int i=14+payload_len; i<14+payload_len+4; ++i) {
@@ -119,7 +119,7 @@ public class TestCorruptedConnection {
             "Hello PC2 from PC1");
         byte[] bytes = frame.getBytes();
 
-        for(int i=0; i<14+frame.getPayload().length+4; ++i) {
+        for(int i=0; i<14+frame.getContents().length+4; ++i) {
             var frame0 = EthernetFrame.parseBytes(cc.corrupt(bytes, i));
             assertNotEquals(frame0.getFrameCheck(), frame0.calcFrameCheck());
         }

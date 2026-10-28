@@ -73,7 +73,7 @@ public class UDPController implements PacketReceiver, NamedDevice {
 			return;
 		}
 		var packet = new IPPacket(IPPacket.UDP, 64,
-				device.getIPAddress(), boundAddress, datagram.toBytes()); 
+				device.getIPAddress(), boundAddress, datagram.getBytes()); 
 		packetSender.sendPacket(packet);		  
 	}
 

@@ -5,7 +5,7 @@ package org.singsurf.jns3.generic_protocol;
  * @param <L> Lower level protocol datatype
  * @param <H> Higher level protocol data type
  */
-public interface ProtocolConverter<L extends ProtocolType, H extends ProtocolType> {
+public interface ProtocolConverter<L extends ProtocolContainer, H extends ProtocolContainer> {
 
 	/**
 	 * Extract the higher level type from the lower level type.

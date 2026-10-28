@@ -2,6 +2,8 @@ package org.singsurf.jns3.network_layer;
 
 import java.util.Arrays;
 
+import org.singsurf.jns3.generic_protocol.ProtocolContainer;
+
 /**
  * Represents an IP packet with header and data.
  * <p>
@@ -25,7 +27,7 @@ import java.util.Arrays;
  * </ul>
  * 
  */
-public class IPPacket {
+public class IPPacket implements ProtocolContainer {
     public static final byte IMCP = 0x01;
     public static final byte TCP = 0x06;
     public static final byte UDP = 0x11;
@@ -166,7 +168,7 @@ public class IPPacket {
         return destinationAddress;
     }
     
-    public byte[] getData() {
+    public byte[] getContents() {
         return data.clone();
     }
 
@@ -189,11 +191,11 @@ public class IPPacket {
         return sum;
     }
     
-    public boolean isValidChecksum() {
+    public boolean isValid() {
 		return calculateHeaderChecksum().equals(OnesComplementNumber.MINUS_ZERO);
 	}
 
-    public byte[] toBytes() {
+    public byte[] getBytes() {
         byte[] bytes = new byte[totalLength];
         bytes[0] = getVersionAndHeaderLength();
         bytes[1] = typeOfService;
@@ -289,4 +291,5 @@ public class IPPacket {
 		headerChecksum = 0;
 		headerChecksum = this.calculateHeaderChecksum().getComplement().getValue();
 	}
+
 }

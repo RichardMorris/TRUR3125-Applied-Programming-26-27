@@ -3,7 +3,7 @@ package org.singsurf.jns3.generic_protocol;
 /**
  * Type of data for this protocol.
  */
-public interface ProtocolType {
+public interface ProtocolContainer {
 	/**
 	 * Get the full byte representation, including header and data section
 	 * @return an array of bytes matching specification of protocol

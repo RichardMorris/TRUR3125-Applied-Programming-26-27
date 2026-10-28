@@ -17,7 +17,7 @@ public class TestEthernetFrame {
         assertEquals(destination, frame.getDestination());
         assertEquals(source, frame.getSource());
         assertEquals((short) payload.length, frame.getEtherType());
-        assertArrayEquals(payload, frame.getPayload());
+        assertArrayEquals(payload, frame.getContents());
     }
 
     @Test
@@ -34,7 +34,7 @@ public class TestEthernetFrame {
         assertEquals(destination, parsedFrame.getDestination());
         assertEquals(source, parsedFrame.getSource());
         assertEquals((short) payload.length, parsedFrame.getEtherType());
-        assertArrayEquals(payload, parsedFrame.getPayload());
+        assertArrayEquals(payload, parsedFrame.getContents());
         assertEquals(frame, parsedFrame);
     }
 }

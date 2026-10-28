@@ -72,7 +72,7 @@ class TestICMPHandler {
 		byte[] data = new byte[] { (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04,
 				(byte) 0x34, (byte) 0x12, (byte) 0x78, (byte) 0x56 };
 		var packet = new IPPacket(IPPacket.IMCP, 64, senderIP, destinationIP, data);
-		var frame = pc.getFrameFactory().createEthernetFrame(senderMAC,pc.getMACAddress(), packet.toBytes());
+		var frame = pc.getFrameFactory().createEthernetFrame(senderMAC,pc.getMACAddress(), packet.getBytes());
 
 		Jns3Logger.clearLog();
 		pc.receiveFrame(frame);
@@ -82,7 +82,7 @@ class TestICMPHandler {
 		// arrange for a TCP packet to be received and logged by the packetLogger
 		var tcpPacket = new IPPacket(IPPacket.TCP, 64, senderIP, destinationIP, data);
 		var frame2 = pc.getFrameFactory().createEthernetFrame(
-				senderMAC,pc.getMACAddress(), tcpPacket.toBytes());
+				senderMAC,pc.getMACAddress(), tcpPacket.getBytes());
 
 		// act
 		Jns3Logger.clearLog();

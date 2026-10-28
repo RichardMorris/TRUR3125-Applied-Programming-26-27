@@ -7,7 +7,7 @@ package org.singsurf.jns3.generic_protocol;
  * 
  * @param <T> The container type.
  */
-public interface ProtocolHandler<T extends ProtocolType> {
+public interface ProtocolHandler<T extends ProtocolContainer> {
 	/**
 	 * Indicates the container has been handled completely
 	 * and no further processing is needed.

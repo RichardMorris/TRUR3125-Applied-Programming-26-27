@@ -18,10 +18,10 @@ public class DefaultFrameHandler implements FrameHandler {
 
         if(frame.getDestination().equals(device.getMACAddress())) {
             Jns3Logger.log(device.getName(), Jns3Logger.LogLevel.RECEIVED,  
-                new String(frame.getPayload()));
+                new String(frame.getContents()));
         } else {
             Jns3Logger.log(device.getName(), Jns3Logger.LogLevel.IGNORED,  
-                new String(frame.getPayload()));
+                new String(frame.getContents()));
         }
 
         return true;

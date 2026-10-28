@@ -27,11 +27,11 @@ public class TestIPPacket {
         assertEquals((short) 20 + data.length, packet.getTotalLength());
         assertEquals(source, packet.getSourceAddress());
         assertEquals(destination, packet.getDestinationAddress());
-        assertArrayEquals(data, packet.getData());
+        assertArrayEquals(data, packet.getContents());
         assertEquals((short) 0xB9B5, packet.getChecksum());
         short checksum = packet.calculateHeaderChecksum().getValue(); 
         assertEquals((short) 0xFFFF, checksum);
-        assertTrue(packet.isValidChecksum());
+        assertTrue(packet.isValid());
     }
 
     @Test
@@ -52,10 +52,10 @@ public class TestIPPacket {
         assertEquals((short) 20 + data.length, packet.getTotalLength());
         assertEquals(source, packet.getSourceAddress());
         assertEquals(destination, packet.getDestinationAddress());
-        assertArrayEquals(data, packet.getData());
+        assertArrayEquals(data, packet.getContents());
         short checksum = packet.calculateHeaderChecksum().getValue(); 
         assertEquals((short) 0xFFFF, checksum);
-        assertTrue(packet.isValidChecksum());
+        assertTrue(packet.isValid());
     }
 
 
@@ -71,7 +71,7 @@ public class TestIPPacket {
         assertEquals((short) 0xB9B5, headerChecksum);
         short checksum = packet.calculateHeaderChecksum().getValue(); 
         assertEquals((short) 0xFFFF, checksum);
-        assertTrue(packet.isValidChecksum());
+        assertTrue(packet.isValid());
     }
 
     @Test
@@ -82,7 +82,7 @@ public class TestIPPacket {
         IPPacket packet = new IPPacket(IPPacket.TCP, 64,
             source, destination, data);
 
-        byte[] bytes = packet.toBytes();
+        byte[] bytes = packet.getBytes();
 
         IPPacket reconstructed =IPPacket.fromBytes(bytes);
  
@@ -97,8 +97,8 @@ public class TestIPPacket {
         assertEquals(packet.getChecksum(), reconstructed.getChecksum());
         assertEquals(packet.getSourceAddress(), reconstructed.getSourceAddress());
         assertEquals(packet.getDestinationAddress(), reconstructed.getDestinationAddress());
-        assertArrayEquals(packet.getData(), reconstructed.getData());
-        assertTrue(reconstructed.isValidChecksum());
+        assertArrayEquals(packet.getContents(), reconstructed.getContents());
+        assertTrue(reconstructed.isValid());
     }
     
 
@@ -110,11 +110,11 @@ public class TestIPPacket {
         var pc2 = deviceFactory.createPC("PC2");
         pc2.clearFrameHandlers();
         pc2.addFrameHandler((frame) -> {
-			var packet = IPPacket.fromBytes(frame.getPayload());
+			var packet = IPPacket.fromBytes(frame.getContents());
 			assertEquals(packet.getSourceAddress(), pc1.getIPAddress());
 			assertEquals(packet.getDestinationAddress(), pc2.getIPAddress());
-			assertArrayEquals(packet.getData(), new byte[] {1, 2, 3, 4});
-			assertTrue(packet.isValidChecksum());
+			assertArrayEquals(packet.getContents(), new byte[] {1, 2, 3, 4});
+			assertTrue(packet.isValid());
 			Jns3Logger.log(pc2.getName(), Jns3Logger.LogLevel.RECEIVED,"Received packet");
 			return true;
 		});
@@ -126,7 +126,7 @@ public class TestIPPacket {
         IPPacket packet = new IPPacket(IPPacket.TCP, 64,
             pc1.getIPAddress(), pc2.getIPAddress(), data);
         var frame = pc1.createEthernetFrame(pc2.getMACAddress(), 
-        		packet.toBytes());
+        		packet.getBytes());
         pc1.sendFrame(frame);
         assertEquals(Jns3Logger.getLogItems().size(), 1);
         var logItem = Jns3Logger.getLogItems().get(0);
