@@ -11,7 +11,6 @@ import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.network_layer.DefaultPacketReceiver;
-import org.singsurf.jns3.network_layer.IPFragmentHandler;
 import org.singsurf.jns3.network_layer.IPPacket;
 import org.singsurf.jns3.physical_layer.BufferedConnection;
 import org.singsurf.jns3.physical_layer.CountingConnection;
@@ -128,11 +127,19 @@ class TestYRouter {
 		// Arrange
 		
 		PC pc = deviceFactory.createPC("Receiver PC");
-		var receiver = new DefaultPacketReceiver(pc.getName());
-		var combiner = new IPFragmentHandler(pc,receiver);
-		pc.getFrameDelegator().clear(); // Need set our own frame handlers to protect against later changes.
-		pc.getFrameDelegator().addHandler(pc.getArpController());
-		pc.getFrameDelegator().addHandler(combiner);
+		var del = pc.getIPDelegator();
+		DefaultPacketReceiver receiver = null;
+		for(var h : del.getHandlers()) {
+			if(h instanceof DefaultPacketReceiver) {
+				receiver = (DefaultPacketReceiver) h;
+				break;
+			}
+		}
+//		var receiver = new DefaultPacketReceiver(pc.getName());
+//		var combiner = new IPFragmentHandler(pc,receiver);
+//		pc.getFrameDelegator().clear(); // Need set our own frame handlers to protect against later changes.
+//		pc.getFrameDelegator().addHandler(pc.getArpController());
+//		pc.getFrameDelegator().addHandler(combiner);
 
 		
 		PC pc2 = deviceFactory.createPC("Sender PC");

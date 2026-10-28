@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.singsurf.jns3.Jns3Logger;
+import org.singsurf.jns3.generic_protocol.ProtocolDelegator;
 import org.singsurf.jns3.hardware.DeviceFactory;
 import org.singsurf.jns3.hardware.PC;
 import org.singsurf.jns3.physical_layer.SimpleConnection;
@@ -18,14 +19,17 @@ class TestPacketCombiner {
 	PC pc;
 	IPFragmentHandler combiner;
 
+	ProtocolDelegator<IPPacket> delegator;
 	private DefaultPacketReceiver receiver;
 	DeviceFactory deviceFactory = new DeviceFactory();
 
 	@BeforeEach
 	void setUp() throws Exception {
 		pc = deviceFactory.createPC("TestPC");
+		delegator = new IPDelegator(pc.getName());
+		combiner = new IPFragmentHandler(pc,delegator);
 		receiver = new DefaultPacketReceiver(pc.getName());
-		combiner = new IPFragmentHandler(pc,receiver);
+		delegator.addHandler(receiver);
 	}
 
 	@Test

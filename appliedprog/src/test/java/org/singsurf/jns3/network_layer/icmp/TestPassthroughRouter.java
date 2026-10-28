@@ -13,8 +13,6 @@ import org.singsurf.jns3.hardware.DeviceFactory;
 import org.singsurf.jns3.hardware.GlobalWallClock;
 import org.singsurf.jns3.hardware.PC;
 import org.singsurf.jns3.hardware.PassthroughRouter;
-import org.singsurf.jns3.network_layer.DefaultPacketReceiver;
-import org.singsurf.jns3.network_layer.IPFragmentHandler;
 import org.singsurf.jns3.network_layer.IPPacket;
 import org.singsurf.jns3.physical_layer.BufferedConnection;
 import org.singsurf.jns3.physical_layer.SimpleConnection;
@@ -31,30 +29,19 @@ class TestPassthroughRouter {
 		pc1 = deviceFactory.createPC("PC1");
 		pc2 = deviceFactory.createPC("PC2");
 		
-		var packetLogger1 = new DefaultPacketReceiver("PacketLogger1");
-		var icmpHandler1 = new ICMPPacketReceiver(pc1.getName(), packetLogger1);
-		pc1.setPacketReceiver(icmpHandler1);
-		
-		pingcont = PingController.newInstance(pc1);
-		icmpHandler1.addHandler(pingcont);
-		icmpHandler1.addHandler(new ICMPMessageLogger("ICMPLogger1"));
-		
-		var combiner1 = new IPFragmentHandler(pc1,pc1.getPacketReceiver());
-		pc1.getFrameDelegator().clear();
-		pc1.getFrameDelegator().addHandler(pc1.getArpController());
-		pc1.getFrameDelegator().addHandler(combiner1);
-
-		var packetLogger2 = new DefaultPacketReceiver("PacketLogger2");
-		var icmpHandler2 = new ICMPPacketReceiver(pc2.getName(), packetLogger2);
-		pc2.setPacketReceiver(icmpHandler2);
-
-		var pingreq = new PingRequestHandler(pc2, pc2.getPacketSender());
-		icmpHandler2.addHandler(pingreq);
-		
-		var combiner2 = new IPFragmentHandler(pc2,pc2.getPacketReceiver());
-		pc2.getFrameDelegator().clear();
-		pc2.getFrameDelegator().addHandler(pc2.getArpController());
-		pc2.getFrameDelegator().addHandler(combiner2);
+		ICMPPacketReceiver icmpHandler1 = null;
+		for(var h : pc1.getIPDelegator().getHandlers()) {
+			if(h instanceof ICMPPacketReceiver h2) {
+				icmpHandler1 = h2;
+				break;
+			}
+		}
+		for(var h : icmpHandler1.getHandlers()) {
+			if(h instanceof PingController h2) {
+				pingcont = h2;
+				break;
+			}
+		}
 
 		var routerIP = deviceFactory.createLocalIPAddress();
 		router = new PassthroughRouter("Router1", routerIP);
@@ -210,7 +197,7 @@ class TestPassthroughRouter {
 		GlobalWallClock.advanceBy(1);
 		assertEquals(1, Jns3Logger.size());
 		var item0 = Jns3Logger.getItem(0);
-		assertEquals("PacketLogger2", item0.deviceName());
+		assertEquals("PC2", item0.deviceName());
 		assertEquals(Jns3Logger.LogLevel.RECEIVED, item0.level());
 		assertTrue(item0.message().startsWith("Received packet"));
 	}

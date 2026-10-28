@@ -4,21 +4,21 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.singsurf.jns3.Jns3Logger;
+import org.singsurf.jns3.generic_protocol.HandlerStatus;
 import org.singsurf.jns3.hardware.AddressableDevice;
 import org.singsurf.jns3.hardware.NamedDevice;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPPacket;
-import org.singsurf.jns3.network_layer.PacketReceiver;
+import org.singsurf.jns3.network_layer.PacketHandler;
 import org.singsurf.jns3.network_layer.PacketSender;
 
 /**
  * Controller for incoming/outbound data
  * sent via a {@link DatagramSocket} using the UDP protocol.
  */
-public class UDPController implements PacketReceiver, NamedDevice {
+public class UDPController implements PacketHandler, NamedDevice {
 	String name;
 	AddressableDevice device;
-	PacketReceiver nextReceiver;
 	PacketSender packetSender;
 	Map<IPAddress,Map<Short, SocketBinding>> bindings = new HashMap<>();
 	UDPExtractor udpExtractor = UDPExtractor.getInstance();
@@ -33,19 +33,13 @@ public class UDPController implements PacketReceiver, NamedDevice {
 	 */
 	public record DatagramPacket(IPAddress source, IPAddress dest, UDPDatagram datagram) {}
 
-	public UDPController(AddressableDevice device, PacketSender packetSender,PacketReceiver nextReceiver) {
+	public UDPController(AddressableDevice device, PacketSender packetSender) {
 		this.name = device.getName() + "-UDPController";
 		this.device = device;
-		this.nextReceiver = nextReceiver;
 		this.packetSender = packetSender;
 	}
 
-	@Override
-	public void receive(IPPacket packet) {
-		if(!udpExtractor.isExtractable(packet)) {
-			nextReceiver.receive(packet);
-			return;
-		}
+	private void receive(IPPacket packet) {
 		var datagram = UDPDatagram.fromPacket(packet);
 		var lookupAddress = packet.getDestinationAddress().equals(device.getMulticastAddress()) ? 
 				device.getMulticastAddress() : packet.getSourceAddress();
@@ -94,5 +88,14 @@ public class UDPController implements PacketReceiver, NamedDevice {
 	@Override
 	public String getName() {
 		return name;
+	}
+
+	@Override
+	public HandlerStatus handle(IPPacket packet) {
+		if(!udpExtractor.isExtractable(packet)) {
+			return HandlerStatus.CONTINUE;
+		}
+		receive(packet);
+		return HandlerStatus.COMPLETED;
 	}	
 }

@@ -10,8 +10,6 @@ import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.hardware.DeviceFactory;
 import org.singsurf.jns3.hardware.PC;
-import org.singsurf.jns3.network_layer.DefaultPacketReceiver;
-import org.singsurf.jns3.network_layer.IPFragmentHandler;
 import org.singsurf.jns3.network_layer.IPPacket;
 import org.singsurf.jns3.physical_layer.SimpleConnection;
 
@@ -22,49 +20,8 @@ class TestICMPHandler {
 	}
 
 	@Test
-	void can_log_an_imcp_message() {
-		PC pc = deviceFactory.createPC("PC1");
-
-		var packetLogger = new DefaultPacketReceiver("PacketLogger");
-		var icmpHandler = new ICMPPacketReceiver(pc.getName(), packetLogger);
-
-		icmpHandler.addHandler(new ICMPMessageLogger("ICMPLogger"));
-		
-		byte[] data = new byte[] { (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04,
-				(byte) 0x34, (byte) 0x12, (byte) 0x78, (byte) 0x56 };
-		var senderIP = deviceFactory.createLocalIPAddress();
-		var destinationIP = deviceFactory.createLocalIPAddress();
-
-		var packet = new IPPacket(IPPacket.IMCP, 64, senderIP, destinationIP, data);
-
-		Jns3Logger.clearLog();
-		icmpHandler.receive(packet);
-		assertEquals(1, Jns3Logger.size());
-		assertEquals("ICMPLogger", Jns3Logger.getItem(0).deviceName());
-		
-		var tcpPacket = new IPPacket(IPPacket.TCP, 64, senderIP, destinationIP, data);
-		Jns3Logger.clearLog();
-		icmpHandler.receive(tcpPacket);
-		assertEquals(1, Jns3Logger.size());
-		assertEquals("PacketLogger", Jns3Logger.getItem(0).deviceName());
-		assertTrue(Jns3Logger.isErrorFree());
-	}
-
-	@Test
 	void pc_can_log_an_imcp_message() {
 		PC pc = deviceFactory.createPC("PC1");
-
-		// set packet handlers using chain of responsibility pattern
-		// ICMPPacketReceiver will handle ICMP packets and pass others to packetLogger
-		var packetLogger = new DefaultPacketReceiver("PacketLogger");
-		var icmpHandler = new ICMPPacketReceiver(pc.getName(), packetLogger);
-
-		icmpHandler.addHandler(new ICMPMessageLogger("ICMPLogger"));
-		
-		pc.setPacketReceiver(icmpHandler);
-		var combiner = new IPFragmentHandler(pc,pc.getPacketReceiver());
-		pc.getFrameDelegator().clear();
-		pc.getFrameDelegator().addHandler(combiner);
 		
 		var senderIP = deviceFactory.createLocalIPAddress();
 		var destinationIP = pc.getIPAddress();
@@ -79,7 +36,7 @@ class TestICMPHandler {
 		Jns3Logger.clearLog();
 		pc.getFrameReceiver().receive(frame);
 		assertEquals(1, Jns3Logger.size());
-		assertEquals("ICMPLogger", Jns3Logger.getItem(0).deviceName());
+		assertEquals("ICMPLogger1", Jns3Logger.getItem(0).deviceName());
 		
 		// arrange for a TCP packet to be received and logged by the packetLogger
 		var tcpPacket = new IPPacket(IPPacket.TCP, 64, senderIP, destinationIP, data);
@@ -92,7 +49,7 @@ class TestICMPHandler {
 
 		// assert
 		assertEquals(1, Jns3Logger.size());
-		assertEquals("PacketLogger", Jns3Logger.getItem(0).deviceName());
+		assertEquals("PC1", Jns3Logger.getItem(0).deviceName());
 		assertTrue(Jns3Logger.isErrorFree());
 	}
 	
@@ -100,32 +57,7 @@ class TestICMPHandler {
 	public void can_ping_across_a_simple_network() {
 		PC pc1 = deviceFactory.createPC("PC1");
 		PC pc2 = deviceFactory.createPC("PC2");
-		
-		var packetLogger1 = new DefaultPacketReceiver("PacketLogger1",Jns3Logger.LogLevel.ERROR);
-		var icmpHandler1 = new ICMPPacketReceiver(pc1.getName(), packetLogger1);
-		pc1.setPacketReceiver(icmpHandler1);
-		
-		var pingcont = PingController.newInstance(pc1);
-		icmpHandler1.addHandler(pingcont);
-		icmpHandler1.addHandler(new ICMPMessageLogger("ICMPLogger1"));
-		
-		var combiner1 = new IPFragmentHandler(pc1,pc1.getPacketReceiver());
-		pc1.getFrameDelegator().clear();
-		pc1.getFrameDelegator().addHandler(pc1.getArpController());
-		pc1.getFrameDelegator().addHandler(combiner1);
-
-		var packetLogger2 = new DefaultPacketReceiver("PacketLogger2",Jns3Logger.LogLevel.ERROR);
-		var icmpHandler2 = new ICMPPacketReceiver(pc2.getName(), packetLogger2);
-		pc2.setPacketReceiver(icmpHandler2);
-
-		var pingreq = new PingRequestHandler(pc2, pc2.getPacketSender());
-		icmpHandler2.addHandler(pingreq);
-		
-		var combiner2 = new IPFragmentHandler(pc2,pc2.getPacketReceiver());
-		pc2.getFrameDelegator().clear();
-		pc2.getFrameDelegator().addHandler(pc2.getArpController());
-		pc2.getFrameDelegator().addHandler(combiner2);
-		
+				
 		var connection = new SimpleConnection(pc1.getEndPoint(), pc2.getEndPoint());
 		assertNotNull(connection);
 		
@@ -133,7 +65,7 @@ class TestICMPHandler {
 		// Act
 		Jns3Logger.clearLog();
 		
-		pingcont.sendPingRequest(pc2.getIPAddress(), 64);
+		pc1.ping(pc2.getIPAddress(), 64);
 
 		System.out.println(Jns3Logger.asString());
 		assertEquals(2, Jns3Logger.size());

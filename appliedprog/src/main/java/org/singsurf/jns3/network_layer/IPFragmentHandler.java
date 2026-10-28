@@ -8,6 +8,7 @@ import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.data_link_layer.FrameHandler;
 import org.singsurf.jns3.generic_protocol.HandlerStatus;
+import org.singsurf.jns3.generic_protocol.ProtocolDelegator;
 import org.singsurf.jns3.hardware.PC;
 
 /**
@@ -21,11 +22,11 @@ import org.singsurf.jns3.hardware.PC;
  */
 public class IPFragmentHandler implements FrameHandler {
 	PC pc;
-	PacketReceiver receiver;
+	ProtocolDelegator<IPPacket> receiver;
 	Map<IPAddress, Map<Integer, FragmentCollector>> collectorsBySource = new HashMap<>();
 
 	
-	public IPFragmentHandler(PC pc, PacketReceiver receiver) {
+	public IPFragmentHandler(PC pc, ProtocolDelegator<IPPacket> receiver) {
 		this.pc = pc;
 		this.receiver = receiver;
 	}
@@ -139,7 +140,7 @@ public class IPFragmentHandler implements FrameHandler {
 		return handlePacket(packet);
 	}
 
-	protected boolean handlePacket(IPPacket packet) {
+	boolean handlePacket(IPPacket packet) {
 		if(!packet.isValid()) {
 			Jns3Logger.log(pc.getName(),Jns3Logger.LogLevel.ERROR, "Invalid IP packet checksum");
 			return true;

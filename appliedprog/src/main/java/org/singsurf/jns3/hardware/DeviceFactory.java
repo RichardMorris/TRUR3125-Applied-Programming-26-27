@@ -6,9 +6,12 @@ import java.util.List;
 import org.singsurf.jns3.data_link_layer.DefaultFrameHandler;
 import org.singsurf.jns3.data_link_layer.FrameChecker;
 import org.singsurf.jns3.data_link_layer.MACAddress;
+import org.singsurf.jns3.generic_protocol.ProtocolDelegator;
 import org.singsurf.jns3.network_layer.DefaultPacketReceiver;
 import org.singsurf.jns3.network_layer.IPAddress;
+import org.singsurf.jns3.network_layer.IPDelegator;
 import org.singsurf.jns3.network_layer.IPFragmentHandler;
+import org.singsurf.jns3.network_layer.IPPacket;
 import org.singsurf.jns3.network_layer.icmp.ICMPMessageLogger;
 import org.singsurf.jns3.network_layer.icmp.ICMPPacketReceiver;
 import org.singsurf.jns3.network_layer.icmp.PingController;
@@ -77,21 +80,29 @@ public class DeviceFactory {
         IPAddress ip = createLocalIPAddress();
         var pc = new PC(name, mac, ip);
         // boot logic for the PC
-        pc.setPacketReceiver(new DefaultPacketReceiver(pc.getName()));
+		
+        
 		// Set up ICMP handler and add it to the packet receiver
-        pc.setICMPHandler(new ICMPPacketReceiver(pc.getName(), pc.getPacketReceiver()));
-		pc.setPacketReceiver(pc.getICMPHandler());
+        pc.setICMPHandler(new ICMPPacketReceiver(pc.getName()));
+
 		pc.setPingController(PingController.newInstance(pc));
 		pc.getICMPHandler().addHandler(pc.getPingController());
 		pc.getICMPHandler().addHandler(new PingRequestHandler(pc, pc.getPacketSender()));
 		pc.getICMPHandler().addHandler(new ICMPMessageLogger("ICMPLogger1"));
 		// Set up UDP controller and add it to the packet receiver
-		pc.setUDPController(new UDPController(pc, pc.getPacketSender(), pc.getPacketReceiver()));
-		pc.setPacketReceiver(pc.getUDPController());
+		pc.setUDPController(new UDPController(pc, pc.getPacketSender()));
+
+		ProtocolDelegator<IPPacket> delegator = new IPDelegator(pc.getName());
+        delegator.addHandler(pc.getICMPHandler());
+		delegator.addHandler(pc.getUDPController());
+        delegator.addHandler(new DefaultPacketReceiver(pc.getName()));
+        
+        pc.setIPDelegator(delegator);
+
 		// Add frame handlers to the PC
         pc.addFrameHandler(new FrameChecker(pc));
         pc.addFrameHandler(pc.getArpController());
-        pc.addFrameHandler(new IPFragmentHandler(pc, pc.getPacketReceiver()));
+        pc.addFrameHandler(new IPFragmentHandler(pc, delegator));
         pc.addFrameHandler(new DefaultFrameHandler(pc));
         
 		pc.setMulticastAddress(new IPAddress("192.168.1.255"));

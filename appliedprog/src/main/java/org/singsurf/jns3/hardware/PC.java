@@ -6,8 +6,10 @@ import org.singsurf.jns3.data_link_layer.FrameReceiver;
 import org.singsurf.jns3.data_link_layer.FrameSender;
 import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.data_link_layer.NICCard;
+import org.singsurf.jns3.generic_protocol.ProtocolDelegator;
 import org.singsurf.jns3.network_layer.EthernetPacketSender;
 import org.singsurf.jns3.network_layer.IPAddress;
+import org.singsurf.jns3.network_layer.IPPacket;
 import org.singsurf.jns3.network_layer.PacketReceiver;
 import org.singsurf.jns3.network_layer.PacketSender;
 import org.singsurf.jns3.network_layer.icmp.ICMPPacketReceiver;
@@ -34,6 +36,7 @@ public class PC implements AddressableDevice, Terminal {
 	ICMPPacketReceiver icmpPacketReceiver;
 	PingController pingController;
     UDPController udpController;
+	ProtocolDelegator<IPPacket> delegator;
 
     public PC(String name, MACAddress macAddress, IPAddress ipAddress) {
         this.name = name;
@@ -178,5 +181,13 @@ public class PC implements AddressableDevice, Terminal {
 
 	public void setIPAddress(IPAddress ip) {
 		this.ipAddress = ip;
+	}
+
+	public void setIPDelegator(ProtocolDelegator<IPPacket> delegator) {
+		this.delegator = delegator;
+	}
+	
+	public ProtocolDelegator<IPPacket> getIPDelegator() {
+		return delegator;
 	}
 }

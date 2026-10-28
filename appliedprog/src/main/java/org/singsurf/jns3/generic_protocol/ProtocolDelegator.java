@@ -54,4 +54,8 @@ public class ProtocolDelegator<T extends ProtocolContainer> implements ProtocolR
 	public void clear() {
 		handlers.clear();
 	}
+
+	public List<ProtocolHandler<T>> getHandlers() {
+		return handlers;
+	}
 }
