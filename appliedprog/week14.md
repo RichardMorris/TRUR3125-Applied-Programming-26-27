@@ -111,3 +111,22 @@ Currently we have
 
 5. `PC` exposed some of creation methods used in tests than have been inlined.
 
+6. `FrameFactory` did not add any value, its method have been inlined and the class removed. Its method have been replaced by simple constructors.
+
+    ```java
+    EthernetFrame frame = new EthernetFrame(destMac, sourceMac, p.getBytes());
+    ```
+
+Extractors are still useful.
+
+1. A generic interface `ProtocolExtractor` is defined
+
+    ```java
+    public interface ProtocolExtractor<
+        L extends ProtocolContainer, 
+        H extends ProtocolContainer> {
+            public H extract(L type);
+    }
+    ```
+
+2. `ARPConverter` implements this

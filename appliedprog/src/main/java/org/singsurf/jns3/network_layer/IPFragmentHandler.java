@@ -135,14 +135,7 @@ public class IPFragmentHandler implements FrameHandler {
 			Jns3Logger.log(pc.getName(),Jns3Logger.LogLevel.ERROR, "IP packet too short: " + payload.length);
 			return true;
 		}
-		IPPacket packet;
-		try {
-			packet = IPPacket.fromBytes(payload);
-		}
-		catch(Exception e) {
-			Jns3Logger.log(pc.getName(),Jns3Logger.LogLevel.ERROR, "Error parsing IP packet: " + e.getMessage());
-			return true;
-		}
+		var packet = IPPacketExtractor.getInstance().extract(frame);
 		return handlePacket(packet);
 	}
 

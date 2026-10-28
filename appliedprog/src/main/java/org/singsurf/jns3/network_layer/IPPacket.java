@@ -2,6 +2,7 @@ package org.singsurf.jns3.network_layer;
 
 import java.util.Arrays;
 
+import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.generic_protocol.ProtocolContainer;
 
 /**
@@ -215,16 +216,16 @@ public class IPPacket implements ProtocolContainer {
         return bytes;
     }
     
-    public static boolean isIPPacket(byte[] bytes) {
+    static boolean isIPPacket(byte[] bytes) {
 		if (bytes.length < 20) {
 			return false;
 		}
 		byte versionAndHeaderLength = bytes[0];
-		byte version = (byte) ((versionAndHeaderLength >> 4) & 0x0F);
+		byte version = (byte) (((byte) versionAndHeaderLength >> 4) & 0x0F);
 		return version == 4;
 	}
 
-    public static IPPacket fromBytes(byte[] bytes) {
+    private static IPPacket fromBytes(byte[] bytes) {
         byte versionAndHeaderLength = bytes[0];
         byte typeOfService = bytes[1];
         short totalLength = (short) ((bytes[2] << 8) | (bytes[3] & 0xFF));
@@ -290,6 +291,10 @@ public class IPPacket implements ProtocolContainer {
 	private void recalculateHeaderChecksum() {
 		headerChecksum = 0;
 		headerChecksum = this.calculateHeaderChecksum().getComplement().getValue();
+	}
+
+	static IPPacket fromFrame(EthernetFrame frame) {
+		return IPPacket.fromBytes(frame.getContents());
 	}
 
 }

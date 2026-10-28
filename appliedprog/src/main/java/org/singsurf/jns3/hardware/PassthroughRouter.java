@@ -8,8 +8,10 @@ import org.singsurf.jns3.data_link_layer.FrameSender;
 import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPPacket;
+import org.singsurf.jns3.network_layer.IPPacketExtractor;
 import org.singsurf.jns3.network_layer.PacketSender;
 import org.singsurf.jns3.network_layer.icmp.ICMPMessage;
+import org.singsurf.jns3.network_layer.icmp.ICMPPacketExtractor;
 import org.singsurf.jns3.network_layer.icmp.PingRequestHandler;
 
 /**
@@ -75,12 +77,11 @@ public class PassthroughRouter extends MultiPortDevice implements AddressableDev
 			arpController.handleFrame(frame);
 			return;
 		}
-		var payload = frame.getContents();
-		if(!IPPacket.isIPPacket(payload)) {
+		if(!IPPacketExtractor.getInstance().isExtractable(frame)) {
 			Jns3Logger.logError(name, "Non IP packet dropped "+frame);
 			return;
 		}
-		var packet = IPPacket.fromBytes(payload);
+		var packet = IPPacketExtractor.getInstance().extract(frame);
 		if(!packet.isValid()) {
 			Jns3Logger.logError(name, "Invalid checksum for packet "+packet);
 			return;
@@ -91,16 +92,16 @@ public class PassthroughRouter extends MultiPortDevice implements AddressableDev
 				sendFrame(1 - portNumber, frame);
 				return;
 			}
-			if(!ICMPMessage.isICMPMessage(packet)) {
+			if(!ICMPPacketExtractor.getInstance().isExtractable(packet)) {
 				Jns3Logger.logError(name, "Received non ICMPPacket directed here"+packet);
 				return;
 			}
 		}				
-		if(!ICMPMessage.isICMPMessage(packet)) {
+		if(!ICMPPacketExtractor.getInstance().isExtractable(packet)) {
 			Jns3Logger.logInfo(name, "Dropped packet "+packet.toString());
 			return;
 		}
-		var icmp = ICMPMessage.parsePacket(packet);
+		var icmp = ICMPPacketExtractor.getInstance().extract(packet);
 		if(icmp.isParemeterProblem()) {
 			var errorPacket = new IPPacket(
 				IPPacket.IMCP, 64,

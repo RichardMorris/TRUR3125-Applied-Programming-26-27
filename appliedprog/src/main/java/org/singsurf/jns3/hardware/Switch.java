@@ -7,7 +7,7 @@ import java.util.Set;
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.data_link_layer.MACAddress;
-import org.singsurf.jns3.network_layer.IPPacket;
+import org.singsurf.jns3.network_layer.IPPacketExtractor;
 
 /**
  * A simple layer-2 Switch that forwards Ethernet frames received on one port 
@@ -30,8 +30,9 @@ public class Switch extends MultiPortDevice {
     @Override
     public void receiveFrame(int portNumber, EthernetFrame frame) {
         var sourceMac = frame.getSource();
-        if(logIPPackets && IPPacket.isIPPacket(frame.getContents())) {
-        	var packet = IPPacket.fromBytes(frame.getContents());
+        if(logIPPackets &&
+        		IPPacketExtractor.getInstance().isExtractable(frame)) {
+  			var packet = IPPacketExtractor.getInstance().extract(frame);
 			if(logIPPackets) {
 				Jns3Logger.logInfo(getName(), ": Received IP packet "+frame+" "+packet);
 			}

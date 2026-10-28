@@ -27,7 +27,7 @@ public class ICMPPacketReceiver implements PacketReceiver {
 			return;
 		}
 		// ICMP protocol number is 1
-		ICMPMessage message = ICMPMessage.parsePacket(packet);
+		ICMPMessage message = ICMPPacketExtractor.getInstance().extract(packet);
 		for (ICMPMessageHandler handler : handlers) {
 			if (handler.matches(message)) {
 				handler.handle(packet, message);

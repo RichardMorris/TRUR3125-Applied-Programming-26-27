@@ -105,7 +105,7 @@ public class UDPDatagram implements ProtocolContainer {
 				+ ", checksum=" + checksum + ", contents=" + new String(contents) + "]";
 	}
 
-	public static boolean isUDPDatagram(IPPacket packet) {
+	static boolean isUDPDatagram(IPPacket packet) {
 		byte protocol = packet.getProtocol();
 		return protocol == IPPacket.UDP; // 17 is the protocol number for UDP
 	}

@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
+import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.hardware.DeviceFactory;
 import org.singsurf.jns3.physical_layer.SimpleConnection;
 public class TestIPPacket {
@@ -75,17 +76,20 @@ public class TestIPPacket {
         assertTrue(packet.isValid());
     }
 
+
     @Test
-    public void to_bytes_and_back_again() {
+    public void to_frame_and_back_again() {
         IPAddress source = new IPAddress(new byte[] {127, 0, 0, 1});
         IPAddress destination = new IPAddress(new int[] {192, 168, 0, 1});
         byte[] data = new byte[] {1, 2, 3, 4};
         IPPacket packet = new IPPacket(IPPacket.TCP, 64,
             source, destination, data);
+        var frame = new EthernetFrame(new MACAddress(new byte[] {0, 1, 2, 3, 4, 5}),
+				new MACAddress(new byte[] {5, 4, 3, 2, 1, 0}),
+				packet.getBytes());
 
-        byte[] bytes = packet.getBytes();
-
-        IPPacket reconstructed =IPPacket.fromBytes(bytes);
+        IPPacket reconstructed =
+        		IPPacketExtractor.getInstance().extract(frame);
  
         assertEquals(packet.getVersion(), reconstructed.getVersion());
         assertEquals(packet.getHeaderLength(), reconstructed.getHeaderLength());
@@ -101,7 +105,7 @@ public class TestIPPacket {
         assertArrayEquals(packet.getContents(), reconstructed.getContents());
         assertTrue(reconstructed.isValid());
     }
-    
+
 
     @Test
     public void transmit_single_packet() {
@@ -111,7 +115,7 @@ public class TestIPPacket {
         var pc2 = deviceFactory.createPC("PC2");
         pc2.clearFrameHandlers();
         pc2.addFrameHandler((frame) -> {
-			var packet = IPPacket.fromBytes(frame.getContents());
+    		var packet = IPPacketExtractor.getInstance().extract(frame);
 			assertEquals(packet.getSourceAddress(), pc1.getIPAddress());
 			assertEquals(packet.getDestinationAddress(), pc2.getIPAddress());
 			assertArrayEquals(packet.getContents(), new byte[] {1, 2, 3, 4});

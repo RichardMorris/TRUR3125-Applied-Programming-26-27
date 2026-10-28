@@ -74,14 +74,14 @@ class TestICMPPackage {
 	}
 
 	@Test
-	void can_create_an_ICMPErrorMessage_from_a_packet() {
+	public void can_create_an_ICMPErrorMessage_from_a_packet() {
 		byte[] data = new byte[] { (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04,
 				(byte) 0x34, (byte) 0x12, (byte) 0x78, (byte) 0x56 };
 		var senderIP = deviceFactory.createLocalIPAddress();
 		var destinationIP = deviceFactory.createLocalIPAddress();
 
 		var packet = new IPPacket(IPPacket.IMCP, 64, senderIP, destinationIP, data);
-		var msg = ICMPMessage.parsePacket(packet);
+		var msg = ICMPPacketExtractor.getInstance().extract(packet);
 		assertEquals((byte) 12, msg.getType());
 		assertEquals((byte) 0, msg.getCode());
 //		assertEquals(0x12345678, msg.getRestOfHeader());
@@ -90,13 +90,13 @@ class TestICMPPackage {
 	}
 
 	@Test
-	void can_create_an_ICMPErrorMessage_from_a_short_packet() {
+	public void can_create_an_ICMPErrorMessage_from_a_short_packet() {
 		byte[] data = new byte[] { (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04 };
 		var senderIP = deviceFactory.createLocalIPAddress();
 		var destinationIP = deviceFactory.createLocalIPAddress();
 
 		var packet = new IPPacket(IPPacket.IMCP, 64, senderIP, destinationIP, data);
-		var msg = ICMPMessage.parsePacket(packet);
+		var msg = ICMPPacketExtractor.getInstance().extract(packet);
 		assertEquals((byte) 12, msg.getType());
 		assertEquals((byte) 2, msg.getCode());
 //		assertEquals(0x12345678, msg.getRestOfHeader());
@@ -117,7 +117,7 @@ class TestICMPPackage {
 		IPPacket packet = new IPPacket(
 				IPPacket.IMCP,ttl,
 				senderIP, destinationIP, msg.getBytes());
-		ICMPMessage reply = ICMPMessage.parsePacket(packet);
+		var reply = ICMPPacketExtractor.getInstance().extract(packet);
 		
 		assertEquals((byte) 0x08, reply.getType());
 		assertEquals((byte) 0x09, reply.getCode());

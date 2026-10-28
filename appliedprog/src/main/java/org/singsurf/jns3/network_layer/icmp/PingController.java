@@ -53,6 +53,9 @@ public class PingController implements  ICMPMessageHandler {
 		++sequenceNumber;
 		var packet = makePingPacket(identifier, sequenceNumber, destinationIP, ttl);
 		console.display("PING " + destinationIP + " " + packet.getTotalLength()+ " bytes of data.");
+		if(!ICMPPacketExtractor.getInstance().isExtractable(packet)) {
+			Jns3Logger.logError(pc.getName(), "Bad packet: " + packet);
+		}
 		packetSender.sendPacket(packet);
 	}
 

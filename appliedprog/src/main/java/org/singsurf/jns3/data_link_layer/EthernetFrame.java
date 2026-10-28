@@ -77,7 +77,11 @@ public class EthernetFrame implements ProtocolContainer {
         this.frameCheck = frameCheck;
     }
 
-    public MACAddress getDestination() {
+    public EthernetFrame(MACAddress destMac, MACAddress sourceMac, byte[] bytes) {
+		this(destMac, sourceMac, (short) bytes.length, bytes);
+	}
+
+	public MACAddress getDestination() {
         return destination;
     }
 
@@ -137,14 +141,6 @@ public class EthernetFrame implements ProtocolContainer {
                 ", etherType=" + etherType +
                 ", payload=" + new String(payload) +
                 '}';
-    }
-
-    public static EthernetFrame createRawFrame(
-        MACAddress destination, 
-        MACAddress source, 
-        short etherType, 
-        byte[] payload, long frameCheck) {
-            return new EthernetFrame(destination,source,etherType,payload,frameCheck);
     }
     
     @Override

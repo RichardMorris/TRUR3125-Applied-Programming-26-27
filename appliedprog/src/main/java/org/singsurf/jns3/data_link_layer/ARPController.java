@@ -17,7 +17,7 @@ import org.singsurf.jns3.network_layer.IPAddress;
 public class ARPController implements FrameHandler {
     Map<IPAddress, MACAddress> arpTable = new HashMap<>();
     Map<MACAddress, IPAddress> reverseArpTable = new HashMap<>();
-    ARPConverter arpConverter = new ARPConverter();
+    ARPExtractor arpConverter = ARPExtractor.getInstance();
     AddressableDevice device;
     FrameSender sender;
 

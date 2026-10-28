@@ -21,6 +21,7 @@ public class UDPController implements PacketReceiver, NamedDevice {
 	PacketReceiver nextReceiver;
 	PacketSender packetSender;
 	Map<IPAddress,Map<Short, SocketBinding>> bindings = new HashMap<>();
+	UDPExtractor udpExtractor = UDPExtractor.getInstance();
 	
 	/**
 	 * Represents a binding between a socket and this controller,
@@ -41,7 +42,7 @@ public class UDPController implements PacketReceiver, NamedDevice {
 
 	@Override
 	public void receivePacket(IPPacket packet) {
-		if(!UDPDatagram.isUDPDatagram(packet)) {
+		if(!udpExtractor.isExtractable(packet)) {
 			nextReceiver.receivePacket(packet);
 			return;
 		}

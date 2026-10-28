@@ -150,7 +150,7 @@ public class ICMPMessage implements ProtocolContainer {
 		return type == PARAMETER_PROBLEM;
 	}
 
-	public static boolean isICMPMessage(IPPacket packet) {
+	static boolean isICMPMessage(IPPacket packet) {
 		return packet.getProtocol() == 1;
 	}
 
@@ -170,7 +170,7 @@ public class ICMPMessage implements ProtocolContainer {
 	 * @return the parsed ICMP message, or an error message if the packet is invalid
 	 * @throws IllegalArgumentException if the packet is not an ICMP packet
 	 */
-	public static ICMPMessage parsePacket(IPPacket packet) {
+	static ICMPMessage parsePacket(IPPacket packet) {
 		if(packet.getProtocol() != 1 ) {
 			throw new IllegalArgumentException("Not an ICMP packet");
 		}
@@ -218,18 +218,5 @@ public class ICMPMessage implements ProtocolContainer {
 				type, code, ((restHigh & 0xFFFF) << 16) | (restLow & 0xFFFF), 
 				newData);
 	}
-
-//	@Override
-//	public byte[] getContents() {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
-//
-//	@Override
-//	public boolean isValid() {
-//		// TODO Auto-generated method stub
-//		return false;
-//	}
-
 
 }
