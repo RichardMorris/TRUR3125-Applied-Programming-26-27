@@ -147,3 +147,9 @@ Extractors are still useful.
 
 Senders and Receiver these should be easy to implement with some method renaming.
 
+* There were conflicts with the PC implement both FrameReceiver and PacketReceive. Rather than the IS-A relationship it is now a HAS-A relationship. Method to send/receive frames and packets have been inlined and removed. These did feel a bit odd as their are no corresponding OS system calls.
+* PassThrough Router needed some changes as well.
+
+Delegator and Handles are the trickiest parts to change.
+
+1. 

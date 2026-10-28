@@ -88,7 +88,7 @@ public class PassthroughRouter extends MultiPortDevice implements AddressableDev
 		if(ARPMessage.isARPMessage(frame)) {
 			sendFrame(1 - portNumber, frame);
 			fSender.setDestPortMac(portNumber,frame.getSource());
-			arpController.handleFrame(frame);
+			arpController.handle(frame);
 			return;
 		}
 		if(!IPPacketExtractor.getInstance().isExtractable(frame)) {

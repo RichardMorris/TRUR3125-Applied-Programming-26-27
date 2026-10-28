@@ -184,7 +184,7 @@ class TestProtocol {
 			}
 
 			@Override
-			public Status handle(TypeA message) {
+			public HandlerStatus handle(TypeA message) {
 				if(!matches(message)) {
 					return ProtocolHandler.IGNORED;
 				}
@@ -248,7 +248,7 @@ class TestProtocol {
 
 
 			@Override
-			public Status handle(TypeB message) {
+			public HandlerStatus handle(TypeB message) {
 				if(!matches(message)) {
 					return ProtocolHandler.IGNORED;
 				}
@@ -318,7 +318,7 @@ class TestProtocol {
 			}
 
 			@Override
-			public Status handle(TypeB message) {
+			public HandlerStatus handle(TypeB message) {
 				if(!matches(message)) {
 					return ProtocolHandler.IGNORED;
 				}
@@ -388,7 +388,7 @@ class TestProtocol {
 			}
 
 			@Override
-			public Status handle(TypeB message) {
+			public HandlerStatus handle(TypeB message) {
 				if(!matches(message)) {
 					if(!matches(message)) {
 						return ProtocolHandler.IGNORED;
@@ -431,7 +431,7 @@ class TestProtocol {
 			}
 
 			@Override
-			public Status handle(TypeB message) {
+			public HandlerStatus handle(TypeB message) {
 				if(!matches(message)) {
 					if(!matches(message)) {
 						return ProtocolHandler.IGNORED;
@@ -468,7 +468,7 @@ class TestProtocol {
 			}
 
 			@Override
-			public Status handle(TypeB message) {
+			public HandlerStatus handle(TypeB message) {
 				if(!matches(message)) {
 					if(!matches(message)) {
 						return ProtocolHandler.IGNORED;

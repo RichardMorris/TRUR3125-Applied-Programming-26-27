@@ -136,7 +136,7 @@ class TestProtocolsComponents {
 		}
 
 		@Override
-		public Status handle(ProtocolA message) {
+		public HandlerStatus handle(ProtocolA message) {
 			if(!matches(message)) {
 				return ProtocolHandler.IGNORED;
 			}
@@ -153,7 +153,7 @@ class TestProtocolsComponents {
 		}
 
 		@Override
-		public Status handle(ProtocolB message) {
+		public HandlerStatus handle(ProtocolB message) {
 			if(!matches(message)) {
 				return ProtocolHandler.IGNORED;
 			}
@@ -172,7 +172,7 @@ class TestProtocolsComponents {
 		}
 
 		@Override
-		public Status handle(ProtocolA message) {
+		public HandlerStatus handle(ProtocolA message) {
 			if(!matches(message)) {
 				return ProtocolHandler.IGNORED;
 			}

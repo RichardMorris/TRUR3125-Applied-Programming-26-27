@@ -7,6 +7,7 @@ import java.util.TreeMap;
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.data_link_layer.FrameHandler;
+import org.singsurf.jns3.generic_protocol.ProtocolHandler;
 import org.singsurf.jns3.hardware.PC;
 
 /**
@@ -122,8 +123,7 @@ public class IPFragmentHandler implements FrameHandler {
 	}
 	
 
-	@Override
-	public boolean handleFrame(EthernetFrame frame) {
+	private boolean handleFrame(EthernetFrame frame) {
 		var payload = frame.getContents();
 		if(payload.length == 0) {
 			return false;
@@ -171,6 +171,11 @@ public class IPFragmentHandler implements FrameHandler {
 			}
 		}
 		return true;
+	}
+
+	@Override
+	public HandlerStatus handle(EthernetFrame type) {
+		return handleFrame(type) ? ProtocolHandler.HANDLED : ProtocolHandler.IGNORED;
 	}
 
 }

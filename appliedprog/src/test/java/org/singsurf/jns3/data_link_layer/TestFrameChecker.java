@@ -47,7 +47,7 @@ public class TestFrameChecker {
             } else {
                 assertEquals(new Jns3Logger.LogItem("PC2", 
                 		Jns3Logger.LogLevel.ERROR,
-                		"Detected invalid CRC in frame"), 
+                		"Invalid message: Detected invalid CRC in frame"), 
                 	logs.get(i-1));
             }
         }

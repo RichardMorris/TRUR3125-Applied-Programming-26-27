@@ -52,4 +52,8 @@ public class ProtocolDelegator<T extends ProtocolContainer> implements ProtocolR
 			Jns3Logger.logError(name, "Failed to remove handler: " + handler);
 		}
 	}
+	
+	public void clear() {
+		handlers.clear();
+	}
 }

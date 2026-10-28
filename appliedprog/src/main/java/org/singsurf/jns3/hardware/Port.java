@@ -44,4 +44,10 @@ public class Port implements NamedDevice, FrameReceiver, FrameSender {
     public String getName() {
         return name;
     }
+
+	@Override
+	public void clear() {
+		// TODO Auto-generated method stub
+		
+	}
 }

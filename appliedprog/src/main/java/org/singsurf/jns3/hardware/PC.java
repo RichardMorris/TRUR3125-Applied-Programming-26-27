@@ -1,8 +1,4 @@
 package org.singsurf.jns3.hardware;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.data_link_layer.ARPController;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.data_link_layer.FrameHandler;
@@ -10,6 +6,7 @@ import org.singsurf.jns3.data_link_layer.FrameReceiver;
 import org.singsurf.jns3.data_link_layer.FrameSender;
 import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.data_link_layer.NICCard;
+import org.singsurf.jns3.generic_protocol.ProtocolDelegator;
 import org.singsurf.jns3.network_layer.EthernetPacketSender;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.PacketReceiver;
@@ -30,26 +27,19 @@ public class PC implements AddressableDevice, Terminal {
     IPAddress ipAddress;
 	IPAddress multiCastIP;
 
-    List<FrameHandler> frameHandlers = new ArrayList<>();
     ARPController arpController;
 	FrameSender ethernetEndPoint;
-	FrameReceiver frameReceiver;
+	FReceiver frameReceiver;
 	PacketReceiver packetReceiver;
     PacketSender packetSender;
 	ICMPPacketReceiver icmpPacketReceiver;
 	PingController pingController;
     UDPController udpController;
 
-    class FReceiver implements FrameReceiver {
+    class FReceiver extends ProtocolDelegator<EthernetFrame> implements FrameReceiver {
 
-		@Override
-		public void receive(EthernetFrame frame) {
-	        for (FrameHandler handler : frameHandlers) {
-	            if (handler.handleFrame(frame)) {
-	                return;
-	            }
-	        }
-	        Jns3Logger.log(getName(), Jns3Logger.LogLevel.ERROR, "Unhandled frame: " + frame);
+		public FReceiver(String name) {
+			super(name);
 		}
     	
     }
@@ -58,14 +48,14 @@ public class PC implements AddressableDevice, Terminal {
         this.name = name;
         this.macAddress = macAddress;
         this.ipAddress = ipAddress;
-        this.frameReceiver = new FReceiver();
+        this.frameReceiver = new FReceiver(name);
         this.ethernetEndPoint = new NICCard(name, this.frameReceiver);
         this.arpController = new ARPController(this,ethernetEndPoint);
         this.packetSender = new EthernetPacketSender(this, arpController, ethernetEndPoint);
     }
 
     public void addFrameHandler(FrameHandler frameHandler) {
-        frameHandlers.add(frameHandler);
+    	frameReceiver.addHandler(frameHandler);
     }
 
     public void sendGARPRequest() {
@@ -113,7 +103,7 @@ public class PC implements AddressableDevice, Terminal {
     }
 
 	public void clearFrameHandlers() {
-		frameHandlers.clear();		
+		frameReceiver.clear();		
 	}
 	
 	public FrameReceiver getFrameReceiver() {

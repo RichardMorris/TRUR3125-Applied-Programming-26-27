@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.singsurf.jns3.Jns3Logger;
+import org.singsurf.jns3.generic_protocol.ProtocolHandler;
 import org.singsurf.jns3.hardware.AddressableDevice;
 import org.singsurf.jns3.network_layer.IPAddress;
 
@@ -26,8 +27,7 @@ public class ARPController implements FrameHandler {
 		this.sender = sender;
 	}
     
-    @Override
-    public boolean handleFrame(EthernetFrame frame) {
+    private boolean handleFrame(EthernetFrame frame) {
         if(frame.getEtherType() != ARPMessage.ARP_ETHER_TYPE) return false;
 
         if(frame.getDestination().equals(MACAddress.BROADCAST_MAC)
@@ -116,5 +116,10 @@ public class ARPController implements FrameHandler {
 	 */
 	public MACAddress lookup(IPAddress ipAddress) {
 		return arpTable.get(ipAddress);
+	}
+
+	@Override
+	public HandlerStatus handle(EthernetFrame type) {
+		return handleFrame(type) ? ProtocolHandler.HANDLED : ProtocolHandler.IGNORED;
 	}
 }

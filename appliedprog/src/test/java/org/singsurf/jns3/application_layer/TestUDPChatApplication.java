@@ -453,7 +453,7 @@ class TestUDPChatApplication {
 		assertFalse(Jns3Logger.isErrorFree());
 		for(LogItem item : Jns3Logger.getErrorLogItems()) {
 				assertEquals("PC2", item.deviceName());
-				assertEquals("Detected invalid CRC in frame", item.message());
+				assertEquals("Invalid message: Detected invalid CRC in frame", item.message());
 				System.out.println(item);
 		}
 	}

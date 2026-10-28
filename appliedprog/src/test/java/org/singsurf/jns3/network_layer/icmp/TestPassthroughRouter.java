@@ -90,6 +90,8 @@ class TestPassthroughRouter {
 		Jns3Logger.startCapture();
 		pingcont.sendPingRequest(pc2.getIPAddress(), 64);
 		var output = Jns3Logger.endCapture();
+		System.out.println(Jns3Logger.asString());
+		System.out.println("Captured output:\n"+output);
 		var lines = output.split("\n");
 		assertEquals("PING " + pc2.getIPAddress() + " 28 bytes of data.", lines[0].trim());
 		assertEquals("28 bytes from "+pc2.getIPAddress()+": icmp_seq=1 ttl=64 time=0 ticks", lines[1].trim());
