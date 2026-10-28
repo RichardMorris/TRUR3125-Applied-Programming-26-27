@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.data_link_layer.MACAddress;
-import org.singsurf.jns3.generic_protocol.ProtocolHandler;
+import org.singsurf.jns3.generic_protocol.HandlerStatus;
 import org.singsurf.jns3.hardware.DeviceFactory;
 import org.singsurf.jns3.physical_layer.SimpleConnection;
 public class TestIPPacket {
@@ -122,7 +122,7 @@ public class TestIPPacket {
 			assertArrayEquals(packet.getContents(), new byte[] {1, 2, 3, 4});
 			assertTrue(packet.isValid());
 			Jns3Logger.log(pc2.getName(), Jns3Logger.LogLevel.RECEIVED,"Received packet");
-			return ProtocolHandler.HANDLED;
+			return HandlerStatus.COMPLETED;
 		});
         var connection = new SimpleConnection(pc1.getEndPoint(), pc2.getEndPoint());
         assertNotNull(connection);

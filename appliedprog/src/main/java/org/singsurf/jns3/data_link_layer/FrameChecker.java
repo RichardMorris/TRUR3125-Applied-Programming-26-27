@@ -1,6 +1,6 @@
 package org.singsurf.jns3.data_link_layer;
 
-import org.singsurf.jns3.generic_protocol.ProtocolHandler;
+import org.singsurf.jns3.generic_protocol.HandlerStatus;
 import org.singsurf.jns3.hardware.NamedDevice;
 
 /**
@@ -22,9 +22,9 @@ public class FrameChecker implements FrameHandler{
         long crc = frame.getFrameCheck();
         long crc2 = frame.calcFrameCheck();
         if(crc == crc2) {
-        	return ProtocolHandler.IGNORED;
+        	return HandlerStatus.CONTINUE;
         } else {
-        	return new ProtocolHandler.Invalid("Detected invalid CRC in frame");
+        	return new HandlerStatus.Invalid("Detected invalid CRC in frame");
 		}
 	}
 

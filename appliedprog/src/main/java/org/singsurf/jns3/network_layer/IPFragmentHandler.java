@@ -7,7 +7,7 @@ import java.util.TreeMap;
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.data_link_layer.FrameHandler;
-import org.singsurf.jns3.generic_protocol.ProtocolHandler;
+import org.singsurf.jns3.generic_protocol.HandlerStatus;
 import org.singsurf.jns3.hardware.PC;
 
 /**
@@ -175,7 +175,7 @@ public class IPFragmentHandler implements FrameHandler {
 
 	@Override
 	public HandlerStatus handle(EthernetFrame type) {
-		return handleFrame(type) ? ProtocolHandler.HANDLED : ProtocolHandler.IGNORED;
+		return handleFrame(type) ? HandlerStatus.COMPLETED : HandlerStatus.CONTINUE;
 	}
 
 }

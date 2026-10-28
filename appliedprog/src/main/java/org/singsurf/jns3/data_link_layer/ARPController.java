@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.singsurf.jns3.Jns3Logger;
-import org.singsurf.jns3.generic_protocol.ProtocolHandler;
+import org.singsurf.jns3.generic_protocol.HandlerStatus;
 import org.singsurf.jns3.hardware.AddressableDevice;
 import org.singsurf.jns3.network_layer.IPAddress;
 
@@ -120,6 +120,6 @@ public class ARPController implements FrameHandler {
 
 	@Override
 	public HandlerStatus handle(EthernetFrame type) {
-		return handleFrame(type) ? ProtocolHandler.HANDLED : ProtocolHandler.IGNORED;
+		return handleFrame(type) ? HandlerStatus.COMPLETED : HandlerStatus.CONTINUE;
 	}
 }

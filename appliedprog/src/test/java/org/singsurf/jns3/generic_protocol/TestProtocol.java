@@ -186,11 +186,11 @@ class TestProtocol {
 			@Override
 			public HandlerStatus handle(TypeA message) {
 				if(!matches(message)) {
-					return ProtocolHandler.IGNORED;
+					return HandlerStatus.CONTINUE;
 				}
 				TypeB b = converterAB.extract(message);
 				logicAB.process(message, b);
-				return ProtocolHandler.HANDLED;
+				return HandlerStatus.COMPLETED;
 			}
 
 		}
@@ -250,11 +250,11 @@ class TestProtocol {
 			@Override
 			public HandlerStatus handle(TypeB message) {
 				if(!matches(message)) {
-					return ProtocolHandler.IGNORED;
+					return HandlerStatus.CONTINUE;
 				}
 				TypeC c = converterBC.extract(message);
 				Jns3Logger.logInfo("BCHandler", "Message extracted: " + c);
-				return ProtocolHandler.HANDLED;
+				return HandlerStatus.COMPLETED;
 			}
 
 		}
@@ -320,11 +320,11 @@ class TestProtocol {
 			@Override
 			public HandlerStatus handle(TypeB message) {
 				if(!matches(message)) {
-					return ProtocolHandler.IGNORED;
+					return HandlerStatus.CONTINUE;
 				}
 				TypeD d = converterBD.extract(message);
 				Jns3Logger.logInfo("BDHandler", "Message extracted: " + d);
-				return ProtocolHandler.HANDLED;
+				return HandlerStatus.COMPLETED;
 			}
 		}
 			
@@ -391,13 +391,13 @@ class TestProtocol {
 			public HandlerStatus handle(TypeB message) {
 				if(!matches(message)) {
 					if(!matches(message)) {
-						return ProtocolHandler.IGNORED;
+						return HandlerStatus.CONTINUE;
 					}
 				}
 				var rest = message.message.substring(1);				
 				message.message = 'c' + rest + "!";
 				delegator.receive(message);
-				return ProtocolHandler.HANDLED;
+				return HandlerStatus.COMPLETED;
 			}
 
 		}
@@ -434,10 +434,10 @@ class TestProtocol {
 			public HandlerStatus handle(TypeB message) {
 				if(!matches(message)) {
 					if(!matches(message)) {
-						return ProtocolHandler.IGNORED;
+						return HandlerStatus.CONTINUE;
 					}
 				}
-				return new ProtocolHandler.Invalid("Failed: "+message);
+				return new HandlerStatus.Invalid("Failed: "+message);
 			}
 
 		}
@@ -471,14 +471,14 @@ class TestProtocol {
 			public HandlerStatus handle(TypeB message) {
 				if(!matches(message)) {
 					if(!matches(message)) {
-						return ProtocolHandler.IGNORED;
+						return HandlerStatus.CONTINUE;
 					}
 				}
 				var msgC = new TypeB("c"+message.message.substring(1));
 				var msgD = new TypeB("d"+message.message.substring(1));
 				delegator.receive(msgC);
 				delegator.receive(msgD);
-				return ProtocolHandler.HANDLED;
+				return HandlerStatus.COMPLETED;
 			}
 
 		}

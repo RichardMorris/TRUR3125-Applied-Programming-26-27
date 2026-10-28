@@ -138,11 +138,11 @@ class TestProtocolsComponents {
 		@Override
 		public HandlerStatus handle(ProtocolA message) {
 			if(!matches(message)) {
-				return ProtocolHandler.IGNORED;
+				return HandlerStatus.CONTINUE;
 			}
 			var b = converterAB.extract(message);
 			Jns3Logger.logInfo("ABHandler", "Message extracted: " + b);
-			return ProtocolHandler.HANDLED;
+			return HandlerStatus.COMPLETED;
 		}
 	}
 	
@@ -155,11 +155,11 @@ class TestProtocolsComponents {
 		@Override
 		public HandlerStatus handle(ProtocolB message) {
 			if(!matches(message)) {
-				return ProtocolHandler.IGNORED;
+				return HandlerStatus.CONTINUE;
 			}
 			ProtocolC c = converterBC.extract(message);
 			Jns3Logger.logInfo("BCHandler", "Message extracted: " + c);
-			return ProtocolHandler.HANDLED;
+			return HandlerStatus.COMPLETED;
 		}
 
 	}
@@ -174,11 +174,11 @@ class TestProtocolsComponents {
 		@Override
 		public HandlerStatus handle(ProtocolA message) {
 			if(!matches(message)) {
-				return ProtocolHandler.IGNORED;
+				return HandlerStatus.CONTINUE;
 			}
 			ProtocolB b = converterAB.extract(message);
 			logic.process(message, b);
-			return ProtocolHandler.HANDLED;
+			return HandlerStatus.COMPLETED;
 		}
 
 	}
@@ -253,7 +253,7 @@ class TestProtocolsComponents {
 		var a = new ProtocolA("ABHello");
 		assertTrue(loggingHandlerAB.matches(a));
 		var res = loggingHandlerAB.handle(a);
-		assertEquals(ProtocolHandler.HANDLED, res);
+		assertEquals(HandlerStatus.COMPLETED, res);
 		assertEquals(1, Jns3Logger.getLogItems().size());
 		assertTrue(Jns3Logger.isErrorFree());
 		
@@ -262,7 +262,7 @@ class TestProtocolsComponents {
 		assertFalse(loggingHandlerAB.matches(a2));
 		
 		res = loggingHandlerAB.handle(a2);
-		assertEquals(ProtocolHandler.IGNORED, res);
+		assertEquals(HandlerStatus.CONTINUE, res);
 		assertEquals(0, Jns3Logger.getLogItems().size());
 		assertTrue(Jns3Logger.isErrorFree());
 	}

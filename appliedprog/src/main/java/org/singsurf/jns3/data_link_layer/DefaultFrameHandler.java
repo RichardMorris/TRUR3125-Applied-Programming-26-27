@@ -1,7 +1,7 @@
 package org.singsurf.jns3.data_link_layer;
 
 import org.singsurf.jns3.Jns3Logger;
-import org.singsurf.jns3.generic_protocol.ProtocolHandler;
+import org.singsurf.jns3.generic_protocol.HandlerStatus;
 import org.singsurf.jns3.hardware.PC;
 
 /**
@@ -37,6 +37,6 @@ public class DefaultFrameHandler implements FrameHandler {
             Jns3Logger.log(device.getName(), Jns3Logger.LogLevel.IGNORED,  
                 new String(frame.getContents()));
         }
-		return ProtocolHandler.HANDLED;
+		return HandlerStatus.COMPLETED;
 	}
 }

@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.singsurf.jns3.Jns3Logger;
-import org.singsurf.jns3.generic_protocol.ProtocolHandler.Handled;
-import org.singsurf.jns3.generic_protocol.ProtocolHandler.Ignored;
-import org.singsurf.jns3.generic_protocol.ProtocolHandler.Invalid;
 
 /**
  * Delegates processing of a message to handlers
@@ -28,12 +25,13 @@ public class ProtocolDelegator<T extends ProtocolContainer> implements ProtocolR
 		for (var handler : handlers) {			
 			var state = handler.handle(message);
 			switch(state) {
-			case Handled h -> { return; }
-			case Ignored i -> { break; }
-			case Invalid i -> {
+			case HandlerStatus.Handled h -> { return; }
+			case HandlerStatus.Ignored i -> { break; }
+			case HandlerStatus.Invalid i -> {
 				Jns3Logger.logError(name, "Invalid message: " + i.reason());
 				return;
 				}
+			default -> throw new IllegalArgumentException("Unexpected value: " + state);
 			}
 		}
 		Jns3Logger.logError(name, "No handler found for message: " + message);		

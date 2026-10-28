@@ -9,37 +9,6 @@ package org.singsurf.jns3.generic_protocol;
  */
 public interface ProtocolHandler<T extends ProtocolContainer> {
 	/**
-	 * Indicates the container has been handled completely
-	 * and no further processing is needed.
-	 */
-	public static final Handled HANDLED = new Handled();
-	/**
-	 * Indicated that the handler could not handle the 
-	 * container and it should be passed to subsequent handlers.
-	 */
-	public static final HandlerStatus IGNORED = new Ignored();
-	
-	/**
-	 * The return type of the protocol.
-	 */
-	public static sealed interface HandlerStatus permits Handled, Ignored, Invalid {}
-	/**
-	 * Indicates the container has been handled completely
-	 * and no further processing is needed.
-	 */
-	static final class Handled implements HandlerStatus {	};
-	/**
-	 * Indicated that the handler could not handle the 
-	 * container and it should be passed to subsequent handlers.
-	 */
-	static final class Ignored implements HandlerStatus {	};
-	/**
-	 * Indicates that the container containes invalid data,
-	 * causes an error to be logged and processing should cease.
-	 */
-	public static record Invalid(String reason) implements HandlerStatus {};
-
-	/**
 	 * Attempt to handle the message.
 	 * @param type the container type.
 	 * @return one of HANDLED, IGNORED or Invalid.
