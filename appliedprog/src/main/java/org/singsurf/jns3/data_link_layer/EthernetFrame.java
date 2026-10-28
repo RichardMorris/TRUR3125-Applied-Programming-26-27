@@ -45,7 +45,7 @@ public class EthernetFrame implements ProtocolContainer {
         }
     }
 
-    public static EthernetFrame parseBytes(byte[] frame) {
+    static EthernetFrame parseBytes(byte[] frame) {
         if(frame.length < 14 + 4) {
             throw new IllegalArgumentException("Frame too short");
         }

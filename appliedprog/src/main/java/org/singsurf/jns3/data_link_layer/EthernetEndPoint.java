@@ -7,6 +7,7 @@ import org.singsurf.jns3.physical_layer.PhysicalEndPoint;
  */
 public class EthernetEndPoint extends PhysicalEndPoint implements FrameSender {
     FrameReceiver frameReceiver;
+	ByteToFrameConverter converter = new ByteToFrameConverter();
 
     public EthernetEndPoint(String name, FrameReceiver frameReceiver) {
         super(name);
@@ -20,7 +21,7 @@ public class EthernetEndPoint extends PhysicalEndPoint implements FrameSender {
 
     @Override
     protected void receive(byte[] frame) {
-        EthernetFrame ethernetFrame = EthernetFrame.parseBytes(frame);
+        EthernetFrame ethernetFrame = converter.fromBytes(frame);
         frameReceiver.receiveFrame(ethernetFrame);
     }
 }

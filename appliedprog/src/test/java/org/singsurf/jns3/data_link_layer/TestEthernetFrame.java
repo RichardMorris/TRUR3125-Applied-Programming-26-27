@@ -1,7 +1,9 @@
 package org.singsurf.jns3.data_link_layer;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 
 public class TestEthernetFrame {
     @Test 
@@ -21,7 +23,9 @@ public class TestEthernetFrame {
     }
 
     @Test
-    public void testEthernetFrameToBytesAndBack() {
+    public void testByteToFrameConverter() {
+    	var converter = new ByteToFrameConverter();
+    	
         MACAddress destination = new MACAddress("00:11:22:33:44:55");
         MACAddress source = new MACAddress("66:77:88:99:AA:BB");
         byte[] payload = new byte[] {
@@ -29,12 +33,15 @@ public class TestEthernetFrame {
         };
         FrameFactory factory = new FrameFactory();
         EthernetFrame frame = factory.createEthernetFrame(destination, source, (short) payload.length, payload);
-        byte[] frameBytes = frame.getBytes();
-        EthernetFrame parsedFrame = EthernetFrame.parseBytes(frameBytes);
+        byte[] frameBytes = converter.toBytes(frame);
+        
+        
+        EthernetFrame parsedFrame = converter.fromBytes(frameBytes);
         assertEquals(destination, parsedFrame.getDestination());
         assertEquals(source, parsedFrame.getSource());
         assertEquals((short) payload.length, parsedFrame.getEtherType());
         assertArrayEquals(payload, parsedFrame.getContents());
         assertEquals(frame, parsedFrame);
     }
+
 }

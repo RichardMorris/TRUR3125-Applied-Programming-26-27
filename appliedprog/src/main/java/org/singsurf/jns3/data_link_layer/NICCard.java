@@ -8,6 +8,7 @@ import org.singsurf.jns3.physical_layer.BufferedEndPoint;
 public class NICCard extends BufferedEndPoint implements FrameSender {
 
 	private FrameReceiver frameReceiver;
+	ByteToFrameConverter converter = new ByteToFrameConverter();
 
 	public NICCard(String name, FrameReceiver frameReceiver) {
 		super(name);
@@ -21,7 +22,7 @@ public class NICCard extends BufferedEndPoint implements FrameSender {
 
     @Override
     protected void receive(byte[] frame) {
-        EthernetFrame ethernetFrame = EthernetFrame.parseBytes(frame);
+        EthernetFrame ethernetFrame = converter.fromBytes(frame);
         frameReceiver.receiveFrame(ethernetFrame);
     }
 

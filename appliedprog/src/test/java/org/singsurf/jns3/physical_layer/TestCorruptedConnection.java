@@ -1,24 +1,28 @@
 package org.singsurf.jns3.physical_layer;
-import org.singsurf.jns3.hardware.NamedDevice;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.singsurf.jns3.Jns3Logger;
-import org.singsurf.jns3.hardware.DeviceFactory;
-import org.singsurf.jns3.hardware.PC;
+import org.singsurf.jns3.data_link_layer.ByteToFrameConverter;
 import org.singsurf.jns3.data_link_layer.EthernetEndPoint;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
+import org.singsurf.jns3.data_link_layer.FrameReceiver;
 import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.data_link_layer.MACAddressable;
-import org.singsurf.jns3.data_link_layer.FrameReceiver;
+import org.singsurf.jns3.hardware.DeviceFactory;
+import org.singsurf.jns3.hardware.NamedDevice;
+import org.singsurf.jns3.hardware.PC;
 
 public class TestCorruptedConnection {
     PC pc1;
     CorruptedConnection cc;
     EthernetEndPoint ep2;
     Receiver receiver;
+    
+	ByteToFrameConverter converter = new ByteToFrameConverter();
+
     static class Receiver implements NamedDevice, MACAddressable, FrameReceiver {
         EthernetFrame lastReceivedFrame;
         MACAddress macAddress;
@@ -85,28 +89,28 @@ public class TestCorruptedConnection {
         byte[] bytes = frame.getBytes();
 
         for(int i=0;i<6;++i) {
-            var frame0 = EthernetFrame.parseBytes(cc.corrupt(bytes, i));
+            var frame0 = converter.fromBytes(cc.corrupt(bytes, i));
             assertNotEquals(frame, frame0);
             assertNotEquals(frame.getDestination(), frame0.getDestination());
         }
         for(int i=6;i<12;++i) {
-            var frame0 = EthernetFrame.parseBytes(cc.corrupt(bytes, i));
+            var frame0 = converter.fromBytes(cc.corrupt(bytes, i));
             assertNotEquals(frame, frame0);
             assertNotEquals(frame.getSource(), frame0.getSource());
         }
         for(int i=12;i<14;++i) {
-            var frame0 = EthernetFrame.parseBytes(cc.corrupt(bytes,i));
+            var frame0 = converter.fromBytes(cc.corrupt(bytes, i));
             assertNotEquals(frame, frame0);
             assertNotEquals(frame.getEtherType(), frame0.getEtherType());
         }
         for(int i=14; i<14+payload_len; ++i) {
-            var frame0 = EthernetFrame.parseBytes(cc.corrupt(bytes,i));
+            var frame0 = converter.fromBytes(cc.corrupt(bytes, i));
             assertNotEquals(frame, frame0);
             assertNotEquals(frame.getContents()[i-14], frame0.getContents()[i-14]);
             assertNotEquals(frame.getPayloadAsString(), frame0.getPayloadAsString());
         }
         for(int i=14+payload_len; i<14+payload_len+4; ++i) {
-            var frame0 = EthernetFrame.parseBytes(cc.corrupt(bytes,i));
+            var frame0 = converter.fromBytes(cc.corrupt(bytes, i));
             assertNotEquals(frame, frame0);
             assertNotEquals(frame.getFrameCheck(), frame0.getFrameCheck());
         }
@@ -120,7 +124,7 @@ public class TestCorruptedConnection {
         byte[] bytes = frame.getBytes();
 
         for(int i=0; i<14+frame.getContents().length+4; ++i) {
-            var frame0 = EthernetFrame.parseBytes(cc.corrupt(bytes, i));
+            var frame0 = converter.fromBytes(cc.corrupt(bytes, i));
             assertNotEquals(frame0.getFrameCheck(), frame0.calcFrameCheck());
         }
     }
