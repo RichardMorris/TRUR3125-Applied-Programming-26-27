@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.data_link_layer.FrameSender;
+import org.singsurf.jns3.data_link_layer.arp.ARPProtocol;
 import org.singsurf.jns3.generic_protocol.LowerAdapter;
 import org.singsurf.jns3.generic_protocol.ProtocolDelegator;
 import org.singsurf.jns3.generic_protocol.ProtocolHandler;
@@ -18,11 +19,16 @@ public class IPProtocol implements LowerAdapter<EthernetFrame>, UpperPort<IPPack
 	IPDelegator delegator;
 	EthernetPacketSender packetSender;
 	FrameSender frameSender;
+	ARPProtocol arpProtocol;
 	
-	public IPProtocol(AddressableDevice device) {
+	public IPProtocol(AddressableDevice device, ARPProtocol arpProtocol) {
 		this.device = device;
-		delegator = new IPDelegator(device.getName());
-		fragmentHandler = new IPFragmentHandler(device, delegator);
+		this.arpProtocol = arpProtocol;
+		this.delegator = new IPDelegator(device.getName());
+		this.fragmentHandler = new IPFragmentHandler(device, delegator);
+//        		
+//        		frameSender);
+
 	}
 
 	@Override
@@ -47,6 +53,10 @@ public class IPProtocol implements LowerAdapter<EthernetFrame>, UpperPort<IPPack
 	@Override
 	public void setOutboundSender(ProtocolSender<EthernetFrame> sender) {
 		frameSender = (FrameSender) sender;
+		
+        packetSender = new EthernetPacketSender(device, 
+        		arpProtocol.getArpController(),frameSender);
+
 	}
 
 	public void addHandler(PacketHandler handler) {
@@ -59,5 +69,9 @@ public class IPProtocol implements LowerAdapter<EthernetFrame>, UpperPort<IPPack
 
 	public ProtocolDelegator<IPPacket> getDelegator() {
 		return delegator;
+	}
+
+	public PacketSender getPacketSender() {
+		return packetSender;
 	}
 }

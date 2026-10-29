@@ -6,7 +6,6 @@ import org.singsurf.jns3.data_link_layer.FrameSender;
 import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.data_link_layer.arp.ARPProtocol;
 import org.singsurf.jns3.generic_protocol.ProtocolDelegator;
-import org.singsurf.jns3.network_layer.EthernetPacketSender;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPPacket;
 import org.singsurf.jns3.network_layer.IPProtocol;
@@ -30,7 +29,6 @@ public class PC implements AddressableDevice, Terminal {
 	PhysicalEndPoint endPoint;
 	FrameSender frameSender;
 	
-    PacketSender packetSender;
 	ProtocolDelegator<IPPacket> packetDelegator;
     
 	ICMPPacketReceiver icmpPacketReceiver;	
@@ -58,7 +56,6 @@ public class PC implements AddressableDevice, Terminal {
 
 	public void setArpProtocol(ARPProtocol arpProtocol) {
 		this.arpProtocol = arpProtocol;
-        this.packetSender = new EthernetPacketSender(this, arpProtocol.getArpController(), frameSender);
 	}
 
 	public ARPProtocol getArpProtocol() {
@@ -143,9 +140,9 @@ public class PC implements AddressableDevice, Terminal {
 	}
 	
 	public PacketSender getPacketSender() {
-		return packetSender;
+		return ipProtocol.getPacketSender();
 	}
-
+	
 	public void setICMPHandler(ICMPPacketReceiver icmpPacketReceiver) {
 		this.icmpPacketReceiver = icmpPacketReceiver;
 	}

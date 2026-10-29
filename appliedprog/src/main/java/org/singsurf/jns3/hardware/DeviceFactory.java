@@ -88,7 +88,7 @@ public class DeviceFactory {
 		// Set up ICMP handler and add it to the packet receiver
         pc.setICMPHandler(new ICMPPacketReceiver(pc.getName()));
 
-        IPProtocol ipProtocol = new IPProtocol(pc);
+        IPProtocol ipProtocol = new IPProtocol(pc, arpProtocol);
         pc.setIPProtocol(ipProtocol);
         
         ethernetProtocol.register(ipProtocol);
@@ -99,11 +99,11 @@ public class DeviceFactory {
 
 		pc.setPingController(PingController.newInstance(pc));
 		pc.getICMPHandler().addHandler(pc.getPingController());
-		pc.getICMPHandler().addHandler(new PingRequestHandler(pc, pc.getPacketSender()));
+		pc.getICMPHandler().addHandler(new PingRequestHandler(pc, ipProtocol.getPacketSender()));
 		pc.getICMPHandler().addHandler(new ICMPMessageLogger("ICMPLogger1"));
 		
 		// Set up UDP controller and add it to the packet receiver
-		pc.setUDPController(new UDPController(pc, pc.getPacketSender()));
+		pc.setUDPController(new UDPController(pc, ipProtocol.getPacketSender()));
 
         ipProtocol.addHandler(pc.getICMPHandler());
         ipProtocol.addHandler(pc.getUDPController());
