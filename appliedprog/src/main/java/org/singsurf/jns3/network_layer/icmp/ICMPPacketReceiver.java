@@ -1,6 +1,5 @@
 package org.singsurf.jns3.network_layer.icmp;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.singsurf.jns3.generic_protocol.HandlerStatus;
@@ -14,7 +13,6 @@ import org.singsurf.jns3.network_layer.PacketHandler;
  */
 public class ICMPPacketReceiver implements PacketHandler {
 	String name;
-	List<ICMPMessageHandler> handlers = new ArrayList<>();
 	
 	ProtocolDelegator<ICMPMessage> delegator;
 	

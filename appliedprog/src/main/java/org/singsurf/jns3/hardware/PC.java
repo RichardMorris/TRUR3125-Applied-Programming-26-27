@@ -1,10 +1,10 @@
 package org.singsurf.jns3.hardware;
 import org.singsurf.jns3.data_link_layer.ARPController;
+import org.singsurf.jns3.data_link_layer.EthernetProtocol;
 import org.singsurf.jns3.data_link_layer.FrameDelegator;
 import org.singsurf.jns3.data_link_layer.FrameReceiver;
 import org.singsurf.jns3.data_link_layer.FrameSender;
 import org.singsurf.jns3.data_link_layer.MACAddress;
-import org.singsurf.jns3.data_link_layer.NICCard;
 import org.singsurf.jns3.generic_protocol.ProtocolDelegator;
 import org.singsurf.jns3.network_layer.EthernetPacketSender;
 import org.singsurf.jns3.network_layer.IPAddress;
@@ -26,8 +26,8 @@ public class PC implements AddressableDevice, Terminal {
     IPAddress ipAddress;
 	IPAddress multiCastIP;
 
-	FrameSender endPoint;
-	FrameDelegator frameDelegator;
+	PhysicalEndPoint endPoint;
+	FrameSender frameSender;
     ARPController arpController;
 	
     PacketSender packetSender;
@@ -36,18 +36,24 @@ public class PC implements AddressableDevice, Terminal {
 	ICMPPacketReceiver icmpPacketReceiver;	
 	PingController pingController;
     UDPController udpController;
+	private EthernetProtocol ethernetProtocol;
     
 
     public PC(String name, MACAddress macAddress, IPAddress ipAddress) {
         this.name = name;
         this.macAddress = macAddress;
         this.ipAddress = ipAddress;
-        this.frameDelegator = new FrameDelegator(name);
-        this.endPoint = new NICCard(name, this.frameDelegator);
-        this.arpController = new ARPController(this,endPoint);
-        this.packetSender = new EthernetPacketSender(this, arpController, endPoint);
     }
     
+	public void setEthernetProtocol(EthernetProtocol ethernetProtocol) {
+		this.ethernetProtocol = ethernetProtocol;
+        this.endPoint = ethernetProtocol.getEndPoint();
+        this.frameSender = ethernetProtocol.getFrameSender();
+        this.arpController = new ARPController(this,frameSender);
+        this.packetSender = new EthernetPacketSender(this, arpController, frameSender);
+        ethernetProtocol.addHandler(arpController);
+	}
+
     // Commands available to the user of the PC
 
 	public void ping(IPAddress ipAddress2, int i) {
@@ -107,7 +113,7 @@ public class PC implements AddressableDevice, Terminal {
 
     // Setters and Getters for various components
     
-    public void setEndPoint(FrameSender endPoint) {
+    public void setEndPoint(PhysicalEndPoint endPoint) {
 		this.endPoint = endPoint;
 	}
 
@@ -120,15 +126,15 @@ public class PC implements AddressableDevice, Terminal {
     }
     
     public FrameDelegator getFrameDelegator() {
-		return frameDelegator;
+		return ethernetProtocol.getFrameDelegator();
 	}
 
 	public FrameReceiver getFrameReceiver() {
-		return frameDelegator;
+		return ethernetProtocol.getFrameReceiver();
 	}
 	
 	public FrameSender getFrameSender() {
-		return endPoint;
+		return ethernetProtocol.getFrameSender();
 	}
 	
 	public PacketSender getPacketSender() {
@@ -166,4 +172,5 @@ public class PC implements AddressableDevice, Terminal {
 	public ProtocolDelegator<IPPacket> getIPDelegator() {
 		return packetDelegator;
 	}
+
 }

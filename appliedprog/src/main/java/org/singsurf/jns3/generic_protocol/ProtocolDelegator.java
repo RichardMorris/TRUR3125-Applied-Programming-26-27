@@ -38,6 +38,9 @@ public class ProtocolDelegator<T extends ProtocolContainer> implements ProtocolR
 	}
 	
 	public void addHandler(ProtocolHandler<T> handler) {
+		if(handler == null) {
+			throw new IllegalArgumentException("Handler cannot be null");
+		}
 		var b = handlers.add(handler);
 		if(!b) {
 			Jns3Logger.logError(name, "Failed to add handler: " + handler);

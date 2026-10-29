@@ -52,7 +52,7 @@ public class TestAPRInitisation {
         arpController.sendGARPRequest();
 
         List<LogItem> logs = Jns3Logger.getLogItems();
-        System.out.println(logs);
+        System.out.println(Jns3Logger.asString());
         assertEquals(4, logs.size());
         assertEquals(new Jns3Logger.LogItem("PC1", 
         		Jns3Logger.LogLevel.SENT,"Sent GARP request frame"), logs.get(0));
