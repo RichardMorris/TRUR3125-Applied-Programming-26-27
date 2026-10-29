@@ -72,9 +72,9 @@ public class DeviceFactory {
         MACAddress mac = createMACAddress();
         IPAddress ip = createLocalIPAddress();
         var pc = new PC(name, mac, ip);
+        
         // boot logic for the PC
 		
-
         EthernetProtocol ethernetProtocol = new EthernetProtocol(pc);
         pc.setEthernetProtocol(ethernetProtocol);
         
@@ -82,17 +82,9 @@ public class DeviceFactory {
         pc.setArpProtocol(arpProtocol);
         ethernetProtocol.register(arpProtocol);
 
-		// Set up ICMP handler and add it to the packet receiver
-//        pc.setICMPHandler(new ICMPPacketReceiver(pc.getName()));
-
         IPProtocol ipProtocol = new IPProtocol(pc, arpProtocol);
         pc.setIPProtocol(ipProtocol);
-        
         ethernetProtocol.register(ipProtocol);
-
-        
-		// Add frame handlers to the PC
-        ethernetProtocol.finalise();
 
         ICMPProtocol icmpProtocol = new ICMPProtocol(pc,pc.getTerminal());
         ipProtocol.register(icmpProtocol);
@@ -101,12 +93,9 @@ public class DeviceFactory {
         UDPProtocol udpProtocol = new UDPProtocol(pc);
         ipProtocol.register(udpProtocol);
         pc.setUDPProtocol(udpProtocol);
-		// Set up UDP controller and add it to the packet receiver
-//		pc.setUDPController(new UDPController(pc, ipProtocol.getPacketSender()));
 
-//        ipProtocol.addHandler(pc.getICMPHandler());
-//        ipProtocol.addHandler(pc.getUDPController());
         ipProtocol.finalise();
+        ethernetProtocol.finalise();
 
 		pc.setMulticastAddress(new IPAddress("192.168.1.255"));
 

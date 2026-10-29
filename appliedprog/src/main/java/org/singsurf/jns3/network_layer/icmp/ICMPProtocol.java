@@ -13,23 +13,20 @@ import org.singsurf.jns3.network_layer.IPPacket;
 import org.singsurf.jns3.network_layer.PacketSender;
 
 public class ICMPProtocol implements LowerAdapter<IPPacket> {
+	AddressableDevice device;
 
 	ICMPPacketReceiver icmpPacketReceiver;
 	PingController pingController;
 	PingRequestHandler pingRequestHandler;
 	
 	public ICMPProtocol(AddressableDevice device, Terminal terminal) {
+		this.device = device;
 		icmpPacketReceiver = new ICMPPacketReceiver(device.getName());
 		pingController = PingController.newInstance(device, terminal);
 		icmpPacketReceiver.addHandler(pingController);
 		pingRequestHandler = new PingRequestHandler(device);
 		icmpPacketReceiver.addHandler(pingRequestHandler);
 		icmpPacketReceiver.addHandler(new ICMPMessageLogger(device.getName()));
-	}
-
-	@Override
-	public List<ProtocolHandler<IPPacket>> getInboundHandlers() {
-		return List.of(icmpPacketReceiver);
 	}
 
 	@Override
@@ -41,6 +38,11 @@ public class ICMPProtocol implements LowerAdapter<IPPacket> {
 		pingController.setPacketSender((PacketSender) sender);
 		pingRequestHandler.setSender((PacketSender) sender);
 		
+	}
+
+	@Override
+	public List<ProtocolHandler<IPPacket>> getInboundHandlers() {
+		return List.of(icmpPacketReceiver);
 	}
 
 	public void sendPingRequest(IPAddress ipAddress2, int i) {

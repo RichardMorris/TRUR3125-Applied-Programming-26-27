@@ -37,7 +37,7 @@ public class TestAPRInitisation {
 		byte[] payload = "Hello PC2 from PC1".getBytes();
 		short etherType = (short) payload.length;
         var frame = new EthernetFrame(pc2.getMACAddress(), pc1.getMACAddress(), etherType, payload);
-        pc1.getFrameSender().send(frame);
+        pc1.getEthernetProtocol().getFrameSender().send(frame);
         List<LogItem> logs = Jns3Logger.getLogItems();
         System.out.println(logs);
         assertEquals(1, logs.size());
@@ -95,7 +95,7 @@ public class TestAPRInitisation {
 			byte[] payload = ("Hello " + ipAddress).getBytes();
 			short etherType = (short) payload.length;
             var frame = new EthernetFrame(macAddress, pc1.getMACAddress(), etherType, payload);
-            pc1.getFrameSender().send(frame);
+            pc1.getEthernetProtocol().getFrameSender().send(frame);
             break;
         }
         List<LogItem> logs = Jns3Logger.getLogItems();
@@ -123,7 +123,7 @@ public class TestAPRInitisation {
 			byte[] payload = ("Hello " + ipAddress).getBytes();
 			short etherType = (short) payload.length;
             var frame = new EthernetFrame(macAddress, pc2.getMACAddress(), etherType, payload);
-            pc2.getFrameSender().send(frame);
+            pc2.getEthernetProtocol().getFrameSender().send(frame);
             break;
         }
         List<LogItem> logs = Jns3Logger.getLogItems();

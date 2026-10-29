@@ -34,7 +34,7 @@ class TestICMPHandler {
 		var frame = new EthernetFrame(senderMAC, pc.getMACAddress(), (short) payload.length, payload);
 
 		Jns3Logger.clearLog();
-		pc.getFrameReceiver().receive(frame);
+		pc.getEthernetProtocol().getFrameReceiver().receive(frame);
 		assertEquals(1, Jns3Logger.size());
 		assertEquals("PC1", Jns3Logger.getItem(0).deviceName());
 		
@@ -45,7 +45,7 @@ class TestICMPHandler {
 
 		// act
 		Jns3Logger.clearLog();
-		pc.getFrameReceiver().receive(frame2);
+		pc.getEthernetProtocol().getFrameReceiver().receive(frame2);
 
 		// assert
 		assertEquals(1, Jns3Logger.size());

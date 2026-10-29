@@ -18,7 +18,6 @@ public class IPProtocol implements LowerAdapter<EthernetFrame>, UpperPort<IPPack
 	IPFragmentHandler fragmentHandler;
 	IPDelegator delegator;
 	EthernetPacketSender packetSender;
-	FrameSender frameSender;
 	ARPProtocol arpProtocol;
 	
 	public IPProtocol(AddressableDevice device, ARPProtocol arpProtocol) {
@@ -49,7 +48,7 @@ public class IPProtocol implements LowerAdapter<EthernetFrame>, UpperPort<IPPack
 
 	@Override
 	public void setOutboundSender(ProtocolSender<EthernetFrame> sender) {
-		frameSender = (FrameSender) sender;
+		var frameSender = (FrameSender) sender;
 		
         packetSender = new EthernetPacketSender(device, 
         		arpProtocol.getArpController(),frameSender);

@@ -6,6 +6,7 @@ import java.util.List;
 import org.singsurf.jns3.hardware.GlobalWallClock;
 import org.singsurf.jns3.hardware.GlobalWallClock.TickListener;
 import org.singsurf.jns3.hardware.PC;
+import org.singsurf.jns3.hardware.Terminal;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.transport_layer.udp.DatagramSocket;
 import org.singsurf.jns3.transport_layer.udp.UDPController.DatagramPacket;
@@ -23,6 +24,7 @@ public class ChatApplication implements TickListener{
 	static final short PRIVATE_PORT = 43;
 
 	PC pc;
+	Terminal terminal;
 	boolean isPrivate = false;
 	private List<DatagramSocket> sockets = new ArrayList<>();
 	
@@ -32,6 +34,7 @@ public class ChatApplication implements TickListener{
 	 */
 	public ChatApplication(PC pc) {
 		this.pc = pc;
+		this.terminal = pc.getTerminal();
 		var socket = new DatagramSocket(pc.getName() + "-Chat");
 		var multicastAddress = pc.getMulticastAddress();
 		pc.bind(socket, multicastAddress, PUBLIC_PORT);
@@ -98,7 +101,7 @@ public class ChatApplication implements TickListener{
 	 * @param message
 	 */
 	public void sayPublic(String message) {
-		pc.display(pc.getName() + " says: " + message);
+		terminal.display(pc.getName() + " says: " + message);
 		var socket = sockets.get(0);
 		socket.send(new UDPDatagram(PUBLIC_PORT, PUBLIC_PORT, message.getBytes()));
 	}
@@ -109,7 +112,7 @@ public class ChatApplication implements TickListener{
 			return;
 		}
 		if(echo)
-			pc.display(pc.getName() + " says: " + message);
+			terminal.display(pc.getName() + " says: " + message);
 		for(DatagramSocket socket : sockets) {
 			if(socket.getPort() == PRIVATE_PORT) {
 //				Jns3Logger.logInfo("ChatApplication", "Sending private message to " + socket);
@@ -128,7 +131,7 @@ public class ChatApplication implements TickListener{
 		for(DatagramSocket socket : sockets) {
 			while((datagram = socket.poll()) != null) {
 				String message = new String(datagram.datagram().getContents());
-				pc.display(pc.getName()+ ": " +  datagram.source() + " says: " + message);
+				terminal.display(pc.getName()+ ": " +  datagram.source() + " says: " + message);
 			}
 		}
 	}

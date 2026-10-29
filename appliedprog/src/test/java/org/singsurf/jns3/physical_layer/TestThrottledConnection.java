@@ -38,7 +38,7 @@ public class TestThrottledConnection {
 				var frame = new EthernetFrame(
 						pc2.getMACAddress(), pc1.getMACAddress(), 
 						etherType, payload);
-                pc1.getFrameSender().send(frame);
+                pc1.getEthernetProtocol().getFrameSender().send(frame);
             }
             var logs = Jns3Logger.getLogItems();
             assertEquals(16, logs.size()); 

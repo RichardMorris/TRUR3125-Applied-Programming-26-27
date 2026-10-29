@@ -32,7 +32,7 @@ public class TestFrameChecker {
 			byte[] payload = ("Hello PC2 from PC1 "+i).getBytes();
 			short etherType = (short) payload.length;
 			var frame = new EthernetFrame(pc2.getMACAddress(), pc1.getMACAddress(), etherType, payload);
-            pc1.getFrameSender().send(frame);
+            pc1.getEthernetProtocol().getFrameSender().send(frame);
         }
 
         var logs = Jns3Logger.getLogItems();

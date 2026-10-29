@@ -52,7 +52,7 @@ public class TestSwitch {
 			byte[] payload = "Hello All from PC1".getBytes();
 			short etherType = (short) payload.length;
             var frame = new EthernetFrame(pc2.getMACAddress(), pc1.getMACAddress(), etherType, payload);
-            pc1.getFrameSender().send(frame);
+            pc1.getEthernetProtocol().getFrameSender().send(frame);
             List<LogItem> logs = Jns3Logger.getLogItems();
             System.out.println(logs);
             assertEquals(1, logs.size());
@@ -84,7 +84,7 @@ public class TestSwitch {
 			short etherType = (short) payload.length;
 
             var frame = new EthernetFrame(destMAC, pc1.getMACAddress(), etherType, payload);
-            pc1.getFrameSender().send(frame);
+            pc1.getEthernetProtocol().getFrameSender().send(frame);
             logs = Jns3Logger.getLogItems();
             System.out.println(logs);
             assertEquals(1, logs.size());
@@ -103,7 +103,7 @@ public class TestSwitch {
 			short etherType1 = (short) payload1.length;
 
             frame = new EthernetFrame(destMAC, pc2.getMACAddress(), etherType1, payload1);
-            pc2.getFrameSender().send(frame);
+            pc2.getEthernetProtocol().getFrameSender().send(frame);
             logs = Jns3Logger.getLogItems();
             System.out.println(logs);
             assertEquals(1, logs.size());
@@ -154,7 +154,7 @@ public class TestSwitch {
 			byte[] payload = "Hello All from PC1".getBytes();
 			short etherType = (short) payload.length;
             var frame = new EthernetFrame(pc2.getMACAddress(), pc1.getMACAddress(), etherType, payload);
-            pc1.getFrameSender().send(frame);
+            pc1.getEthernetProtocol().getFrameSender().send(frame);
             List<LogItem> logs = Jns3Logger.getLogItems();
             System.out.println(logs);
             assertEquals(2, logs.size());
@@ -193,7 +193,7 @@ public class TestSwitch {
 			short etherType = (short) payload.length;
 
             var frame = new EthernetFrame(destMAC, pc1.getMACAddress(), etherType, payload);
-            pc1.getFrameSender().send(frame);
+            pc1.getEthernetProtocol().getFrameSender().send(frame);
             logs = Jns3Logger.getLogItems();
             System.out.println(logs);
             assertEquals(1, logs.size());
@@ -213,7 +213,7 @@ public class TestSwitch {
 
             // PC2 sends a frame to PC1
             frame = new EthernetFrame(destMAC, pc2.getMACAddress(), etherType1, payload1);
-            pc2.getFrameSender().send(frame);
+            pc2.getEthernetProtocol().getFrameSender().send(frame);
             logs = Jns3Logger.getLogItems();
             System.out.println(logs);
             assertEquals(1, logs.size());

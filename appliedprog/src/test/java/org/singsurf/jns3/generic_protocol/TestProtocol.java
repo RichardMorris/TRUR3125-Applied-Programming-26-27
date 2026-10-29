@@ -140,6 +140,12 @@ class TestProtocol {
 			var packed = new TypeA(message);
 			pdA.receive(packed);
 		}
+
+		@Override
+		public void finalise() {
+			// TODO Auto-generated method stub
+			
+		}
 	}
 	
 
@@ -229,6 +235,12 @@ class TestProtocol {
 		@Override
 		public void setInboundCallback(ProtocolReceiver<TypeA> r) {
 			callbackA = r;
+		}
+
+		@Override
+		public void finalise() {
+			// TODO Auto-generated method stub
+			
 		}
 
 	}

@@ -283,9 +283,9 @@ class TestPacketCombiner {
 	public void a_small_packet_can_be_transmission_over_a_simple_network() {
 		// Arrange
 		PC pc2 = deviceFactory.createPC("Sender PC");
-		pc.getFrameDelegator().clear();
-		pc.getFrameDelegator().addHandler(pc.getArpProtocol().getArpController());
-		pc.getFrameDelegator().addHandler(combiner);
+		pc.getEthernetProtocol().getFrameDelegator().clear();
+		pc.getEthernetProtocol().getFrameDelegator().addHandler(pc.getArpProtocol().getArpController());
+		pc.getEthernetProtocol().getFrameDelegator().addHandler(combiner);
 		var connection = new SimpleConnection(pc.getEndPoint(), pc2.getEndPoint());
 		assertNotNull(connection);
 		pc.getArpProtocol().sendGARPRequest();
@@ -293,7 +293,7 @@ class TestPacketCombiner {
 		pc2.getIPAddress(), pc.getIPAddress(), new byte[] {1,2,3,4,5,6,7,8,9,10});
 		// Act
 		var packet = packet1;
-		pc2.getPacketSender().send(packet);
+		pc2.getIPProtocol().getPacketSender().send(packet);
 		// Assert
         assertEquals(1, receiver.size());
         var receivedPacket = receiver.get(0);
@@ -308,9 +308,9 @@ class TestPacketCombiner {
 	public void a_large_packet_can_be_transmission_over_a_simple_network() {
 		// Arrange
 		PC pc2 = deviceFactory.createPC("Sender PC");
-		pc.getFrameDelegator().clear(); // Need set our own frame handlers to protect against later changes.
-		pc.getFrameDelegator().addHandler(pc.getArpProtocol().getArpController());
-		pc.getFrameDelegator().addHandler(combiner);
+		pc.getEthernetProtocol().getFrameDelegator().clear(); // Need set our own frame handlers to protect against later changes.
+		pc.getEthernetProtocol().getFrameDelegator().addHandler(pc.getArpProtocol().getArpController());
+		pc.getEthernetProtocol().getFrameDelegator().addHandler(combiner);
 		var connection = new SimpleConnection(pc.getEndPoint(), pc2.getEndPoint());
 		assertNotNull(connection);
 		pc.getArpProtocol().sendGARPRequest();
@@ -321,7 +321,7 @@ class TestPacketCombiner {
 		
 		// Act
 		var packet = packet1;
-		pc2.getPacketSender().send(packet);
+		pc2.getIPProtocol().getPacketSender().send(packet);
 		
 		// Assert
         assertEquals(1, receiver.size());

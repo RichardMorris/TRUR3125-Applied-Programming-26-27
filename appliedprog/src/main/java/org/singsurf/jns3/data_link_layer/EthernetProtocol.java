@@ -8,7 +8,7 @@ import org.singsurf.jns3.physical_layer.PhysicalEndPoint;
 
 public class EthernetProtocol implements UpperPort<EthernetFrame> {
 
-	private AddressableDevice device;
+	AddressableDevice device;
 
 	FrameDelegator delegator;
 	FrameSender sender;
@@ -32,10 +32,7 @@ public class EthernetProtocol implements UpperPort<EthernetFrame> {
 		}
 	}
 
-	/**
-	 * Called after all handlers have been registered.
-	 * Adds a default handler that logs received frames.
-	 */
+	@Override
 	public void finalise() {
 		delegator.addHandler(new DefaultFrameHandler(device));
 	}

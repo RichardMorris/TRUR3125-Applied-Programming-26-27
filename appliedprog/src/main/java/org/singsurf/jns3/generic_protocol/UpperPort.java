@@ -14,4 +14,10 @@ public interface UpperPort<T extends ProtocolContainer> {
 	 */
 	public void register(LowerAdapter<T> adapter);
 
+	/**
+	 * Called after all handlers have been registered.
+	 * Adds a default handler that logs received frames.
+	 */
+	void finalise();
+
 }

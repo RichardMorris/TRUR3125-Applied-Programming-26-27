@@ -38,12 +38,12 @@ public class TestHalfDuplexConnection {
 		byte[] payload = "Forward 1".getBytes();
 		short etherType = (short) payload.length;
         var frame1 = new EthernetFrame(pc2.getMACAddress(), pc1.getMACAddress(), etherType, payload);
-        pc1.getFrameSender().send(frame1);
+        pc1.getEthernetProtocol().getFrameSender().send(frame1);
 		byte[] payload1 = "Reversed 1".getBytes();
 		short etherType1 = (short) payload1.length;
      
         var frame2 = new EthernetFrame(pc1.getMACAddress(), pc2.getMACAddress(), etherType1, payload1);  
-        pc2.getFrameSender().send(frame2);
+        pc2.getEthernetProtocol().getFrameSender().send(frame2);
         
         var logs = Jns3Logger.getLogItems();
         
@@ -72,9 +72,9 @@ public class TestHalfDuplexConnection {
 		short etherType4 = (short) payload4.length;
         var frame5 = new EthernetFrame(pc1.getMACAddress(), pc2.getMACAddress(), etherType4, payload4);
         
-        pc2.getFrameSender().send(frame3);
-        pc1.getFrameSender().send(frame4);
-        pc2.getFrameSender().send(frame5);
+        pc2.getEthernetProtocol().getFrameSender().send(frame3);
+        pc1.getEthernetProtocol().getFrameSender().send(frame4);
+        pc2.getEthernetProtocol().getFrameSender().send(frame5);
         
         assertEquals(2, logs.size()); 
         assertEquals(new LogItem("PC1",RECEIVED,"Reversed 2"), logs.get(0));
@@ -113,12 +113,12 @@ public class TestHalfDuplexConnection {
 		short etherType = (short) payload.length;
         
         var frame1 = new EthernetFrame(mac2, pc1.getMACAddress(), etherType, payload);
-        pc1.getFrameSender().send(frame1);
+        pc1.getEthernetProtocol().getFrameSender().send(frame1);
 		byte[] payload1 = "Reversed 1".getBytes();
 		short etherType1 = (short) payload1.length;
      
         var frame2 = new EthernetFrame(mac1, pc2.getMACAddress(), etherType1, payload1);  
-        pc2.getFrameSender().send(frame2);
+        pc2.getEthernetProtocol().getFrameSender().send(frame2);
         
         logs = Jns3Logger.getLogItems();
         
@@ -147,9 +147,9 @@ public class TestHalfDuplexConnection {
 		short etherType4 = (short) payload4.length;
         var frame5 = new EthernetFrame(mac1, pc2.getMACAddress(), etherType4, payload4);
         
-        pc2.getFrameSender().send(frame3);
-        pc1.getFrameSender().send(frame4);
-        pc2.getFrameSender().send(frame5);
+        pc2.getEthernetProtocol().getFrameSender().send(frame3);
+        pc1.getEthernetProtocol().getFrameSender().send(frame4);
+        pc2.getEthernetProtocol().getFrameSender().send(frame5);
         
         assertEquals(2, logs.size()); 
         assertEquals(new LogItem("PC1",RECEIVED,"Reversed 2"), logs.get(0));

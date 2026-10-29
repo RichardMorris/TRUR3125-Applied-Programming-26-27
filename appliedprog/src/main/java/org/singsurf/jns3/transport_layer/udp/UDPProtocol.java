@@ -34,8 +34,8 @@ public class UDPProtocol implements LowerAdapter<IPPacket>{
 		udpController = new UDPController(device, (PacketSender) sender);
 	}
 
-	public void bind(IPAddress multicastAddress, short portNumber, DatagramSocket socket) {
-		udpController.bind(multicastAddress, portNumber, socket);
+	public void bind(IPAddress ip, short portNumber, DatagramSocket socket) {
+		udpController.bind(ip, portNumber, socket);
 	}
 
 }

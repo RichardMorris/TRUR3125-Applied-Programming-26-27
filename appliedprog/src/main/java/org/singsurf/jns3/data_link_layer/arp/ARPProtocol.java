@@ -14,11 +14,11 @@ import org.singsurf.jns3.network_layer.IPAddress;
 
 public class ARPProtocol implements LowerAdapter<EthernetFrame> {
 
+	AddressableDevice device;
 	ARPController arpController;
-	String name;
 
 	public ARPProtocol(AddressableDevice device) {
-		this.name = device.getName();
+		this.device = device;
 		this.arpController = new ARPController(device);
 	}
 

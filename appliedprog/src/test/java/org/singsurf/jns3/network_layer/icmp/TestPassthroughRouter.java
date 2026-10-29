@@ -30,7 +30,7 @@ class TestPassthroughRouter {
 		pc2 = deviceFactory.createPC("PC2");
 		
 		ICMPPacketReceiver icmpHandler1 = null;
-		for(var h : pc1.getIPDelegator().getHandlers()) {
+		for(var h : pc1.getIPProtocol().getDelegator().getHandlers()) {
 			if(h instanceof ICMPPacketReceiver h2) {
 				icmpHandler1 = h2;
 				break;
@@ -187,7 +187,7 @@ class TestPassthroughRouter {
 		pc1.getIPAddress(), pc2.getIPAddress(), new byte[] {1,2,3,4,5,6,7,8,9,10});
 		
 		var packet = packet1;
-		pc1.getPacketSender().send(packet);
+		pc1.getIPProtocol().getPacketSender().send(packet);
 
 		assertEquals(0, Jns3Logger.size());
 		// tick
@@ -219,7 +219,7 @@ class TestPassthroughRouter {
 		var packet = packet1;
 		packet.setTimeToLive(1);
 		assertTrue(packet.isValid());
-		pc1.getPacketSender().send(packet);
+		pc1.getIPProtocol().getPacketSender().send(packet);
 
 		assertEquals(0, Jns3Logger.size());
 		// tick

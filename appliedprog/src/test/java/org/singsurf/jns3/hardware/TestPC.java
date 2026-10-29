@@ -15,7 +15,7 @@ public class TestPC {
     DeviceFactory deviceFactory = new DeviceFactory();
     @Test 
     public void createPC() {
-        Terminal pc = deviceFactory.createPC("TestPC");
+        PC pc = deviceFactory.createPC("TestPC");
         assertNotNull(pc);
     }
 
@@ -30,7 +30,7 @@ public class TestPC {
         EthernetFrame frame = new EthernetFrame(destination, source, etherType, payload);
 
         Jns3Logger.clearLog();
-        pc.getFrameReceiver().receive(frame);
+        pc.getEthernetProtocol().getFrameReceiver().receive(frame);
         List<LogItem> logs = Jns3Logger.getLogItems();
         assertEquals(1, logs.size());
         
@@ -51,7 +51,7 @@ public class TestPC {
         EthernetFrame frame = new EthernetFrame(destination, source, etherType, payload);
 
         Jns3Logger.clearLog();
-        pc.getFrameReceiver().receive(frame);
+        pc.getEthernetProtocol().getFrameReceiver().receive(frame);
         List<LogItem> logs = Jns3Logger.getLogItems();
         System.out.println(logs);
         assertEquals(1, logs.size());
