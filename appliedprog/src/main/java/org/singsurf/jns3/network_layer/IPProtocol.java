@@ -26,18 +26,15 @@ public class IPProtocol implements LowerAdapter<EthernetFrame>, UpperPort<IPPack
 		this.arpProtocol = arpProtocol;
 		this.delegator = new IPDelegator(device.getName());
 		this.fragmentHandler = new IPFragmentHandler(device, delegator);
-//        		
-//        		frameSender);
-
 	}
 
 	@Override
 	public void register(LowerAdapter<IPPacket> adapter) {
+		adapter.setOutboundSender(packetSender);
+		adapter.setInboundCallback(delegator);
 		for(var h: adapter.getInboundHandlers()) {
 			delegator.addHandler(h);
 		}
-		adapter.setOutboundSender(packetSender);
-		adapter.setInboundCallback(delegator);
 	}
 
 	@Override

@@ -13,7 +13,7 @@ import org.singsurf.jns3.network_layer.PacketSender;
 import org.singsurf.jns3.network_layer.icmp.ICMPProtocol;
 import org.singsurf.jns3.physical_layer.PhysicalEndPoint;
 import org.singsurf.jns3.transport_layer.udp.DatagramSocket;
-import org.singsurf.jns3.transport_layer.udp.UDPController;
+import org.singsurf.jns3.transport_layer.udp.UDPProtocol;
 
 /**
  * The main class representing a PC.
@@ -32,7 +32,7 @@ public class PC implements AddressableDevice, Terminal {
     
 //	ICMPPacketReceiver icmpPacketReceiver;	
 //	PingController pingController;
-    UDPController udpController;
+    UDPProtocol udpController;
     
 	EthernetProtocol ethernetProtocol;
     ARPProtocol arpProtocol;
@@ -155,13 +155,13 @@ public class PC implements AddressableDevice, Terminal {
 //		return icmpPacketReceiver;
 //	}
 
-	public void setUDPController(UDPController udpController2) {
-		this.udpController = udpController2;
-	}
-
-	public UDPController getUDPController() {
-		return udpController;
-	}
+//	public void setUDPController(UDPController udpController2) {
+//		this.udpController = udpController2;
+//	}
+//
+//	public UDPController getUDPController() {
+//		return udpController;
+//	}
 
 //	public void setPingController(PingController newInstance) {
 //		this.pingController = newInstance;		
@@ -185,6 +185,10 @@ public class PC implements AddressableDevice, Terminal {
 
 	public Terminal getTerminal() {
 		return this;
+	}
+
+	public void setUDPProtocol(UDPProtocol udpProtocol) {
+		this.udpController = udpProtocol;			
 	}
 
 }

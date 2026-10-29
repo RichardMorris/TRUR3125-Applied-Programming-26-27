@@ -318,4 +318,20 @@ Applies to Ethernet, WI-FI (to come)
         * A `PingController`
         * A `PingRequestHandler`
         * A `ICMPMessageLogger`
-    * The first two of these needed modification for defered setting of their senders.
+    * The first two of these needed modification for deferred setting of their senders.
+
+5. UDP
+
+    * Implemented as `ICMPProtocol`
+    * Implements `LowerAdapter<IPPacket>`
+    * Just a wrapper around the `UDPController`
+    * Exposes the `bind` method.
+
+### Notes
+
+Relatively painless. Only a few small changes to get all 145 tests to pass.
+
+* In the register method the setters should be called before getters
+to ensure all handles are initialised.
+
+

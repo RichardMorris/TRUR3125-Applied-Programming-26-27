@@ -9,7 +9,7 @@ import org.singsurf.jns3.data_link_layer.arp.ARPProtocol;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPProtocol;
 import org.singsurf.jns3.network_layer.icmp.ICMPProtocol;
-import org.singsurf.jns3.transport_layer.udp.UDPController;
+import org.singsurf.jns3.transport_layer.udp.UDPProtocol;
 
 /**
  * A factory for creating network devices such as PCs, switches, and hubs.
@@ -98,11 +98,14 @@ public class DeviceFactory {
         ipProtocol.register(icmpProtocol);
         pc.setIcmpProtocol(icmpProtocol);
         		
+        UDPProtocol udpProtocol = new UDPProtocol(pc);
+        ipProtocol.register(udpProtocol);
+        pc.setUDPProtocol(udpProtocol);
 		// Set up UDP controller and add it to the packet receiver
-		pc.setUDPController(new UDPController(pc, ipProtocol.getPacketSender()));
+//		pc.setUDPController(new UDPController(pc, ipProtocol.getPacketSender()));
 
 //        ipProtocol.addHandler(pc.getICMPHandler());
-        ipProtocol.addHandler(pc.getUDPController());
+//        ipProtocol.addHandler(pc.getUDPController());
         ipProtocol.finalise();
 
 		pc.setMulticastAddress(new IPAddress("192.168.1.255"));
