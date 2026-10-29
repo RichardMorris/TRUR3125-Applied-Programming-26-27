@@ -6,12 +6,8 @@ import java.util.List;
 import org.singsurf.jns3.data_link_layer.EthernetProtocol;
 import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.data_link_layer.arp.ARPProtocol;
-import org.singsurf.jns3.generic_protocol.ProtocolDelegator;
-import org.singsurf.jns3.network_layer.DefaultPacketReceiver;
 import org.singsurf.jns3.network_layer.IPAddress;
-import org.singsurf.jns3.network_layer.IPDelegator;
-import org.singsurf.jns3.network_layer.IPFragmentHandler;
-import org.singsurf.jns3.network_layer.IPPacket;
+import org.singsurf.jns3.network_layer.IPProtocol;
 import org.singsurf.jns3.network_layer.icmp.ICMPMessageLogger;
 import org.singsurf.jns3.network_layer.icmp.ICMPPacketReceiver;
 import org.singsurf.jns3.network_layer.icmp.PingController;
@@ -92,14 +88,13 @@ public class DeviceFactory {
 		// Set up ICMP handler and add it to the packet receiver
         pc.setICMPHandler(new ICMPPacketReceiver(pc.getName()));
 
-
-		ProtocolDelegator<IPPacket> delegator = new IPDelegator(pc.getName());
-        pc.setIPDelegator(delegator);
+        IPProtocol ipProtocol = new IPProtocol(pc);
+        pc.setIPProtocol(ipProtocol);
+        
+        ethernetProtocol.register(ipProtocol);
 
         
 		// Add frame handlers to the PC
-        
-        ethernetProtocol.addHandler(new IPFragmentHandler(pc, delegator));
         ethernetProtocol.finalise();
 
 		pc.setPingController(PingController.newInstance(pc));
@@ -110,9 +105,9 @@ public class DeviceFactory {
 		// Set up UDP controller and add it to the packet receiver
 		pc.setUDPController(new UDPController(pc, pc.getPacketSender()));
 
-        delegator.addHandler(pc.getICMPHandler());
-		delegator.addHandler(pc.getUDPController());
-        delegator.addHandler(new DefaultPacketReceiver(pc.getName()));
+        ipProtocol.addHandler(pc.getICMPHandler());
+        ipProtocol.addHandler(pc.getUDPController());
+        ipProtocol.finalise();
 
 		pc.setMulticastAddress(new IPAddress("192.168.1.255"));
 

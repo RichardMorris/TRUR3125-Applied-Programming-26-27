@@ -9,6 +9,7 @@ import org.singsurf.jns3.generic_protocol.ProtocolDelegator;
 import org.singsurf.jns3.network_layer.EthernetPacketSender;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPPacket;
+import org.singsurf.jns3.network_layer.IPProtocol;
 import org.singsurf.jns3.network_layer.PacketSender;
 import org.singsurf.jns3.network_layer.icmp.ICMPPacketReceiver;
 import org.singsurf.jns3.network_layer.icmp.PingController;
@@ -38,6 +39,7 @@ public class PC implements AddressableDevice, Terminal {
     
 	EthernetProtocol ethernetProtocol;
     ARPProtocol arpProtocol;
+	private IPProtocol ipProtocol;
 
     public PC(String name, MACAddress macAddress, IPAddress ipAddress) {
         this.name = name;
@@ -168,12 +170,16 @@ public class PC implements AddressableDevice, Terminal {
 		return pingController;
 	}
 
-	public void setIPDelegator(ProtocolDelegator<IPPacket> delegator) {
-		this.packetDelegator = delegator;
-	}
+//	public void setIPDelegator(ProtocolDelegator<IPPacket> delegator) {
+//		this.packetDelegator = delegator;
+//	}
 	
 	public ProtocolDelegator<IPPacket> getIPDelegator() {
-		return packetDelegator;
+		return ipProtocol.getDelegator();
+	}
+
+	public void setIPProtocol(IPProtocol ipProtocol) {
+		this.ipProtocol = ipProtocol;
 	}
 
 }
