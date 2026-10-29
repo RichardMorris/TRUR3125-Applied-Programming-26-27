@@ -164,7 +164,7 @@ Delegator and Handles are the trickiest parts to change.
     * DefaultPacketReceiver at end of chain.
 5. This was relatively easy, only problems were with some tests, that used low level access. One test was dropped as there was a higher level test of the same behaviour. Other test used some ugly code to find the appropriate handler for checking logged packets.
 
-After the first stage, all 145 test pass with 95% coverage, and 97 main classes and 29 test classes. 10 more main classes. 
+After the first stage, all 145 test pass with 95% coverage, and 97 main classes and 29 test classes. 10 more main classes.
 
 Virtually every class has been changed but the process was made quite easy by the refactoring tools available in Eclipse. Renaming a method causes the name to be changed in all calling code as well. Inlining can be done in a couple of clicks, and methods can be pulled up to their super class. Search for places than call a particular method proved to be useful in identifying which classes needed to be changed.
 
@@ -174,7 +174,7 @@ AI has proved useful, GitHub CoPilot did help with writing some boiler-plate cod
 
 Examining coverage logs found some unused method, the `send(byte[] frame)` in `PhysicalEndPoint` and `PhysicalConnection` which are now dropped. The `PC.traceroute(IPAddress)` method was unused, test were changed to use this method rather than the lower level calls.
 
-The PC class is now a pure Facade all functionality is passed 
+The PC class is now a pure Facade all functionality is passed
 to other classes. Several methods have been dropped. There are still
 too many component classes, this will be reduced when we introduce
 Protocol classes in stage 2.  
@@ -280,7 +280,7 @@ Applies to Ethernet, WI-FI (to come)
 1. Ethernet
 
     * Implemented as `EthernetProtocol implements UpperPort<EthernetFrame>` three components
-    * `FrameDelegator` also acts as the `FrameReceiver` 
+    * `FrameDelegator` also acts as the `FrameReceiver`
     * `NICCard` acts as the `FrameSender` and `PhysicalEndPoint`
     * Two provided `ProtocolHandler<EthernetFrame>`
         * `FrameChecker` - should be first in sequence
@@ -289,3 +289,10 @@ Applies to Ethernet, WI-FI (to come)
     * Has a `finalise` method that is called after other components are added, ensuring default frame handler is last called.
     * PC has a `setEthernetProtocol` method.
 
+2. ARP
+
+    * Implemented as `ARPProtocol`
+    * Now in it's own sub-package.
+    * Mostly just a wrapper around the `ARPController`
+    * Methods like `lookup(IPAddress)` exposed through the protocol.
+    * Some configuration issue as EthernetPacketSender needs the arp controller to lookup and requests.
