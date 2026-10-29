@@ -174,4 +174,103 @@ AI has proved useful, GitHub CoPilot did help with writing some boiler-plate cod
 
 Examining coverage logs found some unused method, the `send(byte[] frame)` in `PhysicalEndPoint` and `PhysicalConnection` which are now dropped. The `PC.traceroute(IPAddress)` method was unused, test were changed to use this method rather than the lower level calls.
 
-## Stage 2
+The PC class is now a pure Facade all functionality is passed 
+to other classes. Several methods have been dropped. There are still
+too many component classes, this will be reduced when we introduce
+Protocol classes in stage 2.  
+
+![PC after stage 1](diagrams/week14_stage1_pc.png)
+
+## Stage 2 - Protocol Classes
+
+## User Story 2
+
+As a software engineer I want to use have a protocol class representing all the operations of a protocol so that:
+
+* protocol classes share a common pattern
+* protocol classes can be wired together
+* it is easier to configure a PC or other devices
+* internal components can be inspected
+
+## Acceptance Criteria 2
+
+Scenario: Double sided protocol
+
+Applies to IP protocol
+
+* Given: An intermediate level protocol, B with a lower level protocol A and higher level protocol C.
+* When: It's protocol class is created
+  * Then: All its internal components are created
+  * And: A default set of handlers is provided.
+  * And: Connection to a lower level is exposed through a `LowerAdapter<A>`
+  * And: Connections to a higher level through an `UpperPort<B>`
+  * And: Its internal components can be discovered by test classes
+
+Scenario: Data-link-layer protocol
+
+* Given: A data link layer protocol
+* When: It's protocol class is created
+  * Then: All its internal components are created
+  * And: A default set of handlers is provided.
+  * And: Connection to the physical layer is exposed through a `ByteAdapter`
+  * And: Connections to a higher level through an `UpperPort`
+  * And: Its internal components can be discovered by test classes
+
+Scenario: physical layer protocol
+
+* Given: A physical layer protocol
+* When: It's protocol class is created
+  * Then: All its internal components are created
+  * And: A default set of handlers is provided.
+  * And: Connections to a higher level through an `BytePort`
+  * And: Its internal components can be discovered by test classes
+
+Scenario: Upper layer protocol
+
+Applies to ARP, ICMP, DHCP (to come)
+
+* Given: An upper level protocol, B with a lower level protocol A and no higher layer protocol.
+* When: It's protocol class is created
+  * Then: All its internal components are created
+  * And: A default set of handlers is provided.
+  * And: Connection to a lower level is exposed through a `LowerAdapter<A>`
+  * And: Its internal components can be discovered by test classes
+
+Scenario: Transport Layer Protocols
+
+Applies to UDP and TCP (to come)
+
+* Given: A transport level protocol, B with a lower level protocol A and application protocol.
+* When: It's protocol class is created
+  * Then: All its internal components are created
+  * And: A default set of handlers is provided.
+  * And: Connection to a lower level is exposed through a `LowerAdapter<A>`
+  * And: Connections to a higher level through an `ApplicationPort`
+  * And: Its internal components can be discovered by test classes
+
+Scenario: Application Layer Protocol
+
+* Given: An application level protocol, B with a lower level transport protocol A.
+* When: It's protocol class is created
+  * Then: All its internal components are created
+  * And: Connection to a lower level is exposed through a `ApplicationAdapter<A>`
+* When: A client, server, or daemon application is created.
+  * Then: It's handler can be register through the `bind` system call.
+  * And: It can send and receive data through a `Socket<A>`
+* When: an application closes it's socket
+  * Then: It's handler is removed
+
+Scenario: multiple data-link layer protocols
+
+Applies to Ethernet, WI-FI (to come)
+
+* Given: Two data-link layer protocol's and matching physical layers protocol's
+* When: The protocols are created
+  * Then: Their components are created.
+  * And: Each has a separate MAC address.
+  * And: They can be registered with the network layer
+
+* Given: The protocols are registed with the network layer
+* When: An outbound message is sent through the network layer
+  * Then: It is directed to the correct protocol
+* When: An inbound message is received, it is sent to network layer
