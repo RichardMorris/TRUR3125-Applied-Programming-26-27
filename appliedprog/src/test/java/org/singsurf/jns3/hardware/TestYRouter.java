@@ -168,7 +168,7 @@ class TestYRouter {
 		assertNotNull(leg2);
 
 		System.out.println("Sending GARP request");
-		pc.sendGARPRequest();
+		pc.getArpController().sendGARPRequest();
 		
 		System.out.println("Leg 1 forward "+ leg1.getForwardCount() + " reversed " + leg1.getReverseCount());
 		System.out.println("Leg 2 forward "+ leg2.getForwardCount() + " reversed " + leg2.getReverseCount());

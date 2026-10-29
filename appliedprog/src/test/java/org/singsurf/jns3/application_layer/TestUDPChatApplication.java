@@ -47,7 +47,7 @@ class TestUDPChatApplication {
 		pc2.setIPAddress(deviceFactory.createSequentialLocalIPAddress());
 		pc3.setIPAddress(deviceFactory.createSequentialLocalIPAddress());
 
-		pc1.sendGARPRequest();
+		pc1.getArpController().sendGARPRequest();
 		GlobalWallClock.advanceBy(4);
 		Jns3Logger.clearLog();
 		var chat1 = new ChatApplication(pc1,pc3.getIPAddress());
@@ -97,7 +97,7 @@ class TestUDPChatApplication {
 		assertNotNull(connection3);
 		assertNotNull(connection4);
 		
-		pc1.sendGARPRequest();
+		pc1.getArpController().sendGARPRequest();
 		GlobalWallClock.advanceBy(4);
 		Jns3Logger.clearLog();
 		var chat1 = new ChatApplication(pc1,pc3.getIPAddress());
@@ -143,7 +143,7 @@ class TestUDPChatApplication {
 		assertNotNull(connection2);
 		assertNotNull(connection3);
 		
-		pc1.sendGARPRequest();
+		pc1.getArpController().sendGARPRequest();
 		GlobalWallClock.advanceBy(4);
 		// Act
 		Jns3Logger.clearLog();
@@ -171,7 +171,7 @@ class TestUDPChatApplication {
 		var connection1 = new SimpleConnection(pc1.getEndPoint(), pc2.getEndPoint());
 		assertNotNull(connection1);
 		
-		pc1.sendGARPRequest();
+		pc1.getArpController().sendGARPRequest();
 		GlobalWallClock.advanceBy(4);
 		// Act
 		Jns3Logger.clearLog();
@@ -199,7 +199,7 @@ class TestUDPChatApplication {
 		var connection1 = new SimpleConnection(pc1.getEndPoint(), pc2.getEndPoint());
 		assertNotNull(connection1);
 		
-		pc1.sendGARPRequest();
+		pc1.getArpController().sendGARPRequest();
 		GlobalWallClock.advanceBy(4);
 		// Act
 		Jns3Logger.clearLog();
@@ -245,7 +245,7 @@ class TestUDPChatApplication {
 		var connection1 = new SimpleConnection(pc1.getEndPoint(), pc2.getEndPoint());
 		assertNotNull(connection1);
 		
-		pc1.sendGARPRequest();
+		pc1.getArpController().sendGARPRequest();
 		GlobalWallClock.advanceBy(4);
 		// Act
 		Jns3Logger.clearLog();
@@ -307,7 +307,7 @@ class TestUDPChatApplication {
 		pc3.setIPAddress(deviceFactory.createSequentialLocalIPAddress());
 		pc4.setIPAddress(deviceFactory.createSequentialLocalIPAddress());
 
-		pc1.sendGARPRequest();
+		pc1.getArpController().sendGARPRequest();
 		GlobalWallClock.advanceBy(4);
 		Jns3Logger.clearLog();
 		var chat1 = new ChatApplication(pc1,pc3.getIPAddress());
@@ -339,7 +339,7 @@ class TestUDPChatApplication {
 		var connection1 = new CountingConnection(pc1.getEndPoint(), pc2.getEndPoint());
 		assertNotNull(connection1);
 		
-		pc1.sendGARPRequest();
+		pc1.getArpController().sendGARPRequest();
 		GlobalWallClock.advanceBy(4);
 		// Act
 		Jns3Logger.clearLog();
@@ -380,7 +380,7 @@ class TestUDPChatApplication {
 		var connection1 = new LossyConnection(pc1.getEndPoint(), pc2.getEndPoint());
 		assertNotNull(connection1);
 		
-		pc1.sendGARPRequest();
+		pc1.getArpController().sendGARPRequest();
 		GlobalWallClock.advanceBy(4);
 		// Act
 		Jns3Logger.clearLog();
@@ -419,7 +419,7 @@ class TestUDPChatApplication {
 		var connection1 = new CorruptedConnection(pc1.getEndPoint(), pc2.getEndPoint());
 		assertNotNull(connection1);
 		
-		pc1.sendGARPRequest();
+		pc1.getArpController().sendGARPRequest();
 		GlobalWallClock.advanceBy(4);
 		// Act
 		Jns3Logger.clearLog();
@@ -468,7 +468,7 @@ class TestUDPChatApplication {
 		connection2.setEnpoint2(connection3.getVirtualEndPoint(0));
 		connection3.setEnpoint1(connection2.getVirtualEndPoint(1));
 		
-		pc1.sendGARPRequest();
+		pc1.getArpController().sendGARPRequest();
 		GlobalWallClock.advanceBy(4);
 		// Act
 		Jns3Logger.clearLog();
@@ -530,7 +530,7 @@ class TestUDPChatApplication {
 		assertNotNull(connection3);
 		assertNotNull(connection4);
 		
-		pc1.sendGARPRequest();
+		pc1.getArpController().sendGARPRequest();
 		GlobalWallClock.advanceBy(4);
 		Jns3Logger.clearLog();
 		connection1.reset();

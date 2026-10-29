@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.singsurf.jns3.data_link_layer.DefaultFrameHandler;
 import org.singsurf.jns3.data_link_layer.FrameChecker;
+import org.singsurf.jns3.data_link_layer.FrameHandler;
 import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.generic_protocol.ProtocolDelegator;
 import org.singsurf.jns3.network_layer.DefaultPacketReceiver;
@@ -100,10 +101,10 @@ public class DeviceFactory {
         pc.setIPDelegator(delegator);
 
 		// Add frame handlers to the PC
-        pc.addFrameHandler(new FrameChecker(pc));
-        pc.addFrameHandler(pc.getArpController());
-        pc.addFrameHandler(new IPFragmentHandler(pc, delegator));
-        pc.addFrameHandler(new DefaultFrameHandler(pc));
+        pc.getFrameDelegator().addHandler((FrameHandler) new FrameChecker(pc));
+        pc.getFrameDelegator().addHandler((FrameHandler) pc.getArpController());
+        pc.getFrameDelegator().addHandler((FrameHandler) new IPFragmentHandler(pc, delegator));
+        pc.getFrameDelegator().addHandler((FrameHandler) new DefaultFrameHandler(pc));
         
 		pc.setMulticastAddress(new IPAddress("192.168.1.255"));
 

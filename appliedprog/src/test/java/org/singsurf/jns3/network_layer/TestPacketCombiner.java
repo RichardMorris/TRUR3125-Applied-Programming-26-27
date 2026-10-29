@@ -288,7 +288,7 @@ class TestPacketCombiner {
 		pc.getFrameDelegator().addHandler(combiner);
 		var connection = new SimpleConnection(pc.getEndPoint(), pc2.getEndPoint());
 		assertNotNull(connection);
-		pc.sendGARPRequest();
+		pc.getArpController().sendGARPRequest();
 		IPPacket packet1 = new IPPacket((int) IPPacket.TCP, 64,
 		pc2.getIPAddress(), pc.getIPAddress(), new byte[] {1,2,3,4,5,6,7,8,9,10});
 		// Act
@@ -313,7 +313,7 @@ class TestPacketCombiner {
 		pc.getFrameDelegator().addHandler(combiner);
 		var connection = new SimpleConnection(pc.getEndPoint(), pc2.getEndPoint());
 		assertNotNull(connection);
-		pc.sendGARPRequest();
+		pc.getArpController().sendGARPRequest();
 		
 		String dataString = Jns3Logger.generateOnesComplementTable();
 		IPPacket packet1 = new IPPacket((int) IPPacket.TCP, 64,

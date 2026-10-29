@@ -1,7 +1,6 @@
 package org.singsurf.jns3.hardware;
 import org.singsurf.jns3.data_link_layer.ARPController;
 import org.singsurf.jns3.data_link_layer.FrameDelegator;
-import org.singsurf.jns3.data_link_layer.FrameHandler;
 import org.singsurf.jns3.data_link_layer.FrameReceiver;
 import org.singsurf.jns3.data_link_layer.FrameSender;
 import org.singsurf.jns3.data_link_layer.MACAddress;
@@ -10,7 +9,6 @@ import org.singsurf.jns3.generic_protocol.ProtocolDelegator;
 import org.singsurf.jns3.network_layer.EthernetPacketSender;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPPacket;
-import org.singsurf.jns3.network_layer.PacketReceiver;
 import org.singsurf.jns3.network_layer.PacketSender;
 import org.singsurf.jns3.network_layer.icmp.ICMPPacketReceiver;
 import org.singsurf.jns3.network_layer.icmp.PingController;
@@ -28,38 +26,50 @@ public class PC implements AddressableDevice, Terminal {
     IPAddress ipAddress;
 	IPAddress multiCastIP;
 
+	FrameSender endPoint;
+	FrameDelegator frameDelegator;
     ARPController arpController;
-	FrameSender ethernetEndPoint;
-	FrameDelegator frameReceiver;
-	PacketReceiver packetReceiver;
+	
     PacketSender packetSender;
-	ICMPPacketReceiver icmpPacketReceiver;
+	ProtocolDelegator<IPPacket> packetDelegator;
+    
+	ICMPPacketReceiver icmpPacketReceiver;	
 	PingController pingController;
     UDPController udpController;
-	ProtocolDelegator<IPPacket> delegator;
+    
 
     public PC(String name, MACAddress macAddress, IPAddress ipAddress) {
         this.name = name;
         this.macAddress = macAddress;
         this.ipAddress = ipAddress;
-        this.frameReceiver = new FrameDelegator(name);
-        this.ethernetEndPoint = new NICCard(name, this.frameReceiver);
-        this.arpController = new ARPController(this,ethernetEndPoint);
-        this.packetSender = new EthernetPacketSender(this, arpController, ethernetEndPoint);
+        this.frameDelegator = new FrameDelegator(name);
+        this.endPoint = new NICCard(name, this.frameDelegator);
+        this.arpController = new ARPController(this,endPoint);
+        this.packetSender = new EthernetPacketSender(this, arpController, endPoint);
     }
+    
+    // Commands available to the user of the PC
 
-    public void addFrameHandler(FrameHandler frameHandler) {
-    	frameReceiver.addHandler(frameHandler);
-    }
+	public void ping(IPAddress ipAddress2, int i) {
+		pingController.sendPingRequest(ipAddress2, i);
+	}
 
-    public void sendGARPRequest() {
-        arpController.sendGARPRequest();
-    }
+	public void traceroute(IPAddress ipAddress2) {
+		pingController.sendTraceroute(ipAddress2);
+	}
 
-    public MACAddress lookup(IPAddress ipAddress) {
-        return arpController.lookup(ipAddress);
-    }
+	// System commands available application code
+	
+	public void bind(DatagramSocket socket, IPAddress multicastAddress, short portNumber) {
+		udpController.bind(multicastAddress, portNumber, socket);		
+	}
 
+	public void display(String string) {
+		System.out.println(string);
+	}
+
+	// General information about the PC
+	
     @Override
     public String toString() {
         return "PC\t" + getName() + "\t" + getMACAddress() + "\t" + getIPAddress();
@@ -79,56 +89,50 @@ public class PC implements AddressableDevice, Terminal {
     public IPAddress getIPAddress() {
         return ipAddress;
     }
-
-    public PhysicalEndPoint getEndPoint() {
-        return (PhysicalEndPoint) ethernetEndPoint;
-    }
     
-    public FrameDelegator getFrameDelegator() {
-		return frameReceiver;
+	public IPAddress getMulticastAddress() {
+		return multiCastIP;
 	}
+
+	// system calls
+	
+	public void setMulticastAddress(IPAddress multiCastIP) {
+		this.multiCastIP = multiCastIP;
+		this.arpController.put(multiCastIP, MACAddress.BROADCAST_MAC);
+	}
+
+	public void setIPAddress(IPAddress ip) {
+		this.ipAddress = ip;
+	}
+
+    // Setters and Getters for various components
     
     public void setEndPoint(FrameSender endPoint) {
-		this.ethernetEndPoint = endPoint;
+		this.endPoint = endPoint;
 	}
 
     public ARPController getArpController() {
         return arpController;
     }
+    
+    public PhysicalEndPoint getEndPoint() {
+        return (PhysicalEndPoint) endPoint;
+    }
+    
+    public FrameDelegator getFrameDelegator() {
+		return frameDelegator;
+	}
 
-//	public void clearFrameHandlers() {
-//		frameReceiver.clear();		
-//	}
-	
 	public FrameReceiver getFrameReceiver() {
-		return frameReceiver;
+		return frameDelegator;
 	}
 	
 	public FrameSender getFrameSender() {
-		return ethernetEndPoint;
+		return endPoint;
 	}
 	
 	public PacketSender getPacketSender() {
 		return packetSender;
-	}
-	
-	public void display(String string) {
-		System.out.println(string);
-	}
-
-	public void bind(DatagramSocket socket, IPAddress multicastAddress, short portNumber) {
-		udpController.bind(multicastAddress, portNumber, socket);
-		
-	}
-	
-
-	public IPAddress getMulticastAddress() {
-		return multiCastIP;
-	}
-
-	public void setMulticastAddress(IPAddress multiCastIP) {
-		this.multiCastIP = multiCastIP;
-		this.arpController.put(multiCastIP, MACAddress.BROADCAST_MAC);
 	}
 
 	public void setICMPHandler(ICMPPacketReceiver icmpPacketReceiver) {
@@ -147,10 +151,6 @@ public class PC implements AddressableDevice, Terminal {
 		return udpController;
 	}
 
-	public void ping(IPAddress ipAddress2, int i) {
-		pingController.sendPingRequest(ipAddress2, i);
-	}
-
 	public void setPingController(PingController newInstance) {
 		this.pingController = newInstance;		
 	}
@@ -159,19 +159,11 @@ public class PC implements AddressableDevice, Terminal {
 		return pingController;
 	}
 
-	public void traceroute(IPAddress ipAddress2) {
-		pingController.sendTraceroute(ipAddress2);
-	}
-
-	public void setIPAddress(IPAddress ip) {
-		this.ipAddress = ip;
-	}
-
 	public void setIPDelegator(ProtocolDelegator<IPPacket> delegator) {
-		this.delegator = delegator;
+		this.packetDelegator = delegator;
 	}
 	
 	public ProtocolDelegator<IPPacket> getIPDelegator() {
-		return delegator;
+		return packetDelegator;
 	}
 }

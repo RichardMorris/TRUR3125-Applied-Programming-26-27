@@ -61,7 +61,7 @@ class TestICMPHandler {
 		var connection = new SimpleConnection(pc1.getEndPoint(), pc2.getEndPoint());
 		assertNotNull(connection);
 		
-		pc1.sendGARPRequest();
+		pc1.getArpController().sendGARPRequest();
 		// Act
 		Jns3Logger.clearLog();
 		

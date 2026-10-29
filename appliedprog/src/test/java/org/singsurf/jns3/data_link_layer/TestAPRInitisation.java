@@ -80,7 +80,7 @@ public class TestAPRInitisation {
     @Test
     public void testMessageToAnIP() {
         var arpController = pc1.getArpController();
-        pc1.sendGARPRequest();
+        pc1.getArpController().sendGARPRequest();
 
         Jns3Logger.clearLog();
 

@@ -91,7 +91,7 @@ public class TestHalfDuplexConnection {
     @Test
     public void two_ticks_for_arp_negotiation() {
         Jns3Logger.clearLog();
-        pc1.sendGARPRequest();
+        pc1.getArpController().sendGARPRequest();
         System.out.println(Jns3Logger.asString());
         assertEquals(3, Jns3Logger.size());
         var logs = Jns3Logger.getLogItems();
@@ -107,8 +107,8 @@ public class TestHalfDuplexConnection {
         
         Jns3Logger.clearLog();
         GlobalWallClock.getInstance().advanceTime();
-        var mac1 = pc2.lookup(pc1.getIPAddress());
-        var mac2 = pc1.lookup(pc2.getIPAddress());
+        var mac1 = pc2.getArpController().lookup(pc1.getIPAddress());
+        var mac2 = pc1.getArpController().lookup(pc2.getIPAddress());
 		byte[] payload = "Forward 1".getBytes();
 		short etherType = (short) payload.length;
         
