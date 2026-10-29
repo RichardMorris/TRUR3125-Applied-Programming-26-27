@@ -334,4 +334,100 @@ Relatively painless. Only a few small changes to get all 145 tests to pass.
 * In the register method the setters should be called before getters
 to ensure all handles are initialised.
 
+    ```java
+    public void register(LowerAdapter<IPPacket> adapter) {
+        adapter.setOutboundSender(packetSender);
+        adapter.setInboundCallback(delegator);
+        for(var h: adapter.getInboundHandlers()) {
+            delegator.addHandler(h);
+        }
+    }
+    ```
 
+* The biggest change is with the `DeviceFactory.createPC()` builder.
+
+  ```java
+    public PC createPC(String name) {
+        MACAddress mac = createMACAddress();
+        IPAddress ip = createLocalIPAddress();
+        var pc = new PC(name, mac, ip);
+        // boot logic for the PC
+        pc.setPacketReceiver(new DefaultPacketReceiver(pc.getName()));
+        // Set up ICMP handler and add it to the packet receiver
+        pc.setICMPHandler(new ICMPPacketReceiver(pc.getName(), pc.
+            getPacketReceiver()));
+        pc.setPacketReceiver(pc.getICMPHandler());
+        pc.setPingController(PingController.newInstance(pc));
+        pc.getICMPHandler().addHandler(pc.getPingController());
+        pc.getICMPHandler().addHandler(new PingRequestHandler(pc, pc));
+        pc.getICMPHandler().addHandler(
+            new ICMPMessageLogger("ICMPLogger1"));
+        // Set up UDP controller and add it to the packet receiver
+        pc.setUDPController(new UDPController(pc, 
+            pc.getPacketSender(),
+            pc.getPacketReceiver()));
+        pc.setPacketReceiver(pc.getUDPController());
+        // Add frame handlers to the PC
+        pc.addFrameHandler(new FrameChecker(pc));
+        pc.addFrameHandler(pc.getArpController());
+        pc.addFrameHandler(new IPFragmentHandler(pc, 
+            pc.getPacketReceiver()));
+        pc.addFrameHandler(new DefaultFrameHandler(pc));
+        
+        pc.setMulticastAddress(new IPAddress("192.168.1.255"));
+
+        return pc;
+    }
+  ```
+
+After
+
+  ```java
+      public PC createPC(String name) {
+        MACAddress mac = createMACAddress();
+        IPAddress ip = createLocalIPAddress();
+        var pc = new PC(name, mac, ip);
+        
+        // boot logic for the PC
+        
+        EthernetProtocol ethernetProtocol = new EthernetProtocol(pc);
+        pc.setEthernetProtocol(ethernetProtocol);
+        
+        ARPProtocol arpProtocol = new ARPProtocol(pc);
+        pc.setArpProtocol(arpProtocol);
+        ethernetProtocol.register(arpProtocol);
+
+        IPProtocol ipProtocol = new IPProtocol(pc, arpProtocol);
+        pc.setIPProtocol(ipProtocol);
+        ethernetProtocol.register(ipProtocol);
+
+        ICMPProtocol icmpProtocol = new ICMPProtocol(pc,pc.getTerminal());
+        ipProtocol.register(icmpProtocol);
+        pc.setIcmpProtocol(icmpProtocol);
+                
+        UDPProtocol udpProtocol = new UDPProtocol(pc);
+        ipProtocol.register(udpProtocol);
+        pc.setUDPProtocol(udpProtocol);
+
+        ipProtocol.finalise();
+        ethernetProtocol.finalise();
+
+        pc.setMulticastAddress(new IPAddress("192.168.1.255"));
+
+        return pc;
+    }
+  ```
+
+Which is cleaner, with less details exposed of the internals of components.
+
+## Class diagrams
+
+The class diagram can be greatly simplified by using the five different Protocol implementations.
+
+![Class diagram with components](diagrams/week14_protocols.png)
+
+The generic framework has been modified a bit.
+
+![Generic Protocol](diagrams/week14_generic.png)
+
+Diagrams for the internals of the protocols will wait a bit.
