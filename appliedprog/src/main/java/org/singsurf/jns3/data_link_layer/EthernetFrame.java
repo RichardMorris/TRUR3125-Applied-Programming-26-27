@@ -3,6 +3,7 @@ package org.singsurf.jns3.data_link_layer;
 import java.util.Arrays;
 import java.util.zip.CRC32;
 
+import org.singsurf.jns3.data_link_layer.arp.ARPMessage;
 import org.singsurf.jns3.generic_protocol.ProtocolContainer;
 
 /**

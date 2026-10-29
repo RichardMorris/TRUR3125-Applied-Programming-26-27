@@ -1,4 +1,4 @@
-package org.singsurf.jns3.data_link_layer;
+package org.singsurf.jns3.data_link_layer.arp;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.Jns3Logger.LogItem;
+import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.hardware.DeviceFactory;
 import org.singsurf.jns3.hardware.PC;
 import org.singsurf.jns3.physical_layer.SimpleConnection;
@@ -46,7 +47,7 @@ public class TestAPRInitisation {
     @Test
     public void testGRAP() {
         Jns3Logger.clearLog();
-        var arpController = pc1.getArpController();
+        var arpController = pc1.getArpProtocol().getArpController();
         assertEquals(1, arpController.getArpTable().size());
         assertEquals(1, arpController.getReverseArpTable().size());
         arpController.sendGARPRequest();
@@ -71,16 +72,17 @@ public class TestAPRInitisation {
         assertEquals(pc2.getMACAddress(), arpController.getArpTable().get(pc2.getIPAddress()));
         assertEquals(pc2.getIPAddress(), arpController.getReverseArpTable().get(pc2.getMACAddress()));
 
-        assertTrue(pc2.getArpController().getArpTable().containsKey(pc1.getIPAddress()));
-        assertTrue(pc2.getArpController().getReverseArpTable().containsKey(pc1.getMACAddress()));
-        assertEquals(pc1.getMACAddress(), pc2.getArpController().getArpTable().get(pc1.getIPAddress()));
-        assertEquals(pc1.getIPAddress(), pc2.getArpController().getReverseArpTable().get(pc1.getMACAddress()));
+        var arpController2 = pc2.getArpProtocol().getArpController();
+        assertTrue(arpController2.getArpTable().containsKey(pc1.getIPAddress()));
+        assertTrue(arpController2.getReverseArpTable().containsKey(pc1.getMACAddress()));
+        assertEquals(pc1.getMACAddress(), pc2.getArpProtocol().getArpController().getArpTable().get(pc1.getIPAddress()));
+        assertEquals(pc1.getIPAddress(), pc2.getArpProtocol().getArpController().getReverseArpTable().get(pc1.getMACAddress()));
     }
 
     @Test
     public void testMessageToAnIP() {
-        var arpController = pc1.getArpController();
-        pc1.getArpController().sendGARPRequest();
+        var arpController = pc1.getArpProtocol().getArpController();
+        pc1.getArpProtocol().sendGARPRequest();
 
         Jns3Logger.clearLog();
 
@@ -107,7 +109,7 @@ public class TestAPRInitisation {
 
     @Test
     public void testReverseMessageToAnIP() {
-        var arpController = pc2.getArpController();
+        var arpController = pc2.getArpProtocol().getArpController();
         arpController.sendGARPRequest();
 
         Jns3Logger.clearLog();

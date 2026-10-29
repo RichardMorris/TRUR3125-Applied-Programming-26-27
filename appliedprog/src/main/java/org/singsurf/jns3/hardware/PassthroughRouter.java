@@ -1,11 +1,11 @@
 package org.singsurf.jns3.hardware;
 
 import org.singsurf.jns3.Jns3Logger;
-import org.singsurf.jns3.data_link_layer.ARPController;
-import org.singsurf.jns3.data_link_layer.ARPMessage;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.data_link_layer.FrameSender;
 import org.singsurf.jns3.data_link_layer.MACAddress;
+import org.singsurf.jns3.data_link_layer.arp.ARPController;
+import org.singsurf.jns3.data_link_layer.arp.ARPMessage;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPPacket;
 import org.singsurf.jns3.network_layer.IPPacketExtractor;

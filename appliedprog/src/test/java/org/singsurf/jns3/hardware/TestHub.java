@@ -66,10 +66,10 @@ public class TestHub {
         public void connection_to_unknown_mac_address() {
             Jns3Logger.clearLog();
             var destIP = pc2.getIPAddress();
-            var destMAC = pc1.arpController.getArpTable().get(destIP);
+            var destMAC = pc1.getArpProtocol().lookup(destIP);
             assertNull(destMAC);
 
-            pc1.arpController.sendArpRequest(destIP);
+            pc1.getArpProtocol().sendArpRequest(destIP);
 
             List<LogItem> logs = Jns3Logger.getLogItems();
             System.out.println(logs);
@@ -77,7 +77,7 @@ public class TestHub {
 
             Jns3Logger.clearLog();
 
-            destMAC = pc1.arpController.getArpTable().get(destIP);
+            destMAC = pc1.getArpProtocol().lookup(destIP);
             assertNotNull(destMAC);
             assertEquals(pc2.getMACAddress(), destMAC);
 			byte[] payload = "Hello PC2 from PC1".getBytes();
@@ -96,7 +96,7 @@ public class TestHub {
             // PC2 should have PC1's MAC address in its ARP table
             Jns3Logger.clearLog();
 
-            destMAC = pc2.arpController.getArpTable().get(pc1.getIPAddress());
+            destMAC = pc2.getArpProtocol().lookup(pc1.getIPAddress());
             assertNotNull(destMAC);
             assertEquals(pc1.getMACAddress(), destMAC);
 			byte[] payload1 = "Hello PC1 from PC2".getBytes();
@@ -175,10 +175,10 @@ public class TestHub {
         public void connection_to_unknown_mac_address() {
             Jns3Logger.clearLog();
             var destIP = pc2.getIPAddress();
-            var destMAC = pc1.arpController.getArpTable().get(destIP);
+            var destMAC = pc1.getArpProtocol().lookup(destIP);
             assertNull(destMAC);
 
-            pc1.arpController.sendArpRequest(destIP);
+            pc1.getArpProtocol().sendArpRequest(destIP);
 
             List<LogItem> logs = Jns3Logger.getLogItems();
             System.out.println(logs);
@@ -186,7 +186,7 @@ public class TestHub {
 
             Jns3Logger.clearLog();
 
-            destMAC = pc1.arpController.getArpTable().get(destIP);
+            destMAC = pc1.getArpProtocol().lookup(destIP);
             assertNotNull(destMAC);
             assertEquals(pc2.getMACAddress(), destMAC);
 			byte[] payload = "Hello PC2 from PC1".getBytes();
@@ -211,7 +211,7 @@ public class TestHub {
             // PC2 should have PC1's MAC address in its ARP table
             Jns3Logger.clearLog();
 
-            destMAC = pc2.arpController.getArpTable().get(pc1.getIPAddress());
+            destMAC = pc2.getArpProtocol().lookup(pc1.getIPAddress());
             assertNotNull(destMAC);
             assertEquals(pc1.getMACAddress(), destMAC);
 			byte[] payload1 = "Hello PC1 from PC2".getBytes();

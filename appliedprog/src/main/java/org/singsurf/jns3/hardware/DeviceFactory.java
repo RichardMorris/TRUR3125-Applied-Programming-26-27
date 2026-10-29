@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.singsurf.jns3.data_link_layer.EthernetProtocol;
 import org.singsurf.jns3.data_link_layer.MACAddress;
+import org.singsurf.jns3.data_link_layer.arp.ARPProtocol;
 import org.singsurf.jns3.generic_protocol.ProtocolDelegator;
 import org.singsurf.jns3.network_layer.DefaultPacketReceiver;
 import org.singsurf.jns3.network_layer.IPAddress;
@@ -83,6 +84,10 @@ public class DeviceFactory {
 
         EthernetProtocol ethernetProtocol = new EthernetProtocol(pc);
         pc.setEthernetProtocol(ethernetProtocol);
+        
+        ARPProtocol arpProtocol = new ARPProtocol(pc);
+        pc.setArpProtocol(arpProtocol);
+        ethernetProtocol.register(arpProtocol);
 
 		// Set up ICMP handler and add it to the packet receiver
         pc.setICMPHandler(new ICMPPacketReceiver(pc.getName()));

@@ -1,9 +1,11 @@
-package org.singsurf.jns3.data_link_layer;
+package org.singsurf.jns3.data_link_layer.arp;
+
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
+import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.network_layer.IPAddress;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 public class TestARPMessage {
     @Test

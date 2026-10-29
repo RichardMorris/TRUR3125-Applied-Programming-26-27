@@ -25,7 +25,7 @@ public class EthernetProtocol implements UpperPort<EthernetFrame> {
 
 	@Override
 	public void register(LowerAdapter<EthernetFrame> adapter) {
-		for(var h: delegator.getHandlers()) {
+		for(var h: adapter.getInboundHandlers()) {
 			delegator.addHandler(h);
 		}
 		adapter.setOutboundSender(sender);

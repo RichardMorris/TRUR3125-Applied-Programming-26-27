@@ -56,11 +56,11 @@ class TestPassthroughRouter {
 		assertNotNull(connection2);
 		
 		// Act
-		pc1.getArpController().sendGARPRequest();
+		pc1.getArpProtocol().sendGARPRequest();
 		System.out.println(Jns3Logger.asString());
 		Jns3Logger.clearLog();
-		assertEquals(pc1.getMACAddress(), pc2.getArpController().lookup(pc1.getIPAddress()));
-		assertEquals(pc2.getMACAddress(), pc1.getArpController().lookup(pc2.getIPAddress()));
+		assertEquals(pc1.getMACAddress(), pc2.getArpProtocol().lookup(pc1.getIPAddress()));
+		assertEquals(pc2.getMACAddress(), pc1.getArpProtocol().lookup(pc2.getIPAddress()));
 		assertTrue(Jns3Logger.isErrorFree());
 	}
 
@@ -71,7 +71,7 @@ class TestPassthroughRouter {
 		assertNotNull(connection1);
 		assertNotNull(connection2);
 		
-		pc1.getArpController().sendGARPRequest();
+		pc1.getArpProtocol().sendGARPRequest();
 		// Act
 		Jns3Logger.clearLog();
 		Jns3Logger.startCapture();
@@ -102,7 +102,7 @@ class TestPassthroughRouter {
 		assertNotNull(connection1);
 		assertNotNull(connection2);
 		
-		pc1.getArpController().sendGARPRequest();
+		pc1.getArpProtocol().sendGARPRequest();
 		System.out.println(Jns3Logger.asString());
 		// Act
 		Jns3Logger.clearLog();
@@ -133,7 +133,7 @@ class TestPassthroughRouter {
 		assertNotNull(connection1);
 		assertNotNull(connection2);
 		
-		pc1.getArpController().sendGARPRequest();
+		pc1.getArpProtocol().sendGARPRequest();
 		GlobalWallClock.advanceBy(4);
 		// Act
 		Jns3Logger.clearLog();		
@@ -179,7 +179,7 @@ class TestPassthroughRouter {
 		assertNotNull(connection1);
 		assertNotNull(connection2);
 		
-		pc1.getArpController().sendGARPRequest();
+		pc1.getArpProtocol().sendGARPRequest();
 		GlobalWallClock.advanceBy(4);
 		// Act
 		Jns3Logger.clearLog();
@@ -209,7 +209,7 @@ class TestPassthroughRouter {
 		assertNotNull(connection1);
 		assertNotNull(connection2);
 		
-		pc1.getArpController().sendGARPRequest();
+		pc1.getArpProtocol().sendGARPRequest();
 		GlobalWallClock.advanceBy(4);
 		// Act
 		Jns3Logger.clearLog();
@@ -242,7 +242,7 @@ class TestPassthroughRouter {
 		assertNotNull(connection1);
 		assertNotNull(connection2);
 		
-		pc1.getArpController().sendGARPRequest();
+		pc1.getArpProtocol().sendGARPRequest();
 		GlobalWallClock.advanceBy(4);
 		// Act
 		Jns3Logger.clearLog();		
@@ -279,7 +279,7 @@ class TestPassthroughRouter {
 		assertNotNull(connection1);
 		assertNotNull(connection2);
 		
-		pc1.getArpController().sendGARPRequest();
+		pc1.getArpProtocol().sendGARPRequest();
 		GlobalWallClock.advanceBy(4);
 		// Act
 		Jns3Logger.clearLog();		

@@ -284,11 +284,11 @@ class TestPacketCombiner {
 		// Arrange
 		PC pc2 = deviceFactory.createPC("Sender PC");
 		pc.getFrameDelegator().clear();
-		pc.getFrameDelegator().addHandler(pc.getArpController());
+		pc.getFrameDelegator().addHandler(pc.getArpProtocol().getArpController());
 		pc.getFrameDelegator().addHandler(combiner);
 		var connection = new SimpleConnection(pc.getEndPoint(), pc2.getEndPoint());
 		assertNotNull(connection);
-		pc.getArpController().sendGARPRequest();
+		pc.getArpProtocol().sendGARPRequest();
 		IPPacket packet1 = new IPPacket((int) IPPacket.TCP, 64,
 		pc2.getIPAddress(), pc.getIPAddress(), new byte[] {1,2,3,4,5,6,7,8,9,10});
 		// Act
@@ -309,11 +309,11 @@ class TestPacketCombiner {
 		// Arrange
 		PC pc2 = deviceFactory.createPC("Sender PC");
 		pc.getFrameDelegator().clear(); // Need set our own frame handlers to protect against later changes.
-		pc.getFrameDelegator().addHandler(pc.getArpController());
+		pc.getFrameDelegator().addHandler(pc.getArpProtocol().getArpController());
 		pc.getFrameDelegator().addHandler(combiner);
 		var connection = new SimpleConnection(pc.getEndPoint(), pc2.getEndPoint());
 		assertNotNull(connection);
-		pc.getArpController().sendGARPRequest();
+		pc.getArpProtocol().sendGARPRequest();
 		
 		String dataString = Jns3Logger.generateOnesComplementTable();
 		IPPacket packet1 = new IPPacket((int) IPPacket.TCP, 64,

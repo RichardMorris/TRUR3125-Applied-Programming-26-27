@@ -1,5 +1,7 @@
-package org.singsurf.jns3.data_link_layer;
+package org.singsurf.jns3.data_link_layer.arp;
 
+import org.singsurf.jns3.data_link_layer.EthernetFrame;
+import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.generic_protocol.ProtocolContainer;
 import org.singsurf.jns3.network_layer.IPAddress;
 

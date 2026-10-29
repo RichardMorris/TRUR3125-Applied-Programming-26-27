@@ -7,10 +7,10 @@ import java.util.Map;
 import java.util.Queue;
 
 import org.singsurf.jns3.Jns3Logger;
-import org.singsurf.jns3.data_link_layer.ARPController;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.data_link_layer.FrameSender;
 import org.singsurf.jns3.data_link_layer.MACAddress;
+import org.singsurf.jns3.data_link_layer.arp.ARPController;
 import org.singsurf.jns3.hardware.AddressableDevice;
 import org.singsurf.jns3.hardware.GlobalWallClock;
 import org.singsurf.jns3.hardware.GlobalWallClock.TickListener;

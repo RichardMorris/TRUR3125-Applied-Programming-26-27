@@ -135,12 +135,6 @@ class TestYRouter {
 				break;
 			}
 		}
-//		var receiver = new DefaultPacketReceiver(pc.getName());
-//		var combiner = new IPFragmentHandler(pc,receiver);
-//		pc.getFrameDelegator().clear(); // Need set our own frame handlers to protect against later changes.
-//		pc.getFrameDelegator().addHandler(pc.getArpController());
-//		pc.getFrameDelegator().addHandler(combiner);
-
 		
 		PC pc2 = deviceFactory.createPC("Sender PC");
 		
@@ -168,7 +162,7 @@ class TestYRouter {
 		assertNotNull(leg2);
 
 		System.out.println("Sending GARP request");
-		pc.getArpController().sendGARPRequest();
+		pc.getArpProtocol().sendGARPRequest();
 		
 		System.out.println("Leg 1 forward "+ leg1.getForwardCount() + " reversed " + leg1.getReverseCount());
 		System.out.println("Leg 2 forward "+ leg2.getForwardCount() + " reversed " + leg2.getReverseCount());

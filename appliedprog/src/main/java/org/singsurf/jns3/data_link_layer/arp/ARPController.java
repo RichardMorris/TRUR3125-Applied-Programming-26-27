@@ -1,9 +1,13 @@
-package org.singsurf.jns3.data_link_layer;
+package org.singsurf.jns3.data_link_layer.arp;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import org.singsurf.jns3.Jns3Logger;
+import org.singsurf.jns3.data_link_layer.EthernetFrame;
+import org.singsurf.jns3.data_link_layer.FrameHandler;
+import org.singsurf.jns3.data_link_layer.FrameSender;
+import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.generic_protocol.HandlerStatus;
 import org.singsurf.jns3.hardware.AddressableDevice;
 import org.singsurf.jns3.network_layer.IPAddress;
@@ -27,7 +31,11 @@ public class ARPController implements FrameHandler {
 		this.sender = sender;
 	}
     
-    private boolean handleFrame(EthernetFrame frame) {
+    public ARPController(AddressableDevice device) {
+		this.device = device;
+	}
+
+	private boolean handleFrame(EthernetFrame frame) {
         if(frame.getEtherType() != ARPMessage.ARP_ETHER_TYPE) return false;
 
         if(frame.getDestination().equals(MACAddress.BROADCAST_MAC)
@@ -122,4 +130,10 @@ public class ARPController implements FrameHandler {
 	public HandlerStatus handle(EthernetFrame type) {
 		return handleFrame(type) ? HandlerStatus.COMPLETED : HandlerStatus.CONTINUE;
 	}
+
+	public void setSender(FrameSender sender) {
+		this.sender = sender;
+	}
+	
+	
 }

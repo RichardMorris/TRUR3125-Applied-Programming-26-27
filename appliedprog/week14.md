@@ -274,3 +274,18 @@ Applies to Ethernet, WI-FI (to come)
 * When: An outbound message is sent through the network layer
   * Then: It is directed to the correct protocol
 * When: An inbound message is received, it is sent to network layer
+
+## Implementation 2
+
+1. Ethernet
+
+    * Implemented as `EthernetProtocol implements UpperPort<EthernetFrame>` three components
+    * `FrameDelegator` also acts as the `FrameReceiver` 
+    * `NICCard` acts as the `FrameSender` and `PhysicalEndPoint`
+    * Two provided `ProtocolHandler<EthernetFrame>`
+        * `FrameChecker` - should be first in sequence
+        * `DefaultFrameHandler` - should be the last in sequence
+    * Has an `addHandler` method that passes handlers to the delegator.
+    * Has a `finalise` method that is called after other components are added, ensuring default frame handler is last called.
+    * PC has a `setEthernetProtocol` method.
+
