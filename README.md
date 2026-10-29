@@ -42,4 +42,7 @@ See [week 12](appliedprog/Week12.md)
 See [week 13](appliedprog/Week13.md)
 
 * Week 14 - Generic refactoring, applying the  framework to the current system
-See [week 13](appliedprog/Week13.md)
+See [week 14](appliedprog/Week14.md)
+
+* Week 15 - DHCP - configures IP address on LAN
+See [week 15](appliedprog/Week14.md)
