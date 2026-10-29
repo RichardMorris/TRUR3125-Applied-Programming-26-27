@@ -8,10 +8,7 @@ import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.data_link_layer.arp.ARPProtocol;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPProtocol;
-import org.singsurf.jns3.network_layer.icmp.ICMPMessageLogger;
-import org.singsurf.jns3.network_layer.icmp.ICMPPacketReceiver;
-import org.singsurf.jns3.network_layer.icmp.PingController;
-import org.singsurf.jns3.network_layer.icmp.PingRequestHandler;
+import org.singsurf.jns3.network_layer.icmp.ICMPProtocol;
 import org.singsurf.jns3.transport_layer.udp.UDPController;
 
 /**
@@ -86,7 +83,7 @@ public class DeviceFactory {
         ethernetProtocol.register(arpProtocol);
 
 		// Set up ICMP handler and add it to the packet receiver
-        pc.setICMPHandler(new ICMPPacketReceiver(pc.getName()));
+//        pc.setICMPHandler(new ICMPPacketReceiver(pc.getName()));
 
         IPProtocol ipProtocol = new IPProtocol(pc, arpProtocol);
         pc.setIPProtocol(ipProtocol);
@@ -97,15 +94,14 @@ public class DeviceFactory {
 		// Add frame handlers to the PC
         ethernetProtocol.finalise();
 
-		pc.setPingController(PingController.newInstance(pc));
-		pc.getICMPHandler().addHandler(pc.getPingController());
-		pc.getICMPHandler().addHandler(new PingRequestHandler(pc, ipProtocol.getPacketSender()));
-		pc.getICMPHandler().addHandler(new ICMPMessageLogger("ICMPLogger1"));
-		
+        ICMPProtocol icmpProtocol = new ICMPProtocol(pc,pc.getTerminal());
+        ipProtocol.register(icmpProtocol);
+        pc.setIcmpProtocol(icmpProtocol);
+        		
 		// Set up UDP controller and add it to the packet receiver
 		pc.setUDPController(new UDPController(pc, ipProtocol.getPacketSender()));
 
-        ipProtocol.addHandler(pc.getICMPHandler());
+//        ipProtocol.addHandler(pc.getICMPHandler());
         ipProtocol.addHandler(pc.getUDPController());
         ipProtocol.finalise();
 

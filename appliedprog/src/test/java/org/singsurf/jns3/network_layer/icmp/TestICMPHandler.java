@@ -36,7 +36,7 @@ class TestICMPHandler {
 		Jns3Logger.clearLog();
 		pc.getFrameReceiver().receive(frame);
 		assertEquals(1, Jns3Logger.size());
-		assertEquals("ICMPLogger1", Jns3Logger.getItem(0).deviceName());
+		assertEquals("PC1", Jns3Logger.getItem(0).deviceName());
 		
 		// arrange for a TCP packet to be received and logged by the packetLogger
 		var tcpPacket = new IPPacket(IPPacket.TCP, 64, senderIP, destinationIP, data);

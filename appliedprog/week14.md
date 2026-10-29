@@ -1,6 +1,6 @@
 # Generics Refactoring
 
-Now it's time to apply the Generic Framework to 
+Now it's time to apply the Generic Framework to our current system.
 
 ## User Story
 
@@ -292,7 +292,30 @@ Applies to Ethernet, WI-FI (to come)
 2. ARP
 
     * Implemented as `ARPProtocol`
+    * Implements `LowerAdapter<EthernetFrame>`
     * Now in it's own sub-package.
     * Mostly just a wrapper around the `ARPController`
     * Methods like `lookup(IPAddress)` exposed through the protocol.
     * Some configuration issue as EthernetPacketSender needs the arp controller to lookup and requests.
+
+3. IP
+
+    * Implemented as `IPProtocol`
+    * Implements `LowerAdapter<EthernetFrame>`
+    * Implements `UpperPort<IPPacket>`
+    * Has an `IPDelegator`
+    * Has an `IPFragmentHandler`
+    * Has an `EthernetPacketSender`
+    * Has an `DefaultPacketReceiver`
+    * It constructor requires and `ARPProtocol` argument.
+
+4. ICMP
+
+    * Implemented as `ICMPProtocol`
+    * Implements `LowerAdapter<IPPacket>`
+    * Has an `ICMPPacketReceiver`
+    * Has three `ICMPMessageHandler` classes.
+        * A `PingController`
+        * A `PingRequestHandler`
+        * A `ICMPMessageLogger`
+    * The first two of these needed modification for defered setting of their senders.

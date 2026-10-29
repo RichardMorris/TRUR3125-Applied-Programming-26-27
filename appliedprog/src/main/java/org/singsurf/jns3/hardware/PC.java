@@ -10,8 +10,7 @@ import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPPacket;
 import org.singsurf.jns3.network_layer.IPProtocol;
 import org.singsurf.jns3.network_layer.PacketSender;
-import org.singsurf.jns3.network_layer.icmp.ICMPPacketReceiver;
-import org.singsurf.jns3.network_layer.icmp.PingController;
+import org.singsurf.jns3.network_layer.icmp.ICMPProtocol;
 import org.singsurf.jns3.physical_layer.PhysicalEndPoint;
 import org.singsurf.jns3.transport_layer.udp.DatagramSocket;
 import org.singsurf.jns3.transport_layer.udp.UDPController;
@@ -31,15 +30,20 @@ public class PC implements AddressableDevice, Terminal {
 	
 	ProtocolDelegator<IPPacket> packetDelegator;
     
-	ICMPPacketReceiver icmpPacketReceiver;	
-	PingController pingController;
+//	ICMPPacketReceiver icmpPacketReceiver;	
+//	PingController pingController;
     UDPController udpController;
     
 	EthernetProtocol ethernetProtocol;
     ARPProtocol arpProtocol;
-	private IPProtocol ipProtocol;
+	IPProtocol ipProtocol;
+	ICMPProtocol icmpProtocol;
 
-    public PC(String name, MACAddress macAddress, IPAddress ipAddress) {
+    public void setIcmpProtocol(ICMPProtocol icmpProtocol) {
+		this.icmpProtocol = icmpProtocol;
+	}
+
+	public PC(String name, MACAddress macAddress, IPAddress ipAddress) {
         this.name = name;
         this.macAddress = macAddress;
         this.ipAddress = ipAddress;
@@ -63,11 +67,11 @@ public class PC implements AddressableDevice, Terminal {
 	}
 
 	public void ping(IPAddress ipAddress2, int i) {
-		pingController.sendPingRequest(ipAddress2, i);
+		icmpProtocol.sendPingRequest(ipAddress2, i);
 	}
 
 	public void traceroute(IPAddress ipAddress2) {
-		pingController.sendTraceroute(ipAddress2);
+		icmpProtocol.sendTraceroute(ipAddress2);
 	}
 
 	// System commands available application code
@@ -143,13 +147,13 @@ public class PC implements AddressableDevice, Terminal {
 		return ipProtocol.getPacketSender();
 	}
 	
-	public void setICMPHandler(ICMPPacketReceiver icmpPacketReceiver) {
-		this.icmpPacketReceiver = icmpPacketReceiver;
-	}
-	
-	public ICMPPacketReceiver getICMPHandler() {
-		return icmpPacketReceiver;
-	}
+//	public void setICMPHandler(ICMPPacketReceiver icmpPacketReceiver) {
+//		this.icmpPacketReceiver = icmpPacketReceiver;
+//	}
+//	
+//	public ICMPPacketReceiver getICMPHandler() {
+//		return icmpPacketReceiver;
+//	}
 
 	public void setUDPController(UDPController udpController2) {
 		this.udpController = udpController2;
@@ -159,13 +163,13 @@ public class PC implements AddressableDevice, Terminal {
 		return udpController;
 	}
 
-	public void setPingController(PingController newInstance) {
-		this.pingController = newInstance;		
-	}
-	
-	public PingController getPingController() {
-		return pingController;
-	}
+//	public void setPingController(PingController newInstance) {
+//		this.pingController = newInstance;		
+//	}
+//	
+//	public PingController getPingController() {
+//		return pingController;
+//	}
 
 //	public void setIPDelegator(ProtocolDelegator<IPPacket> delegator) {
 //		this.packetDelegator = delegator;
@@ -177,6 +181,10 @@ public class PC implements AddressableDevice, Terminal {
 
 	public void setIPProtocol(IPProtocol ipProtocol) {
 		this.ipProtocol = ipProtocol;
+	}
+
+	public Terminal getTerminal() {
+		return this;
 	}
 
 }

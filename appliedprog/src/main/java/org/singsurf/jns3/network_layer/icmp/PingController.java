@@ -9,7 +9,6 @@ import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.generic_protocol.HandlerStatus;
 import org.singsurf.jns3.hardware.AddressableDevice;
 import org.singsurf.jns3.hardware.GlobalWallClock;
-import org.singsurf.jns3.hardware.PC;
 import org.singsurf.jns3.hardware.Terminal;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPPacket;
@@ -43,11 +42,10 @@ public class PingController implements  ICMPMessageHandler {
 
 	record PingReplyRecord(IPAddress ip, ICMPMessage msg, int rtt) {}
 
-	private PingController(PC pc2, short identifier) {
+	private PingController(AddressableDevice pc2, Terminal term, short identifier) {
 		this.pc = pc2;
 		this.identifier = identifier;
-		this.packetSender = pc2.getPacketSender();
-		this.console = pc2;
+		this.console = term;
 	}
 
 	public void sendPingRequest(IPAddress destinationIP,int ttl) {
@@ -142,8 +140,8 @@ public class PingController implements  ICMPMessageHandler {
 		packetSender.send(pack);
 	}
 	
-	public static PingController newInstance(PC pc) {
-		PingController controller = new PingController(pc, currentIdentifier++);
+	public static PingController newInstance(AddressableDevice pc, Terminal term) {
+		PingController controller = new PingController(pc, term, currentIdentifier++);
 		return controller;
 	}
 
@@ -157,4 +155,9 @@ public class PingController implements  ICMPMessageHandler {
 			return HandlerStatus.CONTINUE;
 		}
 	}
+	
+	public void setPacketSender(PacketSender packetSender) {
+		this.packetSender = packetSender;
+	}
+	
 }

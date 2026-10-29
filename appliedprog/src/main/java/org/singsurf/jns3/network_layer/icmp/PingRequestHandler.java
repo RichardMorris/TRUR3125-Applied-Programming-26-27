@@ -22,6 +22,18 @@ public class PingRequestHandler implements ICMPMessageHandler {
 	}
 
 
+	public PingRequestHandler(AddressableDevice addr) {
+		this.name = addr.getName();
+		this.device = addr;
+	}
+
+	
+
+	public void setSender(PacketSender sender) {
+		this.sender = sender;
+	}
+
+
 	private void handle2(ICMPMessage message) {
 		var sourceAddress = message.getPsudoHeader().sourceIP();
 		var destinationAddress = message.getPsudoHeader().destIP();
@@ -54,5 +66,6 @@ public class PingRequestHandler implements ICMPMessageHandler {
 
 		return HandlerStatus.COMPLETED;
 	}
+
 
 }
