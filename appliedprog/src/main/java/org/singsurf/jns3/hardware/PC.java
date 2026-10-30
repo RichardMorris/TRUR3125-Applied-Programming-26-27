@@ -68,6 +68,10 @@ public class PC implements AddressableDevice {
 	public ARPProtocol getArpProtocol() {
 		return arpProtocol;
 	}
+	
+	public UDPProtocol getUDPProtocol() {
+		return udpProtocol;
+	}
 
     // Commands available to the user of the PC
 

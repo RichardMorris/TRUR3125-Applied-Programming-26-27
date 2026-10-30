@@ -28,17 +28,11 @@ public class UDPController implements PacketHandler, NamedDevice {
 	/**
 	 * Represents a binding between a socket and this controller,
 	 */
-	record SocketBinding(IPAddress ip, short port, DatagramSocket socket) {}
+	record SocketBinding(IPAddress ip, short port, ProtocolSocket<UDPDatagram> socket) {}
 	
-	/**
-	 * 
-	 */
-	public record DatagramPacket(IPAddress source, IPAddress dest, UDPDatagram datagram) {}
-
-	public UDPController(AddressableDevice device, PacketSender packetSender) {
+	public UDPController(AddressableDevice device) {
 		this.name = device.getName() + "-UDPController";
 		this.device = device;
-		this.packetSender = packetSender;
 	}
 
 	private void receive(IPPacket packet) {
@@ -59,13 +53,16 @@ public class UDPController implements PacketHandler, NamedDevice {
 			return;
 		}
 		Jns3Logger.logInfo(name, "Received datagram from " + packet.getSourceAddress() + " on port " + datagram.getDestinationPort());
-		binding.socket.receiveDatagram(new DatagramPacket(packet.getSourceAddress(), 
-				packet.getDestinationAddress(), datagram));
+		binding.socket.receiveDatagram(datagram);
 	}
 	
 	public void sendDatagram(IPAddress boundAddress, short port, UDPDatagram datagram) {
 
 		var table = bindings.get(boundAddress);
+		if(table == null) {
+			Jns3Logger.logError(name, "No sockets found for address " + boundAddress);
+			return;
+		}
 		var binding = table.get(port);
 
 		if(binding == null) {
@@ -102,5 +99,9 @@ public class UDPController implements PacketHandler, NamedDevice {
 		}
 		receive(packet);
 		return HandlerStatus.COMPLETED;
-	}	
+	}
+	
+	public void setPacketSender(PacketSender packetSender) {
+		this.packetSender = packetSender;
+	}
 }

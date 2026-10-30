@@ -13,7 +13,7 @@ public interface UpperSocketPort<T extends ProtocolContainer> {
 	 * Register a {@link LowerAdapter}
 	 * @param adapter
 	 */
-	public void register(LowerAdapter<T> adapter);
+	public void register(LowerSocketAdapter<T> adapter);
 
 	/**
 	 * Called after all handlers have been registered.

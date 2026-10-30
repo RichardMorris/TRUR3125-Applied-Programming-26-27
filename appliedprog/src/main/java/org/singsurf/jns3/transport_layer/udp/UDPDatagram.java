@@ -135,6 +135,10 @@ public class UDPDatagram implements ProtocolContainer {
 	public boolean isValid() {
 		return calculateHeaderChecksum().equals(OnesComplementNumber.MINUS_ZERO);
 	}
+
+	public PsudoHeader getPsudoHeader() {
+		return this.psudoHeader;
+	}
 	
 	
 }

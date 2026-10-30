@@ -1,13 +1,9 @@
 package org.singsurf.jns3.transport_layer.udp;
 
-import java.util.ArrayDeque;
-import java.util.Queue;
-
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.generic_protocol.ProtocolSocket;
 import org.singsurf.jns3.hardware.NamedDevice;
 import org.singsurf.jns3.network_layer.IPAddress;
-import org.singsurf.jns3.transport_layer.udp.UDPController.DatagramPacket;
 
 /**
  * A socket that can be used by applications
@@ -19,18 +15,15 @@ import org.singsurf.jns3.transport_layer.udp.UDPController.DatagramPacket;
  * 
  */
 public class DatagramSocket extends ProtocolSocket<UDPDatagram> implements NamedDevice {
-	public DatagramSocket(String name) {
-		super(name);
-	}
-	
-	protected Queue<DatagramPacket> queue = new ArrayDeque<>();
-
-
 	public UDPController udpController;	
-	/** for debugging, log received messages */
-	public boolean logMessage = false;
 	
 	
+	
+	public DatagramSocket(String name, UDPController udpController) {
+		super(name);
+		this.udpController = udpController;
+	}
+
 	@Override 
 	public String toString() {
 		return "DatagramSocket ["+name+" " + getBoundAddress() + ":" + port + "]";
@@ -43,18 +36,6 @@ public class DatagramSocket extends ProtocolSocket<UDPDatagram> implements Named
 		udpController.sendDatagram(boundAddress,port,datagram);
 	}
 
-	public void receiveDatagram(DatagramPacket datagramPacket) {
-		var len = Math.min(datagramPacket.toString().length(), 200);
-		if(LOG_MESSAGES)
-			Jns3Logger.logInfo(name, "Received datagram " + datagramPacket.toString().substring(0, len));
-		queue.add(datagramPacket);
-	}
-
-
-	public DatagramPacket poll() {
-		return queue.poll();
-	}
-
 	void setBinding(UDPController udpController, short port, IPAddress ip) {
 		this.udpController = udpController;
 		this.port = port;
@@ -63,6 +44,13 @@ public class DatagramSocket extends ProtocolSocket<UDPDatagram> implements Named
 
 	public void close() {
 		udpController.unbind(this);
+	}
+
+
+	public void bind(IPAddress address, short boundPort) {
+		port = boundPort;
+		boundAddress = address;
+		udpController.bind(address, boundPort, this);
 	}
 	
 }

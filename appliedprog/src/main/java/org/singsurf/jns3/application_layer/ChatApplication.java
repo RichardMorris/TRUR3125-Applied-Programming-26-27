@@ -3,15 +3,17 @@ package org.singsurf.jns3.application_layer;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.singsurf.jns3.generic_protocol.LowerSocketAdapter;
 import org.singsurf.jns3.generic_protocol.ProtocolSocket;
+import org.singsurf.jns3.generic_protocol.SocketFactory;
 import org.singsurf.jns3.hardware.GlobalWallClock;
 import org.singsurf.jns3.hardware.GlobalWallClock.TickListener;
 import org.singsurf.jns3.hardware.PC;
 import org.singsurf.jns3.hardware.Terminal;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.transport_layer.udp.DatagramSocket;
-import org.singsurf.jns3.transport_layer.udp.UDPController.DatagramPacket;
 import org.singsurf.jns3.transport_layer.udp.UDPDatagram;
+import org.singsurf.jns3.transport_layer.udp.UDPSocketFactory;
 
 /**
  * A simple chat application that allows a PC to send and receive messages 
@@ -20,7 +22,7 @@ import org.singsurf.jns3.transport_layer.udp.UDPDatagram;
  * 
  * See <a href="../../../../../../Week12.md">Week 12</a>.
  */
-public class ChatApplication implements TickListener{
+public class ChatApplication implements TickListener, LowerSocketAdapter<UDPDatagram> {
 	static final short PUBLIC_PORT = 42;
 	static final short PRIVATE_PORT = 43;
 
@@ -29,16 +31,20 @@ public class ChatApplication implements TickListener{
 	boolean isPrivate = false;
 	private List<DatagramSocket> sockets = new ArrayList<>();
 	
+	UDPSocketFactory socketFactory;
+	
 	/**
 	 * Start the application in public mode.
 	 * @param pc Host PC
 	 */
 	public ChatApplication(PC pc) {
 		this.pc = pc;
+		var udpProtocol = pc.getUDPProtocol();
+		udpProtocol.register(this);
 		this.terminal = pc.getTerminal();
-		var socket = new DatagramSocket(pc.getName() + "-Chat");
+		DatagramSocket socket = socketFactory.createSocket(pc.getName() + "-Chat");
 		var multicastAddress = pc.getMulticastAddress();
-		pc.bind(socket, multicastAddress, PUBLIC_PORT);
+		socket.bind(multicastAddress, PUBLIC_PORT);
 		sockets.add(socket);
 		GlobalWallClock.getInstance().addTickListener(this);
 	}
@@ -51,8 +57,8 @@ public class ChatApplication implements TickListener{
 	public ChatApplication(PC pc, IPAddress ipAddress) {
 		this(pc);
 		isPrivate = true;
-		var socket = new DatagramSocket(pc.getName() + "-Chat");
-		pc.bind(socket, ipAddress, PRIVATE_PORT);
+		var socket = socketFactory.createSocket(pc.getName() + "-Chat");
+		socket.bind(ipAddress, PRIVATE_PORT);
 		sockets.add(socket);
 	}
 
@@ -61,8 +67,8 @@ public class ChatApplication implements TickListener{
 	 * @param ipAddress 
 	 */
 	public void addHost(IPAddress ipAddress) {
-		var socket = new DatagramSocket(pc.getName() + "-Chat");
-		pc.bind(socket, ipAddress, PRIVATE_PORT);
+		var socket = socketFactory.createSocket(pc.getName() + "-Chat");
+		socket.bind(ipAddress, PRIVATE_PORT);
 		sockets.add(socket);
 	}
 
@@ -128,13 +134,19 @@ public class ChatApplication implements TickListener{
 	 */
 	@Override
 	public void onTick() {
-		DatagramPacket datagram;
-		for(DatagramSocket socket : sockets) {
+		UDPDatagram datagram;
+		for(ProtocolSocket<UDPDatagram> socket : sockets) {
 			while((datagram = socket.poll()) != null) {
-				String message = new String(datagram.datagram().getContents());
-				terminal.display(pc.getName()+ ": " +  datagram.source() + " says: " + message);
+				var source = datagram.getPsudoHeader().sourceIP();
+				String message = new String(datagram.getContents());
+				terminal.display(pc.getName()+ ": " +  source + " says: " + message);
 			}
 		}
+	}
+
+	@Override
+	public void setSocketFactory(SocketFactory<UDPDatagram> factory) {
+		this.socketFactory = (UDPSocketFactory) factory;
 	}
 	
 }

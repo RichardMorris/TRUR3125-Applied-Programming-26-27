@@ -55,6 +55,8 @@ class TestUDPChatApplication {
 		var chat3 = new ChatApplication(pc3,pc1.getIPAddress());
 		// Act
 		chat1.say("Hello from PC1");
+		System.out.println(Jns3Logger.asString());
+		assertTrue(Jns3Logger.isErrorFree());
 		Jns3Logger.startCapture();
 		GlobalWallClock.advanceBy(1);
 		var output = Jns3Logger.endCapture();
