@@ -43,17 +43,9 @@ public class UDPProtocol implements LowerAdapter<IPPacket>, UpperSocketPort<UDPD
 		udpController.bind(ip, portNumber, socket);
 	}
 
-
-
 	@Override
 	public void register(LowerSocketAdapter<UDPDatagram> adapter) {
 		adapter.setSocketFactory(socketFactory);		
-	}
-
-	@Override
-	public void finalise() {
-		// TODO Auto-generated method stub
-		
 	}
 
 }

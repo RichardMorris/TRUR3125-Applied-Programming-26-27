@@ -30,9 +30,13 @@ public class UDPController implements PacketHandler, NamedDevice {
 	 */
 	record SocketBinding(IPAddress ip, short port, ProtocolSocket<UDPDatagram> socket) {}
 	
-	public UDPController(AddressableDevice device) {
+	UDPController(AddressableDevice device) {
 		this.name = device.getName() + "-UDPController";
 		this.device = device;
+	}
+	
+	void setPacketSender(PacketSender packetSender) {
+		this.packetSender = packetSender;
 	}
 
 	private void receive(IPPacket packet) {
@@ -56,7 +60,7 @@ public class UDPController implements PacketHandler, NamedDevice {
 		binding.socket.receiveDatagram(datagram);
 	}
 	
-	public void sendDatagram(IPAddress boundAddress, short port, UDPDatagram datagram) {
+	void sendDatagram(IPAddress boundAddress, short port, UDPDatagram datagram) {
 
 		var table = bindings.get(boundAddress);
 		if(table == null) {
@@ -74,13 +78,13 @@ public class UDPController implements PacketHandler, NamedDevice {
 		packetSender.send(packet);		  
 	}
 
-	public void bind(IPAddress ip, short port, DatagramSocket socket) {
+	void bind(IPAddress ip, short port, DatagramSocket socket) {
 		var table = bindings.computeIfAbsent(ip, k -> new HashMap<>());
 		table.put(port, new SocketBinding(ip, port, socket));
 	}
 
-	public void unbind(ProtocolSocket<UDPDatagram> datagramSocket) {
-		var table = bindings.get(datagramSocket.getBoundAddress());
+	void unbind(ProtocolSocket<UDPDatagram> datagramSocket) {
+		var table = bindings.get(datagramSocket.getAddress());
 		if(table != null) {
 			table.remove(datagramSocket.getPort());
 		}		
@@ -100,7 +104,4 @@ public class UDPController implements PacketHandler, NamedDevice {
 		return HandlerStatus.COMPLETED;
 	}
 	
-	public void setPacketSender(PacketSender packetSender) {
-		this.packetSender = packetSender;
-	}
 }
