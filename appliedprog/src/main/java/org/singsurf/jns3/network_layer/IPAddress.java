@@ -23,7 +23,11 @@ public class IPAddress extends AbstractAddress {
             .toArray(Byte[]::new));
     }
 
-    public int getIntValue() {
+    public IPAddress(byte a, byte b, byte c, byte d) {
+		super(4, new byte[] {a, b, c, d});
+	}
+
+	public int getIntValue() {
         var us = getUnsignedBytes();
         return (us[0] << 24) | (us[1] << 16) | (us[2] << 8) | us[3];
     }
