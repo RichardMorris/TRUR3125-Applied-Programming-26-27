@@ -22,6 +22,7 @@ public class DeviceFactory {
 
     public DeviceFactory() {
         macAddresses.add(MACAddress.BROADCAST_MAC);
+        ipAddresses.add(IPProtocol.LIMITED_MULTICAST_ADDRESS);
     }
 
     public MACAddress createMACAddress() {

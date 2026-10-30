@@ -19,6 +19,7 @@ public class IPProtocol implements LowerAdapter<EthernetFrame>, UpperPort<IPPack
 	IPDelegator delegator;
 	EthernetPacketSender packetSender;
 	ARPProtocol arpProtocol;
+	public static final IPAddress LIMITED_MULTICAST_ADDRESS = new IPAddress("255.555.255.255");
 	
 	public IPProtocol(AddressableDevice device, ARPProtocol arpProtocol) {
 		this.device = device;
