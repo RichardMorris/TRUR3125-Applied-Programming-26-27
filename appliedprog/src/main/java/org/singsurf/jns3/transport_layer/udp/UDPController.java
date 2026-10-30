@@ -77,7 +77,6 @@ public class UDPController implements PacketHandler, NamedDevice {
 	public void bind(IPAddress ip, short port, DatagramSocket socket) {
 		var table = bindings.computeIfAbsent(ip, k -> new HashMap<>());
 		table.put(port, new SocketBinding(ip, port, socket));
-		socket.setBinding(this, port, ip);
 	}
 
 	public void unbind(ProtocolSocket<UDPDatagram> datagramSocket) {

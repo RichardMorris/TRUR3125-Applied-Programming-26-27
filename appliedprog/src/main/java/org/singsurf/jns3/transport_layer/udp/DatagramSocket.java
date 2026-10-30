@@ -36,12 +36,6 @@ public class DatagramSocket extends ProtocolSocket<UDPDatagram> implements Named
 		udpController.sendDatagram(boundAddress,port,datagram);
 	}
 
-	void setBinding(UDPController udpController, short port, IPAddress ip) {
-		this.udpController = udpController;
-		this.port = port;
-		this.setBoundAddress(ip);
-	}
-
 	public void close() {
 		udpController.unbind(this);
 	}
