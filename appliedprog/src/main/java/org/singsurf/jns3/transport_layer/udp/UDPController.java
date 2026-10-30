@@ -5,10 +5,12 @@ import java.util.Map;
 
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.generic_protocol.HandlerStatus;
+import org.singsurf.jns3.generic_protocol.ProtocolSocket;
 import org.singsurf.jns3.hardware.AddressableDevice;
 import org.singsurf.jns3.hardware.NamedDevice;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPPacket;
+import org.singsurf.jns3.network_layer.IPProtocol;
 import org.singsurf.jns3.network_layer.PacketHandler;
 import org.singsurf.jns3.network_layer.PacketSender;
 
@@ -41,8 +43,11 @@ public class UDPController implements PacketHandler, NamedDevice {
 
 	private void receive(IPPacket packet) {
 		var datagram = udpExtractor.extract(packet);
-		var lookupAddress = packet.getDestinationAddress().equals(device.getMulticastAddress()) ? 
-				device.getMulticastAddress() : packet.getSourceAddress();
+		var lookupAddress = 
+				packet.getDestinationAddress().equals(device.getMulticastAddress())
+					|| packet.getDestinationAddress().equals(IPProtocol.LIMITED_MULTICAST_ADDRESS)
+				? packet.getDestinationAddress() 
+				: packet.getSourceAddress();
 		var table = bindings.get(lookupAddress);
 		if(table == null) {
 			Jns3Logger.logError(name, "No socket found for IP address " + lookupAddress);
@@ -58,7 +63,7 @@ public class UDPController implements PacketHandler, NamedDevice {
 				packet.getDestinationAddress(), datagram));
 	}
 	
-	void sendDatagram(IPAddress boundAddress, short port, UDPDatagram datagram) {
+	public void sendDatagram(IPAddress boundAddress, short port, UDPDatagram datagram) {
 
 		var table = bindings.get(boundAddress);
 		var binding = table.get(port);
@@ -78,10 +83,10 @@ public class UDPController implements PacketHandler, NamedDevice {
 		socket.setBinding(this, port, ip);
 	}
 
-	public void unbind(DatagramSocket datagramSocket) {
-		var table = bindings.get(datagramSocket.boundAddress);
+	public void unbind(ProtocolSocket<UDPDatagram> datagramSocket) {
+		var table = bindings.get(datagramSocket.getBoundAddress());
 		if(table != null) {
-			table.remove(datagramSocket.port);
+			table.remove(datagramSocket.getPort());
 		}		
 	}
 

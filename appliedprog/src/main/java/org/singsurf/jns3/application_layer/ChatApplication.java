@@ -3,6 +3,7 @@ package org.singsurf.jns3.application_layer;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.singsurf.jns3.generic_protocol.ProtocolSocket;
 import org.singsurf.jns3.hardware.GlobalWallClock;
 import org.singsurf.jns3.hardware.GlobalWallClock.TickListener;
 import org.singsurf.jns3.hardware.PC;
@@ -102,7 +103,7 @@ public class ChatApplication implements TickListener{
 	 */
 	public void sayPublic(String message) {
 		terminal.display(pc.getName() + " says: " + message);
-		var socket = sockets.get(0);
+		ProtocolSocket<UDPDatagram> socket = sockets.get(0);
 		socket.send(new UDPDatagram(PUBLIC_PORT, PUBLIC_PORT, message.getBytes()));
 	}
 
@@ -113,7 +114,7 @@ public class ChatApplication implements TickListener{
 		}
 		if(echo)
 			terminal.display(pc.getName() + " says: " + message);
-		for(DatagramSocket socket : sockets) {
+		for(ProtocolSocket<UDPDatagram> socket : sockets) {
 			if(socket.getPort() == PRIVATE_PORT) {
 //				Jns3Logger.logInfo("ChatApplication", "Sending private message to " + socket);
 				socket.send(new UDPDatagram(PRIVATE_PORT, PRIVATE_PORT, message.getBytes()));

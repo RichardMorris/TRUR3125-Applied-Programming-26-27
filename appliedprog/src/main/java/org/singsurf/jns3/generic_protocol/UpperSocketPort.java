@@ -1,0 +1,24 @@
+package org.singsurf.jns3.generic_protocol;
+
+/**
+ * A port on the upper side of a protocols using sockets
+ * allowing higher level
+ * protocols to register their {@link ProtocolHandler} classes and query the 
+ * {@link ProtocolSender} and callback {@link ProtocolReceiver}
+ * @param <T> data carrier for this protocol.
+ */
+
+public interface UpperSocketPort<T extends ProtocolContainer> {
+	/**
+	 * Register a {@link LowerAdapter}
+	 * @param adapter
+	 */
+	public void register(LowerAdapter<T> adapter);
+
+	/**
+	 * Called after all handlers have been registered.
+	 * Adds a default handler that logs received frames.
+	 */
+	void finalise();
+
+}
