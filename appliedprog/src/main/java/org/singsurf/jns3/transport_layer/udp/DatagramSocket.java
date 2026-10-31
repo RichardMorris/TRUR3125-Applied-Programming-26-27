@@ -33,10 +33,10 @@ public class DatagramSocket extends ProtocolSocket<UDPDatagram> implements Named
 		if(udpController == null) {
 			Jns3Logger.logError("DatagramSocket", "Socket is not bound to a controller");
 		}
-		if(boundAddress == null) {
+		if(address == null) {
 			Jns3Logger.logError("DatagramSocket", "Socket is not bound to an address");
 		}
-		udpController.sendDatagram(boundAddress,port,datagram);
+		udpController.sendDatagram(address,port,datagram);
 	}
 
 	/**
@@ -53,10 +53,10 @@ public class DatagramSocket extends ProtocolSocket<UDPDatagram> implements Named
 	 * @param boundPort
 	 */
 	@Override
-	public void bind(IPAddress address, short boundPort) {
+	public void bind(IPAddress ip, short boundPort) {
 		port = boundPort;
-		boundAddress = address;
-		udpController.bind(address, boundPort, this);
+		address = ip;
+		udpController.bind(ip, boundPort, this);
 	}
 	
 }

@@ -26,7 +26,7 @@ class TestDHCPMessage {
 		var siaddr = DeviceFactory.getInstance().createLocalIPAddress();
 		var giaddr = DeviceFactory.getInstance().createLocalIPAddress();
 		var addresses = new DHCPMessage.DHCPAddresses(mac, ciaddr, yiaddr, siaddr, giaddr);
-		byte op = DHCPProtocol.DHCP_OP_DISCOVER;
+		byte op = DHCPMessage.DHCP_OP_DISCOVER;
 		int xid = 0x3903F326;
 		short secs = 0;
 		short flags = 0;
@@ -62,12 +62,12 @@ class TestDHCPMessage {
 		var siaddr = DeviceFactory.getInstance().createLocalIPAddress();
 		var giaddr = DeviceFactory.getInstance().createLocalIPAddress();
 		var addresses = new DHCPMessage.DHCPAddresses(mac, ciaddr, yiaddr, siaddr, giaddr);
-		byte op = DHCPProtocol.DHCP_OP_DISCOVER;
+		byte op = DHCPMessage.DHCP_OP_DISCOVER;
 		int xid = 0x3903F326;
 		short secs = 0;
 		short flags = 0;
 		List<DHCPOption> options = new ArrayList<>();
-		options.add(new DHCPOption((byte) 53, (byte) 1, new byte[] { (byte) DHCPProtocol.DHCP_OP_DISCOVER }));
+		options.add(new DHCPOption((byte) 53, (byte) 1, new byte[] { (byte) DHCPMessage.DHCP_OP_DISCOVER }));
 		options.add(new DHCPOption((byte) 55, (byte) 4, new byte[] { (byte) 1, (byte) 3, (byte) 6, (byte) 15 }));
 		var message = new DHCPMessage(op, xid, secs, flags, addresses, options);
 		assertNotNull(message);
@@ -75,7 +75,7 @@ class TestDHCPMessage {
 		assertEquals(2, retrievedOptions.size());
 		assertEquals((byte) 53, retrievedOptions.get(0).code());
 		assertEquals((byte) 1, retrievedOptions.get(0).length());
-		assertEquals((byte) DHCPProtocol.DHCP_OP_DISCOVER, retrievedOptions.get(0).data()[0]);
+		assertEquals((byte) DHCPMessage.DHCP_OP_DISCOVER, retrievedOptions.get(0).data()[0]);
 		assertEquals((byte) 55, retrievedOptions.get(1).code());
 		assertEquals((byte) 4, retrievedOptions.get(1).length());
 		assertEquals((byte) 1, retrievedOptions.get(1).data()[0]);
@@ -93,12 +93,12 @@ class TestDHCPMessage {
 		var siaddr = DeviceFactory.getInstance().createLocalIPAddress();
 		var giaddr = DeviceFactory.getInstance().createLocalIPAddress();
 		var addresses = new DHCPMessage.DHCPAddresses(mac, ciaddr, yiaddr, siaddr, giaddr);
-		byte op = DHCPProtocol.DHCP_OP_DISCOVER;
+		byte op = DHCPMessage.DHCP_OP_DISCOVER;
 		int xid = 0x3903F326;
 		short secs = 0;
 		short flags = 0;
 		List<DHCPOption> options = new ArrayList<>();
-		options.add(new DHCPOption((byte) 53, (byte) 1, new byte[] { (byte) DHCPProtocol.DHCP_OP_DISCOVER }));
+		options.add(new DHCPOption((byte) 53, (byte) 1, new byte[] { (byte) DHCPMessage.DHCP_OP_DISCOVER }));
 		options.add(new DHCPOption((byte) 55, (byte) 4, new byte[] { (byte) 1, (byte) 3, (byte) 6, (byte) 15 }));
 		var message = new DHCPMessage(op, xid, secs, flags, addresses, options);
 		
@@ -136,12 +136,12 @@ class TestDHCPMessage {
 		var siaddr = DeviceFactory.getInstance().createLocalIPAddress();
 		var giaddr = DeviceFactory.getInstance().createLocalIPAddress();
 		var addresses = new DHCPMessage.DHCPAddresses(mac, ciaddr, yiaddr, siaddr, giaddr);
-		byte op = DHCPProtocol.DHCP_OP_DISCOVER;
+		byte op = DHCPMessage.DHCP_OP_DISCOVER;
 		int xid = 0x3903F326;
 		short secs = 0;
 		short flags = 0;
 		List<DHCPOption> options = new ArrayList<>();
-		options.add(new DHCPOption((byte) 53, (byte) 1, new byte[] { (byte) DHCPProtocol.DHCP_OP_DISCOVER }));
+		options.add(new DHCPOption((byte) 53, (byte) 1, new byte[] { (byte) DHCPMessage.DHCP_OP_DISCOVER }));
 		options.add(new DHCPOption((byte) 55, (byte) 4, new byte[] { (byte) 1, (byte) 3, (byte) 6, (byte) 15 }));
 		var message = new DHCPMessage(op, xid, secs, flags, addresses, options);
 		

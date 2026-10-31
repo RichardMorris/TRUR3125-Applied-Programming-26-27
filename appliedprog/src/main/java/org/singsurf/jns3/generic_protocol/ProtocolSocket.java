@@ -24,12 +24,15 @@ public abstract class ProtocolSocket<T> {
 
 	protected String name;
 	protected short port;
-	protected IPAddress boundAddress;
+	protected IPAddress address;
 	protected Queue<T> queue = new ArrayDeque<>();
 
 	public static boolean LOG_MESSAGES = false;
 
-
+	/**
+	 * Creates a new ProtocolSocket with the given name.
+	 * @param name used for logging purposes.
+	 */
 
 	protected ProtocolSocket(String name) {
 		super();
@@ -86,7 +89,7 @@ public abstract class ProtocolSocket<T> {
 	}
 
 	public IPAddress getAddress() {
-		return boundAddress;
+		return address;
 	}
 
 
