@@ -27,11 +27,6 @@ import org.singsurf.jns3.network_layer.IPAddress;
  */
 public class DHCPMessage implements ProtocolContainer {
 
-	public static final byte DHCP_OP_DISCOVER = 0x01;
-	public static final byte DHCP_OP_OFFER = 0x02;
-	public static final byte DHCP_OP_REQUEST = 0x03;
-	public static final byte DHCP_OP_DECLINE = 0x04;
-	public static final byte DHCP_OP_ACK = 0x05;
 
 	public static final short DHCP_FLAG_UNICAST = 0x00;
 	public static final short DHCP_FLAG_BROARDCAST = 0x01;
@@ -245,4 +240,28 @@ public class DHCPMessage implements ProtocolContainer {
 		return false;
 	}
 
+	public static DHCPMessage createDiscoverMessage(MACAddress mac) {
+		var ciaddr = new IPAddress("0.0.0.0");
+		var yiaddr = new IPAddress("0.0.0.0");
+		var siaddr = new IPAddress("0.0.0.0");
+		var giaddr = new IPAddress("0.0.0.0");
+		var addresses = new DHCPMessage.DHCPAddresses(mac, ciaddr, yiaddr, siaddr, giaddr);
+		byte op = DHCPProtocol.DHCP_OP_DISCOVER;
+		int xid = 0x3903F326;
+		short secs = 0;
+		short flags = 0;
+		List<DHCPOption> options = new ArrayList<>();
+		options.add(new DHCPOption((byte) 53, (byte) 1, new byte[] { (byte) DHCPProtocol.DHCP_OP_DISCOVER }));
+		options.add(new DHCPOption((byte) 55, (byte) 4, new byte[] { (byte) 1, (byte) 3, (byte) 6, (byte) 15 }));
+		var message = new DHCPMessage(op, xid, secs, flags, addresses, options);
+		return message;
+	}
+
+	@Override
+	public String toString() {
+		return "DHCPMessage [op=" + op + ", htype=" + htype + ", hlen=" + hlen + ", hops=" + hops + ", xid=" + xid
+				+ ", secs=" + secs + ", flags=" + flags + ", ciaddr=" + ciaddr + ", yiaddr=" + yiaddr + ", siaddr="
+				+ siaddr + ", giaddr=" + giaddr + ", chaddr=" + getMacAddress() + ", magicCookie="
+				+ Integer.toHexString(magicCookie) + ", options=" + options.size() + "]";
+	}	
 }

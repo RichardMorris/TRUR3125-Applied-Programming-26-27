@@ -64,6 +64,11 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 		var destIP = packet.getDestinationAddress();
 		var destMac = arpController.getArpTable().get(destIP);
 		
+		if(destIP.equals(IPProtocol.LIMITED_MULTICAST_ADDRESS)) {
+			destMac = MACAddress.BROADCAST_MAC;
+			sendPacket(packet, destMac);
+			return;
+		}
 		if(destMac == null) {
 			var queue = packetQueue.computeIfAbsent(destIP,
 					k -> new TaggedQueue(new LinkedList<>(),false));

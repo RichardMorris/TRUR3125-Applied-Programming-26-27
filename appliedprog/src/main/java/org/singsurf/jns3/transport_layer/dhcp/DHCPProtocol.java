@@ -1,12 +1,68 @@
 package org.singsurf.jns3.transport_layer.dhcp;
 
-public class DHCPProtocol {
-	public static final int DHCP_SERVER_PORT = 67;
-	public static final int DHCP_CLIENT_PORT = 68;
+import org.singsurf.jns3.generic_protocol.LowerSocketAdapter;
+import org.singsurf.jns3.generic_protocol.ProtocolDelegator;
+import org.singsurf.jns3.generic_protocol.ProtocolHandler;
+import org.singsurf.jns3.generic_protocol.ProtocolSocket;
+import org.singsurf.jns3.generic_protocol.SocketFactory;
+import org.singsurf.jns3.hardware.AddressableDevice;
+import org.singsurf.jns3.hardware.GlobalWallClock;
+import org.singsurf.jns3.hardware.GlobalWallClock.TickListener;
+import org.singsurf.jns3.network_layer.IPProtocol;
+import org.singsurf.jns3.transport_layer.udp.UDPDatagram;
+
+public class DHCPProtocol implements LowerSocketAdapter<UDPDatagram>, TickListener {
+	public static final short DHCP_SERVER_PORT = 67;
+	public static final short DHCP_CLIENT_PORT = 68;
+	
 	public static final int DHCP_MAGIC_COOKIE = 0x63825363;
 	public static final byte DHCP_PROTOCOL_TYPE = 0x11; // UDP
-	public DHCPProtocol() {
-		// TODO Auto-generated constructor stub
+	
+	public static final byte DHCP_OP_DISCOVER = 0x01;
+	public static final byte DHCP_OP_OFFER = 0x02;
+	public static final byte DHCP_OP_REQUEST = 0x03;
+	public static final byte DHCP_OP_DECLINE = 0x04;
+	public static final byte DHCP_OP_ACK = 0x05;
+
+	SocketFactory<UDPDatagram> factory;
+	boolean isServer;
+	AddressableDevice device;
+	ProtocolSocket<UDPDatagram> socket;
+	
+	ProtocolHandler<DHCPMessage> discoverHandler = new DiscoverHandler();
+	
+	ProtocolDelegator<DHCPMessage> delgator;
+	
+	public DHCPProtocol(AddressableDevice device,boolean isServer) {
+		this.isServer = isServer;
+		this.device = device;
+		delgator = new ProtocolDelegator<DHCPMessage>(device.getName());
+		delgator.addHandler(discoverHandler);
+		GlobalWallClock.getInstance().addTickListener(this);
 	}
 
+
+	@Override
+	public void setSocketFactory(SocketFactory<UDPDatagram> factory) {
+		this.factory = factory;
+		socket = factory.createSocket("DHCP Socket");
+		socket.bind(IPProtocol.LIMITED_MULTICAST_ADDRESS,
+				(short) (isServer ? DHCP_SERVER_PORT : DHCP_CLIENT_PORT));
+	}
+
+
+	@Override
+	public void onTick() {
+		UDPDatagram msg;
+		while((msg = socket.poll()) != null) {
+			DHCPMessage dhcpMessage = new DHCPMessage(msg.getContents());
+			delgator.receive(dhcpMessage);
+		}
+	}
+
+	public void startDiscovery() {
+		DHCPMessage message = DHCPMessage.createDiscoverMessage(device.getMACAddress());
+		UDPDatagram datagram = new UDPDatagram(DHCP_CLIENT_PORT, DHCP_SERVER_PORT, message.getBytes());
+		socket.send(datagram);
+	}
 }

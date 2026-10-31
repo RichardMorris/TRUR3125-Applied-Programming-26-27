@@ -1,7 +1,8 @@
-package org.singsurf.jns3.transport_layer;
+package org.singsurf.jns3.transport_layer.dhcp;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +10,6 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.singsurf.jns3.hardware.DeviceFactory;
-import org.singsurf.jns3.transport_layer.dhcp.DHCPMessage;
 import org.singsurf.jns3.transport_layer.dhcp.DHCPMessage.DHCPOption;
 
 class TestDHCPMessage {
@@ -26,7 +26,7 @@ class TestDHCPMessage {
 		var siaddr = DeviceFactory.getInstance().createLocalIPAddress();
 		var giaddr = DeviceFactory.getInstance().createLocalIPAddress();
 		var addresses = new DHCPMessage.DHCPAddresses(mac, ciaddr, yiaddr, siaddr, giaddr);
-		byte op = DHCPMessage.DHCP_OP_DISCOVER;
+		byte op = DHCPProtocol.DHCP_OP_DISCOVER;
 		int xid = 0x3903F326;
 		short secs = 0;
 		short flags = 0;
@@ -62,12 +62,12 @@ class TestDHCPMessage {
 		var siaddr = DeviceFactory.getInstance().createLocalIPAddress();
 		var giaddr = DeviceFactory.getInstance().createLocalIPAddress();
 		var addresses = new DHCPMessage.DHCPAddresses(mac, ciaddr, yiaddr, siaddr, giaddr);
-		byte op = DHCPMessage.DHCP_OP_DISCOVER;
+		byte op = DHCPProtocol.DHCP_OP_DISCOVER;
 		int xid = 0x3903F326;
 		short secs = 0;
 		short flags = 0;
 		List<DHCPOption> options = new ArrayList<>();
-		options.add(new DHCPOption((byte) 53, (byte) 1, new byte[] { (byte) DHCPMessage.DHCP_OP_DISCOVER }));
+		options.add(new DHCPOption((byte) 53, (byte) 1, new byte[] { (byte) DHCPProtocol.DHCP_OP_DISCOVER }));
 		options.add(new DHCPOption((byte) 55, (byte) 4, new byte[] { (byte) 1, (byte) 3, (byte) 6, (byte) 15 }));
 		var message = new DHCPMessage(op, xid, secs, flags, addresses, options);
 		assertNotNull(message);
@@ -75,7 +75,7 @@ class TestDHCPMessage {
 		assertEquals(2, retrievedOptions.size());
 		assertEquals((byte) 53, retrievedOptions.get(0).code());
 		assertEquals((byte) 1, retrievedOptions.get(0).length());
-		assertEquals((byte) DHCPMessage.DHCP_OP_DISCOVER, retrievedOptions.get(0).data()[0]);
+		assertEquals((byte) DHCPProtocol.DHCP_OP_DISCOVER, retrievedOptions.get(0).data()[0]);
 		assertEquals((byte) 55, retrievedOptions.get(1).code());
 		assertEquals((byte) 4, retrievedOptions.get(1).length());
 		assertEquals((byte) 1, retrievedOptions.get(1).data()[0]);
@@ -93,12 +93,12 @@ class TestDHCPMessage {
 		var siaddr = DeviceFactory.getInstance().createLocalIPAddress();
 		var giaddr = DeviceFactory.getInstance().createLocalIPAddress();
 		var addresses = new DHCPMessage.DHCPAddresses(mac, ciaddr, yiaddr, siaddr, giaddr);
-		byte op = DHCPMessage.DHCP_OP_DISCOVER;
+		byte op = DHCPProtocol.DHCP_OP_DISCOVER;
 		int xid = 0x3903F326;
 		short secs = 0;
 		short flags = 0;
 		List<DHCPOption> options = new ArrayList<>();
-		options.add(new DHCPOption((byte) 53, (byte) 1, new byte[] { (byte) DHCPMessage.DHCP_OP_DISCOVER }));
+		options.add(new DHCPOption((byte) 53, (byte) 1, new byte[] { (byte) DHCPProtocol.DHCP_OP_DISCOVER }));
 		options.add(new DHCPOption((byte) 55, (byte) 4, new byte[] { (byte) 1, (byte) 3, (byte) 6, (byte) 15 }));
 		var message = new DHCPMessage(op, xid, secs, flags, addresses, options);
 		
@@ -126,5 +126,38 @@ class TestDHCPMessage {
 				assertEquals(originalOption.data()[j], parsedOption.data()[j]);
 			}
 		}	
+	}
+	
+	@Test
+	void test_to_string() {
+		var mac = DeviceFactory.getInstance().createMACAddress();
+		var ciaddr = DeviceFactory.getInstance().createLocalIPAddress();
+		var yiaddr = DeviceFactory.getInstance().createLocalIPAddress();
+		var siaddr = DeviceFactory.getInstance().createLocalIPAddress();
+		var giaddr = DeviceFactory.getInstance().createLocalIPAddress();
+		var addresses = new DHCPMessage.DHCPAddresses(mac, ciaddr, yiaddr, siaddr, giaddr);
+		byte op = DHCPProtocol.DHCP_OP_DISCOVER;
+		int xid = 0x3903F326;
+		short secs = 0;
+		short flags = 0;
+		List<DHCPOption> options = new ArrayList<>();
+		options.add(new DHCPOption((byte) 53, (byte) 1, new byte[] { (byte) DHCPProtocol.DHCP_OP_DISCOVER }));
+		options.add(new DHCPOption((byte) 55, (byte) 4, new byte[] { (byte) 1, (byte) 3, (byte) 6, (byte) 15 }));
+		var message = new DHCPMessage(op, xid, secs, flags, addresses, options);
+		
+		String messageString = message.toString();
+		
+		assertNotNull(messageString);
+		assertTrue(messageString.contains("DHCPMessage"));
+		assertTrue(messageString.contains("op=" + op));
+		assertTrue(messageString.contains("xid=" + xid));
+		assertTrue(messageString.contains("secs=" + secs));
+		assertTrue(messageString.contains("flags=" + flags));
+		assertTrue(messageString.contains("ciaddr=" + ciaddr));
+		assertTrue(messageString.contains("yiaddr=" + yiaddr));
+		assertTrue(messageString.contains("siaddr=" + siaddr));
+		assertTrue(messageString.contains("giaddr=" + giaddr));
+		assertTrue(messageString.contains("chaddr=" + mac));
+		assertTrue(messageString.contains("options=" + options.size()));
 	}
 }

@@ -146,7 +146,8 @@ public class IPFragmentHandler implements FrameHandler {
 			return true;
 		}
 		if(!packet.getDestinationAddress().equals(pc.getIPAddress())
-				&& !packet.getDestinationAddress().equals(pc.getMulticastAddress())) {
+				&& !packet.getDestinationAddress().equals(pc.getMulticastAddress())
+				&& !packet.getDestinationAddress().equals(IPProtocol.LIMITED_MULTICAST_ADDRESS)) {
 			Jns3Logger.log(pc.getName(),Jns3Logger.LogLevel.ERROR, "IP packet not for this PC: " + packet.getDestinationAddress());
 			return true;
 		}
