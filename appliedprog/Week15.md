@@ -9,7 +9,7 @@ so I can send and receive messages from remote locations.
 
 Scenario: IP address allocation for local machines
 
-* Given: A network of a PC and a router
+* Given: A network of a PC and a HomeRouter
 * When: The PC is connected
 * Then: The PC requests IP address information from the router
 * Then: The router supplies the information
@@ -23,15 +23,49 @@ Scenario: IP address allocation for local machines
     Default Gateway . . . . . . . . . : 192.168.1.1
     ```
 
-Scenario: Messages to local printer
+Scenario: UDP (from last week)
 
-* Given: A PC connected to a Printer via a HomeRouter
-* When: The PC sends document to the local printer's IP
-* Then: It find the printers mac address
-* Then: Is sends a series of frames down its connection to the router
-* Then: The router forwards the frames using the mac address
-* Then: The printer receives the frames and decodes the document
-* Then: It stores the document for later recovery
+* Given: The UDP package is converted to use the generic framework
+* When: It is register with the network layer protocol
+* When: UDP layer test and chat application test are run
+  * Then: All tests pass, with some changes in the configuration
+
+Scenario: Negotiation process per protocol
+
+1. PC send a DISCOVER request with its mac address and all ip address 0
+
+    * OP = 1
+    * CHADDR = PC's mac address
+    * All IP Addresses 0.
+    * First option: 0x350101: Option 53 (DHCP Message Type) 1 octet (containing DHCPDISCOVER)
+    * Second option: 0x3204c0a80164: Option 50 (Request IP address) 4 octets (containing current IP of client)
+
+2. Router receives stores PC's MAC and IPAddress's in it arp table.
+3. Router opens two socket's
+    * PC's current IP address
+    * Ports 67, 68
+
+4. Router sends an OFFER message
+    * Sent to the new socket.
+    * OP is 0x02
+    * CIADDR is zero
+    * YIADDR is calculated by the router in the 192.168.1.0/24 range.
+    * SIADDR with the local IP of the server 192.168.1.1
+    * GIADDR is zero
+    * First option: 0x350102: Option 53 (DHCP Message Type) 1 octet (containing DHCPOFFER)
+    * Second option: 0x0104ffffff00: Option 1 (Subnet mask) 4 octets (containing 255.255.255.0)
+    * Third option: 0x0304c0A80101: Option: 3 (Router) 4 octets (containing 192.168.1.1)
+    * Fourth option: 0x330400015080: Option 51 (Address time) 4 octets (a 86400 second lease time)
+
+
+
+Scenario: Chat across local network
+
+* Given: Two PC's connected via a HomeRouter
+* And: both PC have negotiated their IP addresses with the router
+* When: Both PC start private chats with the other IP addresses 
+* Then: Both PC can send and receive chat message
+
 
 Scenario: Messages to remote printer
 
@@ -59,50 +93,7 @@ Scenario: Messages to local printer from a remote machine
 
 ## Specification
 
-1. A `Document` represents a physical document
-    * It has a `fileName` 16 bytes
-    * It has a `date` 16 bytes
-    * It has it's `contents`
-2. The User Datagram Protocol `UDPDatagram` is transport layer protocol
-    * Its protocol number is 0x11 (17)
-    * Its header contains
-        * Source Port: 2 bytes
-        * Destination Port: 2 bytes
-        * Length: 2 bytes
-        * Checksum: 2 bytes, unused
-    * Its data section contains the contents
-3. The internet-in-a-box or `TheInternet`
-    * It can receive IP packets
-    * It can deliver the packets using the routing prefix of connected devices
-4. A `ChatServer` is an application.
-    * It creates a socket bound on port 42, with a lan broadcast address
-    * Can bind to remote servers
-5. A `InternetSender` that
-    * Sends packets to the internet.
-6. A `PC`
-    * Can be configured to send packet either to an Ethernet connection, or to an InternetSender.
-    * Has a `print(Document,IP)` method that
-        * Creates a UDP packet with the document
-        * The packet has port 42
-        * Creates a IPPacket from the UDP packet
-        * Sends the packet to its packet sender.  
-7. A `HomeRouter`
-    * Has a `IPPrefix` like `138.253.39.0/24`
-    * Has a local IP address `192.168.1.1`
-    * Has a `SubnetMask` of `255.255.255.0`
-    * Has a routing table than maps local IP address to
-    global address in the prefix range.
-    * Has 4 ethernet connections to the LAN
-    * Has 1 connection to the internet
-    * Can assign local IP addresses to devices on the LAN.
-    * Forward frames for local IP to the correct port
-    * Forwards packets for global IP to the internet
-        * The local IP is changed to the corresponding global IP
-    * Informs the internet of its IPPrefix
-    * Receives packet matching its prefix from the internet and
-        * changes the global ip into a local ip
-        * forwards the packet to the correct port
-8. Dynamic Host Configuration Protocol is a UDP protocol
+1. Dynamic Host Configuration Protocol is a UDP protocol
     * Messages are sent on port 68
     * Messages are received on port 67
     * The payload have the format
@@ -143,6 +134,29 @@ Scenario: Messages to local printer from a remote machine
         * All ADDR fields are zero
     * For DHCPACK replies acknowledging the request
         * information is as in the OFFER, apart from the DHCP Message Type option
+2. The internet-in-a-box or `TheInternet`
+    * It can receive IP packets
+    * It can deliver the packets using the routing prefix of connected devices
+3. A `InternetSender` that
+    * Sends packets to the internet.
+4. A `PC`
+    * Can be configured to send packet either to an Ethernet connection, or to an InternetSender.
+5. A `HomeRouter`
+    * Has a `IPPrefix` like `138.253.39.0/24`
+    * Has a local IP address `192.168.1.1`
+    * Has a `SubnetMask` of `255.255.255.0`
+    * Has a routing table than maps local IP address to
+    global address in the prefix range.
+    * Has 4 ethernet connections to the LAN
+    * Has 1 connection to the internet
+    * Can assign local IP addresses to devices on the LAN.
+    * Forward frames for local IP to the correct port
+    * Forwards packets for global IP to the internet
+        * The local IP is changed to the corresponding global IP
+    * Informs the internet of its IPPrefix
+    * Receives packet matching its prefix from the internet and
+        * changes the global ip into a local ip
+        * forwards the packet to the correct port
 9. A subnet mask
     * Has a host `IPAddress`
     * Has and `IPAddress` of the subnet mask  

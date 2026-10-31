@@ -45,7 +45,7 @@ When: It is register with the network layer protocol
 Scenario: UDP
 
 * Given: The UDP package is converted to use the generic framework
-When: It is register with the network layer protocol
+* When: It is register with the network layer protocol
 * When: UDP layer test and chat application test are run
   * Then: All tests pass, with some changes in the configuration
 
