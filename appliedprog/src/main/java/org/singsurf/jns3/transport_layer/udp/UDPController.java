@@ -46,10 +46,16 @@ public class UDPController implements PacketHandler, NamedDevice {
 					|| packet.getDestinationAddress().equals(IPProtocol.LIMITED_MULTICAST_ADDRESS)
 				? packet.getDestinationAddress() 
 				: packet.getSourceAddress();
+		
+		
 		var table = bindings.get(lookupAddress);
 		if(table == null) {
-			Jns3Logger.logError(name, "No socket found for IP address " + lookupAddress);
-			return;
+			// is the packet destined for the limited broadcast address?
+			table = bindings.get(IPProtocol.LIMITED_MULTICAST_ADDRESS);
+			if(table == null) {
+				Jns3Logger.logError(name, "No sockets found for IP address " + lookupAddress);
+				return;
+			}
 		}
 		var binding = table.get(datagram.getDestinationPort());
 		if(binding == null) {

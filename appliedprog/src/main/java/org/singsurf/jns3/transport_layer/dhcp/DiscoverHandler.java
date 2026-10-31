@@ -50,7 +50,7 @@ public class DiscoverHandler implements ProtocolHandler<DHCPMessage> {
 		sock.bind(currentIP, DHCPProtocol.DHCP_SERVER_PORT);
 		dhcpProtocol.offerSockets.put(message.getXid(), (DatagramSocket) sock);
 		
-		dhcpProtocol.multicast_socket.send(datagram);
+		sock.send(datagram);
 		return HandlerStatus.COMPLETED;
 	}
 
