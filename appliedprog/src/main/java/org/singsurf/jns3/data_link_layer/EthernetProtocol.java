@@ -1,12 +1,13 @@
 package org.singsurf.jns3.data_link_layer;
 
 import org.singsurf.jns3.generic_protocol.LowerAdapter;
+import org.singsurf.jns3.generic_protocol.Protocol;
 import org.singsurf.jns3.generic_protocol.ProtocolHandler;
 import org.singsurf.jns3.generic_protocol.UpperPort;
 import org.singsurf.jns3.hardware.AddressableDevice;
 import org.singsurf.jns3.physical_layer.PhysicalEndPoint;
 
-public class EthernetProtocol implements UpperPort<EthernetFrame> {
+public class EthernetProtocol implements Protocol, UpperPort<EthernetFrame> {
 
 	AddressableDevice device;
 

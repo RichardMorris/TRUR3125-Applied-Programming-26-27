@@ -79,27 +79,27 @@ public class DeviceFactory {
         // boot logic for the PC
 		
         EthernetProtocol ethernetProtocol = new EthernetProtocol(pc);
-        pc.setEthernetProtocol(ethernetProtocol);
+        pc.addProtocol(ethernetProtocol);
         
         ARPProtocol arpProtocol = new ARPProtocol(pc);
-        pc.setArpProtocol(arpProtocol);
+        pc.addProtocol(arpProtocol);
         ethernetProtocol.register(arpProtocol);
 
         IPProtocol ipProtocol = new IPProtocol(pc, arpProtocol);
-        pc.setIPProtocol(ipProtocol);
+        pc.addProtocol(ipProtocol);
         ethernetProtocol.register(ipProtocol);
 
         ICMPProtocol icmpProtocol = new ICMPProtocol(pc,pc.getTerminal());
         ipProtocol.register(icmpProtocol);
-        pc.setIcmpProtocol(icmpProtocol);
+        pc.addProtocol(icmpProtocol);
         		
         UDPProtocol udpProtocol = new UDPProtocol(pc);
         ipProtocol.register(udpProtocol);
-        pc.setUDPProtocol(udpProtocol);
+        pc.addProtocol(udpProtocol);
 
         DHCPProtocol dhcpProtocol = new DHCPProtocol(pc, false, arpProtocol);
 		udpProtocol.register(dhcpProtocol);
-        pc.setDHCPProtocol(dhcpProtocol);
+        pc.addProtocol(dhcpProtocol);
 
         ipProtocol.finalise();
         ethernetProtocol.finalise();
@@ -118,14 +118,14 @@ public class DeviceFactory {
         // boot logic for the PC
 		
         EthernetProtocol ethernetProtocol = new EthernetProtocol(router);
-        router.setEthernetProtocol(ethernetProtocol);
+        router.addProtocol(ethernetProtocol);
         
         ARPProtocol arpProtocol = new ARPProtocol(router);
-        router.setArpProtocol(arpProtocol);
+        router.addProtocol(arpProtocol);
         ethernetProtocol.register(arpProtocol);
 
         IPProtocol ipProtocol = new IPProtocol(router, arpProtocol);
-        router.setIPProtocol(ipProtocol);
+        router.addProtocol(ipProtocol);
         ethernetProtocol.register(ipProtocol);
 
         ICMPProtocol icmpProtocol = new ICMPProtocol(router,new Terminal() {
@@ -134,15 +134,15 @@ public class DeviceFactory {
 				Jns3Logger.logError(name, string);
 			}});
         ipProtocol.register(icmpProtocol);
-        router.setIcmpProtocol(icmpProtocol);
+        router.addProtocol(icmpProtocol);
         		
         UDPProtocol udpProtocol = new UDPProtocol(router);
         ipProtocol.register(udpProtocol);
-        router.setUDPProtocol(udpProtocol);
+        router.addProtocol(udpProtocol);
 
         DHCPProtocol dhcpProtocol = new DHCPProtocol(router, true, arpProtocol);
 		udpProtocol.register(dhcpProtocol);
-        router.setDHCPProtocol(dhcpProtocol);
+        router.addProtocol(dhcpProtocol);
 
         ipProtocol.finalise();
         ethernetProtocol.finalise();

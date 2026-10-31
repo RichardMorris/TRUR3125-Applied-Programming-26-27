@@ -1,7 +1,11 @@
 package org.singsurf.jns3.hardware;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.singsurf.jns3.data_link_layer.EthernetProtocol;
 import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.data_link_layer.arp.ARPProtocol;
+import org.singsurf.jns3.generic_protocol.Protocol;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPProtocol;
 import org.singsurf.jns3.network_layer.icmp.ICMPProtocol;
@@ -19,23 +23,15 @@ public class PC implements AddressableDevice {
     MACAddress macAddress;
     IPAddress ipAddress;
 	IPAddress multiCastIP;
-	    
-	EthernetProtocol ethernetProtocol;
-    ARPProtocol arpProtocol;
-	IPProtocol ipProtocol;
-	ICMPProtocol icmpProtocol;
-    UDPProtocol udpProtocol;
+	        
+    List<Protocol> protocols = new ArrayList<>();
     Terminal terminal = new Terminal() {
 
 		@Override
 		public void display(String string) {
 			System.out.println(string);
 		}};
-	private DHCPProtocol dhcpProtocol;
 
-    public void setIcmpProtocol(ICMPProtocol icmpProtocol) {
-		this.icmpProtocol = icmpProtocol;
-	}
 
 	public PC(String name, MACAddress macAddress, IPAddress ipAddress) {
         this.name = name;
@@ -43,52 +39,55 @@ public class PC implements AddressableDevice {
         this.ipAddress = ipAddress;
     }
     
-	public void setEthernetProtocol(EthernetProtocol ethernetProtocol) {
-		this.ethernetProtocol = ethernetProtocol;
-	}
-	
 	public EthernetProtocol getEthernetProtocol() {
-		return ethernetProtocol;
-	}
-
-	public void setIPProtocol(IPProtocol ipProtocol) {
-		this.ipProtocol = ipProtocol;
+    	return getProtocol(EthernetProtocol.class);
 	}
 
 	public IPProtocol getIPProtocol() {
-		return ipProtocol;
+    	return getProtocol(IPProtocol.class);
 	}
 	
-	public void setArpProtocol(ARPProtocol arpProtocol) {
-		this.arpProtocol = arpProtocol;
-	}
-
-	public void setUDPProtocol(UDPProtocol udpProtocol) {
-		this.udpProtocol = udpProtocol;			
-	}
-
 	public ARPProtocol getArpProtocol() {
-		return arpProtocol;
+    	return getProtocol(ARPProtocol.class);
 	}
-	
+
+	@SuppressWarnings("unchecked")
+	public <T extends Protocol> T getProtocol(Class<T> cl) {
+		for(Protocol p: protocols) {
+			if(cl.isInstance(p)) {
+				return (T) p;
+			}
+		}
+		return null;
+	}
+
 	public UDPProtocol getUDPProtocol() {
-		return udpProtocol;
+		return getProtocol(UDPProtocol.class);
 	}
 
     // Commands available to the user of the PC
 
 	public void ping(IPAddress ipAddress2, int i) {
-		icmpProtocol.sendPingRequest(ipAddress2, i);
+		getICMPProtocol().sendPingRequest(ipAddress2, i);
+	}
+
+	public ICMPProtocol getICMPProtocol() {
+		return getProtocol(ICMPProtocol.class);
 	}
 
 	public void traceroute(IPAddress ipAddress2) {
-		icmpProtocol.sendTraceroute(ipAddress2);
+		getICMPProtocol().sendTraceroute(ipAddress2);
 	}
+	
+	public DHCPProtocol getDHCPProtocol() {
+		return getProtocol(DHCPProtocol.class);
+	}
+
 
 	// System commands available application code
 	
 	public void bind(DatagramSocket socket, IPAddress multicastAddress, short portNumber) {
-		udpProtocol.bind(multicastAddress, portNumber, socket);		
+		getUDPProtocol().bind(multicastAddress, portNumber, socket);		
 	}
 
 	public Terminal getTerminal() {
@@ -126,7 +125,7 @@ public class PC implements AddressableDevice {
 	
 	public void setMulticastAddress(IPAddress multiCastIP) {
 		this.multiCastIP = multiCastIP;
-		arpProtocol.put(multiCastIP, MACAddress.BROADCAST_MAC);
+		getArpProtocol().put(multiCastIP, MACAddress.BROADCAST_MAC);
 	}
 
 	public void setIPAddress(IPAddress ip) {
@@ -139,12 +138,8 @@ public class PC implements AddressableDevice {
         return getEthernetProtocol().getEndPoint();
     }
 
-	public void setDHCPProtocol(DHCPProtocol dhcpProtocol) {
-		this.dhcpProtocol = dhcpProtocol;
-	}
-	
-	public DHCPProtocol getDHCPProtocol() {
-		return dhcpProtocol;
+	public void addProtocol(Protocol prot) {
+		protocols.add(prot);
 	}
     
 }

@@ -3,6 +3,7 @@ package org.singsurf.jns3.network_layer.icmp;
 import java.util.List;
 
 import org.singsurf.jns3.generic_protocol.LowerAdapter;
+import org.singsurf.jns3.generic_protocol.Protocol;
 import org.singsurf.jns3.generic_protocol.ProtocolHandler;
 import org.singsurf.jns3.generic_protocol.ProtocolReceiver;
 import org.singsurf.jns3.generic_protocol.ProtocolSender;
@@ -12,7 +13,7 @@ import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPPacket;
 import org.singsurf.jns3.network_layer.PacketSender;
 
-public class ICMPProtocol implements LowerAdapter<IPPacket> {
+public class ICMPProtocol implements Protocol, LowerAdapter<IPPacket> {
 	AddressableDevice device;
 
 	ICMPPacketReceiver icmpPacketReceiver;

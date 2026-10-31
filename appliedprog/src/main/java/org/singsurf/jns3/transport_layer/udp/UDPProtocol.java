@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.singsurf.jns3.generic_protocol.LowerAdapter;
 import org.singsurf.jns3.generic_protocol.LowerSocketAdapter;
+import org.singsurf.jns3.generic_protocol.Protocol;
 import org.singsurf.jns3.generic_protocol.ProtocolHandler;
 import org.singsurf.jns3.generic_protocol.ProtocolReceiver;
 import org.singsurf.jns3.generic_protocol.ProtocolSender;
@@ -13,7 +14,7 @@ import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPPacket;
 import org.singsurf.jns3.network_layer.PacketSender;
 
-public class UDPProtocol implements LowerAdapter<IPPacket>, UpperSocketPort<UDPDatagram> {
+public class UDPProtocol implements Protocol, LowerAdapter<IPPacket>, UpperSocketPort<UDPDatagram> {
 
 	UDPController udpController;
 	AddressableDevice device;

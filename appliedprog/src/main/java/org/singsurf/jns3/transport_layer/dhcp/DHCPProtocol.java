@@ -2,6 +2,7 @@ package org.singsurf.jns3.transport_layer.dhcp;
 
 import org.singsurf.jns3.data_link_layer.arp.ARPProtocol;
 import org.singsurf.jns3.generic_protocol.LowerSocketAdapter;
+import org.singsurf.jns3.generic_protocol.Protocol;
 import org.singsurf.jns3.generic_protocol.ProtocolDelegator;
 import org.singsurf.jns3.generic_protocol.ProtocolSocket;
 import org.singsurf.jns3.generic_protocol.SocketFactory;
@@ -12,7 +13,7 @@ import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPProtocol;
 import org.singsurf.jns3.transport_layer.udp.UDPDatagram;
 
-public class DHCPProtocol implements LowerSocketAdapter<UDPDatagram>, TickListener {
+public class DHCPProtocol implements Protocol, LowerSocketAdapter<UDPDatagram>, TickListener {
 	public static final short DHCP_SERVER_PORT = 67;
 	public static final short DHCP_CLIENT_PORT = 68;
 	

@@ -6,13 +6,14 @@ import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.data_link_layer.FrameSender;
 import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.generic_protocol.LowerAdapter;
+import org.singsurf.jns3.generic_protocol.Protocol;
 import org.singsurf.jns3.generic_protocol.ProtocolHandler;
 import org.singsurf.jns3.generic_protocol.ProtocolReceiver;
 import org.singsurf.jns3.generic_protocol.ProtocolSender;
 import org.singsurf.jns3.hardware.AddressableDevice;
 import org.singsurf.jns3.network_layer.IPAddress;
 
-public class ARPProtocol implements LowerAdapter<EthernetFrame> {
+public class ARPProtocol implements Protocol, LowerAdapter<EthernetFrame> {
 
 	AddressableDevice device;
 	ARPController arpController;

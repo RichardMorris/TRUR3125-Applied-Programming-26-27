@@ -34,7 +34,7 @@ class TestDHCP_Router_PC {
 	void discover_across_simple_network() {		
 		var connection = new SimpleConnection(router1.getEndPoint(), pc2.getEndPoint());
 		assertNotNull(connection);
-		pc2.getArpProtocol().sendGARPRequest();
+//		pc2.getArpProtocol().sendGARPRequest();
 		System.out.println(Jns3Logger.asString());
 		Jns3Logger.clearLog();
 		System.out.println("Discover");
