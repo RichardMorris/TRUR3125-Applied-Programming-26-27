@@ -219,7 +219,7 @@ class TestUDPChatApplication {
 		assertEquals(
 			new LogItem("PC2-UDPController", 
 				Jns3Logger.LogLevel.ERROR, 
-				"No socket found for IP address "+ pc1.getIPAddress()),
+				"No socket found for port 43"),
 			item0);
 		System.out.println(Jns3Logger.asString());
 		Jns3Logger.clearLog();
@@ -264,7 +264,7 @@ class TestUDPChatApplication {
 		assertEquals(
 			new LogItem("PC2-UDPController", 
 				Jns3Logger.LogLevel.ERROR, 
-				"No socket found for IP address "+ pc1.getIPAddress()),
+				"No socket found for port 43"),
 			item0);
 		System.out.println(Jns3Logger.asString());
 		Jns3Logger.clearLog();
