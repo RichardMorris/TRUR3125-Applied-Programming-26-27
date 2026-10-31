@@ -47,6 +47,8 @@ public class RequestHandler implements ProtocolHandler<DHCPMessage> {
 			return HandlerStatus.COMPLETED;
 		}
 		sock.send(datagram);
+		sock.close();
+		dhcpProtocol.offerSockets.remove(message.getXid());
 		
 		dhcpProtocol.arpProtocol.put(message.yiaddr, message.getMacAddress());
 

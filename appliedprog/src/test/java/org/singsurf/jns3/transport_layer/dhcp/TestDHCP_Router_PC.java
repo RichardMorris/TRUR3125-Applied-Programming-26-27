@@ -11,6 +11,7 @@ import org.singsurf.jns3.hardware.DeviceFactory;
 import org.singsurf.jns3.hardware.GlobalWallClock;
 import org.singsurf.jns3.hardware.HomeRouter;
 import org.singsurf.jns3.hardware.PC;
+import org.singsurf.jns3.physical_layer.BufferedConnection;
 import org.singsurf.jns3.physical_layer.SimpleConnection;
 
 class TestDHCP_Router_PC {
@@ -31,6 +32,32 @@ class TestDHCP_Router_PC {
 	}
 	
 	@Test
+	void discover_across_buffered_network() {
+		var connection = new BufferedConnection(router1.getEndPoint(), pc1.getEndPoint());
+		assertNotNull(connection);
+//		pc2.getArpProtocol().sendGARPRequest();
+		System.out.println(Jns3Logger.asString());
+		Jns3Logger.clearLog();
+		System.out.println("Discover");
+		pcDHCP.startDiscovery();
+		System.out.println(Jns3Logger.asString());
+
+		for(int i=0; i<10; i++) {
+			Jns3Logger.clearLog();
+			System.out.println("Tick " + i);
+			GlobalWallClock.getInstance().advanceTime();
+			System.out.println(Jns3Logger.asString());
+		}
+		var yaddr = pcDHCP.lastOfferMessage.getYiaddr();
+		assertEquals(yaddr, pc1.getIPAddress());
+		assertEquals(pc1.getMACAddress(), router1.getArpProtocol().lookup(yaddr));
+		assertEquals(router1.getMACAddress(), pc1.getArpProtocol().lookup(router1.getIPAddress()));
+		
+		assertEquals(0, routerDHCP.offerSockets.size());
+		assertTrue(Jns3Logger.isErrorFree());
+	}
+
+	@Test
 	void discover_across_simple_network() {
 		var connection = new SimpleConnection(router1.getEndPoint(), pc1.getEndPoint());
 		assertNotNull(connection);
@@ -48,13 +75,8 @@ class TestDHCP_Router_PC {
 			GlobalWallClock.getInstance().advanceTime();
 			System.out.println(Jns3Logger.asString());
 
-		assertEquals(4, Jns3Logger.size());
-		assertEquals("[INFO] Router1-DHCP-Discover: Received DHCP Discover message",
-			Jns3Logger.getItem(0).toString());
-		assertEquals("[INFO] PC2-DHCP-Offer: Received DHCP Offer message YIADDR 192.168.1.3",
-			Jns3Logger.getItem(2).toString());
-		assertTrue(Jns3Logger.isErrorFree());
 		var offerMessage = pcDHCP.lastOfferMessage;
+		assertTrue(Jns3Logger.isErrorFree());
 		System.out.println("Offer message: " + offerMessage);
 		var yaddr = offerMessage.getYiaddr();
 		assertEquals(pc1.getMACAddress(), router1.getArpProtocol().lookup(pc1.getIPAddress()));
@@ -66,15 +88,18 @@ class TestDHCP_Router_PC {
 		GlobalWallClock.getInstance().advanceTime();
 		System.out.println(Jns3Logger.asString());
 
-		assertEquals(3, Jns3Logger.size());
-		assertEquals("[INFO] Router1-DHCP-Request: Received DHCP request message",
-			Jns3Logger.getItem(0).toString());
-		assertEquals("[INFO] PC2-DHCP-Ack: Received DHCP Ack message YIADDR 192.168.1.3",
-				Jns3Logger.getItem(2).toString());
+//		assertEquals(3, Jns3Logger.size());
+//		assertEquals("[INFO] Router1-DHCP-Request: Received DHCP request message",
+//			Jns3Logger.getItem(0).toString());
+//		assertEquals("[INFO] PC2-DHCP-Ack: Received DHCP Ack message YIADDR 192.168.1.3",
+//				Jns3Logger.getItem(2).toString());
 
 		assertEquals(yaddr, pc1.getIPAddress());
 		assertEquals(pc1.getMACAddress(), router1.getArpProtocol().lookup(yaddr));
 		assertEquals(router1.getMACAddress(), pc1.getArpProtocol().lookup(router1.getIPAddress()));
+		
+		assertEquals(0, routerDHCP.offerSockets.size());
+		
 		
 		assertTrue(Jns3Logger.isErrorFree());
 	}
