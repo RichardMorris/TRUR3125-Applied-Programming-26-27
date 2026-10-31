@@ -6,6 +6,7 @@ import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPProtocol;
 import org.singsurf.jns3.network_layer.icmp.ICMPProtocol;
 import org.singsurf.jns3.physical_layer.PhysicalEndPoint;
+import org.singsurf.jns3.transport_layer.dhcp.DHCPProtocol;
 import org.singsurf.jns3.transport_layer.udp.DatagramSocket;
 import org.singsurf.jns3.transport_layer.udp.UDPProtocol;
 
@@ -30,6 +31,7 @@ public class PC implements AddressableDevice {
 		public void display(String string) {
 			System.out.println(string);
 		}};
+	private DHCPProtocol dhcpProtocol;
 
     public void setIcmpProtocol(ICMPProtocol icmpProtocol) {
 		this.icmpProtocol = icmpProtocol;
@@ -136,5 +138,13 @@ public class PC implements AddressableDevice {
     public PhysicalEndPoint getEndPoint() {
         return getEthernetProtocol().getEndPoint();
     }
+
+	public void setDHCPProtocol(DHCPProtocol dhcpProtocol) {
+		this.dhcpProtocol = dhcpProtocol;
+	}
+	
+	public DHCPProtocol getDHCPProtocol() {
+		return dhcpProtocol;
+	}
     
 }

@@ -3,12 +3,14 @@ package org.singsurf.jns3.hardware;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.data_link_layer.EthernetProtocol;
 import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.data_link_layer.arp.ARPProtocol;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPProtocol;
 import org.singsurf.jns3.network_layer.icmp.ICMPProtocol;
+import org.singsurf.jns3.transport_layer.dhcp.DHCPProtocol;
 import org.singsurf.jns3.transport_layer.udp.UDPProtocol;
 
 /**
@@ -95,12 +97,59 @@ public class DeviceFactory {
         ipProtocol.register(udpProtocol);
         pc.setUDPProtocol(udpProtocol);
 
+        DHCPProtocol dhcpProtocol = new DHCPProtocol(pc, false, arpProtocol);
+		udpProtocol.register(dhcpProtocol);
+        pc.setDHCPProtocol(dhcpProtocol);
+
         ipProtocol.finalise();
         ethernetProtocol.finalise();
 
 		pc.setMulticastAddress(new IPAddress("192.168.1.255"));
 
         return pc;
+    }
+
+    public HomeRouter createHomeRouter(String name) {
+        MACAddress mac = createMACAddress();
+        IPAddress ip = createSequentialLocalIPAddress();
+
+        var router = new HomeRouter(name, mac, ip);
+        
+        // boot logic for the PC
+		
+        EthernetProtocol ethernetProtocol = new EthernetProtocol(router);
+        router.setEthernetProtocol(ethernetProtocol);
+        
+        ARPProtocol arpProtocol = new ARPProtocol(router);
+        router.setArpProtocol(arpProtocol);
+        ethernetProtocol.register(arpProtocol);
+
+        IPProtocol ipProtocol = new IPProtocol(router, arpProtocol);
+        router.setIPProtocol(ipProtocol);
+        ethernetProtocol.register(ipProtocol);
+
+        ICMPProtocol icmpProtocol = new ICMPProtocol(router,new Terminal() {
+			@Override
+			public void display(String string) {
+				Jns3Logger.logError(name, string);
+			}});
+        ipProtocol.register(icmpProtocol);
+        router.setIcmpProtocol(icmpProtocol);
+        		
+        UDPProtocol udpProtocol = new UDPProtocol(router);
+        ipProtocol.register(udpProtocol);
+        router.setUDPProtocol(udpProtocol);
+
+        DHCPProtocol dhcpProtocol = new DHCPProtocol(router, true, arpProtocol);
+		udpProtocol.register(dhcpProtocol);
+        router.setDHCPProtocol(dhcpProtocol);
+
+        ipProtocol.finalise();
+        ethernetProtocol.finalise();
+
+		router.setMulticastAddress(new IPAddress("192.168.1.255"));
+
+        return router;
     }
 
     public Switch createSwitch(String name, int numPorts) {

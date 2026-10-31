@@ -39,8 +39,11 @@ public class DHCPProtocol implements LowerSocketAdapter<UDPDatagram>, TickListen
 		this.isServer = isServer;
 		this.device = device;
 		delgator = new ProtocolDelegator<DHCPMessage>(device.getName());
-		delgator.addHandler(new DiscoverHandler(this));
-		delgator.addHandler(new OfferHandler(this));
+		if(isServer) {
+			delgator.addHandler(new DiscoverHandler(this));
+		} else {
+			delgator.addHandler(new OfferHandler(this));
+		}
 		GlobalWallClock.getInstance().addTickListener(this);
 		this.arpProtocol = arpProtocol;
 	}
