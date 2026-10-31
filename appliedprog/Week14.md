@@ -27,7 +27,7 @@ Scenario: Data-link layer
 Scenario: Network layer
 
 * Given: Network layer is converted to use the generic framework
-When: It is register with the data-link layer
+* When: It is register with the data-link layer
 * When: network layer test are run
   * Then: All tests pass, with some changes in the configuration
   * And: a test protocol can be registered with the data-link layer
