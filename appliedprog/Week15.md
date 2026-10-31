@@ -2,8 +2,11 @@
 
 ## User Story
 
-As a home user, I want to connect to a home router and access the internet
-so I can send and receive messages from remote locations.
+As a home user, I want to connect to a home router and
+automatically set up IP addresses
+so I can send and receive messages to local network machines
+and not have to worry about details like IP address conflicts,
+whatever that means.
 
 ## Acceptance Criteria
 
@@ -33,7 +36,8 @@ Scenario: UDP (from last week)
 Scenario: Negotiation process per protocol
 
 1. PC send a DISCOVER request with its mac address and all ip address 0
-
+    * Sent to broadcast MAC and Limited MultiCast IP address.
+    * EtherType should be (0x0800), not implemented
     * OP = 1
     * CHADDR = PC's mac address
     * All IP Addresses 0.
@@ -41,9 +45,9 @@ Scenario: Negotiation process per protocol
     * Second option: 0x3204c0a80164: Option 50 (Request IP address) 4 octets (containing current IP of client)
 
 2. Router receives stores PC's MAC and IPAddress's in it arp table.
-3. Router opens two socket's
+3. Router opens a socket
     * PC's current IP address
-    * Ports 67, 68
+    * Ports 68
 
 4. Router sends an OFFER message
     * Sent to the new socket.
@@ -57,13 +61,41 @@ Scenario: Negotiation process per protocol
     * Third option: 0x0304c0A80101: Option: 3 (Router) 4 octets (containing 192.168.1.1)
     * Fourth option: 0x330400015080: Option 51 (Address time) 4 octets (a 86400 second lease time)
 
-
+5. PC receives the request and stores the routers MAC and IP in arp table
+6. PC opens a socket
+    * Router's SIADDR
+    * Ports 67
+7. PC sends an REQUEST message
+    * Sent to broadcast MAC and LimitedMultiCastAddress
+    * OP is 0x03
+    * CIADDR is zero
+    * YIADDR as provided by router
+    * SIADDR with the local IP of the server 192.168.1.1
+    * GIADDR is zero
+    * First option: 0x350102: Option 53 (DHCP Message Type) 1 octet (containing DHCPOFFER)
+    * Second option: 0x0104ffffff00: Option 1 (Subnet mask) 4 octets (containing 255.255.255.0)
+    * Third option: 0x0304c0A80101: Option: 3 (Router) 4 octets (containing 192.168.1.1)
+    * Fourth option: 0x330400015080: Option 51 (Address time) 4 octets (a 86400 second lease time)
+8. Router receives REQUEST
+    * Checks the SIADDR matches otherwise skips.
+    * Updates its APR table with YIADDR of client
+9. Router sends a DHCP_ACK
+    * Sent to the socket from Offer.
+    * OP is 0x02
+    * CIADDR is zero
+    * YIADDR as in REQUEST.
+    * SIADDR with the local IP of the server 192.168.1.1
+    * GIADDR is zero
+    * First option: 0x350102: Option 53 (DHCP Message Type) 1 octet (containing DHCPOFFER)
+    * Second option: 0x0104ffffff00: Option 1 (Subnet mask) 4 octets (containing 255.255.255.0)
+    * Third option: 0x0304c0A80101: Option: 3 (Router) 4 octets (containing 192.168.1.1)
+    * Fourth option: 0x330400015080: Option 51 (Address time) 4 octets (a 86400 second lease time)
 
 Scenario: Chat across local network
 
 * Given: Two PC's connected via a HomeRouter
 * And: both PC have negotiated their IP addresses with the router
-* When: Both PC start private chats with the other IP addresses 
+* When: Both PC start private chats with the other IP addresses
 * Then: Both PC can send and receive chat message
 
 

@@ -31,7 +31,7 @@ class TestDHCP_Router_PC {
 	}
 	
 	@Test
-	void discover_across_simple_network() {		
+	void discover_across_simple_network() {
 		var connection = new SimpleConnection(router1.getEndPoint(), pc1.getEndPoint());
 		assertNotNull(connection);
 //		pc2.getArpProtocol().sendGARPRequest();
@@ -72,9 +72,11 @@ class TestDHCP_Router_PC {
 		assertEquals("[INFO] PC2-DHCP-Ack: Received DHCP Ack message YIADDR 192.168.1.3",
 				Jns3Logger.getItem(2).toString());
 
+		assertEquals(yaddr, pc1.getIPAddress());
 		assertEquals(pc1.getMACAddress(), router1.getArpProtocol().lookup(yaddr));
 		assertEquals(router1.getMACAddress(), pc1.getArpProtocol().lookup(router1.getIPAddress()));
 		
+		assertTrue(Jns3Logger.isErrorFree());
 	}
 
 }
