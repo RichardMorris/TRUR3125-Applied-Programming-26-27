@@ -10,12 +10,9 @@ import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.hardware.DeviceFactory;
 import org.singsurf.jns3.hardware.GlobalWallClock;
 import org.singsurf.jns3.hardware.PC;
-import org.singsurf.jns3.network_layer.IPPacket;
-import org.singsurf.jns3.network_layer.IPProtocol;
 import org.singsurf.jns3.physical_layer.SimpleConnection;
-import org.singsurf.jns3.transport_layer.udp.UDPDatagram;
 
-class TestPC {
+class TestDHCP_PC {
 	DHCPProtocol dhcpProtocol;
 	private PC pc1;
 	private PC pc2;
@@ -25,51 +22,41 @@ class TestPC {
 	void setUp() throws Exception {
 		pc1 = DeviceFactory.getInstance().createPC("PC1");
 		pc1.setIPAddress(DeviceFactory.getInstance().createSequentialLocalIPAddress());
-		dhcpProtocol = new DHCPProtocol(pc1, true);
+		dhcpProtocol = new DHCPProtocol(pc1, true, pc1.getArpProtocol());
 		var udpProtocol = pc1.getUDPProtocol();
 		udpProtocol.register(dhcpProtocol);
 
 		pc2 = DeviceFactory.getInstance().createPC("PC2");
 		pc2.setIPAddress(DeviceFactory.getInstance().createSequentialLocalIPAddress());
-		dhcpProtocol2 = new DHCPProtocol(pc2, false);
+		dhcpProtocol2 = new DHCPProtocol(pc2, false, pc2.getArpProtocol());
 		var udpProtocol2 = pc2.getUDPProtocol();
 		udpProtocol2.register(dhcpProtocol2);
 
 	}
 	
 	@Test
-	void discover_message_direct_to_pc() {		
-		
-		
-		Jns3Logger.clearLog();
-		var msg = DHCPMessage.createDiscoverMessage(dhcpProtocol.device.getMACAddress());
-		var datagram = new UDPDatagram(DHCPProtocol.DHCP_CLIENT_PORT, DHCPProtocol.DHCP_SERVER_PORT, msg.getBytes());
-		var packet = new IPPacket(IPPacket.UDP, 64, 
-				pc1.getIPAddress(), 
-				IPProtocol.LIMITED_MULTICAST_ADDRESS, 
-				datagram.getBytes());
-		
-		pc1.getIPProtocol().receive(packet);
-		dhcpProtocol.onTick();
-		System.out.println(Jns3Logger.asString());
-		assertEquals(2, Jns3Logger.size());
-		assertEquals("[INFO] DiscoverHandler: Received DHCP Discover message"
-				+ "", Jns3Logger.getItem(1).toString());
-		assertTrue(Jns3Logger.isErrorFree());
-	}
-
-	@Test
 	void discover_across_simple_network() {		
 		var connection = new SimpleConnection(pc1.getEndPoint(), pc2.getEndPoint());
 		assertNotNull(connection);
+		pc1.getArpProtocol().sendGARPRequest();
+		System.out.println(Jns3Logger.asString());
+		Jns3Logger.clearLog();
+		System.out.println("Discover");
+		
 		dhcpProtocol2.startDiscovery();
+		System.out.println(Jns3Logger.asString());
+		Jns3Logger.clearLog();
 
 			Jns3Logger.clearLog();
+			System.out.println("Tick " + 1);
 			GlobalWallClock.getInstance().advanceTime();
-		
-		assertEquals(1, Jns3Logger.size());
-		assertEquals("[INFO] DiscoverHandler: Received DHCP Discover message"
-				+ "", Jns3Logger.getItem(0).toString());
+			System.out.println(Jns3Logger.asString());
+
+		assertEquals(3, Jns3Logger.size());
+		assertEquals("[INFO] PC1-DHCP-Discover: Received DHCP Discover message",
+			Jns3Logger.getItem(0).toString());
+		assertEquals("[INFO] PC2-DHCP-Offer: Received DHCP Offer message YIADDR 192.168.1.3",
+			Jns3Logger.getItem(2).toString());
 		assertTrue(Jns3Logger.isErrorFree());
 	}
 
