@@ -15,7 +15,7 @@ public class TestPC {
     DeviceFactory deviceFactory = new DeviceFactory();
     @Test 
     public void createPC() {
-        PC pc = deviceFactory.createPC("TestPC");
+        AddressableDevice pc = deviceFactory.createPC("TestPC");
         assertNotNull(pc);
     }
 

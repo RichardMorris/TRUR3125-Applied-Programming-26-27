@@ -7,9 +7,10 @@ import org.singsurf.jns3.generic_protocol.LowerSocketAdapter;
 import org.singsurf.jns3.generic_protocol.ProtocolSocket;
 import org.singsurf.jns3.generic_protocol.SocketFactory;
 import org.singsurf.jns3.hardware.GlobalWallClock;
-import org.singsurf.jns3.hardware.GlobalWallClock.TickListener;
 import org.singsurf.jns3.hardware.PC;
+import org.singsurf.jns3.hardware.ProtocolDevice;
 import org.singsurf.jns3.hardware.Terminal;
+import org.singsurf.jns3.hardware.GlobalWallClock.TickListener;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.transport_layer.udp.DatagramSocket;
 import org.singsurf.jns3.transport_layer.udp.UDPDatagram;
@@ -26,7 +27,7 @@ public class ChatApplication implements TickListener, LowerSocketAdapter<UDPData
 	static final short PUBLIC_PORT = 42;
 	static final short PRIVATE_PORT = 43;
 
-	PC pc;
+	ProtocolDevice pc;
 	Terminal terminal;
 	boolean isPrivate = false;
 	private List<DatagramSocket> sockets = new ArrayList<>();
