@@ -6,6 +6,7 @@ import org.singsurf.jns3.generic_protocol.ProtocolHandler;
 import org.singsurf.jns3.hardware.AddressableDevice;
 import org.singsurf.jns3.hardware.DeviceFactory;
 import org.singsurf.jns3.network_layer.IPAddress;
+import org.singsurf.jns3.transport_layer.udp.DatagramSocket;
 import org.singsurf.jns3.transport_layer.udp.UDPDatagram;
 
 public class DiscoverHandler implements ProtocolHandler<DHCPMessage> {
@@ -20,16 +21,12 @@ public class DiscoverHandler implements ProtocolHandler<DHCPMessage> {
 	
 	@Override
 	public HandlerStatus handle(DHCPMessage message) {
-		if(message.op != DHCPProtocol.DHCP_OP_DISCOVER) {
+		if(message.op != DHCPProtocol.DHCP_OP_DISCOVER
+				|| !message.siaddr.equals(IPAddress.ZERO_ADDRESS)) {
 			return HandlerStatus.CONTINUE;
 		}
 		Jns3Logger.logInfo(name, "Received DHCP Discover message");
-		IPAddress currentIP=null;
-		for(var opt : message.options) {
-			if(opt.code() == DHCPMessage.OPT_REQ_IP) {
-				currentIP = opt.getDataAsIPAddress();
-			}
-		}
+		IPAddress currentIP=message.getOption(DHCPMessage.OPT_REQ_IP).getDataAsIPAddress();
 		if(currentIP == null) {
 			Jns3Logger.logError(name, "No requested IP address in DHCP Discover message");
 			return HandlerStatus.COMPLETED;
@@ -37,7 +34,11 @@ public class DiscoverHandler implements ProtocolHandler<DHCPMessage> {
 		
 		var offerIP = DeviceFactory.getInstance().createSequentialLocalIPAddress();
 		DHCPMessage reply = DHCPMessage.createOfferMessage(
-				message.getMacAddress(), device.getIPAddress(), offerIP, message.getXid());
+				device.getMACAddress(), 
+				device.getIPAddress(), 
+				message.getMacAddress(), 
+				offerIP,
+				message.getXid());
 		UDPDatagram datagram = new UDPDatagram(
 				DHCPProtocol.DHCP_SERVER_PORT, 
 				DHCPProtocol.DHCP_CLIENT_PORT,  
@@ -46,9 +47,10 @@ public class DiscoverHandler implements ProtocolHandler<DHCPMessage> {
 		// with src ip = 
 		dhcpProtocol.arpProtocol.put(currentIP, message.getMacAddress());
 		var sock = dhcpProtocol.factory.createSocket("DHCP Offer Socket");
-		sock.bind(offerIP, DHCPProtocol.DHCP_SERVER_PORT);
+		sock.bind(currentIP, DHCPProtocol.DHCP_SERVER_PORT);
+		dhcpProtocol.offerSockets.put(message.getXid(), (DatagramSocket) sock);
 		
-		dhcpProtocol.socket.send(datagram);
+		dhcpProtocol.multicast_socket.send(datagram);
 		return HandlerStatus.COMPLETED;
 	}
 

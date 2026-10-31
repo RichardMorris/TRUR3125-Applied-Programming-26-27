@@ -3,6 +3,7 @@ package org.singsurf.jns3.transport_layer.dhcp;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.generic_protocol.ProtocolContainer;
 import org.singsurf.jns3.network_layer.IPAddress;
@@ -27,8 +28,13 @@ import org.singsurf.jns3.network_layer.IPAddress;
  */
 public class DHCPMessage implements ProtocolContainer {
 
-	private static final byte OPT_MSG_TYPE = 53;
-	public static final byte OPT_REQ_IP = 50;
+	private static final byte OP_ADDRESS_TIME = (byte) 51;
+	static final byte OPT_SERVER_MAC = (byte) 6;
+	static final byte OP_ROUTER_IP = (byte) 3;
+	static final byte OPT_SUBNET_MASK = (byte) 1;
+	static final byte OPT_MSG_TYPE = 53;
+	static final byte OPT_REQ_IP = 50;
+	private static final byte OPT_SERVER_IP = 54;
 
 	public static final short DHCP_FLAG_UNICAST = 0x00;
 	public static final short DHCP_FLAG_BROARDCAST = 0x01;
@@ -85,6 +91,11 @@ public class DHCPMessage implements ProtocolContainer {
 		}
 		public IPAddress getDataAsIPAddress() {
 			return new IPAddress(data[0], data[1], data[2], data[3]);
+		}
+		public MACAddress getDataAsMACAddress() {
+			byte[] macBytes = new byte[6];
+			System.arraycopy(data, 0, macBytes, 0, 6);
+			return new MACAddress(macBytes);
 		}
 	}
 	
@@ -197,6 +208,15 @@ public class DHCPMessage implements ProtocolContainer {
 		return options;
 	}
 	
+	public DHCPOption getOption(byte code) {
+		for(DHCPOption option : options) {
+			if(option.code() == code) {
+				return option;
+			}
+		}
+		Jns3Logger.logError("DHCPMessage", "Option code " + code + " not found in DHCP message");
+		return null;
+	}
 	@Override
 	public byte[] getBytes() {
 		int length = DHCP_HEADER_SIZE + DHCP_BOOTP_SIZE + DHCP_MAGIC_SIZE;
@@ -264,33 +284,93 @@ public class DHCPMessage implements ProtocolContainer {
 		short flags = 0;
 		List<DHCPOption> options = new ArrayList<>();
 		// First option: 0x350101: Option 53 (DHCP Message Type) 1 octet (containing DHCPDISCOVER)
-		options.add(new DHCPOption(OPT_MSG_TYPE, (byte) 1, new byte[] { (byte) DHCPProtocol.DHCP_OP_DISCOVER }));
+		options.add(new DHCPOption(OPT_MSG_TYPE, OPT_SUBNET_MASK, new byte[] { (byte) DHCPProtocol.DHCP_OP_DISCOVER }));
 		
 		options.add(new DHCPOption(OPT_REQ_IP, (byte) 4, currentIP.getBytes()));
 		var message = new DHCPMessage(op, xid, secs, flags, addresses, options);
 		return message;
 	}
 
-	public static DHCPMessage createOfferMessage(MACAddress macAddress, IPAddress serverIP, IPAddress offerIP, int pc_xid) {
+	public static DHCPMessage createOfferMessage(
+			MACAddress serverMac, IPAddress serverIP, 
+			MACAddress clientMac, IPAddress offerIP, 
+			int pc_xid) {
 		var ciaddr = IPAddress.ZERO_ADDRESS;
 		var yiaddr = offerIP;
 		var siaddr = serverIP;
 		var giaddr = IPAddress.ZERO_ADDRESS;
-		var addr = new DHCPMessage.DHCPAddresses(macAddress, ciaddr, yiaddr, siaddr, giaddr);
+		var addr = new DHCPMessage.DHCPAddresses(clientMac, ciaddr, yiaddr, siaddr, giaddr);
 		short secs = 0;
 		short flags = 0;
 		List<DHCPOption> options = new ArrayList<>();
 		// First option: 0x350102: Option 53 (DHCP Message Type) 1 octet (containing DHCPOFFER)
-		options.add(new DHCPOption(OPT_MSG_TYPE, (byte) 1, DHCPProtocol.DHCP_OP_OFFER ));
+		var op = DHCPProtocol.DHCP_OP_OFFER;
+		options.add(new DHCPOption(OPT_MSG_TYPE, (byte) 1, op ));
 	    // Second option: 0x0104ffffff00: Option 1 (Subnet mask) 4 octets (containing 255.255.255.0)
-		options.add(new DHCPOption((byte) 1, DHCPProtocol.SUBNET_MASK));
+		options.add(new DHCPOption(OPT_SUBNET_MASK, DHCPProtocol.SUBNET_MASK));
 	    // Third option: 0x0304c0A80101: Option: 3 (Router) 4 octets (containing 192.168.1.1)
-		options.add(new DHCPOption((byte) 3, serverIP));
+		options.add(new DHCPOption(OP_ROUTER_IP, serverIP));
 		// Fourth option: 0x330400015080: Option 51 (Address time) 4 octets (a 86400 second lease time)
-		options.add(new DHCPOption((byte) 51, (byte) 4, new byte[] { 0x00, 0x01, 0x50, (byte) 0x80 }));
-		var message = new DHCPMessage(DHCPProtocol.DHCP_OP_OFFER, pc_xid, secs, flags, addr, options);
+		options.add(new DHCPOption(OP_ADDRESS_TIME, (byte) 4, new byte[] { 0x00, 0x01, 0x50, (byte) 0x80 }));
+		//Fifth option: 0x060c09070a0f09070a1009070a13:	Option 6 (Domain Server) 14 octets (containing 9.7.10.15,9.7.10.16,9.7.10.18)
+		byte[] macBytes = new byte[16];
+		System.arraycopy(serverMac.getBytes(), 0, macBytes, 0, 6);
+		options.add(new DHCPOption(OPT_SERVER_MAC, (byte) 14, macBytes));
+		
+		var message = new DHCPMessage(op, pc_xid, secs, flags, addr, options);
+
 		return message;
 	}	
+
+	public static DHCPMessage createRequestMessage(MACAddress mac, 
+			IPAddress yaddr, IPAddress saddr, int pc_xid) {
+		var ciaddr = IPAddress.ZERO_ADDRESS;
+		var yiaddr = yaddr;
+		var siaddr = saddr;
+		var giaddr = IPAddress.ZERO_ADDRESS;
+		var addresses = new DHCPMessage.DHCPAddresses(mac, ciaddr, yiaddr, siaddr, giaddr);
+		byte op = DHCPProtocol.DHCP_OP_DISCOVER;
+		int xid = pc_xid;
+		short secs = 0;
+		short flags = 0;
+		List<DHCPOption> options = new ArrayList<>();
+		// First option: 0x350103: Option 53 (DHCP Message Type) 1 octet (containing DHCPREQUEST)
+		options.add(new DHCPOption(OPT_MSG_TYPE, (byte) 1, DHCPProtocol.DHCP_OP_REQUEST ));		
+		// Second option: 0x3204c0a80164: Option 50 (Request IP address) 4 octets (containing 192.168.1.100)
+		options.add(new DHCPOption(OPT_REQ_IP, yaddr));
+		// Third option: 0x3604c0a801601: Option: 54 (DHCP Server) 4 octets (containing 192.168.1.1)
+		options.add(new DHCPOption(OPT_SERVER_IP, saddr));
+		var message = new DHCPMessage(op, xid, secs, flags, addresses, options);
+		return message;
+	}
+
+	public static DHCPMessage createAckMessage(MACAddress mac, 
+			IPAddress yaddr, IPAddress saddr, MACAddress serverMac, int pc_xid) {
+		var ciaddr = IPAddress.ZERO_ADDRESS;
+		var yiaddr = yaddr;
+		var siaddr = saddr;
+		var giaddr = IPAddress.ZERO_ADDRESS;
+		var addresses = new DHCPMessage.DHCPAddresses(mac, ciaddr, yiaddr, siaddr, giaddr);
+		var op = DHCPProtocol.DHCP_OP_OFFER;
+		int xid = pc_xid;
+		short secs = 0;
+		short flags = 0;
+		List<DHCPOption> options = new ArrayList<>();
+		// First option: 0x350105: Option 53 (DHCP Message Type) 1 octet (containing DHCPACK)
+		options.add(new DHCPOption(OPT_MSG_TYPE, (byte) 1, DHCPProtocol.DHCP_OP_ACK ));
+		// Second option: 0x0104ffffff00: Option 1 (Subnet mask) 4 octets (containing 255.255.255.0)
+		options.add(new DHCPOption(OPT_SUBNET_MASK, DHCPProtocol.SUBNET_MASK));
+	    // Third option: 0x0304c0A80101: Option: 3 (Router) 4 octets (containing 192.168.1.1)
+		options.add(new DHCPOption(OP_ROUTER_IP, saddr));
+		// Fourth option: 0x330400015080: Option 51 (Address time) 4 octets (a 86400 second lease time)
+		options.add(new DHCPOption(OP_ADDRESS_TIME, (byte) 4, new byte[] { 0x00, 0x01, 0x50, (byte) 0x80 }));
+		//Fifth option: 0x060c09070a0f09070a1009070a13:	Option 6 (Domain Server) 14 octets (containing 9.7.10.15,9.7.10.16,9.7.10.18)
+		byte[] macBytes = new byte[16];
+		System.arraycopy(serverMac.getBytes(), 0, macBytes, 0, 6);
+		options.add(new DHCPOption(OPT_SERVER_MAC, (byte) 14, macBytes));
+		var message = new DHCPMessage(op, xid, secs, flags, addresses, options);
+		return message;
+	}
 
 	@Override
 	public String toString() {

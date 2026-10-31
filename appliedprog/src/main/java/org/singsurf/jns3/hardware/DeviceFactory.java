@@ -58,6 +58,12 @@ public class DeviceFactory {
     }
 
     byte nextSequentialIP = 1;
+    
+    /**
+	 * Creates a new sequential local IP address in the 192.168.1.x range.
+	 * First call should be reserved for the router, subsequent calls for PCs.
+	 * @return A new sequential local IP address
+	 */
     public IPAddress createSequentialLocalIPAddress() {
         int[] bytes = new int[4];
         bytes[0] = 192;

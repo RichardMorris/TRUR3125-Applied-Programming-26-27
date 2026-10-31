@@ -1,14 +1,17 @@
 package org.singsurf.jns3.transport_layer.dhcp;
 
 import org.singsurf.jns3.Jns3Logger;
+import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.generic_protocol.HandlerStatus;
 import org.singsurf.jns3.generic_protocol.ProtocolHandler;
 import org.singsurf.jns3.hardware.AddressableDevice;
+import org.singsurf.jns3.transport_layer.udp.UDPDatagram;
 
 public class OfferHandler implements ProtocolHandler<DHCPMessage> {
 	DHCPProtocol dhcpProtocol;
 	AddressableDevice device;
 	String name;
+	
 	public OfferHandler(DHCPProtocol dhcpProtocol) {
 		this.dhcpProtocol = dhcpProtocol;
 		this.device = dhcpProtocol.device;
@@ -20,33 +23,37 @@ public class OfferHandler implements ProtocolHandler<DHCPMessage> {
 		if(message.op != DHCPProtocol.DHCP_OP_OFFER) {
 			return HandlerStatus.CONTINUE;
 		}
+		
+		var op = message.getOption(DHCPMessage.OPT_MSG_TYPE);
+		if(op == null || op.data()[0] != DHCPProtocol.DHCP_OP_OFFER) {
+			return HandlerStatus.CONTINUE;
+		}
+
+		dhcpProtocol.lastOfferMessage = message;
 		Jns3Logger.logInfo(name, "Received DHCP Offer message YIADDR "+ message.getYiaddr().toString());
-//		IPAddress currentIP=null;
-//		for(var opt : message.options) {
-//			if(opt.code() == DHCPMessage.OPT_REQ_IP) {
-//				currentIP = opt.getDataAsIPAddress();
-//			}
-//		}
-//		if(currentIP == null) {
-//			Jns3Logger.logError("DiscoverHandler", "No requested IP address in DHCP Discover message");
-//			return HandlerStatus.COMPLETED;
-//		}
-//		
-//		var offerIP = DeviceFactory.getInstance().createSequentialLocalIPAddress();
-//		DHCPMessage reply = DHCPMessage.createOfferMessage(
-//				message.getMacAddress(), device.getIPAddress(), offerIP, message.getXid());
-//		UDPDatagram datagram = new UDPDatagram(
-//				DHCPProtocol.DHCP_SERVER_PORT, 
-//				DHCPProtocol.DHCP_CLIENT_PORT,  
-//				reply.getBytes());
+		MACAddress mac = message.getOption(DHCPMessage.OPT_SERVER_MAC).getDataAsMACAddress();
+		if(mac == null) {
+			Jns3Logger.logError(name, "No server MAC address in DHCP Offer message");
+			return HandlerStatus.COMPLETED;
+		}
+		dhcpProtocol.arpProtocol.put(message.siaddr, mac);
+
 //		// We need to open a socket 
 //		// with src ip = 
-//		dhcpProtocol.arpProtocol.put(currentIP, message.getMacAddress());
 //		var sock = dhcpProtocol.factory.createSocket("DHCP Offer Socket");
-//		sock.bind(offerIP, DHCPProtocol.DHCP_SERVER_PORT);
-//		sock.send(datagram);
-//		
-////		dhcpProtocol.socket.send(datagram);
+//		sock.bind(message.siaddr, DHCPProtocol.DHCP_CLIENT_PORT);
+
+		DHCPMessage reply = DHCPMessage.createRequestMessage(
+				message.getMacAddress(),
+				message.yiaddr,
+				message.siaddr,
+				message.getXid());
+		
+		UDPDatagram datagram = new UDPDatagram(
+				DHCPProtocol.DHCP_CLIENT_PORT, 
+				DHCPProtocol.DHCP_SERVER_PORT,  
+				reply.getBytes());
+		dhcpProtocol.multicast_socket.send(datagram);
 		return HandlerStatus.COMPLETED;
 	}
 
