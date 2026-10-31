@@ -6,9 +6,9 @@ import org.singsurf.jns3.generic_protocol.Protocol;
 import org.singsurf.jns3.generic_protocol.ProtocolDelegator;
 import org.singsurf.jns3.generic_protocol.ProtocolSocket;
 import org.singsurf.jns3.generic_protocol.SocketFactory;
-import org.singsurf.jns3.hardware.AddressableDevice;
 import org.singsurf.jns3.hardware.GlobalWallClock;
 import org.singsurf.jns3.hardware.GlobalWallClock.TickListener;
+import org.singsurf.jns3.hardware.ProtocolDevice;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPProtocol;
 import org.singsurf.jns3.transport_layer.udp.UDPDatagram;
@@ -29,14 +29,14 @@ public class DHCPProtocol implements Protocol, LowerSocketAdapter<UDPDatagram>, 
 	public static final IPAddress  SUBNET_MASK  = new IPAddress("255.255.255.0");
 	SocketFactory<UDPDatagram> factory;
 	boolean isServer;
-	AddressableDevice device;
+	ProtocolDevice device;
 	ProtocolSocket<UDPDatagram> socket;
 	
 	
 	ProtocolDelegator<DHCPMessage> delgator;
 	ARPProtocol arpProtocol;
 	
-	public DHCPProtocol(AddressableDevice device,boolean isServer, ARPProtocol arpProtocol) {
+	public DHCPProtocol(ProtocolDevice device,boolean isServer) {
 		this.isServer = isServer;
 		this.device = device;
 		delgator = new ProtocolDelegator<DHCPMessage>(device.getName());
@@ -46,7 +46,7 @@ public class DHCPProtocol implements Protocol, LowerSocketAdapter<UDPDatagram>, 
 			delgator.addHandler(new OfferHandler(this));
 		}
 		GlobalWallClock.getInstance().addTickListener(this);
-		this.arpProtocol = arpProtocol;
+		this.arpProtocol = device.getProtocol(ARPProtocol.class);
 	}
 
 

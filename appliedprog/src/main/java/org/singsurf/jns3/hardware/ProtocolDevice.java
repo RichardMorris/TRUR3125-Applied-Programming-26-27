@@ -13,7 +13,7 @@ import org.singsurf.jns3.network_layer.icmp.ICMPProtocol;
 import org.singsurf.jns3.transport_layer.dhcp.DHCPProtocol;
 import org.singsurf.jns3.transport_layer.udp.UDPProtocol;
 
-public class ProtocolDevice implements AddressableDevice {
+public abstract class ProtocolDevice implements AddressableDevice {
 	
 	String name;
 	MACAddress macAddress;
@@ -30,6 +30,10 @@ public class ProtocolDevice implements AddressableDevice {
 		this.name = name;
 		this.macAddress = macAddress;
 		this.ipAddress = ipAddress;
+	}
+
+	public void addProtocol(Protocol prot) {
+		protocols.add(prot);
 	}
 
 	public EthernetProtocol getEthernetProtocol() {
@@ -94,8 +98,7 @@ public class ProtocolDevice implements AddressableDevice {
 		ipAddress = ip;
 	}
 
-	public void addProtocol(Protocol prot) {
-		protocols.add(prot);
-	}
+	public abstract Terminal getTerminal();
+
 
 }

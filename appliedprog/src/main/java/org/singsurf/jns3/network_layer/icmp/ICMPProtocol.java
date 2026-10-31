@@ -7,23 +7,22 @@ import org.singsurf.jns3.generic_protocol.Protocol;
 import org.singsurf.jns3.generic_protocol.ProtocolHandler;
 import org.singsurf.jns3.generic_protocol.ProtocolReceiver;
 import org.singsurf.jns3.generic_protocol.ProtocolSender;
-import org.singsurf.jns3.hardware.AddressableDevice;
-import org.singsurf.jns3.hardware.Terminal;
+import org.singsurf.jns3.hardware.ProtocolDevice;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPPacket;
 import org.singsurf.jns3.network_layer.PacketSender;
 
 public class ICMPProtocol implements Protocol, LowerAdapter<IPPacket> {
-	AddressableDevice device;
+	ProtocolDevice device;
 
 	ICMPPacketReceiver icmpPacketReceiver;
 	PingController pingController;
 	PingRequestHandler pingRequestHandler;
 	
-	public ICMPProtocol(AddressableDevice device, Terminal terminal) {
+	public ICMPProtocol(ProtocolDevice device) {
 		this.device = device;
 		icmpPacketReceiver = new ICMPPacketReceiver(device.getName());
-		pingController = PingController.newInstance(device, terminal);
+		pingController = PingController.newInstance(device, device.getTerminal());
 		icmpPacketReceiver.addHandler(pingController);
 		pingRequestHandler = new PingRequestHandler(device);
 		icmpPacketReceiver.addHandler(pingRequestHandler);

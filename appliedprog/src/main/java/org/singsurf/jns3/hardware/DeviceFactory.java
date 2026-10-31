@@ -3,7 +3,6 @@ package org.singsurf.jns3.hardware;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.data_link_layer.EthernetProtocol;
 import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.data_link_layer.arp.ARPProtocol;
@@ -85,11 +84,11 @@ public class DeviceFactory {
         pc.addProtocol(arpProtocol);
         ethernetProtocol.register(arpProtocol);
 
-        IPProtocol ipProtocol = new IPProtocol(pc, arpProtocol);
+        IPProtocol ipProtocol = new IPProtocol(pc);
         pc.addProtocol(ipProtocol);
         ethernetProtocol.register(ipProtocol);
 
-        ICMPProtocol icmpProtocol = new ICMPProtocol(pc,pc.getTerminal());
+        ICMPProtocol icmpProtocol = new ICMPProtocol(pc);
         ipProtocol.register(icmpProtocol);
         pc.addProtocol(icmpProtocol);
         		
@@ -97,7 +96,7 @@ public class DeviceFactory {
         ipProtocol.register(udpProtocol);
         pc.addProtocol(udpProtocol);
 
-        DHCPProtocol dhcpProtocol = new DHCPProtocol(pc, false, arpProtocol);
+        DHCPProtocol dhcpProtocol = new DHCPProtocol(pc, false);
 		udpProtocol.register(dhcpProtocol);
         pc.addProtocol(dhcpProtocol);
 
@@ -124,15 +123,11 @@ public class DeviceFactory {
         router.addProtocol(arpProtocol);
         ethernetProtocol.register(arpProtocol);
 
-        IPProtocol ipProtocol = new IPProtocol(router, arpProtocol);
+        IPProtocol ipProtocol = new IPProtocol(router);
         router.addProtocol(ipProtocol);
         ethernetProtocol.register(ipProtocol);
 
-        ICMPProtocol icmpProtocol = new ICMPProtocol(router,new Terminal() {
-			@Override
-			public void display(String string) {
-				Jns3Logger.logError(name, string);
-			}});
+        ICMPProtocol icmpProtocol = new ICMPProtocol(router);
         ipProtocol.register(icmpProtocol);
         router.addProtocol(icmpProtocol);
         		
@@ -140,7 +135,7 @@ public class DeviceFactory {
         ipProtocol.register(udpProtocol);
         router.addProtocol(udpProtocol);
 
-        DHCPProtocol dhcpProtocol = new DHCPProtocol(router, true, arpProtocol);
+        DHCPProtocol dhcpProtocol = new DHCPProtocol(router, true);
 		udpProtocol.register(dhcpProtocol);
         router.addProtocol(dhcpProtocol);
 
