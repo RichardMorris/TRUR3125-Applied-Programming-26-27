@@ -21,7 +21,7 @@ public class DiscoverHandler implements ProtocolHandler<DHCPMessage> {
 	
 	@Override
 	public HandlerStatus handle(DHCPMessage message) {
-		if(message.op != DHCPProtocol.DHCP_OP_DISCOVER
+		if(message.op != DHCPMessage.DHCP_OP_DISCOVER
 				|| !message.siaddr.equals(IPAddress.ZERO_ADDRESS)) {
 			return HandlerStatus.CONTINUE;
 		}
@@ -33,12 +33,12 @@ public class DiscoverHandler implements ProtocolHandler<DHCPMessage> {
 		}
 		
 		var offerIP = DeviceFactory.getInstance().createSequentialLocalIPAddress();
+		
 		DHCPMessage reply = DHCPMessage.createOfferMessage(
 				device.getMACAddress(), 
 				device.getIPAddress(), 
-				message.getMacAddress(), 
 				offerIP,
-				message.getXid());
+				message);
 		UDPDatagram datagram = new UDPDatagram(
 				DHCPProtocol.DHCP_SERVER_PORT, 
 				DHCPProtocol.DHCP_CLIENT_PORT,  

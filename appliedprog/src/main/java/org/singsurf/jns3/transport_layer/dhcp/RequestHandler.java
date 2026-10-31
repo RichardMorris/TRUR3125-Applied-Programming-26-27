@@ -19,28 +19,26 @@ public class RequestHandler implements ProtocolHandler<DHCPMessage> {
 	
 	@Override
 	public HandlerStatus handle(DHCPMessage message) {
-		if(message.op != DHCPProtocol.DHCP_OP_DISCOVER 
+		if(message.op != DHCPMessage.DHCP_OP_DISCOVER 
 				|| message.siaddr.equals(IPAddress.ZERO_ADDRESS)) {
 			return HandlerStatus.CONTINUE;
-		}
-		Jns3Logger.logInfo(name, "Received DHCP request message");
-		
+		}		
 		if(!device.getIPAddress().equals(message.getSiaddr())) {
 			Jns3Logger.logInfo(name, "Requested IP address " + message.getSiaddr() + " does not match device IP address " + device.getIPAddress());
 			return HandlerStatus.COMPLETED;
 		}
 		
+		Jns3Logger.logInfo(name, "Received DHCP request message");
 
 		DHCPMessage reply = DHCPMessage.createAckMessage(
-				message.getMacAddress(), 
-				message.getYiaddr(),
-				message.getSiaddr(),
-				device.getMACAddress(),
-				message.getXid());
+				device.getMACAddress(), message);
+
 		UDPDatagram datagram = new UDPDatagram(
 				DHCPProtocol.DHCP_SERVER_PORT, 
 				DHCPProtocol.DHCP_CLIENT_PORT,  
 				reply.getBytes());
+
+		// Send to socket that was created for this XID in the DiscoverHandler
 		var sock = dhcpProtocol.offerSockets.get(message.getXid());
 		if(sock == null) {
 			Jns3Logger.logError(name, "No socket found for DHCP request with XID " + message.getXid());
@@ -50,6 +48,7 @@ public class RequestHandler implements ProtocolHandler<DHCPMessage> {
 		sock.close();
 		dhcpProtocol.offerSockets.remove(message.getXid());
 		
+		// Update ARP table with the mapping of the offered IP address to the client's MAC address
 		dhcpProtocol.arpProtocol.put(message.yiaddr, message.getMacAddress());
 
 		return HandlerStatus.COMPLETED;

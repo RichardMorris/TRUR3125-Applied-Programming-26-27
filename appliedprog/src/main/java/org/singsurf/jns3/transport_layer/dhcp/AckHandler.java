@@ -18,11 +18,11 @@ public class AckHandler implements ProtocolHandler<DHCPMessage> {
 	
 	@Override
 	public HandlerStatus handle(DHCPMessage message) {
-		if(message.op != DHCPProtocol.DHCP_OP_OFFER) {
+		if(message.op != DHCPMessage.DHCP_OP_OFFER) {
 			return HandlerStatus.CONTINUE;
 		}
 		var op = message.getOption(DHCPMessage.OPT_MSG_TYPE);
-		if(op == null || op.data()[0] != DHCPProtocol.DHCP_OP_ACK) {
+		if(op == null || op.data()[0] != DHCPMessage.DHCP_OP_ACK) {
 			return HandlerStatus.CONTINUE;
 		}
 		dhcpProtocol.lastOfferMessage = message;

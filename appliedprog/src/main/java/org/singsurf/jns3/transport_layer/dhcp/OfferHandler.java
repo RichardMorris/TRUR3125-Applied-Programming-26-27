@@ -20,12 +20,12 @@ public class OfferHandler implements ProtocolHandler<DHCPMessage> {
 	
 	@Override
 	public HandlerStatus handle(DHCPMessage message) {
-		if(message.op != DHCPProtocol.DHCP_OP_OFFER) {
+		if(message.op != DHCPMessage.DHCP_OP_OFFER) {
 			return HandlerStatus.CONTINUE;
 		}
 		
 		var op = message.getOption(DHCPMessage.OPT_MSG_TYPE);
-		if(op == null || op.data()[0] != DHCPProtocol.DHCP_OP_OFFER) {
+		if(op == null || op.data()[0] != DHCPMessage.DHCP_OP_OFFER) {
 			return HandlerStatus.CONTINUE;
 		}
 
@@ -38,16 +38,7 @@ public class OfferHandler implements ProtocolHandler<DHCPMessage> {
 		}
 		dhcpProtocol.arpProtocol.put(message.siaddr, mac);
 
-//		// We need to open a socket 
-//		// with src ip = 
-//		var sock = dhcpProtocol.factory.createSocket("DHCP Offer Socket");
-//		sock.bind(message.siaddr, DHCPProtocol.DHCP_CLIENT_PORT);
-
-		DHCPMessage reply = DHCPMessage.createRequestMessage(
-				message.getMacAddress(),
-				message.yiaddr,
-				message.siaddr,
-				message.getXid());
+		DHCPMessage reply = DHCPMessage.createRequestMessage(message);
 		
 		UDPDatagram datagram = new UDPDatagram(
 				DHCPProtocol.DHCP_CLIENT_PORT, 

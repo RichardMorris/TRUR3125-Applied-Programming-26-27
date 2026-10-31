@@ -21,15 +21,8 @@ public class DHCPProtocol implements Protocol, LowerSocketAdapter<UDPDatagram>, 
 	public static final short DHCP_SERVER_PORT = 67;
 	public static final short DHCP_CLIENT_PORT = 68;
 	
-	public static final int DHCP_MAGIC_COOKIE = 0x63825363;
 	public static final byte DHCP_PROTOCOL_TYPE = 0x11; // UDP
 	
-	public static final byte DHCP_OP_DISCOVER = 0x01;
-	public static final byte DHCP_OP_OFFER = 0x02;
-	public static final byte DHCP_OP_REQUEST = 0x03;
-	public static final byte DHCP_OP_DECLINE = 0x04;
-	public static final byte DHCP_OP_ACK = 0x05;
-
 	public static final IPAddress  SUBNET_MASK  = new IPAddress("255.255.255.0");
 	SocketFactory<UDPDatagram> factory;
 	boolean isServer;
