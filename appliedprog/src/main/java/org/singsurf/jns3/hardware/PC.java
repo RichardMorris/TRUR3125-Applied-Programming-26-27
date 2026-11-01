@@ -2,7 +2,6 @@ package org.singsurf.jns3.hardware;
 import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.physical_layer.PhysicalEndPoint;
-import org.singsurf.jns3.transport_layer.udp.DatagramSocket;
 
 /**
  * The main class representing a PC.
@@ -33,15 +32,6 @@ public class PC extends ProtocolDevice implements AddressableDevice {
 		getICMPProtocol().sendTraceroute(ipAddress2);
 	}
 	
-	
-
-
-	// System commands available application code
-	
-	public void bind(DatagramSocket socket, IPAddress multicastAddress, short portNumber) {
-		getUDPProtocol().bind(multicastAddress, portNumber, socket);		
-	}
-
 	public Terminal getTerminal() {
 		return terminal;
 	}

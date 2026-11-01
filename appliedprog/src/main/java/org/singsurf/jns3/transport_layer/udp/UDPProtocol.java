@@ -10,7 +10,6 @@ import org.singsurf.jns3.generic_protocol.ProtocolReceiver;
 import org.singsurf.jns3.generic_protocol.ProtocolSender;
 import org.singsurf.jns3.generic_protocol.UpperSocketPort;
 import org.singsurf.jns3.hardware.AddressableDevice;
-import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPPacket;
 import org.singsurf.jns3.network_layer.PacketSender;
 
@@ -40,13 +39,15 @@ public class UDPProtocol implements Protocol, LowerAdapter<IPPacket>, UpperSocke
 		udpController.setPacketSender((PacketSender) sender);
 	}
 
-	public void bind(IPAddress ip, short portNumber, DatagramSocket socket) {
-		udpController.bind(ip, portNumber, socket);
-	}
-
 	@Override
 	public void register(LowerSocketAdapter<UDPDatagram> adapter) {
 		adapter.setSocketFactory(socketFactory);		
 	}
+
+	public UDPSocketFactory getSocketFactory() {
+		return socketFactory;
+	}
+	
+	
 
 }
