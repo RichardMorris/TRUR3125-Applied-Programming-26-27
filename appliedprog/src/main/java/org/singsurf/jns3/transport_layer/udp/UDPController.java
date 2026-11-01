@@ -63,7 +63,7 @@ public class UDPController implements PacketHandler, NamedDevice {
 			return;
 		}
 		Jns3Logger.logInfo(name, "Received datagram from " + packet.getSourceAddress() + " on port " + datagram.getDestinationPort());
-		binding.socket.receiveDatagram(datagram);
+		binding.socket.receive(datagram);
 	}
 	
 	void sendDatagram(IPAddress boundAddress, short port, UDPDatagram datagram) {

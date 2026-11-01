@@ -52,7 +52,7 @@ public abstract class ProtocolSocket<T> {
 	 * and can be retrieved using the {@link #poll()} method.
 	 * @param datagram the datagram to receive
 	 */
-	public void receiveDatagram(T datagram) {
+	public void receive(T datagram) {
 		var len = Math.min(datagram.toString().length(), 200);
 		if(LOG_MESSAGES)
 			Jns3Logger.logInfo(name, "Received datagram " + datagram.toString().substring(0, len));

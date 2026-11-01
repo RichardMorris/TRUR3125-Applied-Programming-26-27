@@ -10,9 +10,7 @@ import org.singsurf.jns3.network_layer.IPAddress;
  * to send and receive UDP datagrams through the
  * {@link UDPController}. 
  * Sockets can be created by applications 
- * and bound to a port and IP address using the
- * {@link org.singsurf.jns3.hardware.PC#bind(DatagramSocket, IPAddress, short) PC.bind(DatagramSocket, IPAddress, portNumber)} method.
- * 
+ * and bound to a port and IP address.
  */
 public class DatagramSocket extends ProtocolSocket<UDPDatagram> implements NamedDevice {
 	public UDPController udpController;	
