@@ -51,7 +51,7 @@ public class PingRequestHandler implements ICMPMessageHandler {
 					replyMessage.getBytes());
 			sender.send(replyPacket);
 		} else {
-			sender.send(message.getPsudoHeader().packet());
+			Jns3Logger.logError(name, "Received ping request not for this host: " + message);
 		}
 		
 	}

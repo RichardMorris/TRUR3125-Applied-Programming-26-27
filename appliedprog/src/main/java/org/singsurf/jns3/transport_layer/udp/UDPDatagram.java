@@ -27,14 +27,10 @@ public class UDPDatagram implements ProtocolContainer {
 	byte[] contents;
 	PsudoHeader psudoHeader;
 	
-	public record PsudoHeader(IPAddress sourceIP, IPAddress destinationIP, 
-			byte zero, byte protocol, short udpLength) {
-		
-		public PsudoHeader(IPAddress sourceIP, IPAddress destinationIP, 
-				byte protocol, short udpLength) {
-			this(sourceIP, destinationIP, (byte) 0, protocol, udpLength);
-		}
-	}
+	public record PsudoHeader(
+			IPAddress sourceIP, 
+			IPAddress destinationIP, 
+			byte protocol) { }
 	
 	public UDPDatagram(short sourcePort, short destinationPort, byte[] contents) {
 		this.sourcePort = sourcePort;
@@ -42,7 +38,7 @@ public class UDPDatagram implements ProtocolContainer {
 		this.length = (short) (contents.length+ 8); // 8 bytes for the UDP header
 		this.checksum = 0;
 		this.contents = contents;
-		this.psudoHeader = new PsudoHeader(IPAddress.ZERO_ADDRESS, IPAddress.ZERO_ADDRESS, (byte) 0, IPPacket.UDP, this.length);
+		this.psudoHeader = new PsudoHeader(IPAddress.ZERO_ADDRESS, IPAddress.ZERO_ADDRESS, IPPacket.UDP);
 		this.checksum = calculateHeaderChecksum().getComplement().getValue();
 	}
 
@@ -90,7 +86,7 @@ public class UDPDatagram implements ProtocolContainer {
 		return datagram;
 	}
 	
-	private static UDPDatagram fromBytes(byte[] datagram, PsudoHeader psudo) {
+	static UDPDatagram fromBytes(byte[] datagram, PsudoHeader psudo) {
 		short sourcePort = (short) ((datagram[0] << 8) | (datagram[1] & 0xFF));
 		short destinationPort = (short) ((datagram[2] << 8) | (datagram[3] & 0xFF));
 		short length = (short) ((datagram[4] << 8) | (datagram[5] & 0xFF));
@@ -105,18 +101,8 @@ public class UDPDatagram implements ProtocolContainer {
 				+ ", checksum=" + checksum + ", contents=" + new String(contents) + "]";
 	}
 
-	static boolean isUDPDatagram(IPPacket packet) {
-		byte protocol = packet.getProtocol();
-		return protocol == IPPacket.UDP; // 17 is the protocol number for UDP
-	}
-	
-	static UDPDatagram fromPacket(IPPacket packet) {
-		var psudo = new PsudoHeader(packet.getSourceAddress(), packet.getDestinationAddress(), (byte) 0, IPPacket.UDP, (short) packet.getContents().length);
-		return fromBytes(packet.getContents(),psudo);
-	}
-
-    public OnesComplementNumber calculateHeaderChecksum() {
-        var sum = new OnesComplementNumber(psudoHeader.zero, psudoHeader.protocol);
+	public OnesComplementNumber calculateHeaderChecksum() {
+        var sum = new OnesComplementNumber((byte) 0, psudoHeader.protocol);
 
         sum = sum.add(psudoHeader.sourceIP.getHighWord());
         sum = sum.add(psudoHeader.sourceIP.getLowWord());

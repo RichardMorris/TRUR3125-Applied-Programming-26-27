@@ -20,7 +20,7 @@ class TestUDPDatagram {
 		short srcPort = 1234;
 		short destPort = 5678;
 		byte protocol = 17; // UDP
-		var psudoHeader = new UDPDatagram.PsudoHeader(srcIP, destIP, protocol, (short) 8);
+		var psudoHeader = new UDPDatagram.PsudoHeader(srcIP, destIP, protocol);
 		byte[] message = new byte[] { 0x01, 0x02, 0x03, 0x04 };
 		var udpDatagram = new UDPDatagram(srcPort, destPort, message, psudoHeader);
 		assertTrue(udpDatagram.isValid());

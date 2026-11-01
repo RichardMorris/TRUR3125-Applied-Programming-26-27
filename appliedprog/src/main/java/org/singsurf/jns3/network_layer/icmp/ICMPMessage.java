@@ -27,7 +27,7 @@ public class ICMPMessage implements ProtocolContainer {
 	static final byte PARAMETER_PROBLEM = 12;
 	
 	public record PsudoHeader(IPAddress sourceIP, IPAddress destIP, 
-			byte protocol, short length, byte ttl, IPPacket packet) { }
+			byte protocol, short length, byte ttl) { }
 
 	byte type;
 	byte code;
@@ -44,7 +44,7 @@ public class ICMPMessage implements ProtocolContainer {
 		this.data = data;
 		this.checksum = 0;
 		this.checksum = calculateChecksum().getComplement().getValue();
-		this.psudoHeader = new PsudoHeader(IPAddress.ZERO_ADDRESS, IPAddress.ZERO_ADDRESS, IPPacket.IMCP, (short) (data.length + 8), (byte) 0, null);
+		this.psudoHeader = new PsudoHeader(IPAddress.ZERO_ADDRESS, IPAddress.ZERO_ADDRESS, IPPacket.IMCP, (short) (data.length + 8), (byte) 0);
 	}
 
 	public ICMPMessage(byte type, byte code, short restLow, short restHigh) {
@@ -195,8 +195,7 @@ public class ICMPMessage implements ProtocolContainer {
 		var psudo = new PsudoHeader(
 				packet.getSourceAddress(), 
 				packet.getDestinationAddress(), IPPacket.IMCP, 
-				(short) packet.getTotalLength(), packet.getTimeToLive(),
-				packet);
+				(short) packet.getTotalLength(), packet.getTimeToLive());
 		
 		var res = new ICMPMessage(type, code, checksum, restLow, restHigh, icmpData, psudo);
 		if(!res.calculateChecksum().equals(OnesComplementNumber.MINUS_ZERO)) {
