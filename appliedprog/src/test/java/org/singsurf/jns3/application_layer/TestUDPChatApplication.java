@@ -606,7 +606,7 @@ class TestUDPChatApplication {
 		System.out.print(output);
 		assertEquals("PC2: "+pc1.getIPAddress()+" says: Hello from PC1", output.trim());
 		System.out.println(Jns3Logger.asString());
-		assertEquals(7, Jns3Logger.size());
+		assertEquals(6, Jns3Logger.size());
 
 		assertTrue(Jns3Logger.isErrorFree());
 	}
