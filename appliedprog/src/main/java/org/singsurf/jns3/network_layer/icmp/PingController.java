@@ -50,7 +50,7 @@ public class PingController implements  ICMPMessageHandler {
 
 	public void sendPingRequest(IPAddress destinationIP,int ttl) {
 		++sequenceNumber;
-		var packet = makePingPacket(identifier, sequenceNumber, destinationIP, ttl);
+		var packet = makePingRequestPacket(identifier, sequenceNumber, destinationIP, ttl);
 		console.display("PING " + destinationIP + " " + packet.getTotalLength()+ " bytes of data.");
 		if(!ICMPPacketExtractor.getInstance().isExtractable(packet)) {
 			Jns3Logger.logError(pc.getName(), "Bad packet: " + packet);
@@ -60,14 +60,15 @@ public class PingController implements  ICMPMessageHandler {
 
 	public void sendTraceroute(IPAddress destinationIP) {
 		++sequenceNumber;
-		var packet = makePingPacket(identifier+ TRACEROUTE_OFFSET, sequenceNumber, destinationIP, 1);
+		var packet = makePingRequestPacket(identifier+ TRACEROUTE_OFFSET, sequenceNumber, destinationIP, 1);
 		console.display(String.format("traceroute to %s, 64 hops max", destinationIP));
 		packetSender.send(packet);
 	}
 
-	private IPPacket makePingPacket(int id, int code, IPAddress destinationIP, int ttl) {
+	private IPPacket makePingRequestPacket(int id, int code, IPAddress destinationIP, int ttl) {
 		// Create a ping request message
-		ICMPMessage pingRequest = ICMPMessage.createPingRequest((short) id,(short) code);
+		var pingRequest = new ICMPMessage(ICMPMessage.PING_REQUEST_TYPE, 
+				(byte) 0, (short) id, (short) code);
 		// Create an IP packet with the ping request as payload
 		IPPacket packet = new IPPacket(
 				IPPacket.IMCP,ttl,
@@ -78,7 +79,16 @@ public class PingController implements  ICMPMessageHandler {
 		return packet;
 	}
 
-
+	@Override
+	public HandlerStatus handle(ICMPMessage type) {
+		if(type.isPingReply() || type.isTTLExpired()) {
+			handle2(type);
+			return HandlerStatus.COMPLETED;
+		}
+		else {
+			return HandlerStatus.CONTINUE;
+		}
+	}
 
 	private void handle2(ICMPMessage message) {
 		var sourceAddress = message.psudoHeader.sourceIP();
@@ -100,8 +110,7 @@ public class PingController implements  ICMPMessageHandler {
 		var sentTime = sentReq.sentTime();
 		var currentTime = GlobalWallClock.getTime();
 		var rtt = currentTime - sentTime;
-		
-		if(sentReq.request().getIdentifier() >= TRACEROUTE_OFFSET) {
+		if(message.getRestLow() >= TRACEROUTE_OFFSET) {
 			receiveTraceroute(message, sentReq, rtt);	
 			return;
 		}
@@ -135,29 +144,19 @@ public class PingController implements  ICMPMessageHandler {
 			return;
 		}
 		
-		var pack = makePingPacket(identifier+ TRACEROUTE_OFFSET,
+		var pack = makePingRequestPacket(identifier+ TRACEROUTE_OFFSET,
 				sentReq.request().getCode(), sentReq.dest(), sentReq.ttl()+1);
 		packetSender.send(pack);
 	}
 	
+
+	public void setPacketSender(PacketSender packetSender) {
+		this.packetSender = packetSender;
+	}
+
 	public static PingController newInstance(AddressableDevice pc, Terminal term) {
 		PingController controller = new PingController(pc, term, currentIdentifier++);
 		return controller;
 	}
 
-	@Override
-	public HandlerStatus handle(ICMPMessage type) {
-		if(type.isPingReply() || type.isTTLExpired()) {
-			handle2(type);
-			return HandlerStatus.COMPLETED;
-		}
-		else {
-			return HandlerStatus.CONTINUE;
-		}
-	}
-	
-	public void setPacketSender(PacketSender packetSender) {
-		this.packetSender = packetSender;
-	}
-	
 }

@@ -161,14 +161,6 @@ public class ICMPMessage implements ProtocolContainer {
 		return packet.getProtocol() == 1;
 	}
 
-	public static ICMPMessage createPingRequest(short id, short cd) {
-		return new ICMPMessage(PING_REQUEST_TYPE, (byte) 0, id, cd);
-	}
-
-	public static ICMPMessage createPingReply(short id, short cd) {
-		return new ICMPMessage(PING_REPLY_TYPE, (byte) 0, (short) id,  (short) cd);
-	}
-
 	/**
 	 * Attempt to parse an ICMP message from an IP packet. 
 	 * If the packet if the data is too short, or if the checksum is invalid, 

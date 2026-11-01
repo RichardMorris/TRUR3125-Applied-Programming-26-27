@@ -40,28 +40,6 @@ class TestICMPPackage {
 	}
 
 	@Test
-	void can_create_a_ping_request() {
-		var msg = ICMPMessage.createPingRequest((short) 0x1234, (short) 0x5678);
-		assertEquals((byte) 0x08, msg.getType());
-		assertEquals((byte) 0x00, msg.getCode());
-		assertEquals(0x1234, msg.getIdentifier());
-		assertEquals(0x5678, msg.getSequenceNumber());
-		assertEquals(OnesComplementNumber.MINUS_ZERO, msg.calculateChecksum());
-		assertTrue(msg.isValid());
-	}
-
-	@Test
-	void can_create_a_ping_reply() {
-		var msg = ICMPMessage.createPingReply((short) 0x5678,(short) 0x1234);
-		assertEquals((byte) 0x00, msg.getType());
-		assertEquals((byte) 0x00, msg.getCode());
-		assertEquals(0x5678, msg.getIdentifier());
-		assertEquals(0x1234, msg.getSequenceNumber());
-		assertEquals(OnesComplementNumber.MINUS_ZERO, msg.calculateChecksum());
-		assertTrue(msg.isValid());
-	}
-
-	@Test
 	void can_create_an_ICMPErrorMessage() {
 		byte[] data = new byte[] { (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04,
 				(byte) 0x34, (byte) 0x12, (byte) 0x78, (byte) 0x56 };
