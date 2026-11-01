@@ -19,16 +19,12 @@ import org.singsurf.jns3.network_layer.PacketSender;
  * sent via a {@link DatagramSocket} using the UDP protocol.
  */
 public class UDPController implements PacketHandler, NamedDevice {
+	static boolean LOG_MESSAGES = false;
 	String name;
 	AddressableDevice device;
 	PacketSender packetSender;
-	Map<IPAddress,Map<Short, SocketBinding>> bindings = new HashMap<>();
+	Map<IPAddress,Map<Short, DatagramSocket>> bindings = new HashMap<>();
 	UDPExtractor udpExtractor = UDPExtractor.getInstance();
-	
-	/**
-	 * Represents a binding between a socket and this controller,
-	 */
-	record SocketBinding(IPAddress ip, short port, ProtocolSocket<UDPDatagram> socket) {}
 	
 	UDPController(AddressableDevice device) {
 		this.name = device.getName() + "-UDPController";
@@ -57,13 +53,14 @@ public class UDPController implements PacketHandler, NamedDevice {
 				return;
 			}
 		}
-		var binding = table.get(datagram.getDestinationPort());
-		if(binding == null) {
+		var socket = table.get(datagram.getDestinationPort());
+		if(socket == null) {
 			Jns3Logger.logError(name, "No socket found for port " + datagram.getDestinationPort());
 			return;
 		}
-		Jns3Logger.logInfo(name, "Received datagram from " + packet.getSourceAddress() + " on port " + datagram.getDestinationPort());
-		binding.socket.receive(datagram);
+		if(LOG_MESSAGES)
+			Jns3Logger.logInfo(name, "Received datagram from " + packet.getSourceAddress() + " on port " + datagram.getDestinationPort());
+		socket.receive(datagram);
 	}
 	
 	void sendDatagram(IPAddress boundAddress, short port, UDPDatagram datagram) {
@@ -86,7 +83,7 @@ public class UDPController implements PacketHandler, NamedDevice {
 
 	void bind(IPAddress ip, short port, DatagramSocket socket) {
 		var table = bindings.computeIfAbsent(ip, k -> new HashMap<>());
-		table.put(port, new SocketBinding(ip, port, socket));
+		table.put(port, socket);
 	}
 
 	void unbind(ProtocolSocket<UDPDatagram> datagramSocket) {
