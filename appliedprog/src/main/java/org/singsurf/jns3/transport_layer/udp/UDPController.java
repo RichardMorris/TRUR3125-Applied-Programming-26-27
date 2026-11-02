@@ -23,7 +23,7 @@ public class UDPController implements PacketHandler, NamedDevice {
 	String name;
 	AddressableDevice device;
 	PacketSender packetSender;
-	Map<IPAddress,Map<Short, DatagramSocket>> bindings = new HashMap<>();
+	Map<IPAddress,Map<Short, ProtocolSocket<UDPDatagram>>> bindings = new HashMap<>();
 	UDPExtractor udpExtractor = UDPExtractor.getInstance();
 	
 	UDPController(AddressableDevice device) {
@@ -81,7 +81,7 @@ public class UDPController implements PacketHandler, NamedDevice {
 		packetSender.send(packet);		  
 	}
 
-	void bind(IPAddress ip, short port, DatagramSocket socket) {
+	void bind(IPAddress ip, short port, ProtocolSocket<UDPDatagram> socket) {
 		var table = bindings.computeIfAbsent(ip, k -> new HashMap<>());
 		table.put(port, socket);
 	}

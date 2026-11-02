@@ -1,7 +1,8 @@
 package org.singsurf.jns3.transport_layer.udp;
 
 import org.singsurf.jns3.Jns3Logger;
-import org.singsurf.jns3.generic_protocol.ProtocolSocket;
+import org.singsurf.jns3.generic_protocol.PolledSocket;
+import org.singsurf.jns3.generic_protocol.ProtocolReceiver;
 import org.singsurf.jns3.hardware.NamedDevice;
 import org.singsurf.jns3.network_layer.IPAddress;
 
@@ -12,13 +13,19 @@ import org.singsurf.jns3.network_layer.IPAddress;
  * Sockets can be created by applications 
  * and bound to a port and IP address.
  */
-public class DatagramSocket extends ProtocolSocket<UDPDatagram> implements NamedDevice {
+public class DatagramSocket extends PolledSocket<UDPDatagram> implements NamedDevice {
 	public UDPController udpController;	
 	
 	
 	
 	DatagramSocket(String name, UDPController udpController) {
 		super(name);
+		this.udpController = udpController;
+	}
+
+	public DatagramSocket(String name, UDPController udpController, 
+			ProtocolReceiver<UDPDatagram> receiver) {
+		super(name, receiver);
 		this.udpController = udpController;
 	}
 

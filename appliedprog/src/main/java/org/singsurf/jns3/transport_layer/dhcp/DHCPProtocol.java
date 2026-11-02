@@ -7,7 +7,7 @@ import org.singsurf.jns3.data_link_layer.arp.ARPProtocol;
 import org.singsurf.jns3.generic_protocol.LowerSocketAdapter;
 import org.singsurf.jns3.generic_protocol.Protocol;
 import org.singsurf.jns3.generic_protocol.ProtocolDelegator;
-import org.singsurf.jns3.generic_protocol.ProtocolSocket;
+import org.singsurf.jns3.generic_protocol.ProtocolReceiver;
 import org.singsurf.jns3.generic_protocol.SocketFactory;
 import org.singsurf.jns3.hardware.GlobalWallClock;
 import org.singsurf.jns3.hardware.GlobalWallClock.TickListener;
@@ -17,7 +17,7 @@ import org.singsurf.jns3.network_layer.IPProtocol;
 import org.singsurf.jns3.transport_layer.udp.DatagramSocket;
 import org.singsurf.jns3.transport_layer.udp.UDPDatagram;
 
-public class DHCPProtocol implements Protocol, LowerSocketAdapter<UDPDatagram>, TickListener {
+public class DHCPProtocol implements Protocol, LowerSocketAdapter<UDPDatagram>, ProtocolReceiver<UDPDatagram>, TickListener {
 	public static final short DHCP_SERVER_PORT = 67;
 	public static final short DHCP_CLIENT_PORT = 68;
 	
@@ -27,7 +27,7 @@ public class DHCPProtocol implements Protocol, LowerSocketAdapter<UDPDatagram>, 
 	SocketFactory<UDPDatagram> factory;
 	boolean isServer;
 	ProtocolDevice device;
-	ProtocolSocket<UDPDatagram> multicast_socket;
+	DatagramSocket multicast_socket;
 	
 	
 	ProtocolDelegator<DHCPMessage> delgator;
@@ -54,7 +54,7 @@ public class DHCPProtocol implements Protocol, LowerSocketAdapter<UDPDatagram>, 
 	@Override
 	public void setSocketFactory(SocketFactory<UDPDatagram> factory) {
 		this.factory = factory;
-		multicast_socket = factory.createSocket("DHCP Socket");
+		multicast_socket = (DatagramSocket) factory.createSocket("DHCP Socket", this);
 		multicast_socket.bind(IPProtocol.LIMITED_MULTICAST_ADDRESS,
 				(short) (isServer ? DHCP_SERVER_PORT : DHCP_CLIENT_PORT));
 	}
@@ -73,5 +73,11 @@ public class DHCPProtocol implements Protocol, LowerSocketAdapter<UDPDatagram>, 
 		DHCPMessage message = DHCPMessage.createDiscoverMessage(device.getMACAddress(), device.getIPAddress());
 		UDPDatagram datagram = new UDPDatagram(DHCP_CLIENT_PORT, DHCP_SERVER_PORT, message.getBytes());
 		multicast_socket.send(datagram);
+	}
+
+	@Override
+	public void receive(UDPDatagram msg) {
+		DHCPMessage dhcpMessage = new DHCPMessage(msg.getContents());
+		delgator.receive(dhcpMessage);
 	}
 }

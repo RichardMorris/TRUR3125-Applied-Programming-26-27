@@ -7,10 +7,10 @@ import org.singsurf.jns3.generic_protocol.LowerSocketAdapter;
 import org.singsurf.jns3.generic_protocol.ProtocolSocket;
 import org.singsurf.jns3.generic_protocol.SocketFactory;
 import org.singsurf.jns3.hardware.GlobalWallClock;
+import org.singsurf.jns3.hardware.GlobalWallClock.TickListener;
 import org.singsurf.jns3.hardware.PC;
 import org.singsurf.jns3.hardware.ProtocolDevice;
 import org.singsurf.jns3.hardware.Terminal;
-import org.singsurf.jns3.hardware.GlobalWallClock.TickListener;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.transport_layer.udp.DatagramSocket;
 import org.singsurf.jns3.transport_layer.udp.UDPDatagram;
@@ -43,7 +43,7 @@ public class ChatApplication implements TickListener, LowerSocketAdapter<UDPData
 		var udpProtocol = pc.getUDPProtocol();
 		udpProtocol.register(this);
 		this.terminal = pc.getTerminal();
-		DatagramSocket socket = socketFactory.createSocket(pc.getName() + "-Chat");
+		var socket = socketFactory.createSocket(pc.getName() + "-Chat");
 		var multicastAddress = pc.getMulticastAddress();
 		socket.bind(multicastAddress, PUBLIC_PORT);
 		sockets.add(socket);
@@ -136,7 +136,7 @@ public class ChatApplication implements TickListener, LowerSocketAdapter<UDPData
 	@Override
 	public void onTick() {
 		UDPDatagram datagram;
-		for(ProtocolSocket<UDPDatagram> socket : sockets) {
+		for(var socket : sockets) {
 			while((datagram = socket.poll()) != null) {
 				var source = datagram.getPsudoHeader().sourceIP();
 				String message = new String(datagram.getContents());
