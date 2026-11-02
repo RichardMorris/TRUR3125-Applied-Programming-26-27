@@ -25,11 +25,9 @@ public class AckHandler implements ProtocolHandler<DHCPMessage> {
 		if(op == null || op.data()[0] != DHCPMessage.DHCP_OP_ACK) {
 			return HandlerStatus.CONTINUE;
 		}
-		dhcpProtocol.lastOfferMessage = message;
 		Jns3Logger.logInfo(name, "Received DHCP Ack message YIADDR "+ message.getYiaddr().toString());
 
 		dhcpProtocol.device.setIPAddress(message.getYiaddr());
-//		dhcpProtocol.arpProtocol.put(message.siaddr, mac);
 		return HandlerStatus.COMPLETED;
 	}
 

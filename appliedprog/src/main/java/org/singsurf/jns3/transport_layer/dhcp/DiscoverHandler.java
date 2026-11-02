@@ -9,6 +9,9 @@ import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.transport_layer.udp.DatagramSocket;
 import org.singsurf.jns3.transport_layer.udp.UDPDatagram;
 
+/**
+ * Handles incoming DHCP Discover messages and sends DHCP Offer messages in response.
+ */
 public class DiscoverHandler implements ProtocolHandler<DHCPMessage> {
 	DHCPProtocol dhcpProtocol;
 	AddressableDevice device;
@@ -43,13 +46,15 @@ public class DiscoverHandler implements ProtocolHandler<DHCPMessage> {
 				DHCPProtocol.DHCP_SERVER_PORT, 
 				DHCPProtocol.DHCP_CLIENT_PORT,  
 				reply.getBytes());
-		// We need to open a socket 
-		// with src ip = 
+
 		dhcpProtocol.arpProtocol.put(currentIP, message.getMacAddress());
+
 		var sock = dhcpProtocol.factory.createSocket("DHCP Offer Socket");
 		sock.bind(currentIP, DHCPProtocol.DHCP_SERVER_PORT);
+		
 		dhcpProtocol.offerSockets.put(message.getXid(), (DatagramSocket) sock);
 		
+		Jns3Logger.logInfo(name, "Sending DHCP Offer message yiaddr " + reply.yiaddr);
 		sock.send(datagram);
 		return HandlerStatus.COMPLETED;
 	}

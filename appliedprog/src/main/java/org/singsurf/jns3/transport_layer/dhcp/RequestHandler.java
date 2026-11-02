@@ -44,6 +44,8 @@ public class RequestHandler implements ProtocolHandler<DHCPMessage> {
 			Jns3Logger.logError(name, "No socket found for DHCP request with XID " + message.getXid());
 			return HandlerStatus.COMPLETED;
 		}
+		Jns3Logger.logInfo(name, "Sending DCHP Acknowledge YIADDR "+ message.getYiaddr().toString());
+
 		sock.send(datagram);
 		sock.close();
 		dhcpProtocol.offerSockets.remove(message.getXid());

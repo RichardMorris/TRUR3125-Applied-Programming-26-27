@@ -29,7 +29,7 @@ public class OfferHandler implements ProtocolHandler<DHCPMessage> {
 			return HandlerStatus.CONTINUE;
 		}
 
-		dhcpProtocol.lastOfferMessage = message;
+
 		Jns3Logger.logInfo(name, "Received DHCP Offer message YIADDR "+ message.getYiaddr().toString());
 		MACAddress mac = message.getOption(DHCPMessage.OPT_SERVER_MAC).getDataAsMACAddress();
 		if(mac == null) {
@@ -38,6 +38,13 @@ public class OfferHandler implements ProtocolHandler<DHCPMessage> {
 		}
 		dhcpProtocol.arpProtocol.put(message.siaddr, mac);
 
+		var offers = dhcpProtocol.offerMessages.computeIfAbsent(message.getXid(), k -> new java.util.ArrayList<>());
+		offers.add(message);
+		return HandlerStatus.COMPLETED;
+	}
+	
+	public void acceptOffer(DHCPMessage message) {
+		Jns3Logger.logInfo(name, "Sending DCHP Request YIADDR "+ message.getYiaddr().toString());
 		DHCPMessage reply = DHCPMessage.createRequestMessage(message);
 		
 		UDPDatagram datagram = new UDPDatagram(
@@ -45,7 +52,6 @@ public class OfferHandler implements ProtocolHandler<DHCPMessage> {
 				DHCPProtocol.DHCP_SERVER_PORT,  
 				reply.getBytes());
 		dhcpProtocol.multicast_socket.send(datagram);
-		return HandlerStatus.COMPLETED;
 	}
 
 }
