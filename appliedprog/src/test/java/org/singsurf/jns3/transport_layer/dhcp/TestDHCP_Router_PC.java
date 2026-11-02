@@ -11,6 +11,7 @@ import org.singsurf.jns3.hardware.DeviceFactory;
 import org.singsurf.jns3.hardware.GlobalWallClock;
 import org.singsurf.jns3.hardware.HomeRouter;
 import org.singsurf.jns3.hardware.PC;
+import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.physical_layer.BufferedConnection;
 import org.singsurf.jns3.physical_layer.SimpleConnection;
 
@@ -42,13 +43,17 @@ class TestDHCP_Router_PC {
 		pcDHCP.startDiscovery();
 		System.out.println(Jns3Logger.asString());
 
-		for(int i=0; i<10; i++) {
+		for(int i=0; i<6; i++) {
 			Jns3Logger.clearLog();
 			System.out.println("Tick " + i);
 			GlobalWallClock.getInstance().advanceTime();
 			System.out.println(Jns3Logger.asString());
 		}
-		var yaddr = pcDHCP.lastOfferMessage.getYiaddr();
+		IPAddress yaddr = null;
+		for(var ent : pcDHCP.acceptedOfferMessages.entrySet()) {
+			yaddr = ent.getValue().getYiaddr();
+			break;
+		}
 		assertEquals(yaddr, pc1.getIPAddress());
 		assertEquals(pc1.getMACAddress(), router1.getArpProtocol().lookup(yaddr));
 		assertEquals(router1.getMACAddress(), pc1.getArpProtocol().lookup(router1.getIPAddress()));
@@ -75,10 +80,15 @@ class TestDHCP_Router_PC {
 			GlobalWallClock.getInstance().advanceTime();
 			System.out.println(Jns3Logger.asString());
 
-		var offerMessage = pcDHCP.lastOfferMessage;
+		DHCPMessage offerMessage = null;
+		IPAddress yaddr = null;
+		for(var ent : pcDHCP.acceptedOfferMessages.entrySet()) {
+				yaddr = ent.getValue().getYiaddr();
+				offerMessage = ent.getValue();
+				break;
+		}
 		assertTrue(Jns3Logger.isErrorFree());
 		System.out.println("Offer message: " + offerMessage);
-		var yaddr = offerMessage.getYiaddr();
 		assertEquals(pc1.getMACAddress(), router1.getArpProtocol().lookup(pc1.getIPAddress()));
 		assertEquals(router1.getMACAddress(), pc1.getArpProtocol().lookup(router1.getIPAddress()));
 		
