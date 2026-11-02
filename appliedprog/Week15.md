@@ -209,3 +209,87 @@ First we need to create several new generic classes:
         * Datagrams can then be sent with `socket.send(UDPDatagram)`
         * In coming datagrams be polled with the `UDPDatagram poll()`
         * If the second factory method `createSocket(String name, ProtocolReceiver<T> receiver)` has been used, then the receivers `receive(T)` method will be called directly rather than needing to wait for a tick. This is useful for daemon processes.
+
+## DHCP
+
+After the ChatApplication has been refactored and the tests suit passes, 
+it time to create a new Protocol using the generic framework.
+
+1. `DHCPMessage` implements `ProtocolContainer`
+2. `DHCPExtractor` implements `ProtocolExtractor<UDPDatagram, DHCPMessage>`
+3. `DHCPProtocol` :
+    * Has two modes client, used by PC's, and server, used by routers.
+    * implements `Protocol`, a marker interface for all protocols. 
+    * implements `LowerSocketAdapter<UDPDatagram>` so it can be provided with a `SocketFactory`. 
+    * implements `ProtocolReceiver<UDPDatagram>` used in the creation of sockets so incoming incoming datagrams are directly handled by the protocol rather than having the wait for a tick to poll the socket.
+    * Has a `ProtocolDelegator<DHCPMessage>` to direct an incoming message to one of four handlers
+        * `DiscoverHandler` responds to discover requests from the client
+        * `OfferHandler` responds to offer replies from the server
+        * `RequestHandler` responds to request requests from the client
+        * `AckHandler` responds to acknowledge replies from the server
+    * The first and third are implemented by the server and the second and forth by the client.
+    * Has a `startDiscovery()` method to initialise the handshake process.
+    * This broadcasts a Discover message.
+    * The server's Discover handler
+        * Stores the mac address and current IP of the requesting machine in its arp table.
+        * Opens a socket to current IP, and the DHCP client port.
+        * Stores the socket for later use
+        * Sends a Offer message to the current IP.
+    * The client's Offer handler:
+        * Receives offer messages
+        * Stores then in a map `Map<Integer, List<DHCPMessage>> offerMessages` of the protocol. This record the received offer messages, grouped by xid.
+    * On every tick the client check to see if there has been any offer message, and accepts the first. It then
+        * Sends a DHCP Request message.
+        * Removes all offer messages for this xid.
+        * Stores the first offer in the `acceptedOfferMessages` table.
+    * The server receives the Request message.
+        * Updates the arp table with the new allocated yiaddr.
+        * Sends a DHCP Acknowledge message to the socket
+        * Closes the socket
+    * The client receives the Acknowledge message.
+        * Updates its IP address.
+
+The design of these classes is fairly straightforward. The tricky bit is getting the implementation close to the specification, which needs information from the data link layer about hardware address, and information from the network layer about IP addresses. The latter is stored in a `PsudoHeader` created by the UDP controller when it handles IP Packets.
+
+To allow protocols to find each other a common marker interface `Protocol` is defied, all protocols implement this.
+
+* A new abstract base class `ProtocolDevice` an `AddressableDevice`
+
+  * It has a list of protocols used.
+  * It has a method `void addProtocol(Protocol prot)`.
+  * It has a method `T getProtocol(Class<T> cl)` to get a protocol using its class, used like
+
+    ```java
+    IPProtocol ipProt = getProtocol(IPProtocol.class)`
+    ```
+
+    implemented using some template trickery
+
+    ```java
+    public <T extends Protocol> T getProtocol(Class<T> cl) {
+        for(Protocol p: protocols) {
+            if(cl.isInstance(p)) {
+                return cl.cast(p);
+            }
+        }
+        // log error
+        return null;
+    }
+    ```
+
+* The current implementation of `HomeRouter` has a single port
+  and a protocol stack similar to the `PC` apart from the `IMCPProtocol` running in server mode.
+
+Making the `HomeRouter` allow multiple connections from machines in the local network is the subject of the next week.
+
+## Class diagrams
+
+Protocol level view
+
+![Protocol Diagram](diagrams/week15_protocols.png)
+
+Detailed view of refactored UDP protocol and Chat Application, and ICMP protocol.
+
+![Class Diagram](diagrams/week15.png)
+
+
