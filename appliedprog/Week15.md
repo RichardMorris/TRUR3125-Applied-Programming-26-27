@@ -61,7 +61,7 @@ Scenario: Negotiation process per protocol
     * Third option: 0x0304c0A80101: Option: 3 (Router) 4 octets (containing 192.168.1.1)
     * Fourth option: 0x330400015080: Option 51 (Address time) 4 octets (a 86400 second lease time)
 
-5. PC receives the request and stores the routers MAC and IP in arp table
+5. PC receives the OFFER and stores the routers MAC and IP in arp table
 6. PC opens a socket
     * Router's SIADDR
     * Ports 67
@@ -86,10 +86,14 @@ Scenario: Negotiation process per protocol
     * YIADDR as in REQUEST.
     * SIADDR with the local IP of the server 192.168.1.1
     * GIADDR is zero
-    * First option: 0x350102: Option 53 (DHCP Message Type) 1 octet (containing DHCPOFFER)
-    * Second option: 0x0104ffffff00: Option 1 (Subnet mask) 4 octets (containing 255.255.255.0)
+    * First option: 0x350105: Option 53 (DHCP Message Type) 1 octet (containing DHCPACK)
+    * Second Option: 0x0104ffffff00: Option 1 (Subnet mask) 4 octets (containing 255.255.255.0)
     * Third option: 0x0304c0A80101: Option: 3 (Router) 4 octets (containing 192.168.1.1)
     * Fourth option: 0x330400015080: Option 51 (Address time) 4 octets (a 86400 second lease time)
+    * Fifth option: 0x060c09070a0f09070a1009070a13:
+Option 6 (Domain Server) 14 octets (containing 9.7.10.15,9.7.10.16,9.7.10.18)
+10. PC receives the message
+    * Updates its IP address with YIADDR
 
 Scenario: Chat across local network
 
@@ -97,31 +101,6 @@ Scenario: Chat across local network
 * And: both PC have negotiated their IP addresses with the router
 * When: Both PC start private chats with the other IP addresses
 * Then: Both PC can send and receive chat message
-
-
-Scenario: Messages to remote printer
-
-* Given: A PC connected to a Printer via a HomeRouter
-* When: The PC sends document to the remote printers IP
-* Then: It finds the mac address for the default gateway
-* Then: It sends the frames to the router
-* Then: The router translates the senders IP address
-* Then: The router sends the packets to the internet
-* Then: the internet sends the packet to the printer
-* Then: The printer receives the message
-* Then: It stores the message for later recovery
-
-Scenario: Messages to local printer from a remote machine
-
-* Given: A PC connected to the Internet connected to a HomeRouter connected to a local printer.
-* When: The PC sends document to the remote printers IP
-* Then: It finds the mac address for the default gateway
-* Then: It sends the frames to the router
-* Then: The router translates the senders IP address
-* Then: The router sends the packets to theInternetInABox
-* Then: theInternetInABox sends the packet to the printer
-* Then: The printer receives the message
-* Then: It stores the message for later recovery
 
 ## Specification
 
@@ -166,38 +145,67 @@ Scenario: Messages to local printer from a remote machine
         * All ADDR fields are zero
     * For DHCPACK replies acknowledging the request
         * information is as in the OFFER, apart from the DHCP Message Type option
-2. The internet-in-a-box or `TheInternet`
-    * It can receive IP packets
-    * It can deliver the packets using the routing prefix of connected devices
-3. A `InternetSender` that
-    * Sends packets to the internet.
-4. A `PC`
-    * Can be configured to send packet either to an Ethernet connection, or to an InternetSender.
-5. A `HomeRouter`
-    * Has a `IPPrefix` like `138.253.39.0/24`
-    * Has a local IP address `192.168.1.1`
-    * Has a `SubnetMask` of `255.255.255.0`
-    * Has a routing table than maps local IP address to
-    global address in the prefix range.
-    * Has 4 ethernet connections to the LAN
-    * Has 1 connection to the internet
-    * Can assign local IP addresses to devices on the LAN.
-    * Forward frames for local IP to the correct port
-    * Forwards packets for global IP to the internet
-        * The local IP is changed to the corresponding global IP
-    * Informs the internet of its IPPrefix
-    * Receives packet matching its prefix from the internet and
-        * changes the global ip into a local ip
-        * forwards the packet to the correct port
-9. A subnet mask
-    * Has a host `IPAddress`
-    * Has and `IPAddress` of the subnet mask  
-    * It has a `boolean matches(IPAddress dest)` method that
-        * takes the logical AND of the host and dest addresses with the subnet masks
-        * tests if the two results are equal.
-10. A `IPPrexix`
-    * Has host `IPAddress` like `138.253.39.0`
-    * Has a bit-length like `/24`
-    * Has a boolean matches(IPAddress dest)` method that
-        * Finds the first bit-length bits of both addresses
-        * Returns true if they are equal.
+
+2. A `HomeRouter` moved to next week
+    * Has a fixed IP address.
+    * Has multiple ports.
+    * Can negotiate DHCP with PC's on any port.
+    * Forward multi-cast requests to all other ports.
+    * Forwards ARP responses to correct MAC's.
+    * Forwards IP Packets to correct port.
+
+## Design Notes
+
+The of the implementation involved a new `ProtocolContainer` - `DHCPMessage`.
+Relatively straight forward, with record `DHCPAddresses` holding the quartet of IP addresses, and `DHCPOption` to hold the variety of options in Type-length-value ⋅format.
+
+It soon became apparent that addressing acceptance criteria on extending generic to UDP and Application from the previous week. At some point in the future
+when we implement TCP they will also communicate via a similar port-socket interface.
+
+First we need to create several new generic classes:
+
+1. An abstract `ProtocolSocket<T>` generalising the `DatagramSocket` from week 12.
+    * It has a queue for inbound messages.
+    * It has an `receiveDatagram(T datagram)` method that stores received datagrams in the queue
+    * It has an `T poll()` method to check for received messages.
+    * It has and abstract `void send(T datagram)` that sub-class must implement to send the datagram to the protocols sender.
+    * It has `void bind(IPAddress address, short boundPort)` to open communication.
+    * It has a `close()` method.
+
+2. A `SocketFactory<T>` an [abstract factory](https://refactoring.guru/design-patterns/abstract-factory).
+    > A creational design pattern that lets you produce families of related objects without specifying their concrete classes.
+
+    Applications will use a socket factory supplied by the container. The UDP factory supplies `DatagramSocket` objects, and the TCP factory will supply `TCPSocket` objects. Our implementation is a generic version ensuring the type signatures match
+
+    ```java
+    public interface SocketFactory<T> {
+        ProtocolSocket<T> createSocket(String name);
+        ProtocolSocket<T> createSocket(String name, ProtocolReceiver<T> receiver);
+    }
+    ```
+
+    When an application needs a socket it simple calls
+
+    ```java
+    socketFactory.createSocket(debuggingName);
+    ```
+
+3. A new port-adaptor mechanism is provided for protocols communicating via sockets.
+    * `UpperSocketPort<T extends ProtocolContainer>` has a single method
+        * `void register(LowerSocketAdapter<T> adapter)`
+    * `LowerSocketAdapter<A extends ProtocolContainer>` has a single method
+        * `void setSocketFactory(SocketFactory<A> factory)` providing the socket factory to the protocol or application.
+
+4. `UDPProtocol` implements `UpperSocketPort<UDPDatagram>`, providing a `UDPSocketFactory`.
+
+5. The ChatApplication
+    * implements `LowerSocketAdapter<UDPDatagram>`
+    * To start working with sockets the application
+        * Gets the UDPProtocol from the PC, `var udpProtocol = pc.getUDPProtocol();`
+        * Registers with the protocol, `udpProtocol.register(this);`
+        * This calls the applications `setSocketFactory(SocketFactory<UDPDatagram>)` method.
+        * A socket is obtained `var socket = socketFactory.createSocket("PC-Chat");`
+        * The socket is bound `socket.bind(ipAddress, port_num);`
+        * Datagrams can then be sent with `socket.send(UDPDatagram)`
+        * In coming datagrams be polled with the `UDPDatagram poll()`
+        * If the second factory method `createSocket(String name, ProtocolReceiver<T> receiver)` has been used, then the receivers `receive(T)` method will be called directly rather than needing to wait for a tick. This is useful for daemon processes.
