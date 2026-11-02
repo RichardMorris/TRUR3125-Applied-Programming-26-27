@@ -3,6 +3,7 @@ package org.singsurf.jns3.hardware;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.data_link_layer.EthernetProtocol;
 import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.data_link_layer.arp.ARPProtocol;
@@ -13,6 +14,10 @@ import org.singsurf.jns3.network_layer.icmp.ICMPProtocol;
 import org.singsurf.jns3.transport_layer.dhcp.DHCPProtocol;
 import org.singsurf.jns3.transport_layer.udp.UDPProtocol;
 
+/**
+ * Abstract class representing a network device that 
+ * has a protocol stack and can be addressed using MAC and IP addresses.
+ */
 public abstract class ProtocolDevice implements AddressableDevice {
 	
 	String name;
@@ -36,34 +41,34 @@ public abstract class ProtocolDevice implements AddressableDevice {
 		protocols.add(prot);
 	}
 
-	public EthernetProtocol getEthernetProtocol() {
-		return getProtocol(EthernetProtocol.class);
+	public <T extends Protocol> T getProtocol(Class<T> cl) {
+		for(Protocol p: protocols) {
+			if(cl.isInstance(p)) {
+				return cl.cast(p);
+			}
+		}
+		Jns3Logger.logError(name, "Protocol " + cl.getSimpleName() + " not found in device " + name);
+		return null;
 	}
 
-	public IPProtocol getIPProtocol() {
-		return getProtocol(IPProtocol.class);
+	public EthernetProtocol getEthernetProtocol() {
+		return getProtocol(EthernetProtocol.class);
 	}
 
 	public ARPProtocol getArpProtocol() {
 		return getProtocol(ARPProtocol.class);
 	}
 
-	@SuppressWarnings("unchecked")
-	public <T extends Protocol> T getProtocol(Class<T> cl) {
-		for(Protocol p: protocols) {
-			if(cl.isInstance(p)) {
-				return (T) p;
-			}
-		}
-		return null;
-	}
-
-	public UDPProtocol getUDPProtocol() {
-		return getProtocol(UDPProtocol.class);
+	public IPProtocol getIPProtocol() {
+		return getProtocol(IPProtocol.class);
 	}
 
 	public ICMPProtocol getICMPProtocol() {
 		return getProtocol(ICMPProtocol.class);
+	}
+
+	public UDPProtocol getUDPProtocol() {
+		return getProtocol(UDPProtocol.class);
 	}
 
 	public DHCPProtocol getDHCPProtocol() {

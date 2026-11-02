@@ -20,19 +20,7 @@ public class HomeRouter extends ProtocolDevice implements AddressableDevice {
 	public HomeRouter(String name, MACAddress macAddress, IPAddress ipAddress) {
         super(name,macAddress,ipAddress);
     }
-    
-	
-
-    // Commands available to the user of the PC
-
-	public void ping(IPAddress ipAddress2, int i) {
-		getICMPProtocol().sendPingRequest(ipAddress2, i);
-	}
-
-	public void traceroute(IPAddress ipAddress2) {
-		getICMPProtocol().sendTraceroute(ipAddress2);
-	}
-		
+    		
 	public Terminal getTerminal() {
 		return terminal;
 	}
