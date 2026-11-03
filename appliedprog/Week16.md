@@ -1,4 +1,4 @@
-# Week 15 The Internet in a box
+# Week 15 A Home-Router
 
 ## User Story
 
@@ -12,12 +12,12 @@ whatever that means.
 
 Scenario: IP address allocation for local machines
 
-* Given: A network of a PC and a HomeRouter
+* Given: A network of a PC and a `HomeRouter`
 * When: The PC is connected
 * Then: The PC requests IP address information from the router
 * Then: The router supplies the information
 * And: allocates a remote IP address for the machine
-* When: The pc displays its ipconfig
+* When: The pc displays its `ipconfig`
 * Then: it displays a message like
 
     ```text
@@ -28,45 +28,49 @@ Scenario: IP address allocation for local machines
 
 Scenario: Chat across local network
 
-* Given: Two PC's connected via a HomeRouter
+* Given: Two PC's connected via a `HomeRouter`
 * And: both PC have negotiated their IP addresses with the router
 * When: Both PC start private chats with the other IP addresses
 * Then: Both PC can send and receive chat message
 
 ## Specification
 
-1. The internet-in-a-box or `TheInternet`
-    * It can receive IP packets
-    * It can deliver the packets using the routing prefix of connected devices
-2. A `InternetSender` that
-    * Sends packets to the internet.
-3. A `PC`
-    * Can be configured to send packet either to an Ethernet connection, or to an InternetSender.
-4. A `HomeRouter`
-    * Has a `IPPrefix` like `138.253.39.0/24`
+1. A `HomeRouter`
     * Has a local IP address `192.168.1.1`
     * Has a `SubnetMask` of `255.255.255.0`
-    * Has a routing table than maps local IP address to
-    global address in the prefix range.
+    * Has an allocation table of allocated local IP addresses matching the subnet mask.
     * Has 4 ethernet connections to the LAN
-    * Has 1 connection to the internet
-    * Can assign local IP addresses to devices on the LAN.
-    * Forward frames for local IP to the correct port
-    * Forwards packets for global IP to the internet
-        * The local IP is changed to the corresponding global IP
-    * Informs the internet of its IPPrefix
-    * Receives packet matching its prefix from the internet and
-        * changes the global ip into a local ip
-        * forwards the packet to the correct port
-5. A subnet mask
-    * Has a host `IPAddress`
-    * Has and `IPAddress` of the subnet mask  
-    * It has a `boolean matches(IPAddress dest)` method that
-        * takes the logical AND of the host and dest addresses with the subnet masks
-        * tests if the two results are equal.
-6. A `IPPrexix`
-    * Has host `IPAddress` like `138.253.39.0`
-    * Has a bit-length like `/24`
-    * Has a boolean matches(IPAddress dest)` method that
-        * Finds the first bit-length bits of both addresses
-        * Returns true if they are equal.
+    * Can assign local IP addresses to devices on the LAN via DHCP ensuring no conflicts
+    * Has separate MAC addresses for each port.
+    * For ARP
+        * Responds to an ARP request for it's IP, with the MAC address of the port it was called from.
+        * Forwards ARP requests to other machines to the corresponding port if known, or Broadcast if unknown.
+        * Forwards ARP replies to correct machine.
+    * For IP packets
+        * Decrements the `ttl`
+        * If the `ttl` is zero reply with a "TTL Expired" ICMP message.
+        * Looks up the destination IP in its table
+        * If not found reply with a "Destination unreachable" message.
+        * If found forwards to the correct port.
+        * If the destination IP matches this machine delegate to appropriate `PacketHandlers`
+    * For ICMP packets
+        * If its a ping request to this machine respond with a ping reply.
+        * Otherwise as for general IP packets
+    * For non IP message
+        * Respond with "Destination protocol unreachable"
+    * For UDP packets to this machine or the limited multicast address
+        * Forward to the correct socket
+    * For UDP packets to port 67 DHCP Server
+        * Delegate to DHCPProtocol.
+    * For UDP packets to unknown port
+        * Respond with "Destination port unreachable"
+
+2. A `HomeRouter` has a custom stack of protocols:
+    * `EthernetProtocol` sends inbound frames to it's registered protocols.
+    * `TaggedIPPacket` is a sub-class of IP packet
+
+3. A subnet mask
+    * Is an `IPAddress`
+    * Has a `boolean matches(IPAddress src, IPAddress dest)` method that
+        * takes the logical AND of the src and dest addresses with the subnet masks
+        * returns true if the two results are equal.
