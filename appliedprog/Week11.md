@@ -124,6 +124,8 @@ Scenario: sending a traceroute request
           * Other the packet is dropped. (logging error message)
      * Otherwise the packet is passed to the other port.
 
+![ICMP Packet Structure](diagrams/week11_icmp_packets.png)
+
 ## Design
 
 Handling logic for incoming frames is now getting quite complex:
