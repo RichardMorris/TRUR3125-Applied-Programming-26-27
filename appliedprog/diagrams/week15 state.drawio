@@ -1,0 +1,218 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.6.1 Chrome/142.0.7444.265 Electron/39.8.0 Safari/537.36" version="29.6.1">
+  <diagram name="Page-1" id="X7mdE-wpwJZfr5K3cHg7">
+    <mxGraphModel dx="1193" dy="683" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="b_M_AISNXAlNt9Doulkc-1" parent="1" style="shape=umlState;rounded=1;verticalAlign=top;spacingTop=5;umlStateSymbol=collapseState;absoluteArcSize=1;arcSize=10;html=1;whiteSpace=wrap;" value="INIT" vertex="1">
+          <mxGeometry height="60" width="120" x="280" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="GyTjF9P79yMFuEikh8VD-30" edge="1" parent="1" source="b_M_AISNXAlNt9Doulkc-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;fillColor=#f8cecc;strokeColor=#b85450;" target="GyTjF9P79yMFuEikh8VD-12">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-60" y="600" />
+              <mxPoint x="70" y="600" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="b_M_AISNXAlNt9Doulkc-2" parent="1" style="shape=umlState;rounded=1;verticalAlign=top;spacingTop=5;umlStateSymbol=collapseState;absoluteArcSize=1;arcSize=10;html=1;whiteSpace=wrap;strokeColor=#B85450;align=center;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;" value="REBOOTING" vertex="1">
+          <mxGeometry height="60" width="120" x="-120" y="430" as="geometry" />
+        </mxCell>
+        <mxCell id="b_M_AISNXAlNt9Doulkc-6" edge="1" parent="1" source="b_M_AISNXAlNt9Doulkc-2" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;entryX=0;entryY=0.3;entryDx=0;entryDy=0;fillColor=#f8cecc;strokeColor=#b85450;edgeStyle=orthogonalEdgeStyle;" target="b_M_AISNXAlNt9Doulkc-1" value="">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <Array as="points">
+              <mxPoint x="-60" y="178" />
+            </Array>
+            <mxPoint x="250" y="290" as="sourcePoint" />
+            <mxPoint x="330" y="290" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="b_M_AISNXAlNt9Doulkc-7" edge="1" parent="1" source="GyTjF9P79yMFuEikh8VD-15" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;edgeStyle=orthogonalEdgeStyle;fillColor=#f8cecc;strokeColor=#b85450;" target="b_M_AISNXAlNt9Doulkc-1" value="">
+          <mxGeometry relative="1" width="80" x="-0.1815" y="-50" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="500" y="200" />
+            </Array>
+            <mxPoint x="520" y="178" as="sourcePoint" />
+            <mxPoint x="350" y="210" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="b_M_AISNXAlNt9Doulkc-9" edge="1" parent="1" source="b_M_AISNXAlNt9Doulkc-1" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;" target="b_M_AISNXAlNt9Doulkc-17" value="- /&amp;nbsp;&lt;div&gt;send DHCPDISCOVER&amp;nbsp;&lt;/div&gt;">
+          <mxGeometry relative="1" width="80" x="-0.5238" y="70" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="360" y="270" />
+              <mxPoint x="360" y="270" />
+            </Array>
+            <mxPoint x="340" y="270" as="sourcePoint" />
+            <mxPoint x="300" y="240" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="b_M_AISNXAlNt9Doulkc-17" parent="1" style="shape=umlState;rounded=1;verticalAlign=top;spacingTop=5;umlStateSymbol=collapseState;absoluteArcSize=1;arcSize=10;html=1;whiteSpace=wrap;" value="SELECTING" vertex="1">
+          <mxGeometry height="60" width="120" x="300" y="430" as="geometry" />
+        </mxCell>
+        <mxCell id="GyTjF9P79yMFuEikh8VD-5" edge="1" parent="1" source="b_M_AISNXAlNt9Doulkc-18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.85;exitY=0.05;exitDx=0;exitDy=0;exitPerimeter=0;fillColor=#f8cecc;strokeColor=#b85450;" target="b_M_AISNXAlNt9Doulkc-1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="142" y="360" />
+              <mxPoint x="310" y="360" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="GyTjF9P79yMFuEikh8VD-8" edge="1" parent="1" source="b_M_AISNXAlNt9Doulkc-18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.15;exitY=0.05;exitDx=0;exitDy=0;exitPerimeter=0;fillColor=#f8cecc;strokeColor=#b85450;" target="b_M_AISNXAlNt9Doulkc-1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="58" y="210" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="GyTjF9P79yMFuEikh8VD-13" edge="1" parent="1" source="b_M_AISNXAlNt9Doulkc-18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.85;exitY=0.95;exitDx=0;exitDy=0;exitPerimeter=0;" target="GyTjF9P79yMFuEikh8VD-12">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="142" y="610" />
+              <mxPoint x="142" y="610" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="b_M_AISNXAlNt9Doulkc-18" parent="1" style="shape=umlState;rounded=1;verticalAlign=top;spacingTop=5;umlStateSymbol=collapseState;absoluteArcSize=1;arcSize=10;html=1;whiteSpace=wrap;" value="REQUESTING" vertex="1">
+          <mxGeometry height="60" width="120" x="40" y="430" as="geometry" />
+        </mxCell>
+        <mxCell id="b_M_AISNXAlNt9Doulkc-24" edge="1" parent="1" source="b_M_AISNXAlNt9Doulkc-17" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;entryX=1;entryY=0.7;entryDx=0;entryDy=0;exitX=0;exitY=0.7;exitDx=0;exitDy=0;" target="b_M_AISNXAlNt9Doulkc-18" value="">
+          <mxGeometry relative="1" width="80" y="38" as="geometry">
+            <mxPoint as="offset" />
+            <mxPoint x="340" y="540" as="sourcePoint" />
+            <mxPoint x="300" y="510" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="b_M_AISNXAlNt9Doulkc-31" edge="1" parent="1" source="b_M_AISNXAlNt9Doulkc-17" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;edgeStyle=orthogonalEdgeStyle;elbow=vertical;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" target="b_M_AISNXAlNt9Doulkc-17" value="rec DHCPOFFER/&lt;div&gt;collecting replies&lt;/div&gt;">
+          <mxGeometry relative="1" width="80" x="-0.4286" y="50" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="360" y="540" />
+              <mxPoint x="320" y="540" />
+            </Array>
+            <mxPoint x="570" y="472" as="sourcePoint" />
+            <mxPoint x="230" y="580" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="GyTjF9P79yMFuEikh8VD-4" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;span style=&quot;font-size: 11px; text-wrap-mode: nowrap; background-color: rgb(255, 255, 255);&quot;&gt;select offer /&amp;nbsp;&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;font-size: 11px; text-wrap-mode: nowrap; background-color: rgb(255, 255, 255);&quot;&gt;send DHCPREQUEST&amp;nbsp;&lt;/span&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="30" width="60" x="200" y="430" as="geometry" />
+        </mxCell>
+        <mxCell id="GyTjF9P79yMFuEikh8VD-7" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="rec DHCPACK (not accept)/&lt;br&gt;send DNCPDECLINE" vertex="1">
+          <mxGeometry height="30" width="150" x="130" y="320" as="geometry" />
+        </mxCell>
+        <mxCell id="GyTjF9P79yMFuEikh8VD-9" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="rec DHCPNACK/&lt;br&gt;discard offer" vertex="1">
+          <mxGeometry height="30" width="150" x="80" y="220" as="geometry" />
+        </mxCell>
+        <mxCell id="GyTjF9P79yMFuEikh8VD-11" edge="1" parent="1" source="b_M_AISNXAlNt9Doulkc-18" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;edgeStyle=orthogonalEdgeStyle;elbow=vertical;fillColor=#f8cecc;strokeColor=#b85450;" target="b_M_AISNXAlNt9Doulkc-18" value="rec DHCPOFFER/&lt;div&gt;discard&lt;/div&gt;">
+          <mxGeometry relative="1" width="80" x="-0.0769" y="40" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="100" y="540" />
+              <mxPoint x="70" y="540" />
+            </Array>
+            <mxPoint x="350" y="580" as="sourcePoint" />
+            <mxPoint x="350" y="604" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="GyTjF9P79yMFuEikh8VD-19" edge="1" parent="1" source="GyTjF9P79yMFuEikh8VD-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;fillColor=#f8cecc;strokeColor=#b85450;" target="GyTjF9P79yMFuEikh8VD-18">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="100" y="860" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="GyTjF9P79yMFuEikh8VD-28" edge="1" parent="1" source="GyTjF9P79yMFuEikh8VD-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.3;exitDx=0;exitDy=0;fillColor=#f8cecc;strokeColor=#b85450;" target="GyTjF9P79yMFuEikh8VD-12">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-30" y="658" />
+              <mxPoint x="-30" y="690" />
+            </Array>
+            <mxPoint x="-40" y="680" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="GyTjF9P79yMFuEikh8VD-12" parent="1" style="shape=umlState;rounded=1;verticalAlign=top;spacingTop=5;umlStateSymbol=collapseState;absoluteArcSize=1;arcSize=10;html=1;whiteSpace=wrap;" value="BOUND" vertex="1">
+          <mxGeometry height="60" width="120" x="40" y="640" as="geometry" />
+        </mxCell>
+        <mxCell id="GyTjF9P79yMFuEikh8VD-14" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="rec DHCPACK/&lt;br&gt;record lease" vertex="1">
+          <mxGeometry height="30" width="110" x="140" y="500" as="geometry" />
+        </mxCell>
+        <mxCell id="GyTjF9P79yMFuEikh8VD-16" edge="1" parent="1" source="GyTjF9P79yMFuEikh8VD-15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fillColor=#f8cecc;strokeColor=#b85450;" target="GyTjF9P79yMFuEikh8VD-12">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="300" y="660" />
+              <mxPoint x="300" y="660" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="GyTjF9P79yMFuEikh8VD-15" parent="1" style="shape=umlState;rounded=1;verticalAlign=top;spacingTop=5;umlStateSymbol=collapseState;absoluteArcSize=1;arcSize=10;html=1;whiteSpace=wrap;strokeColor=#B85450;align=center;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;" value="REBINDING" vertex="1">
+          <mxGeometry height="60" width="120" x="430" y="640" as="geometry" />
+        </mxCell>
+        <mxCell id="GyTjF9P79yMFuEikh8VD-17" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="rec DHCPACK/&lt;br&gt;record lease" vertex="1">
+          <mxGeometry height="30" width="110" x="316" y="630" as="geometry" />
+        </mxCell>
+        <mxCell id="GyTjF9P79yMFuEikh8VD-21" edge="1" parent="1" source="GyTjF9P79yMFuEikh8VD-18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.15;exitY=0.05;exitDx=0;exitDy=0;exitPerimeter=0;fillColor=#f8cecc;strokeColor=#b85450;" target="GyTjF9P79yMFuEikh8VD-12">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="298" y="690" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="GyTjF9P79yMFuEikh8VD-23" edge="1" parent="1" source="GyTjF9P79yMFuEikh8VD-18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fillColor=#f8cecc;strokeColor=#b85450;" target="GyTjF9P79yMFuEikh8VD-15">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="490" y="850" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="GyTjF9P79yMFuEikh8VD-26" edge="1" parent="1" source="GyTjF9P79yMFuEikh8VD-18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.7;exitDx=0;exitDy=0;fillColor=#f8cecc;strokeColor=#b85450;" target="b_M_AISNXAlNt9Doulkc-1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="640" y="872" />
+              <mxPoint x="640" y="190" />
+            </Array>
+            <mxPoint x="650" y="210" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="GyTjF9P79yMFuEikh8VD-18" parent="1" style="shape=umlState;rounded=1;verticalAlign=top;spacingTop=5;umlStateSymbol=collapseState;absoluteArcSize=1;arcSize=10;html=1;whiteSpace=wrap;strokeColor=#B85450;align=center;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;" value="RENEWING" vertex="1">
+          <mxGeometry height="60" width="120" x="280" y="830" as="geometry" />
+        </mxCell>
+        <mxCell id="GyTjF9P79yMFuEikh8VD-20" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;span style=&quot;font-size: 11px; text-wrap-mode: nowrap; background-color: rgb(255, 255, 255);&quot;&gt;T1 expires /&amp;nbsp;&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;font-size: 11px; text-wrap-mode: nowrap; background-color: rgb(255, 255, 255);&quot;&gt;send DHCPREQUEST&amp;nbsp;&lt;br&gt;to connected server&lt;/span&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="50" width="130" x="110" y="790" as="geometry" />
+        </mxCell>
+        <mxCell id="GyTjF9P79yMFuEikh8VD-22" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="rec DHCPACK/&lt;br&gt;record lease" vertex="1">
+          <mxGeometry height="30" width="110" x="180" y="710" as="geometry" />
+        </mxCell>
+        <mxCell id="GyTjF9P79yMFuEikh8VD-24" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&#xa;&lt;span style=&quot;color: rgb(0, 0, 0); font-family: Helvetica; font-size: 11px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: center; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: nowrap; background-color: rgb(255, 255, 255); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;&quot;&gt;- /&amp;nbsp;&lt;/span&gt;&lt;div style=&quot;forced-color-adjust: none; color: rgb(0, 0, 0); font-family: Helvetica; font-size: 11px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: center; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: nowrap; text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;&quot;&gt;send DHCPDISCOVER&amp;nbsp;&lt;/div&gt;&#xa;&#xa;" vertex="1">
+          <mxGeometry height="50" width="130" x="-240" y="320" as="geometry" />
+        </mxCell>
+        <mxCell id="GyTjF9P79yMFuEikh8VD-25" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="rec DHCPNACK/&lt;br&gt;halt network" vertex="1">
+          <mxGeometry height="30" width="150" x="480" y="550" as="geometry" />
+        </mxCell>
+        <mxCell id="GyTjF9P79yMFuEikh8VD-27" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="rec DHCPNACK/&lt;br&gt;halt network" vertex="1">
+          <mxGeometry height="30" width="150" x="410" y="880" as="geometry" />
+        </mxCell>
+        <mxCell id="GyTjF9P79yMFuEikh8VD-29" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;span style=&quot;font-size: 11px; text-wrap-mode: nowrap; background-color: rgb(255, 255, 255);&quot;&gt;rec DHCPOFFER/&lt;/span&gt;&lt;div style=&quot;font-size: 11px; text-wrap-mode: nowrap;&quot;&gt;discard&lt;/div&gt;" vertex="1">
+          <mxGeometry height="30" width="60" x="-50" y="710" as="geometry" />
+        </mxCell>
+        <mxCell id="GyTjF9P79yMFuEikh8VD-32" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="rec DHCPNACK/&lt;br&gt;restart" vertex="1">
+          <mxGeometry height="30" width="150" x="25" y="150" as="geometry" />
+        </mxCell>
+        <mxCell id="GyTjF9P79yMFuEikh8VD-34" edge="1" parent="1" source="GyTjF9P79yMFuEikh8VD-33" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.85;exitY=0.95;exitDx=0;exitDy=0;exitPerimeter=0;fillColor=#f8cecc;strokeColor=#b85450;" target="b_M_AISNXAlNt9Doulkc-2">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-108" y="380" />
+              <mxPoint x="-108" y="380" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="GyTjF9P79yMFuEikh8VD-33" parent="1" style="shape=umlState;rounded=1;verticalAlign=top;spacingTop=5;umlStateSymbol=collapseState;absoluteArcSize=1;arcSize=10;html=1;whiteSpace=wrap;strokeColor=#B85450;" value="INIT-REBOOT" vertex="1">
+          <mxGeometry height="60" width="120" x="-210" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="GyTjF9P79yMFuEikh8VD-35" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="rec DHCPACK/&lt;br&gt;record lease" vertex="1">
+          <mxGeometry height="30" width="110" x="-180" y="500" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

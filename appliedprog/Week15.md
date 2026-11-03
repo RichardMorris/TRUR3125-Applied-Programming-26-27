@@ -212,15 +212,14 @@ First we need to create several new generic classes:
 
 ## DHCP
 
-After the ChatApplication has been refactored and the tests suit passes, 
-it time to create a new Protocol using the generic framework.
+After the ChatApplication has been refactored and the tests suit passes, it time to create a new Protocol using the generic framework.
 
 1. `DHCPMessage` implements `ProtocolContainer`
 2. `DHCPExtractor` implements `ProtocolExtractor<UDPDatagram, DHCPMessage>`
 3. `DHCPProtocol` :
     * Has two modes client, used by PC's, and server, used by routers.
-    * implements `Protocol`, a marker interface for all protocols. 
-    * implements `LowerSocketAdapter<UDPDatagram>` so it can be provided with a `SocketFactory`. 
+    * implements `Protocol`, a marker interface for all protocols.
+    * implements `LowerSocketAdapter<UDPDatagram>` so it can be provided with a `SocketFactory`.
     * implements `ProtocolReceiver<UDPDatagram>` used in the creation of sockets so incoming incoming datagrams are directly handled by the protocol rather than having the wait for a tick to poll the socket.
     * Has a `ProtocolDelegator<DHCPMessage>` to direct an incoming message to one of four handlers
         * `DiscoverHandler` responds to discover requests from the client
@@ -282,6 +281,16 @@ To allow protocols to find each other a common marker interface `Protocol` is de
 
 Making the `HomeRouter` allow multiple connections from machines in the local network is the subject of the next week.
 
+## Review
+
+We have implemented just enough of DHCP to be able to assign IP addresses to a single machine. This is only about half the protocol,
+as can be seen from the state diagram adapted from
+[rfc 2131](https://www.rfc-editor.org/info/rfc2131/#section-4.4).
+Sections in black have been implemented, sections in red have not and become a backlog item:
+[Issue #20 Full DHCP](https://github.com/RichardMorris/TRUR3125-Applied-Programming-26-27/issues/20)
+
+![DHCP client state diagram](diagrams/week15_state.png)
+
 ## Class diagrams
 
 Protocol level view
@@ -291,5 +300,3 @@ Protocol level view
 Detailed view of refactored UDP protocol and Chat Application, and ICMP protocol.
 
 ![Class Diagram](diagrams/week15.png)
-
-
