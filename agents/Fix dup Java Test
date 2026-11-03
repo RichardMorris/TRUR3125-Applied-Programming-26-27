@@ -1,0 +1,57 @@
+When running tests from VS Code two different sets are run "Java" and "Java Test" The "Java" set fails to run with the "cannot find run action".
+
+Make it so only the "Java Test" set are run.
+
+Searched for 4 file patterns, 2 other steps
+Investigated Java test provider and dependency issues
+Get-Childltem $env:USERPROFlLE\.vscode\extensions -Di... Get-Child...
+Investigated disabling test controller in workspace settings
+$p=Get-Childltem $env:USERPROFlLE\.vscode\extens...
+$p=Get-Chi1dI...
+Considered disabling Oracle extension at workspace level
+Select-String -Path $env:USERPROFlLE\.vscode\exten...
+Select -String...
+Advised using extensions.json for unwantedRecommendations field
+Created n extensions.json +6 -0
+
+
+
+
+
+Requested chat rename
+Completed with input: {
+  "title": "Fix duplicate Java test runs",
+  "automatic": true
+}
+
+Read 
+Completed with input: {
+  "path": "c:\\Users\\richardmorris\\repos\\TRUR3125-Applied-Programming-26-27\\appliedprog\\pom.xml"
+}
+
+Find files matching `appliedprog/.vscode/*`
+
+Find files matching `.vscode/*`
+
+Read 
+Completed with input: {
+  "path": "c:\\Users\\richardmorris\\repos\\TRUR3125-Applied-Programming-26-27\\.vscode\\launch.json"
+}
+
+Find files matching `**/*.{code-workspace,iml}`
+
+Find files matching `.vscode/settings.json`
+
+Ran terminal command: Get-ChildItem $env:USERPROFILE\.vscode\extensions -Directory | Where-Object Name -match 'java|test|junit|code-runner' | Select -Expand Name; Get-ChildItem -Force -Recurse -Depth 2 -Include .project,.classpath,build.gradle,settings.json | Select -Expand FullName
+
+Ran terminal command: $p=Get-ChildItem $env:USERPROFILE\.vscode\extensions\oracle.oracle-java-27.0.0\package.json; Select-String -Path $p -Pattern '"(jdk|netbeans)\.[^"]*(test|Test)[^"]*"' | Select -Expand Line -First 20
+
+Ran terminal command: Select-String -Path $env:USERPROFILE\.vscode\extensions\oracle.oracle-java-27.0.0\package.json -Pattern '"jdk\.[a-zA-Z.]*(esting|unit|ntrol)[a-zA-Z.]*"' | Select -Expand Line -First 20; code --version
+
+Create 
+
+The failing "Java" test set most likely comes from the Oracle "Java" extension (`oracle.oracle-java`). The working "Java Test" set comes from Microsoft's Test Runner for Java (`vscjava.vscode-java-test`). I haven't confirmed this by running VS Code, so it's an inference from what's installed.
+
+That extension has no setting to turn off its test controller, and a workspace file can't disable an extension. The most I could do from the repo was add `extensions.json`, which lists `oracle.oracle-java` under `unwantedRecommendations`. That only stops VS Code recommending the extension. It doesn't switch it off.
+
+To actually stop it, open the Extensions view, find "Oracle Java", choose **Disable (Workspace)**, then reload the window. After that only "Java Test" should be left.
