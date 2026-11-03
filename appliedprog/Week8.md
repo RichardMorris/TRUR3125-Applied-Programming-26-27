@@ -63,6 +63,8 @@ Scenario: packet fragmentation and recombination
     * An `IPPacket` can be wrapped in an `EthernetFrame` sent across a network
         and unpacked to produce an identical packet.
 
+![Packet Layout](diagrams/week8_packet.png)
+
 ## Packet Fragmentation
 
 1. The `PacketFragmentor` splits a large `IPPacket` into a number of smaller packets.
