@@ -3,7 +3,7 @@
 ## User Story
 
 As a network engineer when I connect two machines with assigned local IP address
-they need to find the corresponding MAC Addresses so they
+they need to find each others MAC Addresses so they
 can then send messages to each other.
 
 ## Acceptance criteria
