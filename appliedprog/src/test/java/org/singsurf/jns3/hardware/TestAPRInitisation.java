@@ -46,12 +46,17 @@ public class TestAPRInitisation {
 
     @Test
     public void testGRAP() {
+        // arrange
         Jns3Logger.clearLog();
         var arpController = pc1.getArpController();
         assertEquals(0, arpController.getArpTable().size());
         assertEquals(0, arpController.getReverseArpTable().size());
+
+        // act
+        
         arpController.sendGARPRequest();
 
+        // assert
         List<LogItem> logs = Jns3Logger.getLogItems();
         System.out.println(logs);
         assertEquals(4, logs.size());
