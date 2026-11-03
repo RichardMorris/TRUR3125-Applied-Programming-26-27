@@ -2,10 +2,10 @@ package org.singsurf.jns3.hardware;
 
 import java.util.List;
 
+import org.singsurf.jns3.IPAddress;
 import org.singsurf.jns3.data_link_layer.ARPController;
 import org.singsurf.jns3.data_link_layer.DefaultFrameHandler;
 import org.singsurf.jns3.data_link_layer.FrameFactory;
-import org.singsurf.jns3.data_link_layer.IPAddress;
 import org.singsurf.jns3.data_link_layer.MACAddress;
 
 import java.util.ArrayList;

@@ -2,6 +2,7 @@ package org.singsurf.jns3;
 import java.util.ArrayList;
 import java.util.List;
 public class Jns3Logger {
+	
     public enum LogLevel {
         RECEIVED, // Frame was received successfully
         IGNORED, // Frame was ignored 
