@@ -35,6 +35,8 @@ Scenario: Chat across local network
 
 ## Specification
 
+See [RFC 1122: STD 3: Requirements for Internet Hosts - Communication Layers](https://www.rfc-editor.org/info/rfc1122/)
+
 1. The internet-in-a-box or `TheInternet`
     * It can receive IP packets
     * It can deliver the packets using the routing prefix of connected devices
@@ -70,3 +72,5 @@ Scenario: Chat across local network
     * Has a boolean matches(IPAddress dest)` method that
         * Finds the first bit-length bits of both addresses
         * Returns true if they are equal.
+
+7. DHCP_INFORM we use this to query other parameters, rather than DISCOVER.

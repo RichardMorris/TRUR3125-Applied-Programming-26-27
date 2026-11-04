@@ -1,4 +1,4 @@
-# Week 15 DHCP and the home routers
+# Week 15 DHCP
 
 ## User Story
 
