@@ -74,3 +74,10 @@ Scenario: Chat across local network
     * Has a `boolean matches(IPAddress src, IPAddress dest)` method that
         * takes the logical AND of the src and dest addresses with the subnet masks
         * returns true if the two results are equal.
+
+4. The PC
+    * "The client SHOULD broadcast an ARP
+   reply to announce the client's new IP address and clear any outdated
+   ARP cache entries in hosts on the client's subnet."
+    * On receiving a DHCP-ACK sends an ARP Reply to the Broadcast MAC address to announce it new IP.
+    * On receiving a ARP Reply to Broadcast MAC updates its ARP table.
