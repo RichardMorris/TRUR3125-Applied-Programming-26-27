@@ -35,6 +35,8 @@ Scenario: Chat across local network
 
 ## Specification
 
+See [RFC 1122: STD 3: Requirements for Internet Hosts - Communication Layers](https://www.rfc-editor.org/info/rfc1122/)
+
 1. A `HomeRouter`
     * Has a local IP address `192.168.1.1`
     * Has a `SubnetMask` of `255.255.255.0`
@@ -81,3 +83,5 @@ Scenario: Chat across local network
    ARP cache entries in hosts on the client's subnet."
     * On receiving a DHCP-ACK sends an ARP Reply to the Broadcast MAC address to announce it new IP.
     * On receiving a ARP Reply to Broadcast MAC updates its ARP table.
+
+7. DHCP_INFORM we use this to query other parameters, rather than DISCOVER.

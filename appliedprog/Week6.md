@@ -71,9 +71,21 @@ Scenario: sending messages across network of 3 PC's connected by a switch
     * It cannot initiate its own messages
     * Messages sent to its own MACAddress are recorded with an Error in the log.
 
+## Current stage
+
+So far we have:
+
+1. Ethernet Frames
+2. ARP Messages encapsulated in Ethernet Frames
+3. An `APRController` `FrameHandler` for creating and responding to ARP requests/replies.
+4. A `DefaultFrameHandler` for logging messages.
+5. A PC providing an facade to the system.
+
+![Frame structure](diagrams/week6_ethernet_frame.png)
+
 ## Design
 
-This week introduces a new set of devices and poses some questions as to what properties are shared between the PC and the Hub/Switch as a single unit, and which properties are shared with the individual ports. The Device superclass from last week has been dropped, as this was not the most useful abstraction. Instead we have a `EthernetEndPoint` as a common base class between the `PC` and each `Port`, and `NamedDevice` for all things that have names, including `EthernetEndPoint`, `MultiPortDevices`. Names are primarily used for testing purposes via the Jns3Logger.
+This week introduces a new set of devices and poses some questions as to what properties are shared between the PC and the Hub/Switch as a single unit, and which properties are shared with the individual ports. The `Device` superclass from last week has been dropped, as this was not the most useful abstraction. Instead we have a `EthernetEndPoint` as a common base class between the `PC` and each `Port`, and `NamedDevice` for all things that have names, including `EthernetEndPoint`, `MultiPortDevices`. Names are primarily used for testing purposes via the Jns3Logger.
 
 The core code behind a hub is very simple, it's consider a layer-1 device, and does not use MAC Addresses:
 
@@ -93,42 +105,54 @@ Switches are not much more complex, our model has a 1-to-1 mapping between ports
 The logic is not much more complex:
 
 ```java
-public void receiveFrame(int incomingPortNumber, EthernetFrame frame) {
-    // store the source MAC in the table
-    var sourceMac = frame.getSource();
-    connectedMacAddress[incomingPortNumber] = sourceMac;
-    // find the port for the given destination MAC
-    var destinationMac = frame.getDestination();
-    int destinationPort = -1;
-    for (int i = 0; i < numPorts; i++) {
-        if (connectedMacAddress[i] != null &&
-                connectedMacAddress[i].equals(destinationMac)) {
-            destinationPort = i;
-            break;
-        }
+public class Switch extends MultiPortDevice {
+    MACAddress[] connectedMacAddress;
+
+    public Switch(String name, int numPorts) {
+        super(name, numPorts);
+        this.connectedMacAddress = new MACAddress[numPorts];
     }
-    // send to destination port
-    if (destinationPort != -1) {
-        if (destinationPort != incomingPortNumber) {
-            if(ports[destinationPort].isConnected()) {
-                ports[destinationPort].sendFrame(frame);
+
+    public void receiveFrame(
+            int incomingPortNumber,
+            EthernetFrame frame) {
+        // store the source MAC in the table
+        var sourceMac = frame.getSource();
+        connectedMacAddress[incomingPortNumber] = sourceMac;
+        // find the port for the given destination MAC
+        var destinationMac = frame.getDestination();
+        int destinationPort = -1;
+        for (int i = 0; i < numPorts; i++) {
+            if (connectedMacAddress[i] != null &&
+                connectedMacAddress[i].equals(destinationMac)) {
+                destinationPort = i;
+                break;
+            }
+        }
+        // send to destination port
+        if (destinationPort != -1) {
+            if (destinationPort != incomingPortNumber) {
+                if(ports[destinationPort].isConnected()) {
+                    ports[destinationPort].sendFrame(frame);
+                } else {
+                    // log error, port not connected
+                }
             } else {
-                // log error, port not connected
+                    // log error trying to send back it itself
             }
         } else {
-                // log error trying to send back it itself
-        }
-    } else { // If the destination MAC address is unknown, 
+            // If the destination MAC address is unknown, 
             // broadcast the frame to all other ports like in a hub
-        for (int i = 0; i < numPorts; i++) {
-            if (i != incomingPortNumber) {
-                if (ports[i].isConnected()) {
-                    ports[i].sendFrame(frame);
+            for (int i = 0; i < numPorts; i++) {
+                if (i != incomingPortNumber) {
+                    if (ports[i].isConnected()) {
+                        ports[i].sendFrame(frame);
+                    }
                 }
             }
         }
     }
-}
+}S
 ```
 
 ## Red-Green-Refactor

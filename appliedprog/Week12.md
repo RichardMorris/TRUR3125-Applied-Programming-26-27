@@ -92,6 +92,9 @@ And: incomplete/corrupted message are never displayed
         * Length: 2 bytes
         * Checksum: 2 bytes, unused
     * Its data section contains the contents
+
+    ![Datagram layout](diagrams/week12_datagram.png)
+
 3. A `UDPPacketController`
     * Is a `PacketReceiver`
     * Has a `nextReceiver` field specified in the constructor
