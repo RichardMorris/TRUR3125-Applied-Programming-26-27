@@ -10,7 +10,6 @@ import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.data_link_layer.RouterEthernetProtocol;
-import org.singsurf.jns3.data_link_layer.arp.ARPForwarder;
 import org.singsurf.jns3.data_link_layer.arp.ARPProtocol;
 import org.singsurf.jns3.generic_protocol.HandlerStatus;
 import org.singsurf.jns3.generic_protocol.ProtocolHandler;
@@ -37,11 +36,8 @@ class TestHomeRouter {
 				new IPAddress("192.168.1.1"));
 		router.addProtocol(new RouterEthernetProtocol(router, router.frameSender));
 		var rep = router.getProtocol(RouterEthernetProtocol.class);
-		var arpProtocol= new ARPProtocol(router);
+		var arpProtocol= new ARPProtocol(router,true);
 		router.addProtocol(arpProtocol);
-		var arpForwarder = new ARPForwarder(router);
-		arpForwarder.setSender(router.frameSender);
-		rep.addHandler(arpForwarder);
 		rep.register(arpProtocol);
 		rep.addHandler(new ProtocolHandler<EthernetFrame>() {
 			@Override

@@ -17,14 +17,22 @@ public class ARPProtocol implements Protocol, LowerAdapter<EthernetFrame> {
 
 	AddressableDevice device;
 	ARPController arpController;
+	private boolean isRouter;
+	private ARPForwarder arpForwarder;
 
-	public ARPProtocol(AddressableDevice device) {
+	public ARPProtocol(AddressableDevice device, boolean isRouter) {
 		this.device = device;
 		this.arpController = new ARPController(device);
+		this.isRouter = isRouter;
+		arpForwarder = new ARPForwarder(device);
+
 	}
 
 	@Override
 	public List<ProtocolHandler<EthernetFrame>> getInboundHandlers() {
+		if (isRouter) {
+			return List.of(arpForwarder, arpController);
+		}
 		return List.of(arpController);
 	}
 
@@ -36,6 +44,7 @@ public class ARPProtocol implements Protocol, LowerAdapter<EthernetFrame> {
 	@Override
 	public void setOutboundSender(ProtocolSender<EthernetFrame> sender) {
 		arpController.setSender((FrameSender) sender);
+		arpForwarder.setSender((FrameSender) sender);
 	}
 
 	public ARPController getArpController() {

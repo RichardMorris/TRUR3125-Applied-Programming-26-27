@@ -102,7 +102,7 @@ public class DeviceFactory {
         EthernetProtocol ethernetProtocol = new EthernetProtocol(pc);
         pc.addProtocol(ethernetProtocol);
         
-        ARPProtocol arpProtocol = new ARPProtocol(pc);
+        ARPProtocol arpProtocol = new ARPProtocol(pc,false);
         pc.addProtocol(arpProtocol);
         ethernetProtocol.register(arpProtocol);
 
@@ -141,7 +141,7 @@ public class DeviceFactory {
         EthernetProtocol ethernetProtocol = new EthernetProtocol(router);
         router.addProtocol(ethernetProtocol);
         
-        ARPProtocol arpProtocol = new ARPProtocol(router);
+        ARPProtocol arpProtocol = new ARPProtocol(router,true);
         router.addProtocol(arpProtocol);
         ethernetProtocol.register(arpProtocol);
 
