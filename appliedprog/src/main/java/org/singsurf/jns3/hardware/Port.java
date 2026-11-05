@@ -40,9 +40,4 @@ public class Port implements NamedDevice, FrameReceiver, FrameSender {
         return name;
     }
 
-	@Override
-	public void clear() {
-		// TODO Auto-generated method stub
-		
-	}
 }

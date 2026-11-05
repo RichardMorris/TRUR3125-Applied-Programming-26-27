@@ -7,6 +7,4 @@ import org.singsurf.jns3.generic_protocol.ProtocolReceiver;
  */
 public interface FrameReceiver extends ProtocolReceiver<EthernetFrame> {
     void receive(EthernetFrame frame);
-
-	void clear();
 }

@@ -42,12 +42,6 @@ public class TestCorruptedConnection {
         public String getName() {
             return name;
         }
-		@Override
-		public void clear() {
-			// TODO Auto-generated method stub
-			
-		}
-
     }
 
     @BeforeEach

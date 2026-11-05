@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.hardware.DeviceFactory;
 import org.singsurf.jns3.hardware.GlobalWallClock;
-import org.singsurf.jns3.hardware.HomeRouter;
+import org.singsurf.jns3.hardware.HomeRouter0;
 import org.singsurf.jns3.hardware.PC;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.physical_layer.BufferedConnection;
@@ -17,7 +17,7 @@ import org.singsurf.jns3.physical_layer.SimpleConnection;
 
 class TestDHCP_Router_PC {
 	DHCPProtocol routerDHCP;
-	HomeRouter router1;
+	HomeRouter0 router1;
 	PC pc1;
 	DHCPProtocol pcDHCP;
 	
