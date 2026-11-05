@@ -66,6 +66,11 @@ See [RFC 1122: STD 3: Requirements for Internet Hosts - Communication Layers](ht
         * Delegate to DHCPProtocol.
     * For UDP packets to unknown port
         * Respond with "Destination port unreachable"
+    * For DHCP packets
+        * Respond to DISCOVER with OFFER
+        * Respond to REQUEST with ACK
+        * Respond to INFORM with ACK with appropriate options
+
 
 2. A `HomeRouter` has a custom stack of protocols:
     * `EthernetProtocol` sends inbound frames to it's registered protocols.
