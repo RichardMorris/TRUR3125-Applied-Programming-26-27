@@ -114,11 +114,11 @@ public class DeviceFactory {
         return pc;
     }
 
-    public HomeRouter createHomeRouter(String name) {
+    public HomeRouter0 createHomeRouter(String name) {
         MACAddress mac = createMACAddress();
         IPAddress ip = createSequentialLocalIPAddress();
 
-        var router = new HomeRouter(name, mac, ip);
+        var router = new HomeRouter0(name, mac, ip);
         
         // boot logic for the PC
 		
