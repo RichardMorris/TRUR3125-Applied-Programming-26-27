@@ -75,6 +75,22 @@ public class DeviceFactory {
         ++nextSequentialIP;
         return ip;
     }
+    
+    byte nextSequentialMAC = 0;
+    
+    public MACAddress createSequentialMACAddress() {
+		int[] bytes = new int[6];
+		bytes[0] = 0x11;
+		bytes[1] = 0x22;
+		bytes[2] = 0x33;
+		bytes[3] = 0x44;
+		bytes[4] = 0x55;
+		bytes[5] = nextSequentialMAC;
+		var mac = new MACAddress(bytes);
+		macAddresses.add(mac);
+		++nextSequentialMAC;
+		return mac;
+	}
 
     public PC createPC(String name) {
         MACAddress mac = createMACAddress();

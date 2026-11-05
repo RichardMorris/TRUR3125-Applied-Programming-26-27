@@ -9,6 +9,8 @@ import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.data_link_layer.FrameReceiver;
 import org.singsurf.jns3.data_link_layer.FrameSender;
 import org.singsurf.jns3.data_link_layer.MACAddress;
+import org.singsurf.jns3.data_link_layer.RouterEthernetProtocol;
+import org.singsurf.jns3.generic_protocol.Protocol;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.physical_layer.PhysicalEndPoint;
 
@@ -22,12 +24,14 @@ public class HomeRouter extends ProtocolDevice implements AddressableDevice {
 	Map<Integer,Set<MACAddress>> portMapping = new HashMap<>();
 	HRMultiPortDevice multiPortDevice;
 	HRFrameSender frameSender = new HRFrameSender();
-	HRFrameReceiver frameReceiver = new HRFrameReceiver();
+//	HRFrameReceiver frameReceiver = new HRFrameReceiver();
     Terminal terminal = new Terminal() {
 		@Override
 		public void display(String string) {
 			Jns3Logger.logError(getName(), string);
 		}};
+
+	private RouterEthernetProtocol ethernetProtocol;
 		
 		
 	class HRMultiPortDevice extends MultiPortDevice {
@@ -48,10 +52,20 @@ public class HomeRouter extends ProtocolDevice implements AddressableDevice {
 			}
 			var list = portMapping.get(portNumber);
 			list.add(srcMac);
-			frameReceiver.receive(frame);
+			ethernetProtocol.getFrameDelegator().receive(frame);
 		}
 	}
 	
+	@Override
+	public void addProtocol(Protocol prot) {
+		super.addProtocol(prot);
+		if(prot instanceof RouterEthernetProtocol rep) {
+			ethernetProtocol =rep;
+		}
+	}
+
+
+
 	class HRFrameSender implements FrameSender {
 		HRFrameSender() { }
 		

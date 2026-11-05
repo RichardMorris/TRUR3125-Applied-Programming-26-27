@@ -21,11 +21,17 @@ public class FrameChecker implements FrameHandler{
 	public HandlerStatus handle(EthernetFrame frame) {
         long crc = frame.getFrameCheck();
         long crc2 = frame.calcFrameCheck();
-        if(crc == crc2) {
-        	return HandlerStatus.CONTINUE;
-        } else {
+        if(crc != crc2) {
         	return new HandlerStatus.Invalid("Detected invalid CRC in frame");
+        }
+		var srcMac = frame.getSource();
+		if(srcMac.equals(MACAddress.BROADCAST_MAC)) {
+			return new HandlerStatus.Invalid("Received frame with broadcast source MAC address");
 		}
+		if(srcMac.equals(MACAddress.ZERO_MAC)) {
+			return new HandlerStatus.Invalid("Received frame with zero source MAC address");
+			}
+		return HandlerStatus.CONTINUE;
 	}
 
 }

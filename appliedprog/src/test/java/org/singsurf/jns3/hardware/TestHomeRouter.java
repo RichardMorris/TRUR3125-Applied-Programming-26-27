@@ -9,6 +9,12 @@ import org.junit.jupiter.api.Test;
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.data_link_layer.MACAddress;
+import org.singsurf.jns3.data_link_layer.RouterEthernetProtocol;
+import org.singsurf.jns3.data_link_layer.arp.ARPForwarder;
+import org.singsurf.jns3.data_link_layer.arp.ARPProtocol;
+import org.singsurf.jns3.generic_protocol.HandlerStatus;
+import org.singsurf.jns3.generic_protocol.ProtocolHandler;
+import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.physical_layer.SimpleConnection;
 
 class TestHomeRouter {
@@ -26,7 +32,25 @@ class TestHomeRouter {
 		pc3 = deviceFactory.createPC("PC3");
 		pc4 = deviceFactory.createPC("PC4");
 		
-		router = new HomeRouter("HomeRouter", pc1.getMACAddress(), pc1.getIPAddress());
+		router = new HomeRouter("HomeRouter", 
+				DeviceFactory.getInstance().createSequentialMACAddress(),
+				new IPAddress("192.168.1.1"));
+		router.addProtocol(new RouterEthernetProtocol(router, router.frameSender));
+		var rep = router.getProtocol(RouterEthernetProtocol.class);
+		var arpProtocol= new ARPProtocol(router);
+		router.addProtocol(arpProtocol);
+		var arpForwarder = new ARPForwarder(router);
+		arpForwarder.setSender(router.frameSender);
+		rep.addHandler(arpForwarder);
+		rep.register(arpProtocol);
+		rep.addHandler(new ProtocolHandler<EthernetFrame>() {
+			@Override
+			public HandlerStatus handle(EthernetFrame type) {
+				router.frameSender.send(type);
+				return HandlerStatus.COMPLETED;
+			}
+		});
+
 		
 		var connection1 = new SimpleConnection(router.getEndPoint(0), pc1.getEndPoint());
 		var connection2 = new SimpleConnection(router.getEndPoint(1), pc2.getEndPoint());
@@ -42,8 +66,21 @@ class TestHomeRouter {
 	@Test
 	void can_send_garp_request() {
 		pc1.getArpProtocol().sendGARPRequest();
-		assertEquals(pc2.getMACAddress(), pc1.getArpProtocol().lookup(pc2.getIPAddress()));
-		assertEquals(pc1.getMACAddress(), pc4.getArpProtocol().lookup(pc1.getIPAddress()));
+		System.out.println(Jns3Logger.asString());
+		assertEquals(
+				pc2.getMACAddress(), 
+				pc1.getArpProtocol().lookup(pc2.getIPAddress()));
+		assertEquals(
+				pc1.getMACAddress(), 
+				pc4.getArpProtocol().lookup(pc1.getIPAddress()));
+		assertEquals(
+				router.getMACAddress(), 
+				pc1.getArpProtocol().lookup(router.getIPAddress()));
+		assertEquals(
+				pc1.getMACAddress(), 
+				router.getArpProtocol().lookup(pc1.getIPAddress()));
+		
+		
 		assertTrue(Jns3Logger.isErrorFree());
 	}
 
@@ -62,7 +99,7 @@ class TestHomeRouter {
 	}
 
 	@Test
-	void can_broardcast_frame() {
+	void can_broadcast_frame() {
 		pc1.getArpProtocol().sendGARPRequest();
 		Jns3Logger.clearLog();
 		byte[] payload = "Hello".getBytes();
@@ -76,5 +113,6 @@ class TestHomeRouter {
 		assertEquals("PC4", Jns3Logger.getItem(2).deviceName());
 		assertTrue(Jns3Logger.isErrorFree());
 	}
+
 
 }
