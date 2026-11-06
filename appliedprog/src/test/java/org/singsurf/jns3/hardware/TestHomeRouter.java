@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.singsurf.jns3.Jns3Logger;
@@ -164,4 +166,36 @@ class TestHomeRouter {
 		assertTrue(Jns3Logger.isErrorFree());
 	}
 
+	@Test
+	public void can_ping_across_a_simple_network() throws IOException {		
+		var connection1 = new SimpleConnection(pc1.getEndPoint(), router.getEndPoint(0));
+		var connection2 = new SimpleConnection(pc2.getEndPoint(), router.getEndPoint(1));
+		assertNotNull(connection1);
+		assertNotNull(connection2);
+		
+		pc1.getArpProtocol().sendGARPRequest();
+		pc2.getArpProtocol().sendGARPRequest();
+		// Act
+		Jns3Logger.clearLog();
+		Jns3Logger.startCapture();
+		pc1.getICMPProtocol().sendPingRequest(pc2.getIPAddress(), 64);
+		var output = Jns3Logger.endCapture();
+		System.out.println(Jns3Logger.asString());
+		System.out.println("Captured output:\n"+output);
+		var lines = output.split("\n");
+		assertEquals("PING " + pc2.getIPAddress() + " 28 bytes of data.", lines[0].trim());
+		assertEquals("28 bytes from "+pc2.getIPAddress()+": icmp_seq=1 ttl=63 time=0 ticks", lines[1].trim());
+		assertEquals(2, Jns3Logger.size());
+		var item0 = Jns3Logger.getItem(0);
+		var item1 = Jns3Logger.getItem(1);
+		assertEquals("PC2", item0.deviceName());
+		assertEquals(Jns3Logger.LogLevel.RECEIVED, item0.level());
+		assertTrue(item0.message().startsWith("Received ping request from "+pc1.getIPAddress()));
+		assertEquals("PC1", item1.deviceName());
+		assertEquals(Jns3Logger.LogLevel.RECEIVED, item1.level());
+		assertTrue(item1.message().startsWith("Received ping reply from "+pc2.getIPAddress()));
+		assertTrue(Jns3Logger.isErrorFree());
+	}
+
+	
 }
