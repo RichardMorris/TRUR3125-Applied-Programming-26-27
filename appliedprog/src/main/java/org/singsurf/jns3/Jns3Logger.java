@@ -93,6 +93,10 @@ public class Jns3Logger {
 		}	
 		return sb.toString();
 	}
+	
+	public static void println() {
+		System.out.println(asString());
+	}
 
 	public static int size() {
 		return logItems.size();

@@ -106,7 +106,7 @@ public class DeviceFactory {
         pc.addProtocol(arpProtocol);
         ethernetProtocol.register(arpProtocol);
 
-        IPProtocol ipProtocol = new IPProtocol(pc);
+        IPProtocol ipProtocol = new IPProtocol(pc,false);
         pc.addProtocol(ipProtocol);
         ethernetProtocol.register(ipProtocol);
 
@@ -145,7 +145,7 @@ public class DeviceFactory {
         router.addProtocol(arpProtocol);
         ethernetProtocol.register(arpProtocol);
 
-        IPProtocol ipProtocol = new IPProtocol(router);
+        IPProtocol ipProtocol = new IPProtocol(router,false);
         router.addProtocol(ipProtocol);
         ethernetProtocol.register(ipProtocol);
 

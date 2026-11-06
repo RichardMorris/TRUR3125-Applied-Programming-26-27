@@ -26,10 +26,10 @@ class TestPacketCombiner {
 	@BeforeEach
 	void setUp() throws Exception {
 		pc = deviceFactory.createPC("TestPC");
-		delegator = new IPDelegator(pc.getName());
-		combiner = new IPFragmentHandler(pc,delegator);
-		receiver = new DefaultPacketReceiver(pc.getName());
-		delegator.addHandler(receiver);
+		delegator = pc.getIPProtocol().getDelegator();
+		combiner = pc.getIPProtocol().getFragmentHandler();
+		receiver = pc.getIPProtocol().getDefaultReceiver();
+//		delegator.addHandler(receiver);
 	}
 
 	@Test
@@ -42,7 +42,7 @@ class TestPacketCombiner {
         assertEquals(1, fragments.size());
         
         Jns3Logger.clearLog();
-        combiner.handlePacket(fragments.get(0));
+        delegator.receive(fragments.get(0));
         assertEquals(1, receiver.size());
         var receivedPacket = receiver.get(0);
         assertEquals(packet.getSourceAddress(), receivedPacket.getSourceAddress());
@@ -67,8 +67,8 @@ class TestPacketCombiner {
         var frag2 = fragments.get(1);
         
         Jns3Logger.clearLog();
-        combiner.handlePacket(frag1);
-        combiner.handlePacket(frag2);
+        combiner.handle(frag1);
+        combiner.handle(frag2);
         assertEquals(1, receiver.size());
         var receivedPacket = receiver.get(0);
         assertEquals(packet.getSourceAddress(), receivedPacket.getSourceAddress());
@@ -92,8 +92,8 @@ class TestPacketCombiner {
         var frag2 = fragments.get(1);
         
         Jns3Logger.clearLog();
-        combiner.handlePacket(frag2);
-        combiner.handlePacket(frag1);
+        combiner.handle(frag2);
+        combiner.handle(frag1);
         assertEquals(1, receiver.size());
         var receivedPacket = receiver.get(0);
         assertEquals(packet.getSourceAddress(), receivedPacket.getSourceAddress());
@@ -119,9 +119,9 @@ class TestPacketCombiner {
         var frag2 = fragments.get(1);
         var frag3 = fragments.get(2);
         receiver.clear();
-        combiner.handlePacket(frag1);
-        combiner.handlePacket(frag2);
-        combiner.handlePacket(frag3);
+        combiner.handle(frag1);
+        combiner.handle(frag2);
+        combiner.handle(frag3);
         assertEquals(1, receiver.size());
         var receivedPacket = receiver.get(0);
         assertEquals(packet.getSourceAddress(), receivedPacket.getSourceAddress());
@@ -131,9 +131,9 @@ class TestPacketCombiner {
         assertTrue(Jns3Logger.isErrorFree());
 
         receiver.clear();
-        combiner.handlePacket(frag1);
-        combiner.handlePacket(frag3);
-        combiner.handlePacket(frag2);
+        combiner.handle(frag1);
+        combiner.handle(frag3);
+        combiner.handle(frag2);
         assertEquals(1, receiver.size());
         receivedPacket = receiver.get(0);
         assertEquals(packet.getSourceAddress(), receivedPacket.getSourceAddress());
@@ -143,9 +143,9 @@ class TestPacketCombiner {
         assertTrue(Jns3Logger.isErrorFree());
 
         receiver.clear();
-        combiner.handlePacket(frag2);
-        combiner.handlePacket(frag1);
-        combiner.handlePacket(frag3);
+        combiner.handle(frag2);
+        combiner.handle(frag1);
+        combiner.handle(frag3);
         assertEquals(1, receiver.size());
         receivedPacket = receiver.get(0);
         assertEquals(packet.getSourceAddress(), receivedPacket.getSourceAddress());
@@ -155,9 +155,9 @@ class TestPacketCombiner {
         assertTrue(Jns3Logger.isErrorFree());
 
         receiver.clear();
-        combiner.handlePacket(frag2);
-        combiner.handlePacket(frag3);
-        combiner.handlePacket(frag1);
+        combiner.handle(frag2);
+        combiner.handle(frag3);
+        combiner.handle(frag1);
         assertEquals(1, receiver.size());
         receivedPacket = receiver.get(0);
         assertEquals(packet.getSourceAddress(), receivedPacket.getSourceAddress());
@@ -167,9 +167,9 @@ class TestPacketCombiner {
         assertTrue(Jns3Logger.isErrorFree());
 
         receiver.clear();
-        combiner.handlePacket(frag3);
-        combiner.handlePacket(frag1);
-        combiner.handlePacket(frag2);
+        combiner.handle(frag3);
+        combiner.handle(frag1);
+        combiner.handle(frag2);
         assertEquals(1, receiver.size());
         receivedPacket = receiver.get(0);
         assertEquals(packet.getSourceAddress(), receivedPacket.getSourceAddress());
@@ -179,9 +179,9 @@ class TestPacketCombiner {
         assertTrue(Jns3Logger.isErrorFree());
 
         receiver.clear();
-        combiner.handlePacket(frag3);
-        combiner.handlePacket(frag2);
-        combiner.handlePacket(frag1);
+        combiner.handle(frag3);
+        combiner.handle(frag2);
+        combiner.handle(frag1);
         assertEquals(1, receiver.size());
         receivedPacket = receiver.get(0);
         assertEquals(packet.getSourceAddress(), receivedPacket.getSourceAddress());
@@ -212,11 +212,11 @@ class TestPacketCombiner {
 
         Jns3Logger.clearLog();
         receiver.clear();
-        combiner.handlePacket(fragments1.get(0));
-        combiner.handlePacket(fragments2.get(0));
-        combiner.handlePacket(fragments1.get(1));
-        combiner.handlePacket(fragments2.get(1));
-        combiner.handlePacket(fragments1.get(2));
+        combiner.handle(fragments1.get(0));
+        combiner.handle(fragments2.get(0));
+        combiner.handle(fragments1.get(1));
+        combiner.handle(fragments2.get(1));
+        combiner.handle(fragments1.get(2));
         
         
         assertEquals(2, receiver.size());
@@ -256,11 +256,11 @@ class TestPacketCombiner {
         assertEquals(2, fragments2.size());
 
         receiver.clear();
-        combiner.handlePacket(fragments1.get(0));
-        combiner.handlePacket(fragments2.get(0));
-        combiner.handlePacket(fragments1.get(1));
-        combiner.handlePacket(fragments2.get(1));
-        combiner.handlePacket(fragments1.get(2));
+        combiner.handle(fragments1.get(0));
+        combiner.handle(fragments2.get(0));
+        combiner.handle(fragments1.get(1));
+        combiner.handle(fragments2.get(1));
+        combiner.handle(fragments1.get(2));
         
         
         assertEquals(2, receiver.size());
@@ -283,9 +283,9 @@ class TestPacketCombiner {
 	public void a_small_packet_can_be_transmission_over_a_simple_network() {
 		// Arrange
 		PC pc2 = deviceFactory.createPC("Sender PC");
-		pc.getEthernetProtocol().getFrameDelegator().clear();
-		pc.getEthernetProtocol().getFrameDelegator().addHandler(pc.getArpProtocol().getArpController());
-		pc.getEthernetProtocol().getFrameDelegator().addHandler(combiner);
+//		pc.getEthernetProtocol().getFrameDelegator().clear();
+//		pc.getEthernetProtocol().getFrameDelegator().addHandler(pc.getArpProtocol().getArpController());
+//		pc.getEthernetProtocol().getFrameDelegator().addHandler(combiner);
 		var connection = new SimpleConnection(pc.getEndPoint(), pc2.getEndPoint());
 		assertNotNull(connection);
 		pc.getArpProtocol().sendGARPRequest();
@@ -308,9 +308,9 @@ class TestPacketCombiner {
 	public void a_large_packet_can_be_transmission_over_a_simple_network() {
 		// Arrange
 		PC pc2 = deviceFactory.createPC("Sender PC");
-		pc.getEthernetProtocol().getFrameDelegator().clear(); // Need set our own frame handlers to protect against later changes.
-		pc.getEthernetProtocol().getFrameDelegator().addHandler(pc.getArpProtocol().getArpController());
-		pc.getEthernetProtocol().getFrameDelegator().addHandler(combiner);
+//		pc.getEthernetProtocol().getFrameDelegator().clear(); // Need set our own frame handlers to protect against later changes.
+//		pc.getEthernetProtocol().getFrameDelegator().addHandler(pc.getArpProtocol().getArpController());
+//		pc.getEthernetProtocol().getFrameDelegator().addHandler(combiner);
 		var connection = new SimpleConnection(pc.getEndPoint(), pc2.getEndPoint());
 		assertNotNull(connection);
 		pc.getArpProtocol().sendGARPRequest();

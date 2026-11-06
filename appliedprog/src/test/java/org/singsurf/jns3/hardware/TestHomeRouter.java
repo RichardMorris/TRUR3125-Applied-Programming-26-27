@@ -14,6 +14,9 @@ import org.singsurf.jns3.data_link_layer.arp.ARPProtocol;
 import org.singsurf.jns3.generic_protocol.HandlerStatus;
 import org.singsurf.jns3.generic_protocol.ProtocolHandler;
 import org.singsurf.jns3.network_layer.IPAddress;
+import org.singsurf.jns3.network_layer.IPPacket;
+import org.singsurf.jns3.network_layer.IPProtocol;
+import org.singsurf.jns3.network_layer.PacketHandler;
 import org.singsurf.jns3.physical_layer.SimpleConnection;
 
 class TestHomeRouter {
@@ -39,6 +42,16 @@ class TestHomeRouter {
 		var arpProtocol= new ARPProtocol(router,true);
 		router.addProtocol(arpProtocol);
 		rep.register(arpProtocol);
+		var ipProtocol = new IPProtocol(router,true);
+		ipProtocol.addHandler(new PacketHandler() {
+
+			@Override
+			public HandlerStatus handle(IPPacket type) {
+				ipProtocol.getPacketSender().send(type);
+				return HandlerStatus.COMPLETED;
+			}});
+		rep.register(ipProtocol);
+		
 		rep.addHandler(new ProtocolHandler<EthernetFrame>() {
 			@Override
 			public HandlerStatus handle(EthernetFrame type) {
@@ -98,11 +111,12 @@ class TestHomeRouter {
 	void can_broadcast_frame() {
 		pc1.getArpProtocol().sendGARPRequest();
 		Jns3Logger.clearLog();
-		byte[] payload = "Hello".getBytes();
+		byte[] payload = "Hello from PC1".getBytes();
 		short etherType = (short) payload.length;
 		var frame = new EthernetFrame(MACAddress.BROADCAST_MAC, pc1.getMACAddress(), etherType, payload);
 		var fs1 = pc1.getEthernetProtocol().getFrameSender();
 		fs1.send(frame);
+		Jns3Logger.println();
 		assertEquals(3, Jns3Logger.size());
 		assertEquals("PC2", Jns3Logger.getItem(0).deviceName());
 		assertEquals("PC3", Jns3Logger.getItem(1).deviceName());
@@ -110,5 +124,24 @@ class TestHomeRouter {
 		assertTrue(Jns3Logger.isErrorFree());
 	}
 
+	@Test
+	void can_send_packet_to_established_addresses() {
+		pc1.getArpProtocol().sendGARPRequest();
+		pc2.getArpProtocol().sendGARPRequest();
+		Jns3Logger.clearLog();
+		byte[] payload = "Hello from PC1".getBytes();
+		
+        IPPacket packet = new IPPacket(IPPacket.TCP, 64,
+            pc1.getIPAddress(), pc2.getIPAddress(), payload);
+		
+		var fs1 = pc1.getIPProtocol().getPacketSender();
+		fs1.send(packet);
+		Jns3Logger.println();
+		assertEquals(1, Jns3Logger.size());
+		assertEquals("PC2", Jns3Logger.getItem(0).deviceName());
+		assertEquals(Jns3Logger.LogLevel.RECEIVED, 
+				Jns3Logger.getItem(0).level());
+		assertTrue(Jns3Logger.isErrorFree());
+	}
 
 }

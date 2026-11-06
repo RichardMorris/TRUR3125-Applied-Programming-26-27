@@ -5,8 +5,6 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.singsurf.jns3.Jns3Logger;
-import org.singsurf.jns3.data_link_layer.EthernetFrame;
-import org.singsurf.jns3.data_link_layer.FrameHandler;
 import org.singsurf.jns3.generic_protocol.HandlerStatus;
 import org.singsurf.jns3.generic_protocol.ProtocolDelegator;
 import org.singsurf.jns3.hardware.AddressableDevice;
@@ -20,7 +18,7 @@ import org.singsurf.jns3.hardware.AddressableDevice;
  * See <a href="../../../../../../../Week11.md">Week 11</a> for the logic
  * behind the fragment reassembly.
  */
-public class IPFragmentHandler implements FrameHandler {
+public class IPFragmentHandler implements PacketHandler {
 	AddressableDevice pc;
 	ProtocolDelegator<IPPacket> receiver;
 	Map<IPAddress, Map<Integer, FragmentCollector>> collectorsBySource = new HashMap<>();
@@ -67,19 +65,19 @@ public class IPFragmentHandler implements FrameHandler {
 				ttl = fragment.getTimeToLive();
 			} else {
 				if(protocol != fragment.getProtocol()) {
-					Jns3Logger.log(pc.getName(),Jns3Logger.LogLevel.ERROR, "Fragment protocol mismatch: " + protocol + " vs " + fragment.getProtocol());
+					Jns3Logger.logError(pc.getName(), "Fragment protocol mismatch: " + protocol + " vs " + fragment.getProtocol());
 					return false;
 				}
 				if(!sourceAddress.equals(fragment.getSourceAddress())) {
-					Jns3Logger.log(pc.getName(),Jns3Logger.LogLevel.ERROR, "Fragment source address mismatch: " + sourceAddress + " vs " + fragment.getSourceAddress());
+					Jns3Logger.logError(pc.getName(), "Fragment source address mismatch: " + sourceAddress + " vs " + fragment.getSourceAddress());
 					return false;
 				}
 				if(!destinationAddress.equals(fragment.getDestinationAddress())) {
-					Jns3Logger.log(pc.getName(),Jns3Logger.LogLevel.ERROR, "Fragment destination address mismatch: " + pc.getIPAddress() + " vs " + fragment.getDestinationAddress());
+					Jns3Logger.logError(pc.getName(), "Fragment destination address mismatch: " + pc.getIPAddress() + " vs " + fragment.getDestinationAddress());
 					return false;
 				}
 				if(identification != fragment.getIdentification()) {
-					Jns3Logger.log(pc.getName(),Jns3Logger.LogLevel.ERROR, "Fragment identification mismatch: " + identification + " vs " + fragment.getIdentification());
+					Jns3Logger.logError(pc.getName(), "Fragment identification mismatch: " + identification + " vs " + fragment.getIdentification());
 					return false;
 				}
 			}
@@ -123,42 +121,20 @@ public class IPFragmentHandler implements FrameHandler {
 		}
 	}
 	
-
-	private boolean handleFrame(EthernetFrame frame) {
-		var payload = frame.getContents();
-		if(payload.length == 0) {
-			return false;
-		}
-		if(payload[0]  != IPPacket.IPV4_ID) {
-			return false;
-		}
-		if(payload.length < 20) {
-			Jns3Logger.log(pc.getName(),Jns3Logger.LogLevel.ERROR, "IP packet too short: " + payload.length);
-			return true;
-		}
-		var packet = IPPacketExtractor.getInstance().extract(frame);
-		return handlePacket(packet);
-	}
-
-	boolean handlePacket(IPPacket packet) {
-		if(!packet.isValid()) {
-			Jns3Logger.log(pc.getName(),Jns3Logger.LogLevel.ERROR, "Invalid IP packet checksum");
-			return true;
-		}
+	@Override
+	public HandlerStatus handle(IPPacket packet) {
 		if(!packet.getDestinationAddress().equals(pc.getIPAddress())
 				&& !packet.getDestinationAddress().equals(pc.getMulticastAddress())
 				&& !packet.getDestinationAddress().equals(IPProtocol.LIMITED_MULTICAST_ADDRESS)) {
-			Jns3Logger.log(pc.getName(),Jns3Logger.LogLevel.ERROR, "IP packet not for this PC: " + packet.getDestinationAddress());
-			return true;
+			return HandlerStatus.CONTINUE;
 		}
 		if(packet.getIdentification() ==0) {
 			if(packet.isMoreFragments()) {
-				Jns3Logger.log(pc.getName(),Jns3Logger.LogLevel.ERROR, "Invalid fragment info for packet with identification 0");
-				return true;
+				return HandlerStatus.invalid("Invalid fragment info for packet with identification 0");
 			}
 			else {
-				receiver.receive(packet);
-				return true;
+//				receiver.receive(packet);
+				return HandlerStatus.CONTINUE;
 			}
 		}
 		var source = packet.getSourceAddress();
@@ -172,12 +148,9 @@ public class IPFragmentHandler implements FrameHandler {
 				collectorsBySource.remove(source);
 			}
 		}
-		return true;
+		return HandlerStatus.COMPLETED;
 	}
 
-	@Override
-	public HandlerStatus handle(EthernetFrame type) {
-		return handleFrame(type) ? HandlerStatus.COMPLETED : HandlerStatus.CONTINUE;
-	}
+
 
 }

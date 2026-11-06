@@ -20,13 +20,23 @@ public class IPProtocol implements Protocol, LowerAdapter<EthernetFrame>, UpperP
 	IPDelegator delegator;
 	EthernetPacketSender packetSender;
 	ARPProtocol arpProtocol;
+	private boolean isRouter;
+	private IPFrameHandler frameHandler;
 	public static final IPAddress LIMITED_MULTICAST_ADDRESS = new IPAddress("255.255.255.255");
+	private DefaultPacketReceiver defaultReciver;
 	
-	public IPProtocol(ProtocolDevice device) {
+	public IPProtocol(ProtocolDevice device, boolean isRouter) {
 		this.device = device;
 		this.arpProtocol = device.getArpProtocol();
 		this.delegator = new IPDelegator(device.getName());
+		this.frameHandler = new IPFrameHandler(this);
 		this.fragmentHandler = new IPFragmentHandler(device, delegator);
+		if(isRouter) {
+			delegator.addHandler(new IPPacketForwarder(this));
+		} else {
+			delegator.addHandler(fragmentHandler);
+		}
+		this.isRouter = isRouter;
 	}
 
 	@Override
@@ -40,7 +50,7 @@ public class IPProtocol implements Protocol, LowerAdapter<EthernetFrame>, UpperP
 
 	@Override
 	public List<ProtocolHandler<EthernetFrame>> getInboundHandlers() {
-		return List.of(fragmentHandler);
+		return List.of(frameHandler);
 	}
 
 	@Override
@@ -62,7 +72,8 @@ public class IPProtocol implements Protocol, LowerAdapter<EthernetFrame>, UpperP
 	}
 
 	public void finalise() {
-		delegator.addHandler(new DefaultPacketReceiver(device.getName()));
+		defaultReciver = new DefaultPacketReceiver(device.getName());
+		delegator.addHandler(defaultReciver);
 	}
 
 	public ProtocolDelegator<IPPacket> getDelegator() {
@@ -75,5 +86,17 @@ public class IPProtocol implements Protocol, LowerAdapter<EthernetFrame>, UpperP
 
 	public void receive(IPPacket packet) {
 		delegator.receive(packet);		
+	}
+
+	public IPFragmentHandler getFragmentHandler() {
+		return fragmentHandler;
+	}
+
+	public DefaultPacketReceiver getDefaultReceiver() {
+		return defaultReciver;
+	}
+
+	public boolean isRouter() {
+		return isRouter;
 	}
 }

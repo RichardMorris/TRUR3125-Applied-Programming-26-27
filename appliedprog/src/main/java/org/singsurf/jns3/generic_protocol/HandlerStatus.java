@@ -40,5 +40,8 @@ public sealed class HandlerStatus permits HandlerStatus.Handled, HandlerStatus.I
 			return reason;
 		}
 	}
+	public static Invalid invalid(String string) {
+		return new Invalid(string);
+	}
 }
 	
