@@ -22,6 +22,7 @@ import org.singsurf.jns3.hardware.GlobalWallClock.TickListener;
  * Our implementation uses the low size of 140 bytes.
  */
 public class EthernetPacketSender implements PacketSender, TickListener {
+	AddressableDevice device;
 	String name;
 	MACAddress sourceMac;
 	ARPController arpController;
@@ -51,6 +52,7 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 	
 	public EthernetPacketSender(AddressableDevice device, 
 			ARPController arpController, FrameSender frameSender) {
+		this.device = device;
 		this.name = device.getName();
 		this.sourceMac = device.getMACAddress();
 		this.arpController = arpController;
@@ -64,9 +66,18 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 		var destIP = packet.getDestinationAddress();
 		var destMac = arpController.getArpTable().get(destIP);
 		
-		if(destIP.equals(IPProtocol.LIMITED_MULTICAST_ADDRESS)) {
+		if(destIP.equals(IPProtocol.LIMITED_MULTICAST_ADDRESS) 
+		 || destIP.equals(device.getMulticastAddress())) {
 			destMac = MACAddress.BROADCAST_MAC;
-			sendPacket(packet, destMac);
+			var srcIP = packet.getSourceAddress();
+			var srcMac = srcIP.equals(device.getIPAddress())
+					? sourceMac
+					: arpController.getArpTable().get(srcIP);
+			if(srcMac == null) {
+				Jns3Logger.logError(name, "No ARP entry for source IP " + srcIP + ". Cannot send multicast packet.");
+				return;
+			}
+			sendPacket(packet, srcMac, destMac);
 			return;
 		}
 		if(destMac == null) {
@@ -82,13 +93,13 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 			return;
 		}
 		
-		sendPacket(packet, destMac);
+		sendPacket(packet, sourceMac, destMac);
 	}
 
-	private void sendPacket(IPPacket packet, MACAddress destMac) {
+	private void sendPacket(IPPacket packet, MACAddress srcMac, MACAddress destMac) {
 		List<IPPacket> packets = packetFragmentor.getFragments(packet);
 		for(IPPacket p : packets) {
-			EthernetFrame frame = new EthernetFrame(destMac, sourceMac, p.getBytes());
+			EthernetFrame frame = new EthernetFrame(destMac, srcMac, p.getBytes());
 			if(!IPPacketExtractor.getInstance().isExtractable(frame)) {
 				Jns3Logger.logError(name, "Frame is not extractable as IP packet. Frame: " + frame);
 			}
@@ -107,7 +118,7 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 			if(destMac != null) {
 				while(!queue.queue().isEmpty()) {
 					IPPacket packet = queue.queue().poll();
-					sendPacket(packet,destMac);
+					send(packet);
 				}
 				toRemove.add(destIp);
 				Jns3Logger.logInfo(name, "Sent "+size+" queued packets to " + destIp + " after ARP resolution.");
