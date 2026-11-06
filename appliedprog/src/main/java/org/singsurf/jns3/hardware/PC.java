@@ -8,6 +8,8 @@ import org.singsurf.jns3.physical_layer.PhysicalEndPoint;
  * Acts as a Facade to the various layers in the system.
  */
 public class PC extends ProtocolDevice implements AddressableDevice {
+	PhysicalEndPoint endPoint;
+	
     Terminal terminal = new Terminal() {
 
 		@Override
@@ -16,8 +18,9 @@ public class PC extends ProtocolDevice implements AddressableDevice {
 		}};
 
 
-	public PC(String name, MACAddress macAddress, IPAddress ipAddress) {
+	public PC(String name, MACAddress macAddress, IPAddress ipAddress, PhysicalEndPoint endPoint) {
         super(name,macAddress,ipAddress);
+        this.endPoint = endPoint;
     }
     
 	
@@ -46,7 +49,7 @@ public class PC extends ProtocolDevice implements AddressableDevice {
     // Setters and Getters for various components
         
     public PhysicalEndPoint getEndPoint() {
-        return getEthernetProtocol().getEndPoint();
+        return endPoint;
     }
     
 }

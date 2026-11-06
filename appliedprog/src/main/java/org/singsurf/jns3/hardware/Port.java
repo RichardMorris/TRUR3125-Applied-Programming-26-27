@@ -19,7 +19,8 @@ public class Port implements NamedDevice, FrameReceiver, FrameSender {
         this.name = hostDevice.getName() + "::" + portNumber;
         this.hostDevice = hostDevice;
         this.portNumber = portNumber;
-        this.ethernetEndPoint = new NICCard(getName(), this); 
+        this.ethernetEndPoint = new NICCard(getName());
+        this.ethernetEndPoint.setFrameReceiver(this);
     }
 
     @Override

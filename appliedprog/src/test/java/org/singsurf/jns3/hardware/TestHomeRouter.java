@@ -11,8 +11,8 @@ import org.junit.jupiter.api.Test;
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.application_layer.ChatApplication;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
+import org.singsurf.jns3.data_link_layer.EthernetProtocol;
 import org.singsurf.jns3.data_link_layer.MACAddress;
-import org.singsurf.jns3.data_link_layer.RouterEthernetProtocol;
 import org.singsurf.jns3.data_link_layer.arp.ARPProtocol;
 import org.singsurf.jns3.generic_protocol.HandlerStatus;
 import org.singsurf.jns3.generic_protocol.ProtocolHandler;
@@ -45,16 +45,17 @@ class TestHomeRouter {
 				DeviceFactory.getInstance().createSequentialMACAddress(),
 				new IPAddress("192.168.1.1"));
 		
-		router.addProtocol(new RouterEthernetProtocol(router, router.frameSender));
-		var rep = router.getProtocol(RouterEthernetProtocol.class);
+		var eth = new EthernetProtocol(router);
+		eth.setFrameSender(router.frameSender);
+		router.addProtocol(eth);
 
 		var arpProtocol= new ARPProtocol(router,true);
 		router.addProtocol(arpProtocol);
-		rep.register(arpProtocol);
+		eth.register(arpProtocol);
 
 		var ipProtocol = new IPProtocol(router,true);
 		router.addProtocol(ipProtocol);
-		rep.register(ipProtocol);
+		eth.register(ipProtocol);
 
 		var imcp = new ICMPProtocol(router);
 		ipProtocol.register(imcp);
@@ -74,9 +75,9 @@ class TestHomeRouter {
 				ipProtocol.getPacketSender().send(type);
 				return HandlerStatus.COMPLETED;
 			}});
-		rep.register(ipProtocol);
+		eth.register(ipProtocol);
 		
-		rep.addHandler(new ProtocolHandler<EthernetFrame>() {
+		eth.addHandler(new ProtocolHandler<EthernetFrame>() {
 			@Override
 			public HandlerStatus handle(EthernetFrame type) {
 				router.frameSender.send(type);
