@@ -49,7 +49,7 @@ class TestDHCP_Router_PC {
 			System.out.println(Jns3Logger.asString());
 		}
 		IPAddress yaddr = null;
-		for(var ent : pcDHCP.acceptedOfferMessages.entrySet()) {
+		for(var ent : pcDHCP.getAcceptedOfferMessages().entrySet()) {
 			yaddr = ent.getValue().getYiaddr();
 			break;
 		}
@@ -80,7 +80,7 @@ class TestDHCP_Router_PC {
 
 		DHCPMessage offerMessage = null;
 		IPAddress yaddr = null;
-		for(var ent : pcDHCP.acceptedOfferMessages.entrySet()) {
+		for(var ent : pcDHCP.getAcceptedOfferMessages().entrySet()) {
 				yaddr = ent.getValue().getYiaddr();
 				offerMessage = ent.getValue();
 				break;
