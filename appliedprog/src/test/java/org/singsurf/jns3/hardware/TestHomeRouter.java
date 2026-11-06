@@ -9,6 +9,7 @@ import java.io.IOException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.singsurf.jns3.Jns3Logger;
+import org.singsurf.jns3.application_layer.ChatApplication;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.data_link_layer.RouterEthernetProtocol;
@@ -21,6 +22,7 @@ import org.singsurf.jns3.network_layer.IPProtocol;
 import org.singsurf.jns3.network_layer.PacketHandler;
 import org.singsurf.jns3.network_layer.icmp.ICMPProtocol;
 import org.singsurf.jns3.physical_layer.SimpleConnection;
+import org.singsurf.jns3.transport_layer.udp.UDPProtocol;
 
 class TestHomeRouter {
 	PC pc1;
@@ -56,8 +58,14 @@ class TestHomeRouter {
 		ipProtocol.register(imcp);
 		router.addProtocol(imcp);
 		
+		var udp = new UDPProtocol(router);
+		ipProtocol.register(udp);
+		router.addProtocol(udp);
+		
+		
+		
+		
 		ipProtocol.addHandler(new PacketHandler() {
-
 			@Override
 			public HandlerStatus handle(IPPacket type) {
 				ipProtocol.getPacketSender().send(type);
@@ -72,6 +80,9 @@ class TestHomeRouter {
 				return HandlerStatus.COMPLETED;
 			}
 		});
+		
+		router.setMulticastAddress(new IPAddress("192.168.1.255"));
+
 
 		
 		var connection1 = new SimpleConnection(router.getEndPoint(0), pc1.getEndPoint());
@@ -259,6 +270,50 @@ class TestHomeRouter {
 		// tick
 		assertEquals("1\t"+ router.getIPAddress()+ "\t0 ticks", lines[1].trim());
 		assertEquals("2\t"+ pc2.getIPAddress()+ "\t0 ticks", lines[2].trim());
+		assertTrue(Jns3Logger.isErrorFree());
+	}
+
+	@Test
+	public void chat_through_switch() throws IOException {
+		pc1.getArpProtocol().sendGARPRequest();
+		pc2.getArpProtocol().sendGARPRequest();
+		pc3.getArpProtocol().sendGARPRequest();
+		pc4.getArpProtocol().sendGARPRequest();
+		
+		GlobalWallClock.advanceBy(4);
+		Jns3Logger.clearLog();
+		var chat1 = new ChatApplication(pc1,pc3.getIPAddress());
+		var chat2 = new ChatApplication(pc2);
+		var chat3 = new ChatApplication(pc3,pc1.getIPAddress());
+		// Act
+		chat1.say("Hello from PC1");
+		System.out.println(Jns3Logger.asString());
+		assertTrue(Jns3Logger.isErrorFree());
+		Jns3Logger.startCapture();
+		GlobalWallClock.advanceBy(1);
+		var output = Jns3Logger.endCapture();
+		System.out.println(Jns3Logger.asString());
+		System.out.print(output);
+		assertEquals("PC3: " + pc1.getIPAddress() + " says: Hello from PC1", output.trim());
+		assertTrue(Jns3Logger.isErrorFree());
+		
+		chat3.say("Hello from PC3");
+		Jns3Logger.startCapture();
+		GlobalWallClock.advanceBy(1);
+		output = Jns3Logger.endCapture();
+		System.out.print(output);
+		assertEquals("PC1: " + pc3.getIPAddress() + " says: Hello from PC3", output.trim());
+		
+		chat2.say("Time for tea");
+		Jns3Logger.startCapture();
+		GlobalWallClock.advanceBy(1);
+		output = Jns3Logger.endCapture();
+		System.out.println(Jns3Logger.asString());
+		System.out.print(output);
+		var lines = output.trim().split("\n");
+		assertEquals("PC1: " + pc2.getIPAddress() + " says: Time for tea", lines[0].trim());
+		assertEquals("PC3: " + pc2.getIPAddress() + " says: Time for tea", lines[1].trim());
+		
 		assertTrue(Jns3Logger.isErrorFree());
 	}
 
