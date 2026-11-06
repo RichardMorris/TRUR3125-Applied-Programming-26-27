@@ -20,7 +20,7 @@ import org.singsurf.jns3.transport_layer.udp.DatagramSocket;
 import org.singsurf.jns3.transport_layer.udp.UDPDatagram;
 
 public class DHCPProtocol implements Protocol, LowerSocketAdapter<UDPDatagram>, ProtocolReceiver<UDPDatagram>, TickListener {
-	public static final short DHCP_SERVER_PORT = 67;
+	public static final short DHCP_SERVER_PORT = 67; 
 	public static final short DHCP_CLIENT_PORT = 68;
 		
 	public static final IPAddress  SUBNET_MASK  = new IPAddress("255.255.255.0");
@@ -79,6 +79,14 @@ public class DHCPProtocol implements Protocol, LowerSocketAdapter<UDPDatagram>, 
 		multicast_socket = (DatagramSocket) factory.createSocket("DHCP Socket", this);
 		multicast_socket.bind(IPProtocol.LIMITED_MULTICAST_ADDRESS,
 				(short) (isServer ? DHCP_SERVER_PORT : DHCP_CLIENT_PORT));
+		var nullSocket = (DatagramSocket) factory.createSocket("DHCP Null Socket", new ProtocolReceiver<UDPDatagram>() {
+
+			@Override
+			public void receive(UDPDatagram container) {
+				Jns3Logger.logInfo(device.getName()+"-DHCP", "Null socket received message from " + container.getPsudoHeader().sourceIP() + ":" + container.getSourcePort());	
+			}} );
+		nullSocket.bind(IPProtocol.LIMITED_MULTICAST_ADDRESS, 
+				(short) (isServer ? DHCP_CLIENT_PORT : DHCP_SERVER_PORT));
 	}
 
 	/**
@@ -111,5 +119,10 @@ public class DHCPProtocol implements Protocol, LowerSocketAdapter<UDPDatagram>, 
 	public void receive(UDPDatagram msg) {
 		DHCPMessage dhcpMessage = new DHCPMessage(msg.getContents());
 		delgator.receive(dhcpMessage);
+	}
+
+
+	public Map<Integer, DHCPMessage> getAcceptedOfferMessages() {
+		return acceptedOfferMessages;
 	}
 }
