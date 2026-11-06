@@ -300,8 +300,9 @@ class TestPassthroughRouter {
 		Jns3Logger.clearLog();
 		Jns3Logger.startCapture();
 		GlobalWallClock.advanceBy(1);
-		assertEquals(0, Jns3Logger.size());
 		output = Jns3Logger.endCapture();
+		Jns3Logger.println();
+		assertEquals(0, Jns3Logger.size());
 		assertEquals("1\t"+ router.getIPAddress()+ "\t2 ticks", output.trim());
 		System.out.print(output);
 		

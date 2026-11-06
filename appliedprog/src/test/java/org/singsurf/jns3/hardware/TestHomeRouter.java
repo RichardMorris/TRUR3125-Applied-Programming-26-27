@@ -144,4 +144,24 @@ class TestHomeRouter {
 		assertTrue(Jns3Logger.isErrorFree());
 	}
 
+	@Test
+	void catches_ttl_expired() {
+		pc1.getArpProtocol().sendGARPRequest();
+		pc2.getArpProtocol().sendGARPRequest();
+		Jns3Logger.clearLog();
+		byte[] payload = "Hello from PC1".getBytes();
+		
+        IPPacket packet = new IPPacket(IPPacket.TCP, 1,
+            pc1.getIPAddress(), pc2.getIPAddress(), payload);
+		
+		var fs1 = pc1.getIPProtocol().getPacketSender();
+		fs1.send(packet);
+		Jns3Logger.println();
+		assertEquals(3, Jns3Logger.size());
+		assertEquals("PC1", Jns3Logger.getItem(2).deviceName());
+		assertEquals(Jns3Logger.LogLevel.RECEIVED, 
+				Jns3Logger.getItem(2).level());
+		assertTrue(Jns3Logger.isErrorFree());
+	}
+
 }

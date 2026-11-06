@@ -80,9 +80,28 @@ public class PingController implements  ICMPMessageHandler {
 	}
 
 	@Override
-	public HandlerStatus handle(ICMPMessage type) {
-		if(type.isPingReply() || type.isTTLExpired()) {
-			handle2(type);
+	public HandlerStatus handle(ICMPMessage msg) {
+		if(msg.isPingReply()) {
+			handle2(msg, msg.getIdentifier(), msg.getSequenceNumber());
+			return HandlerStatus.COMPLETED;
+		} else if(msg.isTTLExpired()) {
+			// only handle TTL expired messages for our sent pings
+			var pkt = IPPacket.fromBytes(msg.getContents());
+			if(pkt.getProtocol() != IPPacket.IMCP) {
+				Jns3Logger.logInfo(pc.getName(), "Received TTL expired message not for ICMP: " + msg);
+				return HandlerStatus.CONTINUE;
+			}
+			var originalMsg = ICMPPacketExtractor.getInstance().extract(pkt);
+			if(originalMsg.getType() != ICMPMessage.PING_REQUEST_TYPE) {
+				Jns3Logger.logInfo(pc.getName(), "Received TTL expired message not for ping request: " + msg);
+				return HandlerStatus.CONTINUE;
+			}
+			if(originalMsg.getIdentifier() != identifier 
+					&& originalMsg.getIdentifier() != identifier + TRACEROUTE_OFFSET) {
+				Jns3Logger.logInfo(pc.getName(), "Received TTL expired message not for this host: " + msg);
+				return HandlerStatus.CONTINUE;
+			}
+			handle2(msg,originalMsg.getIdentifier(), originalMsg.getSequenceNumber());
 			return HandlerStatus.COMPLETED;
 		}
 		else {
@@ -90,7 +109,7 @@ public class PingController implements  ICMPMessageHandler {
 		}
 	}
 
-	private void handle2(ICMPMessage message) {
+	private void handle2(ICMPMessage message, short id, short seqNum) {
 		var sourceAddress = message.psudoHeader.sourceIP();
 		var destinationAddress = message.psudoHeader.destIP();
 //		var rest = message.getRestOfHeader();
@@ -98,19 +117,19 @@ public class PingController implements  ICMPMessageHandler {
 			Jns3Logger.logError(pc.getName(), "Received ping reply not for this host: " + message);
 			return;
 		}
-		var sequenceNumber = message.getRestHigh();
-		if(!sentPings.containsKey(sequenceNumber)) {
+//		var sequenceNumber = message.getRestHigh();
+		if(!sentPings.containsKey(seqNum)) {
 			Jns3Logger.logError(pc.getName(), 
 					"Received orphaned ping reply from " + sourceAddress 
 					+ " " + message.toString());
 			return;
 		}
 		
-		var sentReq = sentPings.get(sequenceNumber);
+		var sentReq = sentPings.remove(seqNum);
 		var sentTime = sentReq.sentTime();
 		var currentTime = GlobalWallClock.getTime();
 		var rtt = currentTime - sentTime;
-		if(message.getRestLow() >= TRACEROUTE_OFFSET) {
+		if(id >= TRACEROUTE_OFFSET) {
 			receiveTraceroute(message, sentReq, rtt);	
 			return;
 		}
@@ -125,7 +144,6 @@ public class PingController implements  ICMPMessageHandler {
 						message.psudoHeader.length(), sourceAddress,
 						message.getSequenceNumber(), message.psudoHeader.ttl(), rtt));
 
-				sentPings.remove(sequenceNumber); // Remove the entry after processing
 				completed.add(new PingReplyRecord(sourceAddress, message, rtt)); // Store the received ping reply
 		} else {
 			Jns3Logger.logError(pc.getName(), 
@@ -143,9 +161,9 @@ public class PingController implements  ICMPMessageHandler {
 			Jns3Logger.logInfo(pc.getName(),"Traceroute completed");
 			return;
 		}
-		
+		++sequenceNumber;
 		var pack = makePingRequestPacket(identifier+ TRACEROUTE_OFFSET,
-				sentReq.request().getCode(), sentReq.dest(), sentReq.ttl()+1);
+				sequenceNumber, sentReq.dest(), sentReq.ttl()+1);
 		packetSender.send(pack);
 	}
 	

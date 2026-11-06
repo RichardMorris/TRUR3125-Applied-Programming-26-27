@@ -21,9 +21,12 @@ import org.singsurf.jns3.network_layer.OnesComplementNumber;
  * See <a href="../../../../../../../Week11.md">Week 11</a>.
  */
 public class ICMPMessage implements ProtocolContainer {
+	private static final byte TOO_SHORT_CODE = (byte) 2;
+	private static final byte BAD_CHECKSUM_CODE = (byte) 0;
 	static final byte PING_REPLY_TYPE = 0;
 	static final byte PING_REQUEST_TYPE = 8;
 	static final byte TIME_EXCEEDED = 11;
+	static final byte TTL_EXCEEDED_CODE = 0;
 	static final byte PARAMETER_PROBLEM = 12;
 	
 	public record PsudoHeader(IPAddress sourceIP, IPAddress destIP, 
@@ -44,7 +47,7 @@ public class ICMPMessage implements ProtocolContainer {
 		this.data = data;
 		this.checksum = 0;
 		this.checksum = calculateChecksum().getComplement().getValue();
-		this.psudoHeader = new PsudoHeader(IPAddress.ZERO_ADDRESS, IPAddress.ZERO_ADDRESS, IPPacket.IMCP, (short) (data.length + 8), (byte) 0);
+		this.psudoHeader = new PsudoHeader(IPAddress.ZERO_ADDRESS, IPAddress.ZERO_ADDRESS, IPPacket.IMCP, (short) (data.length + 8), BAD_CHECKSUM_CODE);
 	}
 
 	public ICMPMessage(byte type, byte code, short restLow, short restHigh) {
@@ -198,15 +201,15 @@ public class ICMPMessage implements ProtocolContainer {
 
 
 	public static ICMPMessage createTTLExpired(IPPacket packet) {
-		return createMessage(TIME_EXCEEDED, (byte) 0, packet);
+		return createMessage(TIME_EXCEEDED, TTL_EXCEEDED_CODE, packet);
 	}
 
 	public static ICMPMessage createBadChecksumError(IPPacket packet) {
-		return new ICMPMessage(PARAMETER_PROBLEM, (byte) 0, 0, packet.getContents());
+		return new ICMPMessage(PARAMETER_PROBLEM, BAD_CHECKSUM_CODE, 0, packet.getContents());
 	}
 
 	public static ICMPMessage createTooShortError(IPPacket packet) {
-		return new ICMPMessage(PARAMETER_PROBLEM, (byte) 2, 0, packet.getContents());
+		return new ICMPMessage(PARAMETER_PROBLEM, TOO_SHORT_CODE, 0, packet.getContents());
 	}
 
 	static ICMPMessage createMessage(byte type, byte code, IPPacket packet) {
@@ -214,12 +217,12 @@ public class ICMPMessage implements ProtocolContainer {
 		if (data.length < 8) {
 			throw new IllegalArgumentException("Packet data too short for ICMP message");
 		}
-		short restLow = (short) ((data[4] & 0xFF) | ((data[5] & 0xFF) << 8));
-		short restHigh = (short) ((data[6] & 0xFF) | ((data[7] & 0xFF) << 8));
-		byte[] newData = new byte[data.length - 8];
-		System.arraycopy(data, 8, newData, 0, newData.length);
+		var hlen = packet.getTotalLength() - packet.getContents().length;
+		var bytes = packet.getBytes();
+		byte[] newData = new byte[hlen + 8];
+		System.arraycopy(bytes, 0, newData, 0, hlen + 8);
 		return new ICMPMessage(
-				type, code, ((restHigh & 0xFFFF) << 16) | (restLow & 0xFFFF), 
+				type, code, 0, 
 				newData);
 	}
 

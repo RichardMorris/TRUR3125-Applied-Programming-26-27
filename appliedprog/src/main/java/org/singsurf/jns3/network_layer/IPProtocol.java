@@ -17,7 +17,8 @@ import org.singsurf.jns3.hardware.ProtocolDevice;
 public class IPProtocol implements Protocol, LowerAdapter<EthernetFrame>, UpperPort<IPPacket> {
 	ProtocolDevice device;
 	IPFragmentHandler fragmentHandler;
-	IPDelegator delegator;
+	TTLDecrementor ttlDecrementor;
+	ProtocolDelegator<IPPacket> delegator;
 	EthernetPacketSender packetSender;
 	ARPProtocol arpProtocol;
 	private boolean isRouter;
@@ -28,12 +29,14 @@ public class IPProtocol implements Protocol, LowerAdapter<EthernetFrame>, UpperP
 	public IPProtocol(ProtocolDevice device, boolean isRouter) {
 		this.device = device;
 		this.arpProtocol = device.getArpProtocol();
-		this.delegator = new IPDelegator(device.getName());
-		this.frameHandler = new IPFrameHandler(this);
+		this.delegator = new ProtocolDelegator<IPPacket>(device.getName());
 		this.fragmentHandler = new IPFragmentHandler(device, delegator);
 		if(isRouter) {
+			this.ttlDecrementor = new TTLDecrementor(this, delegator);
+			this.frameHandler = new IPFrameHandler(ttlDecrementor);
 			delegator.addHandler(new IPPacketForwarder(this));
 		} else {
+			this.frameHandler = new IPFrameHandler(delegator);
 			delegator.addHandler(fragmentHandler);
 		}
 		this.isRouter = isRouter;

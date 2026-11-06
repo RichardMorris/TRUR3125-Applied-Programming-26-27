@@ -225,7 +225,7 @@ public class IPPacket implements ProtocolContainer {
 		return version == 4;
 	}
 
-    private static IPPacket fromBytes(byte[] bytes) {
+    public static IPPacket fromBytes(byte[] bytes) {
         byte versionAndHeaderLength = bytes[0];
         byte typeOfService = bytes[1];
         short totalLength = (short) ((bytes[2] << 8) | (bytes[3] & 0xFF));

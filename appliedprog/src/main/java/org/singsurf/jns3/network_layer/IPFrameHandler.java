@@ -3,13 +3,14 @@ package org.singsurf.jns3.network_layer;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.data_link_layer.FrameHandler;
 import org.singsurf.jns3.generic_protocol.HandlerStatus;
+import org.singsurf.jns3.generic_protocol.ProtocolReceiver;
 
 public class IPFrameHandler implements FrameHandler {
 
-	private IPProtocol ipProtocol;
+	private ProtocolReceiver<IPPacket> receiver;
 
-	public IPFrameHandler(IPProtocol ipProtocol) {
-		this.ipProtocol = ipProtocol;
+	public IPFrameHandler(ProtocolReceiver<IPPacket> receiver) {
+		this.receiver = receiver;
 	}
 
 	@Override
@@ -25,7 +26,7 @@ public class IPFrameHandler implements FrameHandler {
 			return new HandlerStatus.Invalid("IP packet too short: " + payload.length);
 		}
 		var packet = IPPacketExtractor.getInstance().extract(frame);
-		ipProtocol.delegator.receive(packet);
+		receiver.receive(packet);
 		return HandlerStatus.COMPLETED;
 	}
 
