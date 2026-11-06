@@ -240,4 +240,26 @@ class TestHomeRouter {
 		assertTrue(Jns3Logger.isErrorFree());
 	}
 	
+	@Test
+	public void traceroute_through_a_simple_network() throws IOException {		
+		pc1.getArpProtocol().sendGARPRequest();
+		pc2.getArpProtocol().sendGARPRequest();
+		GlobalWallClock.advanceBy(4);
+		// Act
+		Jns3Logger.clearLog();		
+		Jns3Logger.startCapture();
+		pc1.traceroute(pc2.getIPAddress());
+		String output = Jns3Logger.endCapture();
+		System.out.print(output);
+
+		var lines = output.split("\n");
+		assertEquals(3, lines.length);
+		assertEquals("traceroute to "+pc2.getIPAddress()+", 64 hops max", lines[0].trim());
+		//		assertEquals(0, Jns3Logger.size());
+		// tick
+		assertEquals("1\t"+ router.getIPAddress()+ "\t0 ticks", lines[1].trim());
+		assertEquals("2\t"+ pc2.getIPAddress()+ "\t0 ticks", lines[2].trim());
+		assertTrue(Jns3Logger.isErrorFree());
+	}
+
 }
