@@ -22,6 +22,8 @@ import org.singsurf.jns3.network_layer.IPProtocol;
 import org.singsurf.jns3.network_layer.PacketHandler;
 import org.singsurf.jns3.network_layer.icmp.ICMPProtocol;
 import org.singsurf.jns3.physical_layer.SimpleConnection;
+import org.singsurf.jns3.transport_layer.dhcp.DHCPMessage;
+import org.singsurf.jns3.transport_layer.dhcp.DHCPProtocol;
 import org.singsurf.jns3.transport_layer.udp.UDPProtocol;
 
 class TestHomeRouter {
@@ -62,9 +64,10 @@ class TestHomeRouter {
 		ipProtocol.register(udp);
 		router.addProtocol(udp);
 		
-		
-		
-		
+		var dhcp = new DHCPProtocol(router,true);
+		udp.register(dhcp);
+		router.addProtocol(dhcp);
+			
 		ipProtocol.addHandler(new PacketHandler() {
 			@Override
 			public HandlerStatus handle(IPPacket type) {
@@ -313,6 +316,49 @@ class TestHomeRouter {
 		var lines = output.trim().split("\n");
 		assertEquals("PC1: " + pc2.getIPAddress() + " says: Time for tea", lines[0].trim());
 		assertEquals("PC3: " + pc2.getIPAddress() + " says: Time for tea", lines[1].trim());
+		
+		assertTrue(Jns3Logger.isErrorFree());
+	}
+
+	@Test
+	void discover_across_simple_network() {
+		System.out.println(Jns3Logger.asString());
+		Jns3Logger.clearLog();
+		System.out.println("Discover");
+		System.out.println("router mac"+ router.getMACAddress());
+		pc1.getDHCPProtocol().startDiscovery();
+		System.out.println(Jns3Logger.asString());
+		Jns3Logger.clearLog();
+
+			Jns3Logger.clearLog();
+			System.out.println("Tick " + 1);
+			GlobalWallClock.getInstance().advanceTime();
+			System.out.println(Jns3Logger.asString());
+
+		DHCPMessage offerMessage = null;
+		IPAddress yaddr = null;
+		for(var ent : pc1.getDHCPProtocol().getAcceptedOfferMessages().entrySet()) {
+				yaddr = ent.getValue().getYiaddr();
+				offerMessage = ent.getValue();
+				break;
+		}
+		assertTrue(Jns3Logger.isErrorFree());
+		System.out.println("Offer message: " + offerMessage);
+		assertEquals(pc1.getMACAddress(), router.getArpProtocol().lookup(pc1.getIPAddress()));
+		assertEquals(router.getMACAddress(), pc1.getArpProtocol().lookup(router.getIPAddress()));
+		
+		
+		Jns3Logger.clearLog();
+		System.out.println("Tick " + 2);
+		GlobalWallClock.getInstance().advanceTime();
+		System.out.println(Jns3Logger.asString());
+
+		assertEquals(yaddr, pc1.getIPAddress());
+		assertEquals(pc1.getMACAddress(), router.getArpProtocol().lookup(yaddr));
+		assertEquals(router.getMACAddress(), pc1.getArpProtocol().lookup(router.getIPAddress()));
+		
+//		assertEquals(0, routerDHCP.offerSockets.size());
+		
 		
 		assertTrue(Jns3Logger.isErrorFree());
 	}
