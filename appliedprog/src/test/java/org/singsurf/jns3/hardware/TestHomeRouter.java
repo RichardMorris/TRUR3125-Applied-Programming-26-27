@@ -19,6 +19,7 @@ import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPPacket;
 import org.singsurf.jns3.network_layer.IPProtocol;
 import org.singsurf.jns3.network_layer.PacketHandler;
+import org.singsurf.jns3.network_layer.icmp.ICMPProtocol;
 import org.singsurf.jns3.physical_layer.SimpleConnection;
 
 class TestHomeRouter {
@@ -39,12 +40,22 @@ class TestHomeRouter {
 		router = new HomeRouter("HomeRouter", 
 				DeviceFactory.getInstance().createSequentialMACAddress(),
 				new IPAddress("192.168.1.1"));
+		
 		router.addProtocol(new RouterEthernetProtocol(router, router.frameSender));
 		var rep = router.getProtocol(RouterEthernetProtocol.class);
+
 		var arpProtocol= new ARPProtocol(router,true);
 		router.addProtocol(arpProtocol);
 		rep.register(arpProtocol);
+
 		var ipProtocol = new IPProtocol(router,true);
+		router.addProtocol(ipProtocol);
+		rep.register(ipProtocol);
+
+		var imcp = new ICMPProtocol(router);
+		ipProtocol.register(imcp);
+		router.addProtocol(imcp);
+		
 		ipProtocol.addHandler(new PacketHandler() {
 
 			@Override
@@ -197,5 +208,36 @@ class TestHomeRouter {
 		assertTrue(Jns3Logger.isErrorFree());
 	}
 
+	@Test
+	public void can_ping_the_router() throws IOException {		
+		var connection1 = new SimpleConnection(pc1.getEndPoint(), router.getEndPoint(0));
+		var connection2 = new SimpleConnection(pc2.getEndPoint(), router.getEndPoint(1));
+		assertNotNull(connection1);
+		assertNotNull(connection2);
+		
+		pc1.getArpProtocol().sendGARPRequest();
+		pc2.getArpProtocol().sendGARPRequest();
+		// Act
+		Jns3Logger.clearLog();
+		Jns3Logger.startCapture();
+		pc1.getICMPProtocol().sendPingRequest(router.getIPAddress(), 64);
+		var output = Jns3Logger.endCapture();
+		System.out.println(Jns3Logger.asString());
+		System.out.println("Captured output:\n"+output);
+		var lines = output.split("\n");
+		assertEquals("PING " + router.getIPAddress() + " 28 bytes of data.", lines[0].trim());
+		assertEquals("28 bytes from "+router.getIPAddress()+": icmp_seq=1 ttl=64 time=0 ticks", lines[1].trim());
+
+		assertEquals(2, Jns3Logger.size());
+		var item0 = Jns3Logger.getItem(0);
+		var item1 = Jns3Logger.getItem(1);
+		assertEquals("HomeRouter", item0.deviceName());
+		assertEquals(Jns3Logger.LogLevel.RECEIVED, item0.level());
+		assertTrue(item0.message().startsWith("Received ping request from "+pc1.getIPAddress()));
+		assertEquals("PC1", item1.deviceName());
+		assertEquals(Jns3Logger.LogLevel.RECEIVED, item1.level());
+		assertTrue(item1.message().startsWith("Received ping reply from "+router.getIPAddress()));
+		assertTrue(Jns3Logger.isErrorFree());
+	}
 	
 }
