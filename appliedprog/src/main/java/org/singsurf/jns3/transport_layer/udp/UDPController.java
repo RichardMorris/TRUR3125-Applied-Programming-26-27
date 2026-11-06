@@ -49,13 +49,23 @@ public class UDPController implements PacketHandler, NamedDevice {
 			// is the packet destined for the limited broadcast address?
 			table = bindings.get(IPProtocol.LIMITED_MULTICAST_ADDRESS);
 			if(table == null) {
-				Jns3Logger.logError(name, "No sockets found for IP address " + lookupAddress);
+				if(packet.getDestinationAddress().equals(device.getMulticastAddress())) {
+					Jns3Logger.logInfo(name, "No socket found for port " + datagram.getDestinationPort());				
+				} else {
+					Jns3Logger.logError(name, "No sockets found for IP address " + lookupAddress);
+				}
 				return;
 			}
 		}
 		var socket = table.get(datagram.getDestinationPort());
 		if(socket == null) {
-			Jns3Logger.logError(name, "No socket found for port " + datagram.getDestinationPort());
+			// Not an error if to multicast and we dont have a socket for that port
+			if(packet.getDestinationAddress().equals(device.getMulticastAddress())) {
+				Jns3Logger.logInfo(name, "No socket found for port " + datagram.getDestinationPort());				
+			} else {
+				Jns3Logger.logError(name, "No socket found for port " + datagram.getDestinationPort());
+			}
+			
 			return;
 		}
 		if(LOG_MESSAGES)
