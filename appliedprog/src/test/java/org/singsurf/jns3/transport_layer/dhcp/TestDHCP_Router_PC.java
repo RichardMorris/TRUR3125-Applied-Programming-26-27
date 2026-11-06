@@ -36,7 +36,6 @@ class TestDHCP_Router_PC {
 	void discover_across_buffered_network() {
 		var connection = new BufferedConnection(router1.getEndPoint(), pc1.getEndPoint());
 		assertNotNull(connection);
-//		pc2.getArpProtocol().sendGARPRequest();
 		System.out.println(Jns3Logger.asString());
 		Jns3Logger.clearLog();
 		System.out.println("Discover");
@@ -66,7 +65,6 @@ class TestDHCP_Router_PC {
 	void discover_across_simple_network() {
 		var connection = new SimpleConnection(router1.getEndPoint(), pc1.getEndPoint());
 		assertNotNull(connection);
-//		pc2.getArpProtocol().sendGARPRequest();
 		System.out.println(Jns3Logger.asString());
 		Jns3Logger.clearLog();
 		System.out.println("Discover");
@@ -97,12 +95,6 @@ class TestDHCP_Router_PC {
 		System.out.println("Tick " + 2);
 		GlobalWallClock.getInstance().advanceTime();
 		System.out.println(Jns3Logger.asString());
-
-//		assertEquals(3, Jns3Logger.size());
-//		assertEquals("[INFO] Router1-DHCP-Request: Received DHCP request message",
-//			Jns3Logger.getItem(0).toString());
-//		assertEquals("[INFO] PC2-DHCP-Ack: Received DHCP Ack message YIADDR 192.168.1.3",
-//				Jns3Logger.getItem(2).toString());
 
 		assertEquals(yaddr, pc1.getIPAddress());
 		assertEquals(pc1.getMACAddress(), router1.getArpProtocol().lookup(yaddr));
