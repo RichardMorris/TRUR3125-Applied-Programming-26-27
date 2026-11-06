@@ -6,11 +6,11 @@ import java.util.Set;
 
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
-import org.singsurf.jns3.data_link_layer.EthernetProtocol;
 import org.singsurf.jns3.data_link_layer.FrameReceiver;
 import org.singsurf.jns3.data_link_layer.FrameSender;
 import org.singsurf.jns3.data_link_layer.MACAddress;
-import org.singsurf.jns3.generic_protocol.Protocol;
+import org.singsurf.jns3.generic_protocol.LowerPhysicalAdapter;
+import org.singsurf.jns3.generic_protocol.UpperPhysicalPort;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.physical_layer.PhysicalEndPoint;
 
@@ -24,7 +24,9 @@ public class HomeRouter extends ProtocolDevice implements AddressableDevice {
 	Map<Integer,Set<MACAddress>> portMapping = new HashMap<>();
 	HRMultiPortDevice multiPortDevice;
 	HRFrameSender frameSender = new HRFrameSender();
-	EthernetProtocol ethernetProtocol;
+	FrameReceiver frameReceiver;
+//	EthernetProtocol ethernetProtocol;
+	UpperPhysicalPort physicalProtocol;
 
     Terminal terminal = new Terminal() {
 		@Override
@@ -53,20 +55,10 @@ public class HomeRouter extends ProtocolDevice implements AddressableDevice {
 			}
 			var list = portMapping.get(portNumber);
 			list.add(srcMac);
-			ethernetProtocol.getFrameDelegator().receive(frame);
+			frameReceiver.receive(frame);
 		}
 	}
 	
-	@Override
-	public void addProtocol(Protocol prot) {
-		super.addProtocol(prot);
-		if(prot instanceof EthernetProtocol rep) {
-			ethernetProtocol =rep;
-		}
-	}
-
-
-
 	class HRFrameSender implements FrameSender {
 		HRFrameSender() { }
 		
@@ -110,6 +102,15 @@ public class HomeRouter extends ProtocolDevice implements AddressableDevice {
         for(int i = 0; i < NUM_PORTS; i++) {
 			portMapping.put(i, new HashSet<>());
 		}
+        physicalProtocol = new UpperPhysicalPort() {
+
+			@Override
+			public void register(LowerPhysicalAdapter adapter) {
+				adapter.setFrameSender(frameSender);
+				frameReceiver = adapter.getFrameReceiver();
+			}
+        	
+        };
     }
     		
 	public Terminal getTerminal() {
@@ -130,5 +131,10 @@ public class HomeRouter extends ProtocolDevice implements AddressableDevice {
     public PhysicalEndPoint getEndPoint(int i) {
     	return multiPortDevice.getEndPoint(i);
     }
+
+	@Override
+	public UpperPhysicalPort getPhysicalProtocol() {
+		return physicalProtocol;
+	}
     
 }

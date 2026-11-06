@@ -8,6 +8,7 @@ import org.singsurf.jns3.data_link_layer.EthernetProtocol;
 import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.data_link_layer.arp.ARPProtocol;
 import org.singsurf.jns3.generic_protocol.Protocol;
+import org.singsurf.jns3.generic_protocol.UpperPhysicalPort;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPProtocol;
 import org.singsurf.jns3.network_layer.icmp.ICMPProtocol;
@@ -50,6 +51,8 @@ public abstract class ProtocolDevice implements AddressableDevice {
 		Jns3Logger.logError(name, "Protocol " + cl.getSimpleName() + " not found in device " + name);
 		return null;
 	}
+
+	public abstract UpperPhysicalPort getPhysicalProtocol();
 
 	public EthernetProtocol getEthernetProtocol() {
 		return getProtocol(EthernetProtocol.class);

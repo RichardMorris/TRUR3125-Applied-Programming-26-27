@@ -46,9 +46,9 @@ class TestHomeRouter {
 				new IPAddress("192.168.1.1"));
 		
 		var eth = new EthernetProtocol(router);
-		eth.setFrameSender(router.frameSender);
 		router.addProtocol(eth);
-
+		router.getPhysicalProtocol().register(eth);
+		
 		var arpProtocol= new ARPProtocol(router,true);
 		router.addProtocol(arpProtocol);
 		eth.register(arpProtocol);

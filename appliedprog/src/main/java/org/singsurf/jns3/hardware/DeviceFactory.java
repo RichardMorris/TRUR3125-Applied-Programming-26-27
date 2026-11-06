@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.singsurf.jns3.data_link_layer.EthernetProtocol;
 import org.singsurf.jns3.data_link_layer.MACAddress;
-import org.singsurf.jns3.data_link_layer.NICCard;
 import org.singsurf.jns3.data_link_layer.arp.ARPProtocol;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPProtocol;
@@ -98,12 +97,11 @@ public class DeviceFactory {
         IPAddress ip = createLocalIPAddress();
         
         // boot logic for the PC
-		var nic = new NICCard(name);
-        var pc = new PC(name, mac, ip, nic);
+        var pc = new PC(name, mac, ip);
 
         EthernetProtocol ethernetProtocol = new EthernetProtocol(pc);
         pc.addProtocol(ethernetProtocol);
-        nic.register(ethernetProtocol);
+        pc.getPhysicalProtocol().register(ethernetProtocol);
         
         ARPProtocol arpProtocol = new ARPProtocol(pc,false);
         pc.addProtocol(arpProtocol);
@@ -137,15 +135,14 @@ public class DeviceFactory {
         MACAddress mac = createMACAddress();
         IPAddress ip = createSequentialLocalIPAddress();
 
-		var nic = new NICCard(name);
-        var router = new HomeRouter0(name, mac, ip, nic);
+        var router = new HomeRouter0(name, mac, ip);
         
         // boot logic for the PC
 		
 
         EthernetProtocol ethernetProtocol = new EthernetProtocol(router);
         router.addProtocol(ethernetProtocol);
-        nic.register(ethernetProtocol);
+        router.getPhysicalProtocol().register(ethernetProtocol);
         
         ARPProtocol arpProtocol = new ARPProtocol(router,true);
         router.addProtocol(arpProtocol);

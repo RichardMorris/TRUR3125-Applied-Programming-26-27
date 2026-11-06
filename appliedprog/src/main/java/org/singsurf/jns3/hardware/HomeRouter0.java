@@ -1,6 +1,8 @@
 package org.singsurf.jns3.hardware;
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.data_link_layer.MACAddress;
+import org.singsurf.jns3.data_link_layer.NICCard;
+import org.singsurf.jns3.generic_protocol.UpperPhysicalPort;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.physical_layer.PhysicalEndPoint;
 
@@ -9,7 +11,7 @@ import org.singsurf.jns3.physical_layer.PhysicalEndPoint;
  * Acts as a Facade to the various layers in the system.
  */
 public class HomeRouter0 extends ProtocolDevice implements AddressableDevice {
-	PhysicalEndPoint endPoint;
+	NICCard nic;
 
 	Terminal terminal = new Terminal() {
 
@@ -19,9 +21,9 @@ public class HomeRouter0 extends ProtocolDevice implements AddressableDevice {
 		}};
 
 
-	public HomeRouter0(String name, MACAddress macAddress, IPAddress ipAddress, PhysicalEndPoint endPoint) {
+	public HomeRouter0(String name, MACAddress macAddress, IPAddress ipAddress) {
         super(name,macAddress,ipAddress);
-        this.endPoint = endPoint;
+        this.nic = new NICCard(name);
     }
     		
 	public Terminal getTerminal() {
@@ -40,7 +42,12 @@ public class HomeRouter0 extends ProtocolDevice implements AddressableDevice {
     // Setters and Getters for various components
         
     public PhysicalEndPoint getEndPoint() {
-        return endPoint;
+        return nic;
     }
+
+	@Override
+	public UpperPhysicalPort getPhysicalProtocol() {
+		return nic;
+	}
     
 }
