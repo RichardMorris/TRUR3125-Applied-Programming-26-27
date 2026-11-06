@@ -1,7 +1,7 @@
 package org.singsurf.jns3.generic_protocol;
 
-import org.singsurf.jns3.data_link_layer.FrameReceiver;
-import org.singsurf.jns3.data_link_layer.FrameSender;
+import org.singsurf.jns3.physical_layer.BlockingByteSender;
+import org.singsurf.jns3.physical_layer.ByteReceiver;
 
 /**
  * An adapter on the lower side of a protocols handling code.
@@ -9,7 +9,7 @@ import org.singsurf.jns3.data_link_layer.FrameSender;
  */
 public interface LowerPhysicalAdapter {
 
-	public void setFrameSender(FrameSender sender);
+	public void setByteSender(BlockingByteSender sender);
 
-	public FrameReceiver getFrameReceiver();
+	public ByteReceiver getByteReceiver();
 }
