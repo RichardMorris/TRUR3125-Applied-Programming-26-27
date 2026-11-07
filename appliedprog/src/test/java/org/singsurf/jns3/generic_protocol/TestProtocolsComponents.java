@@ -165,7 +165,7 @@ class TestProtocolsComponents {
 	}
 
 	class ABLogicHandler implements ProtocolHandler<ProtocolA> {
-		InboundLogic<ProtocolA,ProtocolB> logic;
+		ABLogic logic;
 		
 		public boolean matches(ProtocolA message) {
 			return message.message.charAt(1) == 'B';
@@ -183,10 +183,9 @@ class TestProtocolsComponents {
 
 	}
 
-	class ABLogic implements InboundLogic<ProtocolA,ProtocolB> {
+	class ABLogic {
 		ProtocolReceiver<ProtocolB> receiver;
 
-		@Override
 		public void process(ProtocolA container, ProtocolB extracted) {
 			var s = extracted.message.substring(1).toLowerCase();
 			extracted.message = s;

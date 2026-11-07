@@ -201,9 +201,8 @@ class TestProtocol {
 
 		}
 
-		class ABLogic implements InboundLogic<TypeA,TypeB> {
+		class ABLogic {
 
-			@Override
 			public void process(TypeA container, TypeB extracted) {
 				var s = extracted.message.substring(1).toLowerCase();
 				extracted.message = s;
