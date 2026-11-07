@@ -49,7 +49,7 @@ See [RFC 1122: STD 3: Requirements for Internet Hosts - Communication Layers](ht
         * Forwards ARP requests to other machines to the corresponding port if known, or Broadcast if unknown.
         * Forwards ARP replies to correct machine.
     * For IP packets
-        * Decrements the `ttl`
+        * Decrements the `ttl` 
         * If the `ttl` is zero reply with a "TTL Expired" ICMP message.
         * Looks up the destination IP in its table
         * If not found reply with a "Destination unreachable" message.
@@ -62,27 +62,50 @@ See [RFC 1122: STD 3: Requirements for Internet Hosts - Communication Layers](ht
         * Respond with "Destination protocol unreachable"
     * For UDP packets to this machine or the limited multicast address
         * Forward to the correct socket
-    * For UDP packets to port 67 DHCP Server
-        * Delegate to DHCPProtocol.
     * For UDP packets to unknown port
         * Respond with "Destination port unreachable"
-    * For DHCP packets
+    * For DHCP packets to port 67 DHCP Server
+        * Delegate to DHCPProtocol.
         * Respond to DISCOVER with OFFER
         * Respond to REQUEST with ACK
         * Respond to INFORM with ACK with appropriate options
 
+2. A `HomeRouter`
+    * Has a port mapping [Port Number: List of Mac Addresses]
+    * Has an APR Table [IP Address: Mac Address]
+    * Has an array of ports indexed by `portNum`
+    * Messages received on port `portNum` are send to the method
+    `receive(portNum, EthernetFrame)`.
+        * The port mapping table is updated
+        * It is passed to `receive(EthernetFrame)` of the router's `EthernetProtocol`.
+    * Outbound messages are delivered to the `EthernetSender.send(EthernetFrame)` method.
+        * Frames to a specified `Dest Mac` are delivered to `send(portNum, byte[])`
+        * Frames with the broadcast MAC are sent to all ports not matching the `Source MAC`
+        * Frames to an unknown MAC are dropped with an error log.
 
-2. A `HomeRouter` has a custom stack of protocols:
-    * `EthernetProtocol` sends inbound frames to it's registered protocols.
-    * `TaggedIPPacket` is a sub-class of IP packet
+3. The `HomeRouter` class' `EthernetProtocol` sends inbound frames to it's registered protocols/handlers:
+        * PortSetter ensures 
+        * ARPProtocol
+        * IPProtocol
+        * ErrorFrameHandler
+    * `ARPProtocol` delegates to
+        * `ARPSetter` compare sender MAC/IP with it's table
+            * If same continue so it can be forwarded
+            * If different, update ARPTable, update port mapping
+        * `ARPBroadcastForwarder` forwards broadcast packets to ports not matching sender mac
+        * `ARPForwarder` 
+            * if dest IP is in table forward to corresponding hardware port
+            * if dest mac is not in table forwards to all packets not matching sender mac
+        * `ARPResponder`
+            * if  
 
-3. A subnet mask
+4. A subnet mask
     * Is an `IPAddress`
     * Has a `boolean matches(IPAddress src, IPAddress dest)` method that
         * takes the logical AND of the src and dest addresses with the subnet masks
         * returns true if the two results are equal.
 
-4. The PC
+5. The PC
     * "The client SHOULD broadcast an ARP
    reply to announce the client's new IP address and clear any outdated
    ARP cache entries in hosts on the client's subnet."
@@ -90,3 +113,4 @@ See [RFC 1122: STD 3: Requirements for Internet Hosts - Communication Layers](ht
     * On receiving a ARP Reply to Broadcast MAC updates its ARP table.
 
 7. DHCP_INFORM we use this to query other parameters, rather than DISCOVER.
+
