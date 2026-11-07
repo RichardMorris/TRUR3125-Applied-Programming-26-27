@@ -19,12 +19,7 @@ public class DefaultPacketReceiver implements PacketHandler {
 	public DefaultPacketReceiver(String name) {
 		this.name = name;
 	}
-	
-	public DefaultPacketReceiver(String name, LogLevel logLevel) {
-		this.name = name;
-		this.logLevel = logLevel;
-	}
-	
+		
 	
 	public List<IPPacket> getReceivedPackets() {
 		return recivedPackets;

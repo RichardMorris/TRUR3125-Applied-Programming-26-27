@@ -9,25 +9,22 @@ import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.data_link_layer.FrameReceiver;
 import org.singsurf.jns3.data_link_layer.FrameSender;
 import org.singsurf.jns3.data_link_layer.MACAddress;
-import org.singsurf.jns3.generic_protocol.LowerPhysicalAdapter;
-import org.singsurf.jns3.generic_protocol.UpperPhysicalPort;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.physical_layer.PhysicalEndPoint;
+import org.singsurf.jns3.physical_layer.PhysicalProtocol;
 
 /**
  * Represents a home router.
  * Acts as a Facade to the various layers in the system.
  */
-public class HomeRouter extends ProtocolDevice implements AddressableDevice {
+public class HomeRouter extends ProtocolDevice {
 	public static final int NUM_PORTS = 4;
 	
 	Map<Integer,Set<MACAddress>> portMapping = new HashMap<>();
 	HRMultiPortDevice multiPortDevice;
 	HRFrameSender frameSender = new HRFrameSender();
 	FrameReceiver frameReceiver;
-//	EthernetProtocol ethernetProtocol;
-	UpperPhysicalPort physicalProtocol;
-
+	
     Terminal terminal = new Terminal() {
 		@Override
 		public void display(String string) {
@@ -87,30 +84,12 @@ public class HomeRouter extends ProtocolDevice implements AddressableDevice {
 		}	
 	}
 
-	class HRFrameReceiver implements FrameReceiver {
-		HRFrameReceiver() { }
-		
-		@Override
-		public void receive(EthernetFrame frame) {
-			frameSender.send(frame);
-		}
-	}
-
 	public HomeRouter(String name, MACAddress macAddress, IPAddress ipAddress) {
         super(name,macAddress,ipAddress);
         this.multiPortDevice = new HRMultiPortDevice();
         for(int i = 0; i < NUM_PORTS; i++) {
 			portMapping.put(i, new HashSet<>());
 		}
-        physicalProtocol = new UpperPhysicalPort() {
-
-			@Override
-			public void register(LowerPhysicalAdapter adapter) {
-				adapter.setFrameSender(frameSender);
-				frameReceiver = adapter.getFrameReceiver();
-			}
-        	
-        };
     }
     		
 	public Terminal getTerminal() {
@@ -132,9 +111,17 @@ public class HomeRouter extends ProtocolDevice implements AddressableDevice {
     	return multiPortDevice.getEndPoint(i);
     }
 
+	public HRFrameSender getFrameSender() {
+		return frameSender;
+	}
+
+	public void setFrameReceiver(FrameReceiver frameReceiver) {
+		this.frameReceiver = frameReceiver;
+	}
+
 	@Override
-	public UpperPhysicalPort getPhysicalProtocol() {
-		return physicalProtocol;
+	public PhysicalProtocol getPhysicalProtocol() {
+		return null;
 	}
     
 }

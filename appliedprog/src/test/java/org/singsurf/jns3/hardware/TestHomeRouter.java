@@ -11,8 +11,8 @@ import org.junit.jupiter.api.Test;
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.application_layer.ChatApplication;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
-import org.singsurf.jns3.data_link_layer.EthernetProtocol;
 import org.singsurf.jns3.data_link_layer.MACAddress;
+import org.singsurf.jns3.data_link_layer.RouterEthernetProtocol;
 import org.singsurf.jns3.data_link_layer.arp.ARPProtocol;
 import org.singsurf.jns3.generic_protocol.HandlerStatus;
 import org.singsurf.jns3.generic_protocol.ProtocolHandler;
@@ -43,11 +43,11 @@ class TestHomeRouter {
 		
 		router = new HomeRouter("HomeRouter", 
 				DeviceFactory.getInstance().createSequentialMACAddress(),
-				new IPAddress("192.168.1.1"));
-		
-		var eth = new EthernetProtocol(router);
+				DeviceFactory.getInstance().createSequentialLocalIPAddress());
+
+		var eth = new RouterEthernetProtocol(router);
 		router.addProtocol(eth);
-		router.getPhysicalProtocol().register(eth);
+//		router.getPhysicalProtocol().register(eth);
 		
 		var arpProtocol= new ARPProtocol(router,true);
 		router.addProtocol(arpProtocol);
@@ -80,7 +80,7 @@ class TestHomeRouter {
 		eth.addHandler(new ProtocolHandler<EthernetFrame>() {
 			@Override
 			public HandlerStatus handle(EthernetFrame type) {
-				router.frameSender.send(type);
+				router.getFrameSender().send(type);
 				return HandlerStatus.COMPLETED;
 			}
 		});
@@ -98,6 +98,8 @@ class TestHomeRouter {
 		assertNotNull(connection2);
 		assertNotNull(connection3);
 		assertNotNull(connection4);
+		
+		
 	}
 
 	@Test
@@ -323,6 +325,12 @@ class TestHomeRouter {
 
 	@Test
 	void discover_across_simple_network() {
+		System.out.println(router);
+		System.out.println(pc1);
+		System.out.println(pc2);
+		System.out.println(pc3);
+		System.out.println(pc4);
+
 		System.out.println(Jns3Logger.asString());
 		Jns3Logger.clearLog();
 		System.out.println("Discover");
@@ -362,6 +370,12 @@ class TestHomeRouter {
 		
 		
 		assertTrue(Jns3Logger.isErrorFree());
+		System.out.println(router);
+		System.out.println(pc1);
+		System.out.println(pc2);
+		System.out.println(pc3);
+		System.out.println(pc4);
+
 	}
 
 }
