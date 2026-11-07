@@ -300,3 +300,7 @@ Protocol level view
 Detailed view of refactored UDP protocol and Chat Application, and ICMP protocol.
 
 ![Class Diagram](diagrams/week15.png)
+
+## Packet layout
+
+![ICMP Packet Layout](diagrams/week15_packet.png)
