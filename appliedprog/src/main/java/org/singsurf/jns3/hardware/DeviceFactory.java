@@ -9,6 +9,7 @@ import org.singsurf.jns3.data_link_layer.arp.ARPProtocol;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPProtocol;
 import org.singsurf.jns3.network_layer.icmp.ICMPProtocol;
+import org.singsurf.jns3.physical_layer.PhysicalProtocol;
 import org.singsurf.jns3.transport_layer.dhcp.DHCPProtocol;
 import org.singsurf.jns3.transport_layer.udp.UDPProtocol;
 
@@ -99,9 +100,12 @@ public class DeviceFactory {
         // boot logic for the PC
         var pc = new PC(name, mac, ip);
 
+        var physicalProtocol = new PhysicalProtocol(pc);
+        pc.addProtocol(physicalProtocol);
+
         EthernetProtocol ethernetProtocol = new EthernetProtocol(pc);
         pc.addProtocol(ethernetProtocol);
-        pc.getPhysicalProtocol().register(ethernetProtocol);
+        physicalProtocol.register(ethernetProtocol);
         
         ARPProtocol arpProtocol = new ARPProtocol(pc,false);
         pc.addProtocol(arpProtocol);
@@ -138,7 +142,9 @@ public class DeviceFactory {
         var router = new HomeRouter0(name, mac, ip);
         
         // boot logic for the PC
-		
+        var physicalProtocol = new PhysicalProtocol(router);
+        router.addProtocol(physicalProtocol);
+
 
         EthernetProtocol ethernetProtocol = new EthernetProtocol(router);
         router.addProtocol(ethernetProtocol);

@@ -2,7 +2,7 @@ package org.singsurf.jns3.physical_layer;
 
 import org.singsurf.jns3.Jns3Logger;
 
-public class BlockingEndPoint extends PhysicalEndPoint {
+public class BlockingEndPoint extends PhysicalEndPoint implements BlockingByteSender {
 	ByteReceiver byteReceiver;
 	
 	public BlockingEndPoint(String name) {

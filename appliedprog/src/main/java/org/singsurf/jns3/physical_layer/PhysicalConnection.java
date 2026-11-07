@@ -25,12 +25,17 @@ public abstract class PhysicalConnection {
 		}
 
 		@Override
-		protected void receive(byte[] frame) {
+		public void receive(byte[] frame) {
 			if (end == 0) {
 				PhysicalConnection.this.send(frame, false);
 			} else {
 				PhysicalConnection.this.send(frame, true);
 			}
+		}
+
+		@Override
+		public void send(byte[] frame) {
+			throw new UnsupportedOperationException("VirtualEndPoint does not support sending data directly.");
 		}
 	}
 

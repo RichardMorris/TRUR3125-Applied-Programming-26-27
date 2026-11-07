@@ -20,7 +20,7 @@ public abstract class BufferedEndPoint extends PhysicalEndPoint implements TickL
 		GlobalWallClock.getInstance().addTickListener(GlobalWallClock.RELEASE, this);
 	}
 
-    protected void send(byte[] frame) {
+    public void send(byte[] frame) {
         if (isConnected()) {
         	if (getConnection() instanceof BlockingConnection bc) {
         		if(bc.blocked(getReversed())) {

@@ -1,7 +1,5 @@
 package org.singsurf.jns3.hardware;
 import org.singsurf.jns3.data_link_layer.MACAddress;
-import org.singsurf.jns3.data_link_layer.NICCard;
-import org.singsurf.jns3.generic_protocol.UpperPhysicalPort;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.physical_layer.PhysicalEndPoint;
 
@@ -9,13 +7,10 @@ import org.singsurf.jns3.physical_layer.PhysicalEndPoint;
  * The main class representing a PC.
  * Acts as a Facade to the various layers in the system.
  */
-public class PC extends ProtocolDevice implements AddressableDevice {
-	NICCard nic;
-;
-	
-    Terminal terminal = new Terminal() {
+public class PC extends ProtocolDevice {
 
-		@Override
+    Terminal terminal = new Terminal() {
+    	@Override
 		public void display(String string) {
 			System.out.println(string);
 		}};
@@ -23,9 +18,7 @@ public class PC extends ProtocolDevice implements AddressableDevice {
 
 	public PC(String name, MACAddress macAddress, IPAddress ipAddress) {
         super(name,macAddress,ipAddress);
-        this.nic = new NICCard(name);
-;
-    }
+	}
     
 	
 
@@ -53,14 +46,7 @@ public class PC extends ProtocolDevice implements AddressableDevice {
     // Setters and Getters for various components
         
     public PhysicalEndPoint getEndPoint() {
-        return 	nic;
+        return 	getPhysicalProtocol().getEndPoint();
     }
-
-
-
-	@Override
-	public UpperPhysicalPort getPhysicalProtocol() {
-		return nic;
-	}
     
 }

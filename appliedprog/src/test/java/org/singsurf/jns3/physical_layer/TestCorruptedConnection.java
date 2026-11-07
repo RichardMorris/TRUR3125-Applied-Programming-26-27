@@ -6,7 +6,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.data_link_layer.ByteToFrameConverter;
-import org.singsurf.jns3.data_link_layer.EthernetEndPoint;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.data_link_layer.FrameReceiver;
 import org.singsurf.jns3.data_link_layer.MACAddress;
@@ -18,7 +17,7 @@ import org.singsurf.jns3.hardware.PC;
 public class TestCorruptedConnection {
     PC pc1;
     CorruptedConnection cc;
-    EthernetEndPoint ep2;
+    BlockingEndPoint ep2;
     Receiver receiver;
     
 	ByteToFrameConverter converter = new ByteToFrameConverter();
@@ -50,7 +49,14 @@ public class TestCorruptedConnection {
         DeviceFactory deviceFactory = new DeviceFactory();
         pc1 = deviceFactory.createPC("PC1");
         receiver = new Receiver();
-        ep2 = new EthernetEndPoint("EP2", receiver);
+        ep2 = new BlockingEndPoint("EP2");
+        ep2.setByteReceiver(new ByteReceiver() {
+			@Override
+			public void receive(byte[] frame) {
+				var ethFrame = converter.fromBytes(frame);
+				receiver.receive(ethFrame);
+			}
+		});
         cc = new CorruptedConnection(pc1.getEndPoint(), ep2);
         assertEquals(Jns3Logger.getLogItems().size(), 0);
     }

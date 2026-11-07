@@ -30,7 +30,7 @@ public abstract class MultiPortDevice implements NamedDevice {
     }
 
     public PhysicalEndPoint getEndPoint(int portNumber) {
-        return ports[portNumber].ethernetEndPoint;
+        return ports[portNumber].bep;
     }
 
     public String getName() {

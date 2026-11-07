@@ -8,10 +8,10 @@ import org.singsurf.jns3.data_link_layer.EthernetProtocol;
 import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.data_link_layer.arp.ARPProtocol;
 import org.singsurf.jns3.generic_protocol.Protocol;
-import org.singsurf.jns3.generic_protocol.UpperPhysicalPort;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPProtocol;
 import org.singsurf.jns3.network_layer.icmp.ICMPProtocol;
+import org.singsurf.jns3.physical_layer.PhysicalProtocol;
 import org.singsurf.jns3.transport_layer.dhcp.DHCPProtocol;
 import org.singsurf.jns3.transport_layer.udp.UDPProtocol;
 
@@ -52,7 +52,9 @@ public abstract class ProtocolDevice implements AddressableDevice {
 		return null;
 	}
 
-	public abstract UpperPhysicalPort getPhysicalProtocol();
+	public PhysicalProtocol getPhysicalProtocol() {
+		return getProtocol(PhysicalProtocol.class);
+	}
 
 	public EthernetProtocol getEthernetProtocol() {
 		return getProtocol(EthernetProtocol.class);

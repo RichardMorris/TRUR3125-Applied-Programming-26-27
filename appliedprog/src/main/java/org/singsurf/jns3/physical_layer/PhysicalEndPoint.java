@@ -6,7 +6,7 @@ import org.singsurf.jns3.hardware.NamedDevice;
  * Represents a socket that a physical connection can be
  * plugged into.
  */
-public abstract class PhysicalEndPoint implements NamedDevice {
+public abstract class PhysicalEndPoint implements NamedDevice, ByteSender, ByteReceiver {
     PhysicalConnection connection;
     boolean reversed;
     String name;
@@ -40,11 +40,6 @@ public abstract class PhysicalEndPoint implements NamedDevice {
         return connection != null;
     }
 
-    /**
-     * Receives a frame from the connection.
-     * @param frame the data being received
-     */
-    protected abstract void receive(byte[] frame);
 
     @Override
     public String getName() {
