@@ -43,7 +43,7 @@ class TestHomeRouter {
 		
 		router = new HomeRouter("HomeRouter", 
 				DeviceFactory.getInstance().createSequentialMACAddress(),
-				DeviceFactory.getInstance().createSequentialLocalIPAddress());
+				new IPAddress("192.168.1.1"));
 
 		var eth = new RouterEthernetProtocol(router);
 		router.addProtocol(eth);
@@ -351,6 +351,7 @@ class TestHomeRouter {
 
 	@Test
 	void discover_across_simple_network() {
+		DeviceFactory.getInstance().resetSequentialLocalIPAddress();
 		System.out.println(router);
 		System.out.println(pc1);
 		System.out.println(pc2);
@@ -406,6 +407,7 @@ class TestHomeRouter {
 
 	@Test
 	void all_pcs_discover_across_simple_network() {
+		DeviceFactory.getInstance().resetSequentialLocalIPAddress();
 		pc1.setIPAddress(IPAddress.ZERO_ADDRESS);
 		pc2.setIPAddress(IPAddress.ZERO_ADDRESS);
 		pc3.setIPAddress(IPAddress.ZERO_ADDRESS);
@@ -495,6 +497,7 @@ class TestHomeRouter {
 
 	@Test
 	void ipconfig_after_discover() throws IOException {
+		DeviceFactory.getInstance().resetSequentialLocalIPAddress();
 		Jns3Logger.clearLog();
 		pc1.getDHCPProtocol().startDiscovery();
 		GlobalWallClock.advanceBy(2);

@@ -58,10 +58,11 @@ public class DeviceFactory {
         return ip;
     }
 
-    byte nextSequentialIP = 1;
+    byte nextSequentialIP = 2;
     
     /**
-	 * Creates a new sequential local IP address in the 192.168.1.x range.
+	 * Creates a new sequential local IP address in the 192.168.1.x range, starting 
+	 * from 2.
 	 * First call should be reserved for the router, subsequent calls for PCs.
 	 * @return A new sequential local IP address
 	 */
@@ -77,6 +78,10 @@ public class DeviceFactory {
         return ip;
     }
     
+	public void resetSequentialLocalIPAddress() {
+		nextSequentialIP = 2;		
+	}
+
     byte nextSequentialMAC = 0;
     
     public MACAddress createSequentialMACAddress() {
@@ -194,4 +199,5 @@ public class DeviceFactory {
 	public static DeviceFactory getInstance() {
 		return instance;
 	}
+
 }
