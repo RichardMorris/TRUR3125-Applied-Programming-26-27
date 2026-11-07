@@ -25,6 +25,7 @@ public abstract class ProtocolDevice implements AddressableDevice {
 	MACAddress macAddress;
 	IPAddress ipAddress;
 	IPAddress multiCastIP;
+	IPAddress subnetMask;
 	
 	List<Protocol> protocols = new ArrayList<>();
 
@@ -109,6 +110,14 @@ public abstract class ProtocolDevice implements AddressableDevice {
 	}
 
 	public abstract Terminal getTerminal();
+
+	public Object getSubnetMask() {
+		return subnetMask;
+	}
+
+	public void setSubnetMask(IPAddress subnetMask) {
+		this.subnetMask = subnetMask;		
+	}
 
 
 }

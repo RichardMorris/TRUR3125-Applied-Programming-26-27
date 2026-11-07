@@ -40,6 +40,20 @@ public class OfferHandler implements ProtocolHandler<DHCPMessage> {
 
 		var offers = dhcpProtocol.offerMessages.computeIfAbsent(message.getXid(), k -> new java.util.ArrayList<>());
 		offers.add(message);
+		
+	    // Second option: 0x0104ffffff00: Option 1 (Subnet mask) 4 octets (containing 255.255.255.0)
+		//		options.add(new DHCPOption(OPT_SUBNET_MASK, DHCPProtocol.SUBNET_MASK));
+
+		var subop = message.getOption(DHCPMessage.OPT_SUBNET_MASK);
+		if(subop != null) {
+			var subnetMask = subop.getDataAsIPAddress();
+			dhcpProtocol.device.setSubnetMask(subnetMask);
+		} else {
+			Jns3Logger.logError(name, "No subnet mask in DHCP Offer message");
+		}
+		
+
+		
 		return HandlerStatus.COMPLETED;
 	}
 	

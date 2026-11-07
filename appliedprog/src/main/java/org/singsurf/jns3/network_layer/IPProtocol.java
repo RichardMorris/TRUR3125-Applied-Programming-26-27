@@ -16,7 +16,7 @@ import org.singsurf.jns3.hardware.ProtocolDevice;
 
 public class IPProtocol implements Protocol, LowerAdapter<EthernetFrame>, UpperPort<IPPacket> {
 	public static final IPAddress LIMITED_MULTICAST_ADDRESS = new IPAddress("255.255.255.255");
-
+	String name;
 	ProtocolDevice device;
 	IPFragmentHandler fragmentHandler;
 	TTLDecrementor ttlDecrementor;
@@ -30,6 +30,7 @@ public class IPProtocol implements Protocol, LowerAdapter<EthernetFrame>, UpperP
 	
 	public IPProtocol(ProtocolDevice device, boolean isRouter) {
 		this.device = device;
+		this.name = device.getName() + "-IP";
 		this.arpProtocol = device.getArpProtocol();
 		this.arpUpdater = new ARPUpdater(this);
 		this.delegator = new ProtocolDelegator<IPPacket>(device.getName());
@@ -105,4 +106,38 @@ public class IPProtocol implements Protocol, LowerAdapter<EthernetFrame>, UpperP
 	public boolean isRouter() {
 		return isRouter;
 	}
+
+	public void displayIPConfig() {
+/*
+Wireless LAN adapter WiFi:
+
+   Connection-specific DNS Suffix  . :
+   Link-local IPv6 Address . . . . . : fe80::3168:74aa:4574:86f7%2
+   IPv4 Address. . . . . . . . . . . : 10.43.168.48
+   Subnet Mask . . . . . . . . . . . : 255.255.0.0
+   Default Gateway . . . . . . . . . : 10.43.0.1
+12345678901234567890123456789012345678901234567890
+         1         2         3         4      
+ */
+		var terminal = device.getTerminal();
+		terminal.display("Ethernet adapter "+ name +":\n");
+		displayIPConfigLine("IPv4 Address", device.getIPAddress().toString());
+		displayIPConfigLine("Subnet Mask", device.getSubnetMask().toString());
+	}
+	
+	private void displayIPConfigLine(String name, String value) {
+		var terminal = device.getTerminal();
+		var sb = new StringBuilder();
+		sb.append("   ").append(name);
+		if(sb.length() % 2 ==0) {
+			sb.append(" ");
+		}
+		while(sb.length() < 37) {
+			sb.append(". ");
+		}
+		sb.append(": ").append(value);
+		terminal.display(sb.toString());
+	}
+	
+		
 }

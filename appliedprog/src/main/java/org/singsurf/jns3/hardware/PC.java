@@ -32,6 +32,10 @@ public class PC extends ProtocolDevice {
 		getICMPProtocol().sendTraceroute(ipAddress2);
 	}
 	
+	public void ipconfig() {
+		getIPProtocol().displayIPConfig();
+	}
+	
 	public Terminal getTerminal() {
 		return terminal;
 	}

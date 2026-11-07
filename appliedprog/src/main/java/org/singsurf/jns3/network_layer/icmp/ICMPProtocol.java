@@ -22,7 +22,7 @@ public class ICMPProtocol implements Protocol, LowerAdapter<IPPacket> {
 	public ICMPProtocol(ProtocolDevice device) {
 		this.device = device;
 		icmpPacketReceiver = new ICMPPacketReceiver(device.getName());
-		pingController = PingController.newInstance(device, device.getTerminal());
+		pingController = PingController.newInstance(device);
 		icmpPacketReceiver.addHandler(pingController);
 		pingRequestHandler = new PingRequestHandler(device);
 		icmpPacketReceiver.addHandler(pingRequestHandler);

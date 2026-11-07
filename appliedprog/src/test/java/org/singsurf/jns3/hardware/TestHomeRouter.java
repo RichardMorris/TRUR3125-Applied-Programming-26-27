@@ -493,4 +493,25 @@ class TestHomeRouter {
 
 	}
 
+	@Test
+	void ipconfig_after_discover() throws IOException {
+		Jns3Logger.clearLog();
+		pc1.getDHCPProtocol().startDiscovery();
+		GlobalWallClock.advanceBy(2);
+		assertTrue(Jns3Logger.isErrorFree());
+		Jns3Logger.clearLog();
+		Jns3Logger.startCapture();
+		pc1.ipconfig();
+		var output = Jns3Logger.endCapture();
+		System.out.println(output);
+		var lines = output.split("\n");
+		assertEquals(4, lines.length);
+		assertEquals("Ethernet adapter PC1-IP:", lines[0].trim());
+		var expected = "   IPv4 Address. . . . . . . . . . . : 192.168.1.2\n";
+		assertEquals(expected.trim(), lines[2].trim());
+		assertTrue(lines[2].startsWith(expected.substring(0, 30)));
+		var expected2 = "   Subnet Mask . . . . . . . . . . . : 255.255.255.0";
+		assertEquals(expected2.trim(), lines[3].trim());
+		assertTrue(lines[3].startsWith(expected2.substring(0, 30)));
+	}
 }
