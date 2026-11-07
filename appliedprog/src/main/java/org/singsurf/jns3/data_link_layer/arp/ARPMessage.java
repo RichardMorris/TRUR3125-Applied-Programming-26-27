@@ -34,7 +34,7 @@ public class ARPMessage implements ProtocolContainer {
 	 * EtherType for ARP messages.
 	 */
 	public static short ARP_ETHER_TYPE = 0x0806;
-    static private MACAddress zeroMac = new MACAddress(new byte[6]);
+    static MACAddress zeroMac = new MACAddress(new byte[6]);
 
     public ARPMessage(boolean isRequest, MACAddress senderMac, IPAddress senderIp, MACAddress targetMac, IPAddress targetIp) {
         this.isRequest = isRequest;

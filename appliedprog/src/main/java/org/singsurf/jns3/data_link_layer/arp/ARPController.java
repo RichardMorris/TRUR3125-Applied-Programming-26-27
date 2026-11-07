@@ -134,6 +134,22 @@ public class ARPController implements FrameHandler {
 	public void setSender(FrameSender sender) {
 		this.sender = sender;
 	}
+
+	public void announceAddress(IPAddress ipAddress, MACAddress macAddress) {
+        var reply = new ARPMessage(
+                false, 
+                device.getMACAddress(), 
+                device.getIPAddress(), 
+                MACAddress.BROADCAST_MAC, 
+                device.getMulticastAddress());
+            var replyFrame = new EthernetFrame(
+            		MACAddress.BROADCAST_MAC, 
+            		device.getMACAddress(), 
+            		ARPMessage.ARP_ETHER_TYPE, 
+            		reply.getBytes());
+            sender.send(replyFrame);
+		
+	}
 	
 	
 }

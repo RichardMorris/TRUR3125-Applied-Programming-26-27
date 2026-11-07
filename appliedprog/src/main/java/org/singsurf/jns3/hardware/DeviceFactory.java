@@ -96,7 +96,10 @@ public class DeviceFactory {
     public PC createPC(String name) {
         MACAddress mac = createMACAddress();
         IPAddress ip = createLocalIPAddress();
+        return createPC(name, ip, mac);
+    }
         
+    public PC createPC(String name, IPAddress ip, MACAddress mac) {
         // boot logic for the PC
         var pc = new PC(name, mac, ip);
 

@@ -64,15 +64,15 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 	public void send(IPPacket packet) {
 		
 		var destIP = packet.getDestinationAddress();
+		var srcIP = packet.getSourceAddress();
 		var destMac = arpController.getArpTable().get(destIP);
+		var srcMac = srcIP.equals(device.getIPAddress())
+				? sourceMac
+				: arpController.getArpTable().get(srcIP);
 		
 		if(destIP.equals(IPProtocol.LIMITED_MULTICAST_ADDRESS) 
 		 || destIP.equals(device.getMulticastAddress())) {
 			destMac = MACAddress.BROADCAST_MAC;
-			var srcIP = packet.getSourceAddress();
-			var srcMac = srcIP.equals(device.getIPAddress())
-					? sourceMac
-					: arpController.getArpTable().get(srcIP);
 			if(srcMac == null) {
 				Jns3Logger.logError(name, "No ARP entry for source IP " + srcIP + ". Cannot send multicast packet.");
 				return;
@@ -93,7 +93,7 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 			return;
 		}
 		
-		sendPacket(packet, sourceMac, destMac);
+		sendPacket(packet, srcMac, destMac);
 	}
 
 	private void sendPacket(IPPacket packet, MACAddress srcMac, MACAddress destMac) {

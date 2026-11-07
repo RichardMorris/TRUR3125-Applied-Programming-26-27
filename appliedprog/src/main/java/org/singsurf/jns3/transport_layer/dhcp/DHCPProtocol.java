@@ -115,6 +115,7 @@ public class DHCPProtocol implements Protocol, LowerSocketAdapter<UDPDatagram>, 
 		multicast_socket.send(datagram);
 	}
 
+	
 	@Override
 	public void receive(UDPDatagram msg) {
 		DHCPMessage dhcpMessage = new DHCPMessage(msg.getContents());
@@ -124,5 +125,11 @@ public class DHCPProtocol implements Protocol, LowerSocketAdapter<UDPDatagram>, 
 
 	public Map<Integer, DHCPMessage> getAcceptedOfferMessages() {
 		return acceptedOfferMessages;
+	}
+
+
+	public void announceAddress() {
+		arpProtocol.announceAddress(device.getIPAddress(), device.getMACAddress());
+		
 	}
 }

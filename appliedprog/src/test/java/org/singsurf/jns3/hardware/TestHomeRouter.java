@@ -175,6 +175,32 @@ class TestHomeRouter {
 	}
 
 	@Test
+	void packet_to_established_addresses_from_unknown_device() {
+		System.out.println(router);
+		System.out.println(pc1);
+		System.out.println(pc2);
+		pc2.getArpProtocol().sendGARPRequest();
+		assertEquals(pc1.getMACAddress(), pc2.getArpProtocol().lookup(pc1.getIPAddress()));
+		Jns3Logger.clearLog();
+		byte[] payload = "Hello from PC1".getBytes();
+		
+        IPPacket packet = new IPPacket(IPPacket.TCP, 64,
+            pc1.getIPAddress(), pc2.getIPAddress(), payload);
+		
+		var fs1 = pc1.getIPProtocol().getPacketSender();
+		fs1.send(packet);
+		Jns3Logger.println();
+		assertEquals(1, Jns3Logger.size());
+		assertEquals("PC2", Jns3Logger.getItem(0).deviceName());
+		assertEquals(Jns3Logger.LogLevel.RECEIVED, 
+				Jns3Logger.getItem(0).level());
+		assertTrue(Jns3Logger.isErrorFree());
+		assertEquals(pc1.getMACAddress(), pc2.getArpProtocol().lookup(pc1.getIPAddress()));
+		assertEquals(pc1.getMACAddress(), router.getArpProtocol().lookup(pc1.getIPAddress()));
+
+	}
+
+	@Test
 	void catches_ttl_expired() {
 		pc1.getArpProtocol().sendGARPRequest();
 		pc2.getArpProtocol().sendGARPRequest();
@@ -367,6 +393,95 @@ class TestHomeRouter {
 		assertEquals(router.getMACAddress(), pc1.getArpProtocol().lookup(router.getIPAddress()));
 		
 //		assertEquals(0, routerDHCP.offerSockets.size());
+		
+		
+		assertTrue(Jns3Logger.isErrorFree());
+		System.out.println(router);
+		System.out.println(pc1);
+		System.out.println(pc2);
+		System.out.println(pc3);
+		System.out.println(pc4);
+
+	}
+
+	@Test
+	void all_pcs_discover_across_simple_network() {
+		pc1.setIPAddress(IPAddress.ZERO_ADDRESS);
+		pc2.setIPAddress(IPAddress.ZERO_ADDRESS);
+		pc3.setIPAddress(IPAddress.ZERO_ADDRESS);
+		pc4.setIPAddress(IPAddress.ZERO_ADDRESS);
+		System.out.println(router);
+		System.out.println(pc1);
+		System.out.println(pc2);
+		System.out.println(pc3);
+		System.out.println(pc4);
+
+		System.out.println(Jns3Logger.asString());
+		Jns3Logger.clearLog();
+		
+		System.out.println("Discover 1");
+		pc1.getDHCPProtocol().startDiscovery();
+		
+		System.out.println(Jns3Logger.asString());
+		assertTrue(Jns3Logger.isErrorFree());
+		Jns3Logger.clearLog();
+		
+		System.out.println("Tick");
+		GlobalWallClock.getInstance().advanceTime();
+		System.out.println(Jns3Logger.asString());
+		assertTrue(Jns3Logger.isErrorFree());
+		Jns3Logger.clearLog();
+		
+		System.out.println("Discover 2");
+		pc2.getDHCPProtocol().startDiscovery();
+		
+		System.out.println(Jns3Logger.asString());
+		assertTrue(Jns3Logger.isErrorFree());
+		Jns3Logger.clearLog();
+		
+		System.out.println("Tick");
+		GlobalWallClock.getInstance().advanceTime();
+		System.out.println(Jns3Logger.asString());
+		assertTrue(Jns3Logger.isErrorFree());
+		Jns3Logger.clearLog();
+
+		System.out.println("Discover 3");
+		pc3.getDHCPProtocol().startDiscovery();
+		
+		System.out.println(Jns3Logger.asString());
+		assertTrue(Jns3Logger.isErrorFree());
+		Jns3Logger.clearLog();
+		
+		System.out.println("Tick");
+		GlobalWallClock.getInstance().advanceTime();
+		System.out.println(Jns3Logger.asString());
+		assertTrue(Jns3Logger.isErrorFree());
+		Jns3Logger.clearLog();
+		
+		
+		System.out.println("Discover 4");
+		pc4.getDHCPProtocol().startDiscovery();
+		System.out.println(Jns3Logger.asString());
+		assertTrue(Jns3Logger.isErrorFree());
+		Jns3Logger.clearLog();
+		
+		System.out.println("Tick");
+		GlobalWallClock.getInstance().advanceTime();
+		System.out.println(Jns3Logger.asString());
+		assertTrue(Jns3Logger.isErrorFree());
+		Jns3Logger.clearLog();
+
+		
+		assertEquals("192.168.1.2", pc1.getIPAddress().toString());
+		assertEquals("192.168.1.3", pc2.getIPAddress().toString());
+		assertEquals("192.168.1.4", pc3.getIPAddress().toString());
+		assertEquals("192.168.1.5", pc4.getIPAddress().toString());
+		assertEquals(pc1.getMACAddress(), router.getArpProtocol().lookup(pc1.getIPAddress()));
+		assertEquals(router.getMACAddress(), pc1.getArpProtocol().lookup(router.getIPAddress()));
+		
+		assertEquals(pc1.getMACAddress(), pc2.getArpProtocol().lookup(pc1.getIPAddress()));
+
+		assertEquals(pc4.getMACAddress(), pc2.getArpProtocol().lookup(pc4.getIPAddress()));
 		
 		
 		assertTrue(Jns3Logger.isErrorFree());

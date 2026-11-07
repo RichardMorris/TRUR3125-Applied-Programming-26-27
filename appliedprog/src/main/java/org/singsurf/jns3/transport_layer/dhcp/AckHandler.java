@@ -28,6 +28,9 @@ public class AckHandler implements ProtocolHandler<DHCPMessage> {
 		Jns3Logger.logInfo(name, "Received DHCP Ack message YIADDR "+ message.getYiaddr().toString());
 
 		dhcpProtocol.device.setIPAddress(message.getYiaddr());
+		
+		dhcpProtocol.announceAddress();
+		
 		return HandlerStatus.COMPLETED;
 	}
 

@@ -67,4 +67,8 @@ public class ARPProtocol implements Protocol, LowerAdapter<EthernetFrame> {
 		return arpController.lookup(ipAddress);
 	}
 
+	public void announceAddress(IPAddress ipAddress, MACAddress macAddress) {
+		arpController.announceAddress(ipAddress, macAddress);
+	}
+
 }

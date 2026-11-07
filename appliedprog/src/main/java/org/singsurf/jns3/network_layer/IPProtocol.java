@@ -15,20 +15,23 @@ import org.singsurf.jns3.generic_protocol.UpperPort;
 import org.singsurf.jns3.hardware.ProtocolDevice;
 
 public class IPProtocol implements Protocol, LowerAdapter<EthernetFrame>, UpperPort<IPPacket> {
+	public static final IPAddress LIMITED_MULTICAST_ADDRESS = new IPAddress("255.255.255.255");
+
 	ProtocolDevice device;
 	IPFragmentHandler fragmentHandler;
 	TTLDecrementor ttlDecrementor;
 	ProtocolDelegator<IPPacket> delegator;
 	EthernetPacketSender packetSender;
 	ARPProtocol arpProtocol;
-	private boolean isRouter;
-	private IPFrameHandler frameHandler;
-	public static final IPAddress LIMITED_MULTICAST_ADDRESS = new IPAddress("255.255.255.255");
-	private DefaultPacketReceiver defaultReciver;
+	boolean isRouter;
+	ARPUpdater arpUpdater;
+	IPFrameHandler frameHandler;
+	DefaultPacketReceiver defaultReciver;
 	
 	public IPProtocol(ProtocolDevice device, boolean isRouter) {
 		this.device = device;
 		this.arpProtocol = device.getArpProtocol();
+		this.arpUpdater = new ARPUpdater(this);
 		this.delegator = new ProtocolDelegator<IPPacket>(device.getName());
 		this.fragmentHandler = new IPFragmentHandler(device, delegator);
 		if(isRouter) {
@@ -53,7 +56,7 @@ public class IPProtocol implements Protocol, LowerAdapter<EthernetFrame>, UpperP
 
 	@Override
 	public List<ProtocolHandler<EthernetFrame>> getInboundHandlers() {
-		return List.of(frameHandler);
+		return List.of(arpUpdater,frameHandler);
 	}
 
 	@Override
