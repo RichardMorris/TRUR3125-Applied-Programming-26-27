@@ -158,16 +158,20 @@ class TestProtocol {
 		BALogic logicBA = new BALogic();
 		ABLogic logicAB = new ABLogic();
 
-		static class ABConvertor implements ProtocolConverter<TypeA, TypeB> {
+		static class ABConvertor implements ProtocolExtractor<TypeA, TypeB> {
 
 			@Override
 			public TypeB extract(TypeA a) {
 				return  new TypeB(a.message.substring(1));
 			}
 
-			@Override
 			public TypeA encapsulate(TypeB type) {
 				return new TypeA("A"+type.message);
+			}
+
+			@Override
+			public boolean isExtractable(TypeA type) {
+				return true;
 			}
 			
 		}
@@ -270,16 +274,20 @@ class TestProtocol {
 
 		}
 			
-		static class BCConvertor implements ProtocolConverter<TypeB, TypeC> {
+		static class BCConvertor implements ProtocolExtractor<TypeB, TypeC> {
 
 			@Override
 			public TypeC extract(TypeB b) {
 				return  new TypeC(b.message.substring(1));
 			}
 
-			@Override
 			public TypeB encapsulate(TypeC c) {
 				return new TypeB("B"+c.message);
+			}
+
+			@Override
+			public boolean isExtractable(TypeB type) {
+				return true;
 			}
 			
 		}
@@ -339,16 +347,20 @@ class TestProtocol {
 			}
 		}
 			
-		static class BDConvertor implements ProtocolConverter<TypeB, TypeD> {
+		static class BDConvertor implements ProtocolExtractor<TypeB, TypeD> {
 
 			@Override
 			public TypeD extract(TypeB b) {
 				return  new TypeD(b.message.substring(1));
 			}
 
-			@Override
 			public TypeB encapsulate(TypeD d) {
 				return new TypeB("B"+d.message);
+			}
+
+			@Override
+			public boolean isExtractable(TypeB type) {
+				return true;
 			}
 			
 		}

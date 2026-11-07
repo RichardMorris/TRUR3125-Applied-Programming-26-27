@@ -101,32 +101,40 @@ class TestProtocolsComponents {
 		}
 	}
 	
-	static class ABConvertor implements ProtocolConverter<ProtocolA, ProtocolB> {
+	static class ABConvertor implements ProtocolExtractor<ProtocolA, ProtocolB> {
 
 		@Override
 		public ProtocolB extract(ProtocolA a) {
 			return  new ProtocolB(a.message.substring(1));
 		}
 
-		@Override
 		public ProtocolA encapsulate(ProtocolB type) {
 			return new ProtocolA("A"+type.message);
+		}
+
+		@Override
+		public boolean isExtractable(ProtocolA type) {
+			return true;
 		}
 		
 	}
 
-	static class BCConvertor implements ProtocolConverter<ProtocolB, ProtocolC> {
+	static class BCConvertor implements ProtocolExtractor<ProtocolB, ProtocolC> {
 
 		@Override
 		public ProtocolC extract(ProtocolB b) {
 			return  new ProtocolC(b.message.substring(1));
 		}
 
-		@Override
 		public ProtocolB encapsulate(ProtocolC type) {
 			return new ProtocolB("B"+type.message);
 		}
-		
+
+		@Override
+		public boolean isExtractable(ProtocolB type) {
+			return true;
+		}
+
 	}
 
 	class ABLoggingHandler implements ProtocolHandler<ProtocolA> {
