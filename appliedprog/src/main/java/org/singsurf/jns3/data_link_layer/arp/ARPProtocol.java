@@ -10,23 +10,24 @@ import org.singsurf.jns3.generic_protocol.Protocol;
 import org.singsurf.jns3.generic_protocol.ProtocolHandler;
 import org.singsurf.jns3.generic_protocol.ProtocolReceiver;
 import org.singsurf.jns3.generic_protocol.ProtocolSender;
-import org.singsurf.jns3.hardware.AddressableDevice;
+import org.singsurf.jns3.hardware.ProtocolDevice;
 import org.singsurf.jns3.network_layer.IPAddress;
 
 public class ARPProtocol implements Protocol, LowerAdapter<EthernetFrame> {
-
-	AddressableDevice device;
+	String name;
+	ProtocolDevice device;
+	boolean isRouter;
 	ARPController arpController;
-	private boolean isRouter;
-	private ARPForwarder arpForwarder;
+	ARPForwarder arpForwarder;
 	/**
 	 * EtherType for ARP messages.
 	 */
 	public static short ARP_ETHER_TYPE = 0x0806;
 
-	public ARPProtocol(AddressableDevice device, boolean isRouter) {
+	public ARPProtocol(ProtocolDevice device, boolean isRouter) {
+		name = device.getName() + "-ARP";
 		this.device = device;
-		this.arpController = new ARPController(device);
+		this.arpController = new ARPController(this);
 		this.isRouter = isRouter;
 		arpForwarder = new ARPForwarder(device);
 
