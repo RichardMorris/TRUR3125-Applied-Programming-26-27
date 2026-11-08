@@ -31,6 +31,7 @@ public class ChatApplication implements TickListener, LowerSocketAdapter<UDPData
 	Terminal terminal;
 	boolean isPrivate = false;
 	private List<DatagramSocket> sockets = new ArrayList<>();
+	public boolean showPrompts = false;
 	
 	UDPSocketFactory socketFactory;
 	
@@ -140,7 +141,10 @@ public class ChatApplication implements TickListener, LowerSocketAdapter<UDPData
 			while((datagram = socket.poll()) != null) {
 				var source = datagram.getPsudoHeader().sourceIP();
 				String message = new String(datagram.getContents());
-				terminal.display(pc.getName()+ ": " +  source + " says: " + message);
+				if(showPrompts)
+					terminal.display(pc.getName() + ": " +  source + " says: " + message);
+				else
+					terminal.display(message);
 			}
 		}
 	}
