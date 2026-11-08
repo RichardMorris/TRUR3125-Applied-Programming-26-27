@@ -101,10 +101,50 @@ public class DHCPMessage implements ProtocolContainer {
 		public IPAddress getDataAsIPAddress() {
 			return new IPAddress(data[0], data[1], data[2], data[3]);
 		}
+		public int getDataAsInteger() {
+			int value = 0;
+			for (int i = 0; i < length; i++) {
+				value = (value << 8) | (data[i] & 0xFF);
+			}
+			return value;
+		}
+
 		public MACAddress getDataAsMACAddress() {
 			byte[] macBytes = new byte[6];
 			System.arraycopy(data, 0, macBytes, 0, 6);
 			return new MACAddress(macBytes);
+		}
+		@Override
+		public String toString() {
+			StringBuilder sb = new StringBuilder("DHCPOption[");
+			//DHCPOption[code=53, length=1, data=[B@6d5620ce]
+			sb.append("code=").append(code & 0xFF);
+			sb.append(", length=").append(length & 0xFF);
+			switch(code) {
+			case OPT_SUBNET_MASK:
+			case OP_ROUTER_IP:
+			case OPT_REQ_IP:
+			case OPT_SERVER_IP:
+				sb.append(", data=").append(getDataAsIPAddress());
+				break;
+			case OP_ADDRESS_TIME:
+				sb.append(", data=").append(getDataAsInteger());
+				break;
+			case OPT_MSG_TYPE:
+				sb.append(", data=").append(data[0] & 0xFF);
+				break;
+			case OPT_SERVER_MAC:
+				sb.append(", data=").append(getDataAsMACAddress());
+				break;
+			default:
+				sb.append(", data=0x");
+				for (byte b : data) {
+					sb.append(String.format("%02X", b));
+				}
+				break;
+			}
+			sb.append("]");
+			return sb.toString();
 		}
 	}
 	
