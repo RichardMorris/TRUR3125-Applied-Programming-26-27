@@ -9,9 +9,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class TestPacketFragmentor {
-	PacketFragmentor fragmentor = new PacketFragmentor(100);
+	PacketFragmentor fragmentor = new PacketFragmentor();
 	@BeforeEach
 	void setUp() throws Exception {
+		fragmentor.setMaxLength(100);
 	}
 
 	@Test

@@ -24,11 +24,9 @@ import org.singsurf.jns3.hardware.GlobalWallClock.TickListener;
 public class EthernetPacketSender implements PacketSender, TickListener {
 	AddressableDevice device;
 	String name;
-	MACAddress sourceMac;
 	ARPController arpController;
 	FrameSender frameSender;
-
-	PacketFragmentor packetFragmentor = new PacketFragmentor(140);
+	PacketFragmentor packetFragmentor = new PacketFragmentor();
 	
 	Map<IPAddress, TaggedQueue> packetQueue = new HashMap<>();
 	
@@ -54,7 +52,6 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 			ARPController arpController, FrameSender frameSender) {
 		this.device = device;
 		this.name = device.getName();
-		this.sourceMac = device.getMACAddress();
 		this.arpController = arpController;
 		this.frameSender = frameSender;
 		GlobalWallClock.getInstance().addTickListener(this);
@@ -67,7 +64,7 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 		var srcIP = packet.getSourceAddress();
 		var destMac = arpController.getArpTable().get(destIP);
 		var srcMac = srcIP.equals(device.getIPAddress())
-				? sourceMac
+				? device.getMACAddress()
 				: arpController.getArpTable().get(srcIP);
 		
 		if(destIP.equals(IPProtocol.LIMITED_MULTICAST_ADDRESS) 
@@ -131,6 +128,11 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 		for(var ip: packetQueue.keySet()) {
 			arpController.sendArpRequest(ip);
 		}
+		
+	}
+
+	public void setFragmentSize(int size) {
+		packetFragmentor.setMaxLength(size);
 		
 	}
 

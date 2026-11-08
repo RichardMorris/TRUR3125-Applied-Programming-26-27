@@ -15,6 +15,7 @@ import org.singsurf.jns3.hardware.DeviceFactory;
 import org.singsurf.jns3.hardware.GlobalWallClock;
 import org.singsurf.jns3.hardware.PC;
 import org.singsurf.jns3.hardware.Switch;
+import org.singsurf.jns3.network_layer.EthernetPacketSender;
 import org.singsurf.jns3.physical_layer.BufferedConnection;
 import org.singsurf.jns3.physical_layer.CorruptedConnection;
 import org.singsurf.jns3.physical_layer.CountingConnection;
@@ -379,6 +380,8 @@ class TestUDPChatApplication {
 
 	@Test
 	public void large_messages_through_lossy_connection() throws IOException {
+		((EthernetPacketSender) pc1.getIPProtocol().getPacketSender()).setFragmentSize(140);
+
 		var connection1 = new LossyConnection(pc1.getEndPoint(), pc2.getEndPoint());
 		assertNotNull(connection1);
 		
@@ -418,6 +421,7 @@ class TestUDPChatApplication {
 
 	@Test
 	public void large_messages_through_corrupted_connection() throws IOException {
+		((EthernetPacketSender) pc1.getIPProtocol().getPacketSender()).setFragmentSize(140);
 		var connection1 = new CorruptedConnection(pc1.getEndPoint(), pc2.getEndPoint());
 		assertNotNull(connection1);
 		
@@ -450,6 +454,7 @@ class TestUDPChatApplication {
 		Jns3Logger.startCapture();
 		GlobalWallClock.advanceBy(2);
 		var output = Jns3Logger.endCapture();
+		System.out.print(output);
 		System.out.println(output.length() + " chars");
 		assertTrue(output.length() > 3000 && output.length() < 3100);
 		assertFalse(Jns3Logger.isErrorFree());
@@ -462,6 +467,8 @@ class TestUDPChatApplication {
 
 	@Test
 	public void counting_large_messages_through_lossy_connection() throws IOException {
+		((EthernetPacketSender) pc1.getIPProtocol().getPacketSender()).setFragmentSize(140);
+
 		var connection1 = new CountingConnection(pc1.getEndPoint(), null);
 		var connection2 = new LossyConnection(null,null);
 		var connection3 = new CountingConnection(null, pc2.getEndPoint());

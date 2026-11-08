@@ -14,7 +14,7 @@ import org.singsurf.jns3.hardware.PC;
 import org.singsurf.jns3.physical_layer.SimpleConnection;
 
 class TestPacketCombiner {
-	PacketFragmentor fragmentor = new PacketFragmentor(100);
+	PacketFragmentor fragmentor = new PacketFragmentor();
 
 	PC pc;
 	IPFragmentHandler combiner;
@@ -25,6 +25,7 @@ class TestPacketCombiner {
 
 	@BeforeEach
 	void setUp() throws Exception {
+		fragmentor.setMaxLength(100);
 		pc = deviceFactory.createPC("TestPC");
 		delegator = pc.getIPProtocol().getDelegator();
 		combiner = pc.getIPProtocol().getFragmentHandler();

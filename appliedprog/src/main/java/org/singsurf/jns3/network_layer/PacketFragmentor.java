@@ -8,18 +8,28 @@ import java.util.List;
  * Each set of fragments is given a unique identification number.
  */
 public class PacketFragmentor {
-    final int maxLength; // the maximum length of of a packet
-    final int dataSize; // the size of the data portion of each fragment
-    final int offsetIncrement; // how much the offset should increase for each fragment
+	public static final int MAX_PACKET_SIZE = 576; // 576 bytes is the minimum MTU for IP packets
+
+
+	int maxLength; // the maximum length of of a packet
+    int dataSize; // the size of the data portion of each fragment
+    int offsetIncrement; // how much the offset should increase for each fragment
     
     int identificationCounter = 0; // to generate unique identification for each packet
     
-    public PacketFragmentor(int maxLength) {
-        this.maxLength = maxLength;
+    public PacketFragmentor() {
+        this.maxLength = MAX_PACKET_SIZE;
         var maxData = (maxLength - 20); // assuming 20 bytes for the header
         this.offsetIncrement = maxData / 8;
         this.dataSize = this.offsetIncrement * 8; // round down to the nearest multiple of 8
     }
+
+	public void setMaxLength(int size) {
+        this.maxLength = size;
+        var maxData = (maxLength - 20); // assuming 20 bytes for the header
+        this.offsetIncrement = maxData / 8;
+        this.dataSize = this.offsetIncrement * 8; // round down to the nearest multiple of 8
+	}
 
     /**
      * Get the set of IP packet fragments. 
@@ -49,4 +59,5 @@ public class PacketFragmentor {
         }
         return fragments;
     }
+
 }
