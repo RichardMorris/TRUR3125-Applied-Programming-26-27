@@ -82,7 +82,7 @@ class TestHomeRouter {
 		eth.addHandler(new ProtocolHandler<EthernetFrame>() {
 			@Override
 			public HandlerStatus handle(EthernetFrame type) {
-				router.getFrameSender().send(type);
+				router.send(type);
 				return HandlerStatus.COMPLETED;
 			}
 		});

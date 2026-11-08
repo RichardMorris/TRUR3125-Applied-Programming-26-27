@@ -6,8 +6,9 @@ import java.util.Set;
 
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
-import org.singsurf.jns3.data_link_layer.FrameSender;
 import org.singsurf.jns3.data_link_layer.MACAddress;
+import org.singsurf.jns3.data_link_layer.RouterEthernetProtocol;
+import org.singsurf.jns3.generic_protocol.Protocol;
 import org.singsurf.jns3.generic_protocol.ProtocolDelegator;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.physical_layer.PhysicalEndPoint;
@@ -22,7 +23,6 @@ public class HomeRouter extends ProtocolDevice {
 	
 	Map<Integer,Set<MACAddress>> portMapping = new HashMap<>();
 	HRMultiPortDevice multiPortDevice;
-	HRFrameSender frameSender = new HRFrameSender();
 	ProtocolDelegator<EthernetFrame> frameReceiver;
 	
     Terminal terminal = new Terminal() {
@@ -30,6 +30,8 @@ public class HomeRouter extends ProtocolDevice {
 		public void display(String string) {
 			Jns3Logger.logError(getName(), string);
 		}};
+
+	RouterEthernetProtocol routerEthernetProtocol;
 
 		
 		
@@ -56,34 +58,6 @@ public class HomeRouter extends ProtocolDevice {
 		}
 	}
 	
-	class HRFrameSender implements FrameSender {
-		HRFrameSender() { }
-		
-		@Override
-		public void send(EthernetFrame frame) {
-			var destMac = frame.getDestination();
-			var srcMac = frame.getSource();
-			if(destMac.equals(MACAddress.BROADCAST_MAC)) {
-				for(int i = 0; i < NUM_PORTS; i++) {
-					var list = portMapping.get(i);
-					if(!list.contains(srcMac)) {
-						multiPortDevice.sendFrame(i, frame);
-					}
-				}
-				return;
-			} else {
-				for(int i = 0; i < NUM_PORTS; i++) {
-					var list = portMapping.get(i);
-					if(list.contains(destMac)) {
-						multiPortDevice.sendFrame(i, frame);
-						return;
-					}
-				}
-				Jns3Logger.logError(getName(), "Destination MAC address " + destMac + " not found in any port mapping");
-			}
-		}	
-	}
-
 	public HomeRouter(String name, MACAddress macAddress, IPAddress ipAddress) {
         super(name,macAddress,ipAddress);
         this.multiPortDevice = new HRMultiPortDevice();
@@ -111,10 +85,6 @@ public class HomeRouter extends ProtocolDevice {
     	return multiPortDevice.getEndPoint(i);
     }
 
-	public HRFrameSender getFrameSender() {
-		return frameSender;
-	}
-
 	public void setFrameReceiver(ProtocolDelegator<EthernetFrame> delegator) {
 		this.frameReceiver = delegator;
 	}
@@ -122,6 +92,33 @@ public class HomeRouter extends ProtocolDevice {
 	@Override
 	public PhysicalProtocol getPhysicalProtocol() {
 		return null;
+	}
+
+	public void sendFrame(int i, EthernetFrame frame) {
+		multiPortDevice.sendFrame(i, frame);
+	}
+
+	public int getPortForMacAddress(MACAddress destMac) {
+		for(int i = 0; i < NUM_PORTS; i++) {
+			var list = portMapping.get(i);
+			if(list.contains(destMac)) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	@Override
+	public void addProtocol(Protocol prot) {
+		super.addProtocol(prot);
+		if(prot instanceof RouterEthernetProtocol) {
+			this.routerEthernetProtocol = (RouterEthernetProtocol) prot;
+		}
+	}
+
+	public void send(EthernetFrame type) {
+		routerEthernetProtocol.send(type);
+		
 	}
     
 }
