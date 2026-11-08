@@ -5,9 +5,11 @@ import org.singsurf.jns3.data_link_layer.FrameHandler;
 import org.singsurf.jns3.generic_protocol.HandlerStatus;
 import org.singsurf.jns3.generic_protocol.ProtocolReceiver;
 
+/**
+ * Handles Ethernet frames that contain IP packets and passes them to a ProtocolReceiver.
+ */
 public class IPFrameHandler implements FrameHandler {
-
-	private ProtocolReceiver<IPPacket> receiver;
+	ProtocolReceiver<IPPacket> receiver;
 
 	public IPFrameHandler(ProtocolReceiver<IPPacket> receiver) {
 		this.receiver = receiver;

@@ -20,7 +20,7 @@ class TestPacketCombiner {
 	IPFragmentHandler combiner;
 
 	ProtocolDelegator<IPPacket> delegator;
-	private DefaultPacketReceiver receiver;
+	private DefaultPacketHandler receiver;
 	DeviceFactory deviceFactory = new DeviceFactory();
 
 	@BeforeEach
@@ -30,7 +30,6 @@ class TestPacketCombiner {
 		delegator = pc.getIPProtocol().getDelegator();
 		combiner = pc.getIPProtocol().getFragmentHandler();
 		receiver = pc.getIPProtocol().getDefaultReceiver();
-//		delegator.addHandler(receiver);
 	}
 
 	@Test

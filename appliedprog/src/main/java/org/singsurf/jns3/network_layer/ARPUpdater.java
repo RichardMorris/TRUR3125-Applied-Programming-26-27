@@ -4,10 +4,14 @@ import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.data_link_layer.FrameHandler;
 import org.singsurf.jns3.generic_protocol.HandlerStatus;
 
+/**
+ * Updates the ARP table in the IPProtocol when a frame 
+ * with an IP packet is received.
+ */
 public class ARPUpdater implements FrameHandler {
 
 
-	private IPProtocol ipProtocol;
+	IPProtocol ipProtocol;
 
 	public ARPUpdater(IPProtocol ipProtocol) {
 		this.ipProtocol = ipProtocol;

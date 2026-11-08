@@ -18,18 +18,21 @@ public class IPProtocol implements Protocol, LowerAdapter<EthernetFrame>, UpperP
 	public static final IPAddress LIMITED_MULTICAST_ADDRESS = new IPAddress("255.255.255.255");
 	String name;
 	ProtocolDevice device;
+	boolean isRouter;
+	
 	IPFragmentHandler fragmentHandler;
 	TTLDecrementor ttlDecrementor;
 	ProtocolDelegator<IPPacket> delegator;
 	EthernetPacketSender packetSender;
-	ARPProtocol arpProtocol;
-	boolean isRouter;
 	ARPUpdater arpUpdater;
 	IPFrameHandler frameHandler;
-	DefaultPacketReceiver defaultReciver;
-	
+	DefaultPacketHandler defaultReciver;
+
+	ARPProtocol arpProtocol;
+
 	public IPProtocol(ProtocolDevice device, boolean isRouter) {
 		this.device = device;
+		this.isRouter = isRouter;
 		this.name = device.getName() + "-IP";
 		this.arpProtocol = device.getArpProtocol();
 		this.arpUpdater = new ARPUpdater(this);
@@ -43,8 +46,9 @@ public class IPProtocol implements Protocol, LowerAdapter<EthernetFrame>, UpperP
 			this.frameHandler = new IPFrameHandler(delegator);
 			delegator.addHandler(fragmentHandler);
 		}
-		this.isRouter = isRouter;
 	}
+	
+	// Port and adapter methods
 
 	@Override
 	public void register(LowerAdapter<IPPacket> adapter) {
@@ -79,32 +83,8 @@ public class IPProtocol implements Protocol, LowerAdapter<EthernetFrame>, UpperP
 	}
 
 	public void finalise() {
-		defaultReciver = new DefaultPacketReceiver(device.getName());
+		defaultReciver = new DefaultPacketHandler(device.getName());
 		delegator.addHandler(defaultReciver);
-	}
-
-	public ProtocolDelegator<IPPacket> getDelegator() {
-		return delegator;
-	}
-
-	public PacketSender getPacketSender() {
-		return packetSender;
-	}
-
-	public void receive(IPPacket packet) {
-		delegator.receive(packet);		
-	}
-
-	public IPFragmentHandler getFragmentHandler() {
-		return fragmentHandler;
-	}
-
-	public DefaultPacketReceiver getDefaultReceiver() {
-		return defaultReciver;
-	}
-
-	public boolean isRouter() {
-		return isRouter;
 	}
 
 	public void displayIPConfig() {
@@ -139,5 +119,26 @@ Wireless LAN adapter WiFi:
 		terminal.display(sb.toString());
 	}
 	
-		
+	// Getters
+	
+	public ProtocolDelegator<IPPacket> getDelegator() {
+		return delegator;
+	}
+
+	public PacketSender getPacketSender() {
+		return packetSender;
+	}
+
+	public IPFragmentHandler getFragmentHandler() {
+		return fragmentHandler;
+	}
+
+	public DefaultPacketHandler getDefaultReceiver() {
+		return defaultReciver;
+	}
+
+	public boolean isRouter() {
+		return isRouter;
+	}
+
 }

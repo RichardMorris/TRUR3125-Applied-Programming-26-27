@@ -4,11 +4,13 @@ import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.generic_protocol.ProtocolDelegator;
 import org.singsurf.jns3.network_layer.icmp.ICMPMessage;
 
+/**
+ * Decrements the TTL of received IP packets 
+ * and handles expired packets by sending an ICMP error message.
+ */
 public class TTLDecrementor implements PacketReceiver {
 	IPProtocol device;
-	
-	private ProtocolDelegator<IPPacket> delegator;
-
+	ProtocolDelegator<IPPacket> delegator;
 
 	public TTLDecrementor(IPProtocol device, ProtocolDelegator<IPPacket> delegator) {
 		this.device = device;

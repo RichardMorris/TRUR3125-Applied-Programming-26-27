@@ -24,7 +24,7 @@ public class PacketFragmentor {
         this.dataSize = this.offsetIncrement * 8; // round down to the nearest multiple of 8
     }
 
-	public void setMaxLength(int size) {
+	void setMaxLength(int size) {
         this.maxLength = size;
         var maxData = (maxLength - 20); // assuming 20 bytes for the header
         this.offsetIncrement = maxData / 8;

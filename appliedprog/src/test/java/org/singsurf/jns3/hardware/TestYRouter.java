@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.data_link_layer.MACAddress;
-import org.singsurf.jns3.network_layer.DefaultPacketReceiver;
+import org.singsurf.jns3.network_layer.DefaultPacketHandler;
 import org.singsurf.jns3.network_layer.IPPacket;
 import org.singsurf.jns3.physical_layer.BufferedConnection;
 import org.singsurf.jns3.physical_layer.CountingConnection;
@@ -128,10 +128,10 @@ class TestYRouter {
 		
 		PC pc = deviceFactory.createPC("Receiver PC");
 		var del = pc.getIPProtocol().getDelegator();
-		DefaultPacketReceiver receiver = null;
+		DefaultPacketHandler receiver = null;
 		for(var h : del.getHandlers()) {
-			if(h instanceof DefaultPacketReceiver) {
-				receiver = (DefaultPacketReceiver) h;
+			if(h instanceof DefaultPacketHandler) {
+				receiver = (DefaultPacketHandler) h;
 				break;
 			}
 		}
