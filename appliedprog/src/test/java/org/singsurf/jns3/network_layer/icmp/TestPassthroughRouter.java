@@ -262,12 +262,12 @@ class TestPassthroughRouter {
 		assertTrue(item0.message().startsWith("Expired ping"));
 		// tick
 		GlobalWallClock.advanceBy(1);
+		output = Jns3Logger.endCapture();
 		assertEquals(2, Jns3Logger.size());
 		var item1 = Jns3Logger.getItem(1);
 		assertEquals("PC1", item1.deviceName());
 		assertEquals(Jns3Logger.LogLevel.ERROR, item1.level());
 		assertTrue(item1.message().startsWith("Received error from "+router.getIPAddress()));
-		output = Jns3Logger.endCapture();
 		assertEquals("", output.trim());
 		
 	}

@@ -101,7 +101,7 @@ class TestHomeRouter {
 		assertNotNull(connection3);
 		assertNotNull(connection4);
 		
-		
+		ChatApplication.showPrompts = false;
 	}
 
 	@Test

@@ -31,7 +31,7 @@ public class ChatApplication implements TickListener, LowerSocketAdapter<UDPData
 	Terminal terminal;
 	boolean isPrivate = false;
 	private List<DatagramSocket> sockets = new ArrayList<>();
-	public boolean showPrompts = false;
+	public static boolean showPrompts = true;
 	
 	UDPSocketFactory socketFactory;
 	
