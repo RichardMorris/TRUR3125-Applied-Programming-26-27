@@ -7,10 +7,10 @@ class HRFrameSender implements FrameSender {
 	/**
 	 * 
 	 */
-	private final HomeRouter homeRouter;
+	private final RouterEthernetProtocol homeRouter;
 
-	HRFrameSender(HomeRouter homeRouter) {
-		this.homeRouter = homeRouter; }
+	HRFrameSender(RouterEthernetProtocol routerEthernetProtocol) {
+		this.homeRouter = routerEthernetProtocol; }
 	
 	@Override
 	public void send(EthernetFrame frame) {
@@ -30,7 +30,7 @@ class HRFrameSender implements FrameSender {
 					homeRouter.sendFrame(index, frame);
 					return;
 			}
-			Jns3Logger.logError(this.homeRouter.getName(), "Destination MAC address " + destMac + " not found in any port mapping");
+			Jns3Logger.logError(homeRouter.getName(), "Destination MAC address " + destMac + " not found in any port mapping");
 		}
 	}	
 }

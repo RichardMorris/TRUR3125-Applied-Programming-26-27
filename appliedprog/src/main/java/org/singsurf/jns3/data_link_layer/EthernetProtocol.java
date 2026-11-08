@@ -78,6 +78,9 @@ public class EthernetProtocol implements Protocol, LowerPhysicalAdapter, UpperPo
 	}
 
 
+	public String getName() {
+		return name;
+	}
 
 
 }
