@@ -21,6 +21,8 @@ import org.singsurf.jns3.network_layer.IPPacket;
 import org.singsurf.jns3.network_layer.IPProtocol;
 import org.singsurf.jns3.network_layer.PacketHandler;
 import org.singsurf.jns3.network_layer.icmp.ICMPProtocol;
+import org.singsurf.jns3.physical_layer.CountingConnection;
+import org.singsurf.jns3.physical_layer.FILOBufferedConnection;
 import org.singsurf.jns3.physical_layer.SimpleConnection;
 import org.singsurf.jns3.transport_layer.dhcp.DHCPMessage;
 import org.singsurf.jns3.transport_layer.dhcp.DHCPProtocol;
@@ -517,4 +519,75 @@ class TestHomeRouter {
 		assertEquals(expected2.trim(), lines[3].trim());
 		assertTrue(lines[3].startsWith(expected2.substring(0, 30)));
 	}
+	
+	@Test
+	public void large_messages_through_fifo_connection() throws IOException {
+		System.out.println(router);
+		System.out.println(pc1);
+		System.out.println(pc2);
+		System.out.println(pc3);
+		System.out.println(pc4);
+
+		DeviceFactory.getInstance().resetSequentialLocalIPAddress();
+		var connection1 = new FILOBufferedConnection(router.getEndPoint(0), pc1.getEndPoint());
+		var connection2 = new CountingConnection(pc2.getEndPoint(), router.getEndPoint(1));
+		assertNotNull(connection1);
+
+		pc1.getDHCPProtocol().startDiscovery();
+		GlobalWallClock.advanceBy(6);
+		assertTrue(Jns3Logger.isErrorFree());
+
+		assertEquals("192.168.1.2", pc1.getIPAddress().toString());
+		assertEquals(pc1.getMACAddress(), pc2.getArpProtocol().lookup(pc1.getIPAddress()));
+
+		pc2.getDHCPProtocol().startDiscovery();
+		GlobalWallClock.advanceBy(6);
+		assertTrue(Jns3Logger.isErrorFree());
+
+		connection2.reset();
+
+		assertEquals("192.168.1.2", pc1.getIPAddress().toString());
+		assertEquals("192.168.1.3", pc2.getIPAddress().toString());
+		assertEquals(pc1.getMACAddress(), pc2.getArpProtocol().lookup(pc1.getIPAddress()));
+		assertEquals(pc2.getMACAddress(), pc1.getArpProtocol().lookup(pc2.getIPAddress()));
+
+		// Act
+		Jns3Logger.clearLog();
+		var chat1 = new ChatApplication(pc1,pc2.getIPAddress());
+		var chat2 = new ChatApplication(pc2,pc1.getIPAddress());
+		assertNotNull(chat2);
+		
+		String dataString = Jns3Logger.generateOnesComplementTable();
+		var lines = dataString.split("\n");
+		var lineLength = lines.length;
+		System.out.println("Data length: " + dataString.length() + " lines: " + lines.length
+				+ " of " + lines[0].length() +" chars" );
+		int fragmentSize = 100;
+		int startIndex = 0;
+		Jns3Logger.startCapture();
+		while (startIndex < lineLength) {
+		    int endIndex = Math.min(startIndex + fragmentSize, lineLength);
+		    StringBuilder fragmentBuilder = new StringBuilder();
+		    for (int i = startIndex; i < endIndex; i++) {
+		        fragmentBuilder.append(lines[i]).append("\n");
+		    }
+		    var messagePart = fragmentBuilder.toString();
+		    System.out.println("Sending message part: " + messagePart.length() + " chars");
+			chat1.wisper(messagePart);
+		    connection2.reset();
+		    startIndex = endIndex;
+		}
+		System.out.println("Tick");
+		GlobalWallClock.advanceBy(1);
+	    System.out.println("Sent " + connection2.getForwardCount() + " frames, " + connection2.getReverseCount() + " frames received");
+		var output = Jns3Logger.endCapture();
+		System.out.print(output);
+		System.out.println(output.length() + " chars");
+		assertEquals(5914, output.length());
+		var outputLines = output.split("\n");
+		assertEquals("0x00FF 255", outputLines[17].trim());
+		assertEquals("0x0091 145", outputLines[19].trim());
+		assertTrue(Jns3Logger.isErrorFree());
+	}
+
 }
