@@ -16,6 +16,7 @@ import org.singsurf.jns3.hardware.ProtocolDevice;
 
 public class IPProtocol implements Protocol, LowerAdapter<EthernetFrame>, UpperPort<IPPacket> {
 	public static final IPAddress LIMITED_MULTICAST_ADDRESS = new IPAddress("255.255.255.255");
+	public static final short ETHERTYPE = 0x800;
 	String name;
 	ProtocolDevice device;
 	boolean isRouter;

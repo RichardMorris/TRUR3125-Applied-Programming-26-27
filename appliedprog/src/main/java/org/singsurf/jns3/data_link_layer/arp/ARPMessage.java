@@ -30,10 +30,6 @@ public class ARPMessage implements ProtocolContainer {
     private MACAddress targetMac;
     private IPAddress senderIp;
     private IPAddress targetIp;
-    /**
-	 * EtherType for ARP messages.
-	 */
-	public static short ARP_ETHER_TYPE = 0x0806;
     static MACAddress zeroMac = new MACAddress(new byte[6]);
 
     public ARPMessage(boolean isRequest, MACAddress senderMac, IPAddress senderIp, MACAddress targetMac, IPAddress targetIp) {
@@ -89,7 +85,7 @@ public class ARPMessage implements ProtocolContainer {
     }
 
     public static boolean isARPMessage(EthernetFrame frame) {
-		return frame.getEtherType() == ARP_ETHER_TYPE;
+		return frame.getEtherType() == ARPProtocol.ARP_ETHER_TYPE;
 	}
     
     static ARPMessage fromFrame(EthernetFrame frame) {

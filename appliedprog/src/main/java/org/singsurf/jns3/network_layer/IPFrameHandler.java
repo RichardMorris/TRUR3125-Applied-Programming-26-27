@@ -17,15 +17,16 @@ public class IPFrameHandler implements FrameHandler {
 
 	@Override
 	public HandlerStatus handle(EthernetFrame frame) {
+		if(frame.getEtherType() != IPProtocol.ETHERTYPE) {
+			return HandlerStatus.CONTINUE;
+		}
 		var payload = frame.getContents();
-		if(payload.length == 0) {
-			return HandlerStatus.CONTINUE;
-		}
-		if(payload[0]  != IPPacket.IPV4_ID) {
-			return HandlerStatus.CONTINUE;
-		}
 		if(payload.length < 20) {
 			return new HandlerStatus.Invalid("IP packet too short: " + payload.length);
+		}
+		if(payload[0]  != IPPacket.IPV4_ID) {
+			var byteStr = String.format("%02X", payload[0]);
+			return new HandlerStatus.Invalid("Frame with IP EtherType but wrong version/headerlength: " + byteStr);
 		}
 		var packet = IPPacketExtractor.getInstance().extract(frame);
 		receiver.receive(packet);

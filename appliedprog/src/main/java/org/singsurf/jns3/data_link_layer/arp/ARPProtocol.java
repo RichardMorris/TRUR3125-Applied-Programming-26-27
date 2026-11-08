@@ -19,6 +19,10 @@ public class ARPProtocol implements Protocol, LowerAdapter<EthernetFrame> {
 	ARPController arpController;
 	private boolean isRouter;
 	private ARPForwarder arpForwarder;
+	/**
+	 * EtherType for ARP messages.
+	 */
+	public static short ARP_ETHER_TYPE = 0x0806;
 
 	public ARPProtocol(AddressableDevice device, boolean isRouter) {
 		this.device = device;

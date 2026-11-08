@@ -96,7 +96,10 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 	private void sendPacket(IPPacket packet, MACAddress srcMac, MACAddress destMac) {
 		List<IPPacket> packets = packetFragmentor.getFragments(packet);
 		for(IPPacket p : packets) {
-			EthernetFrame frame = new EthernetFrame(destMac, srcMac, p.getBytes());
+			EthernetFrame frame = new EthernetFrame(
+					destMac, srcMac,
+					IPProtocol.ETHERTYPE,
+					p.getBytes());
 			if(!IPPacketExtractor.getInstance().isExtractable(frame)) {
 				Jns3Logger.logError(name, "Frame is not extractable as IP packet. Frame: " + frame);
 			}

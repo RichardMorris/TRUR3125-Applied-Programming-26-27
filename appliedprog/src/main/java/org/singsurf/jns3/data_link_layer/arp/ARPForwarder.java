@@ -25,7 +25,7 @@ public class ARPForwarder implements FrameHandler {
 
 	@Override
 	public HandlerStatus handle(EthernetFrame frame) {
-	        if(frame.getEtherType() != ARPMessage.ARP_ETHER_TYPE) return HandlerStatus.CONTINUE;
+	        if(frame.getEtherType() != ARPProtocol.ARP_ETHER_TYPE) return HandlerStatus.CONTINUE;
 
 	        if(frame.getDestination().equals(MACAddress.BROADCAST_MAC)) {
 	        	sender.send(frame); // Forward the ARP frame to all devices

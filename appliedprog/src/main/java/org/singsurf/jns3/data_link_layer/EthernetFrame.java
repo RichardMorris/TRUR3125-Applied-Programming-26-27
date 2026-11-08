@@ -3,8 +3,9 @@ package org.singsurf.jns3.data_link_layer;
 import java.util.Arrays;
 import java.util.zip.CRC32;
 
-import org.singsurf.jns3.data_link_layer.arp.ARPMessage;
+import org.singsurf.jns3.data_link_layer.arp.ARPProtocol;
 import org.singsurf.jns3.generic_protocol.ProtocolContainer;
+import org.singsurf.jns3.network_layer.IPProtocol;
 
 /**
  * Represents an Ethernet frame:
@@ -35,9 +36,10 @@ public class EthernetFrame implements ProtocolContainer {
         this.etherType = etherType;
         this.payload = payload;
         this.frameCheck = calcFrameCheck();
-        if(etherType == ARPMessage.ARP_ETHER_TYPE)  
+        if(etherType == ARPProtocol.ARP_ETHER_TYPE
+        		|| etherType == IPProtocol.ETHERTYPE) { 
             return; // Skip further checks for ARP frames
-
+        }
         if(etherType <= 0 || etherType > 1500) {
             throw new IllegalArgumentException("Invalid etherType: " + etherType);
         }

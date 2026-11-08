@@ -9,6 +9,7 @@ import org.singsurf.jns3.data_link_layer.arp.ARPMessage;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPPacket;
 import org.singsurf.jns3.network_layer.IPPacketExtractor;
+import org.singsurf.jns3.network_layer.IPProtocol;
 import org.singsurf.jns3.network_layer.PacketSender;
 import org.singsurf.jns3.network_layer.icmp.ICMPMessage;
 import org.singsurf.jns3.network_layer.icmp.ICMPPacketExtractor;
@@ -58,7 +59,8 @@ public class PassthroughRouter extends MultiPortDevice implements AddressableDev
 		@Override
 		public void send(IPPacket packet) {
 			byte[] payload = packet.getBytes();
-			var frame = new EthernetFrame(macAddress, destMac, (short) payload.length, payload);
+			var frame = new EthernetFrame(macAddress, destMac, 
+					IPProtocol.ETHERTYPE, payload);
 			fSender.send(frame);
 		}
 		
@@ -122,7 +124,9 @@ public class PassthroughRouter extends MultiPortDevice implements AddressableDev
 				ipAddress, packet.getSourceAddress(), 
 				icmp.getBytes());
 			byte[] payload1 = errorPacket.getBytes();
-			var errorFrame = new EthernetFrame(frame.getSource(), frame.getDestination(), (short) payload1.length, payload1);
+			var errorFrame = new EthernetFrame(
+					frame.getSource(), frame.getDestination(), 
+					IPProtocol.ETHERTYPE, payload1);
 			Jns3Logger.logInfo(name, "Parameter problem "+icmp);
 
 			sendFrame(portNumber,errorFrame);
@@ -143,7 +147,9 @@ public class PassthroughRouter extends MultiPortDevice implements AddressableDev
 				ipAddress, packet.getSourceAddress(), 
 				errorMsg.getBytes());
 			byte[] payload1 = errorPacket.getBytes();
-			var errorFrame = new EthernetFrame(frame.getSource(), frame.getDestination(), (short) payload1.length, payload1);
+			var errorFrame = new EthernetFrame(
+					frame.getSource(), frame.getDestination(),
+					IPProtocol.ETHERTYPE, payload1);
 			Jns3Logger.logInfo(name, "Expired ping "+icmp);
 
 			sendFrame(portNumber,errorFrame);
