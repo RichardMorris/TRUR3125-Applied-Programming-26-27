@@ -7,23 +7,38 @@ import org.singsurf.jns3.hardware.AddressableDevice;
 
 public class PhysicalProtocol implements Protocol, UpperPhysicalPort {
 	AddressableDevice device;
-	BlockingEndPoint bep;
+	BlockingEndPoint[] bep;
+	private int numPorts;
+	private MultiPortReceiver byteReceiver;
 
-	public PhysicalProtocol(AddressableDevice device) {
+	public PhysicalProtocol(AddressableDevice device, int numPorts) {
 		super();
 		this.device = device;
-        this.bep = new BlockingEndPoint(device.getName()); 
-
+		this.numPorts = numPorts;
+        this.bep = new BlockingEndPoint[numPorts];
+        for(int i=0; i<numPorts; i++) {
+        		bep[i] = new BlockingEndPoint(device.getName()); 
+        }
 	}
 
 	@Override
 	public void register(LowerPhysicalAdapter adapter) {
-		adapter.setByteSender(bep);
-		bep.setByteReceiver(adapter.getByteReceiver());
+			adapter.setByteSenders(bep);
+			byteReceiver =adapter.getMultiByteReceiver();
+	        for(int i=0; i<numPorts; i++) {
+	        	int j=i;
+	        		bep[i].setByteReceiver(new ByteReceiver() {
+						@Override
+						public void receive(byte[] frame) {
+							byteReceiver.receiveFrame(j, frame);
+						}
+	        			
+	        		});
+	        }
 	}
 
-	public BlockingEndPoint getEndPoint() {
-		return bep;
+	public BlockingEndPoint getEndPoint(int i) {
+		return bep[i];
 	}
 
 
