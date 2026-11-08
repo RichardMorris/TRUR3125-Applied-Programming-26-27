@@ -6,9 +6,9 @@ import java.util.Set;
 
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
-import org.singsurf.jns3.data_link_layer.FrameReceiver;
 import org.singsurf.jns3.data_link_layer.FrameSender;
 import org.singsurf.jns3.data_link_layer.MACAddress;
+import org.singsurf.jns3.generic_protocol.ProtocolDelegator;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.physical_layer.PhysicalEndPoint;
 import org.singsurf.jns3.physical_layer.PhysicalProtocol;
@@ -23,7 +23,7 @@ public class HomeRouter extends ProtocolDevice {
 	Map<Integer,Set<MACAddress>> portMapping = new HashMap<>();
 	HRMultiPortDevice multiPortDevice;
 	HRFrameSender frameSender = new HRFrameSender();
-	FrameReceiver frameReceiver;
+	ProtocolDelegator<EthernetFrame> frameReceiver;
 	
     Terminal terminal = new Terminal() {
 		@Override
@@ -115,8 +115,8 @@ public class HomeRouter extends ProtocolDevice {
 		return frameSender;
 	}
 
-	public void setFrameReceiver(FrameReceiver frameReceiver) {
-		this.frameReceiver = frameReceiver;
+	public void setFrameReceiver(ProtocolDelegator<EthernetFrame> delegator) {
+		this.frameReceiver = delegator;
 	}
 
 	@Override
