@@ -36,7 +36,7 @@ public class BufferedFrameSender implements FrameSender, TickListener {
 		}
 	}
 
-	public void setByteSender(BlockingByteSender byteSender) {
+	void setByteSender(BlockingByteSender byteSender) {
 		this.byteSender = byteSender;
 	}
 

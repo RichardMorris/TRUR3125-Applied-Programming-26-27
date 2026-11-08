@@ -3,25 +3,26 @@ package org.singsurf.jns3.data_link_layer;
 import org.singsurf.jns3.generic_protocol.LowerAdapter;
 import org.singsurf.jns3.generic_protocol.LowerPhysicalAdapter;
 import org.singsurf.jns3.generic_protocol.Protocol;
+import org.singsurf.jns3.generic_protocol.ProtocolDelegator;
 import org.singsurf.jns3.generic_protocol.ProtocolHandler;
 import org.singsurf.jns3.generic_protocol.UpperPort;
-import org.singsurf.jns3.hardware.AddressableDevice;
+import org.singsurf.jns3.hardware.ProtocolDevice;
 import org.singsurf.jns3.physical_layer.BlockingByteSender;
 import org.singsurf.jns3.physical_layer.ByteReceiver;
 
 public class EthernetProtocol implements Protocol, LowerPhysicalAdapter, UpperPort<EthernetFrame> {
+	String name;
+	ProtocolDevice device;
 
-	AddressableDevice device;
-
-	FrameDelegator delegator;
+	ProtocolDelegator<EthernetFrame> delegator;
 	ByteReceiver byteReceiver;
-	BufferedFrameSender bufferedSender = new BufferedFrameSender();
-	
+	BufferedFrameSender bufferedSender = new BufferedFrameSender();	
 	ByteToFrameConverter converter = new ByteToFrameConverter();
 
-	public EthernetProtocol(AddressableDevice device) {
+	public EthernetProtocol(ProtocolDevice device) {
+		this.name = device.getName() + "-ETH";
 		this.device = device;
-		this.delegator = new FrameDelegator(device.getName());
+		this.delegator = new ProtocolDelegator<EthernetFrame>(device.getName());
 		delegator.addHandler(new FrameChecker(device));
 		byteReceiver = new ByteReceiver() {
 			@Override
@@ -30,6 +31,13 @@ public class EthernetProtocol implements Protocol, LowerPhysicalAdapter, UpperPo
 				delegator.receive(ethernetFrame);
 			}
 		};
+	}
+
+	// Port and adapter methods
+	
+	@Override
+	public void setByteSender(BlockingByteSender sender) {
+		bufferedSender.setByteSender(sender);
 	}
 
 	@Override
@@ -50,13 +58,12 @@ public class EthernetProtocol implements Protocol, LowerPhysicalAdapter, UpperPo
 		delegator.addHandler(handler);
 	}
 		
-	public FrameReceiver getFrameReceiver() {
+	// Getters for the various components of the protocol
+	
+	public ProtocolDelegator<EthernetFrame> getFrameReceiver() {
 		return delegator;
 	}
 	
-	public FrameDelegator getFrameDelegator() {
-		return delegator;
-	}
 	public FrameSender getFrameSender() {
 		return bufferedSender;
 	}
@@ -66,10 +73,10 @@ public class EthernetProtocol implements Protocol, LowerPhysicalAdapter, UpperPo
 		return byteReceiver;
 	}
 
-	@Override
-	public void setByteSender(BlockingByteSender sender) {
-		bufferedSender.setByteSender(sender);
+	public void receive(EthernetFrame frame) {
+		delegator.receive(frame);
 	}
+
 
 
 

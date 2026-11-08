@@ -114,8 +114,8 @@ public class TestIPPacket {
         DeviceFactory deviceFactory = new DeviceFactory();
         var pc1 = deviceFactory.createPC("PC1");
         var pc2 = deviceFactory.createPC("PC2");
-        pc2.getEthernetProtocol().getFrameDelegator().clear();
-        pc2.getEthernetProtocol().getFrameDelegator().addHandler((frame) -> {
+        //pc2.getEthernetProtocol().getFrameDelegator().clear();
+        pc2.getEthernetProtocol().addHandler((frame) -> {
     		var packet = IPPacketExtractor.getInstance().extract(frame);
 			assertEquals(packet.getSourceAddress(), pc1.getIPAddress());
 			assertEquals(packet.getDestinationAddress(), pc2.getIPAddress());
@@ -136,10 +136,8 @@ public class TestIPPacket {
         pc1.getEthernetProtocol().getFrameSender().send(frame);
         assertEquals(Jns3Logger.getLogItems().size(), 1);
         var logItem = Jns3Logger.getLogItems().get(0);
-        assertEquals(new Jns3Logger.LogItem(pc2.getName(), Jns3Logger.LogLevel.RECEIVED, "Received packet"), logItem);
-//        assertEquals(logItem.message, "Received packet");
-//        assertEquals(logItem.level, Jns3Logger.LogLevel.RECEIVED);
-//        assertEquals(logItem.deviceName, pc2.getName());        
+        assertEquals(logItem.level(), Jns3Logger.LogLevel.RECEIVED);
+        assertEquals(logItem.deviceName(), pc2.getName());        
     }
 
 
