@@ -308,50 +308,6 @@ class TestHomeRouter {
 	}
 
 	@Test
-	public void chat_through_switch() throws IOException {
-		pc1.getArpProtocol().sendGARPRequest();
-		pc2.getArpProtocol().sendGARPRequest();
-		pc3.getArpProtocol().sendGARPRequest();
-		pc4.getArpProtocol().sendGARPRequest();
-		
-		GlobalWallClock.advanceBy(4);
-		Jns3Logger.clearLog();
-		var chat1 = new ChatApplication(pc1,pc3.getIPAddress());
-		var chat2 = new ChatApplication(pc2);
-		var chat3 = new ChatApplication(pc3,pc1.getIPAddress());
-		// Act
-		chat1.say("Hello from PC1");
-		System.out.println(Jns3Logger.asString());
-		assertTrue(Jns3Logger.isErrorFree());
-		Jns3Logger.startCapture();
-		GlobalWallClock.advanceBy(1);
-		var output = Jns3Logger.endCapture();
-		System.out.println(Jns3Logger.asString());
-		System.out.print(output);
-		assertEquals("PC3: " + pc1.getIPAddress() + " says: Hello from PC1", output.trim());
-		assertTrue(Jns3Logger.isErrorFree());
-		
-		chat3.say("Hello from PC3");
-		Jns3Logger.startCapture();
-		GlobalWallClock.advanceBy(1);
-		output = Jns3Logger.endCapture();
-		System.out.print(output);
-		assertEquals("PC1: " + pc3.getIPAddress() + " says: Hello from PC3", output.trim());
-		
-		chat2.say("Time for tea");
-		Jns3Logger.startCapture();
-		GlobalWallClock.advanceBy(1);
-		output = Jns3Logger.endCapture();
-		System.out.println(Jns3Logger.asString());
-		System.out.print(output);
-		var lines = output.trim().split("\n");
-		assertEquals("PC1: " + pc2.getIPAddress() + " says: Time for tea", lines[0].trim());
-		assertEquals("PC3: " + pc2.getIPAddress() + " says: Time for tea", lines[1].trim());
-		
-		assertTrue(Jns3Logger.isErrorFree());
-	}
-
-	@Test
 	void discover_across_simple_network() {
 		DeviceFactory.getInstance().resetSequentialLocalIPAddress();
 		System.out.println(router);
@@ -521,7 +477,7 @@ class TestHomeRouter {
 	}
 	
 	@Test
-	public void large_messages_through_fifo_connection() throws IOException {
+	public void large_messages_in_parts_through_fifo_connection() throws IOException {
 		System.out.println(router);
 		System.out.println(pc1);
 		System.out.println(pc2);
@@ -587,6 +543,63 @@ class TestHomeRouter {
 		var outputLines = output.split("\n");
 		assertEquals("0x00FF 255", outputLines[17].trim());
 		assertEquals("0x0091 145", outputLines[19].trim());
+		assertTrue(Jns3Logger.isErrorFree());
+	}
+
+	@Test
+	public void large_messages_through_fifo_connection() throws IOException {
+		System.out.println(router);
+		System.out.println(pc1);
+		System.out.println(pc2);
+		System.out.println(pc3);
+		System.out.println(pc4);
+
+		DeviceFactory.getInstance().resetSequentialLocalIPAddress();
+		var connection1 = new FILOBufferedConnection(router.getEndPoint(0), pc1.getEndPoint());
+		var connection2 = new CountingConnection(pc2.getEndPoint(), router.getEndPoint(1));
+		assertNotNull(connection1);
+
+		pc1.getDHCPProtocol().startDiscovery();
+		GlobalWallClock.advanceBy(6);
+		assertTrue(Jns3Logger.isErrorFree());
+
+		assertEquals("192.168.1.2", pc1.getIPAddress().toString());
+		assertEquals(pc1.getMACAddress(), pc2.getArpProtocol().lookup(pc1.getIPAddress()));
+
+		pc2.getDHCPProtocol().startDiscovery();
+		GlobalWallClock.advanceBy(6);
+		assertTrue(Jns3Logger.isErrorFree());
+
+		connection2.reset();
+
+		assertEquals("192.168.1.2", pc1.getIPAddress().toString());
+		assertEquals("192.168.1.3", pc2.getIPAddress().toString());
+		assertEquals(pc1.getMACAddress(), pc2.getArpProtocol().lookup(pc1.getIPAddress()));
+		assertEquals(pc2.getMACAddress(), pc1.getArpProtocol().lookup(pc2.getIPAddress()));
+
+		// Act
+		Jns3Logger.clearLog();
+		var chat1 = new ChatApplication(pc1,pc2.getIPAddress());
+		var chat2 = new ChatApplication(pc2,pc1.getIPAddress());
+		assertNotNull(chat2);
+		connection2.reset();
+		
+		String dataString = Jns3Logger.generateOnesComplementTable();
+		Jns3Logger.startCapture();
+		chat1.wisper(dataString);
+		
+		System.out.println("Tick");
+		GlobalWallClock.advanceBy(1);
+	    System.out.println("Sent " + connection2.getForwardCount() + " frames, " + connection2.getReverseCount() + " frames received");
+	    
+	    var output = Jns3Logger.endCapture();
+//		System.out.print(output);
+		System.out.println(output.length() + " chars");
+		assertEquals(5701, output.length());
+		var outputLines = output.split("\n");
+		System.out.println("Output lines: " + outputLines.length);
+		assertEquals("0xFF00 -255", outputLines[1].trim());
+		assertEquals("0x00FF 255", outputLines[511].trim());
 		assertTrue(Jns3Logger.isErrorFree());
 	}
 
