@@ -18,7 +18,7 @@ public class HomeRouter extends ProtocolDevice {
 		}};
 		
 	public HomeRouter(String name, MACAddress macAddress, IPAddress ipAddress) {
-        super(name,macAddress,ipAddress);
+        super(name,macAddress,ipAddress,NUM_PORTS);
      }
     		
 	public Terminal getTerminal() {
@@ -37,9 +37,5 @@ public class HomeRouter extends ProtocolDevice {
     public PhysicalEndPoint getEndPoint(int i) {
     	return getPhysicalProtocol().getEndPoint(i);
     }
-
-	public int getNumPorts() {
-		return NUM_PORTS;
-	}
     
 }

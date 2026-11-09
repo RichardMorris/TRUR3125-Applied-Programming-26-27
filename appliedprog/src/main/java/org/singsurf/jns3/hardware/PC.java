@@ -17,7 +17,7 @@ public class PC extends ProtocolDevice {
 
 
 	public PC(String name, MACAddress macAddress, IPAddress ipAddress) {
-        super(name,macAddress,ipAddress);
+        super(name,macAddress,ipAddress, 1);
 	}
     
 	

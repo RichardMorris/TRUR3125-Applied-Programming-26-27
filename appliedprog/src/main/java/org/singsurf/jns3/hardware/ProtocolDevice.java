@@ -28,15 +28,20 @@ public abstract class ProtocolDevice implements AddressableDevice {
 	IPAddress subnetMask;
 	
 	List<Protocol> protocols = new ArrayList<>();
+	private int numPorts;
 
-	public ProtocolDevice() {
-		super();
-	}
+//	public ProtocolDevice(int numPorts) {
+//		super();
+//		this.numPorts = numPorts;
+//	}
 
-	public ProtocolDevice(String name, MACAddress macAddress, IPAddress ipAddress) {
+	public ProtocolDevice(String name, 
+			MACAddress macAddress, IPAddress ipAddress,
+			int numPorts) {
 		this.name = name;
 		this.macAddress = macAddress;
 		this.ipAddress = ipAddress;
+		this.numPorts = numPorts;
 	}
 
 	public void addProtocol(Protocol prot) {
@@ -117,6 +122,10 @@ public abstract class ProtocolDevice implements AddressableDevice {
 
 	public void setSubnetMask(IPAddress subnetMask) {
 		this.subnetMask = subnetMask;		
+	}
+
+	public int getNumPorts() {
+		return numPorts;
 	}
 
 
