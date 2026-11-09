@@ -424,10 +424,11 @@ public class DHCPMessage implements ProtocolContainer {
 
 	@Override
 	public String toString() {
-		return "DHCPMessage [op=" + op + ", htype=" + htype + ", hlen=" + hlen + ", hops=" + hops + ", xid=" + xid
+		return "DHCPMessage[op=" + op + ", htype=" + htype + ", hlen=" + hlen + ", hops=" + hops + ", "
+				+ "xid=0x" + Integer.toHexString(xid).toUpperCase()
 				+ ", secs=" + secs + ", flags=" + flags + ", ciaddr=" + ciaddr + ", yiaddr=" + yiaddr + ", siaddr="
-				+ siaddr + ", giaddr=" + giaddr + ", chaddr=" + getMacAddress() + ", magicCookie="
-				+ Integer.toHexString(magicCookie) + ", options=" + options.size() + "]";
+				+ siaddr + ", giaddr=" + giaddr + ", chaddr=" + getMacAddress() + 
+				", options=" + options.size() + "]";
 	}
 
 

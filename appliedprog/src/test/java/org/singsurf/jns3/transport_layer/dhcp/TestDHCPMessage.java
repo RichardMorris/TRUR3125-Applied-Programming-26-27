@@ -84,7 +84,49 @@ class TestDHCPMessage {
 		assertEquals((byte) 15, retrievedOptions.get(1).data()[3]);
 		
 	}
-	
+
+	@Test
+	void message_creation_with_options_toString() {
+		var mac = DeviceFactory.getInstance().createMACAddress();
+		var shaddr = DeviceFactory.getInstance().createMACAddress();
+		var ciaddr = DeviceFactory.getInstance().createLocalIPAddress();
+		var yiaddr = DeviceFactory.getInstance().createLocalIPAddress();
+		var siaddr = DeviceFactory.getInstance().createLocalIPAddress();
+		var giaddr = DeviceFactory.getInstance().createLocalIPAddress();
+		var addresses = new DHCPMessage.DHCPAddresses(mac, ciaddr, yiaddr, siaddr, giaddr);
+		byte op = DHCPMessage.DHCP_OP_DISCOVER;
+		int xid = 0x3903F326;
+		short secs = 0;
+		short flags = 0;
+		List<DHCPOption> options = new ArrayList<>();
+		options.add(new DHCPOption(DHCPMessage.OPT_MSG_TYPE, (byte) 1, new byte[] { (byte) DHCPMessage.DHCP_OP_DISCOVER }));
+		options.add(new DHCPOption(DHCPMessage.OPT_SERVER_IP, (byte) 4, siaddr.getBytes()));
+
+		byte[] macBytes = new byte[16];
+		System.arraycopy(shaddr.getBytes(), 0, macBytes, 0, 6);
+		options.add(new DHCPOption(DHCPMessage.OPT_SERVER_MAC, (byte) 14, macBytes));
+		
+		var message = new DHCPMessage(op, xid, secs, flags, addresses, options);
+		assertNotNull(message);
+		var str = message.toString();
+		
+		var expectedStr = "DHCPMessage[op=1, htype=1, hlen=6, hops=0, xid=0x3903F326, secs=0, flags=0, "
+				+ "ciaddr=" + ciaddr + ", yiaddr=" + yiaddr + ", siaddr=" + siaddr + ", giaddr=" + giaddr + ", "
+				+ "chaddr=" + mac + ", options=3]";
+		assertEquals(expectedStr, str);
+		var retrievedOptions = message.getOptions();
+		assertEquals(3, retrievedOptions.size());
+		
+		var expectedOption1Str = "DHCPOption[code=53, length=1, data=1]";
+		assertEquals(expectedOption1Str, retrievedOptions.get(0).toString());
+
+		var expectedOption2Str = "DHCPOption[code=54, length=4, data="+siaddr.toString()+"]";
+		assertEquals(expectedOption2Str, retrievedOptions.get(1).toString());
+		
+		var expectedOption3Str = "DHCPOption[code=6, length=14, data="+shaddr.toString()+"]";
+		assertEquals(expectedOption3Str, retrievedOptions.get(2).toString());
+	}
+
 	@Test
 	void test_to_bytes_and_from_bytes() {
 		var mac = DeviceFactory.getInstance().createMACAddress();
@@ -146,11 +188,11 @@ class TestDHCPMessage {
 		var message = new DHCPMessage(op, xid, secs, flags, addresses, options);
 		
 		String messageString = message.toString();
-		
+		System.out.println(messageString);
 		assertNotNull(messageString);
 		assertTrue(messageString.contains("DHCPMessage"));
 		assertTrue(messageString.contains("op=" + op));
-		assertTrue(messageString.contains("xid=" + xid));
+		assertTrue(messageString.contains("xid=0x3903F326"));
 		assertTrue(messageString.contains("secs=" + secs));
 		assertTrue(messageString.contains("flags=" + flags));
 		assertTrue(messageString.contains("ciaddr=" + ciaddr));
