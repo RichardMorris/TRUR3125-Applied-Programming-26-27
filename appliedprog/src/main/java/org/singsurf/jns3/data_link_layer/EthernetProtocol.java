@@ -9,16 +9,18 @@ import org.singsurf.jns3.generic_protocol.UpperPort;
 import org.singsurf.jns3.hardware.ProtocolDevice;
 import org.singsurf.jns3.physical_layer.BlockingEndPoint;
 import org.singsurf.jns3.physical_layer.ByteReceiver;
-import org.singsurf.jns3.physical_layer.MultiPortReceiver;
+import org.singsurf.jns3.physical_layer.MultiPortByteReceiver;
 
 public class EthernetProtocol implements Protocol, LowerPhysicalAdapter, UpperPort<EthernetFrame> {
 	String name;
 	ProtocolDevice device;
 
 	ProtocolDelegator<EthernetFrame> delegator;
+	ByteToFrameConverter converter = new ByteToFrameConverter();
+
+	MultiPortByteReceiver mpr;
 	ByteReceiver byteReceiver;
 	BufferedFrameSender bufferedSender = new BufferedFrameSender();	
-	ByteToFrameConverter converter = new ByteToFrameConverter();
 	PortMapper portMapper;
 
 	public EthernetProtocol(ProtocolDevice device) {
@@ -43,6 +45,14 @@ public class EthernetProtocol implements Protocol, LowerPhysicalAdapter, UpperPo
 			@Override
 			public void putPortMapping(int portNumber, MACAddress srcMac) {
 			}};
+			
+		this.mpr = new MultiPortByteReceiver() {
+				@Override
+				public void receiveFrame(int portNumber, byte[] frame) {
+					byteReceiver.receive(frame);
+				}
+			};
+
 	}
 
 	// Port and adapter methods
@@ -91,13 +101,8 @@ public class EthernetProtocol implements Protocol, LowerPhysicalAdapter, UpperPo
 	}
 
 	@Override
-	public MultiPortReceiver getMultiByteReceiver() {
-		return new MultiPortReceiver() {
-			@Override
-			public void receiveFrame(int portNumber, byte[] frame) {
-				byteReceiver.receive(frame);
-			}
-		};
+	public MultiPortByteReceiver getMultiByteReceiver() {
+		return mpr;
 	}
 	
 	int getPortForMacAddress(MACAddress destMac) {

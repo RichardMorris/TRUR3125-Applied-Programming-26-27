@@ -1,7 +1,7 @@
 package org.singsurf.jns3.generic_protocol;
 
 import org.singsurf.jns3.physical_layer.BlockingEndPoint;
-import org.singsurf.jns3.physical_layer.MultiPortReceiver;
+import org.singsurf.jns3.physical_layer.MultiPortByteReceiver;
 
 /**
  * An adapter on the lower side of a protocols handling code.
@@ -11,5 +11,5 @@ public interface LowerPhysicalAdapter {
 
 	public void setByteSenders(BlockingEndPoint[] bep);
 
-	public MultiPortReceiver getMultiByteReceiver();
+	public MultiPortByteReceiver getMultiByteReceiver();
 }

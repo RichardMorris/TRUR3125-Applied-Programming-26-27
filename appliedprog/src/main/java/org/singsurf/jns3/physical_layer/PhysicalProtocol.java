@@ -9,7 +9,7 @@ public class PhysicalProtocol implements Protocol, UpperPhysicalPort {
 	AddressableDevice device;
 	BlockingEndPoint[] bep;
 	private int numPorts;
-	private MultiPortReceiver byteReceiver;
+	private MultiPortByteReceiver byteReceiver;
 
 	public PhysicalProtocol(AddressableDevice device, int numPorts) {
 		super();
