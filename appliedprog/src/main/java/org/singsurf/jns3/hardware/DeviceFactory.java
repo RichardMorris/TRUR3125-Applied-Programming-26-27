@@ -182,49 +182,6 @@ public class DeviceFactory {
 		return router;
     }
     
-    public HomeRouter0 createHomeRouter0(String name) {
-        MACAddress mac = createMACAddress();
-        IPAddress ip = createSequentialLocalIPAddress();
-
-        var router = new HomeRouter0(name, mac, ip);
-        
-        // boot logic for the PC
-        var physicalProtocol = new PhysicalProtocol(router,1);
-        router.addProtocol(physicalProtocol);
-
-
-        EthernetProtocol ethernetProtocol = new EthernetProtocol(router);
-        router.addProtocol(ethernetProtocol);
-        router.getPhysicalProtocol().register(ethernetProtocol);
-        
-        ARPProtocol arpProtocol = new ARPProtocol(router,true);
-        router.addProtocol(arpProtocol);
-        ethernetProtocol.register(arpProtocol);
-
-        IPProtocol ipProtocol = new IPProtocol(router,false);
-        router.addProtocol(ipProtocol);
-        ethernetProtocol.register(ipProtocol);
-
-        ICMPProtocol icmpProtocol = new ICMPProtocol(router);
-        ipProtocol.register(icmpProtocol);
-        router.addProtocol(icmpProtocol);
-        		
-        UDPProtocol udpProtocol = new UDPProtocol(router);
-        ipProtocol.register(udpProtocol);
-        router.addProtocol(udpProtocol);
-
-        DHCPProtocol dhcpProtocol = new DHCPProtocol(router, true);
-		udpProtocol.register(dhcpProtocol);
-        router.addProtocol(dhcpProtocol);
-
-        ipProtocol.finalise();
-        ethernetProtocol.finalise();
-
-		router.setMulticastAddress(new IPAddress("192.168.1.255"));
-
-        return router;
-    }
-
     public Switch createSwitch(String name, int numPorts) {
         var sw = new Switch(name, numPorts);
         return sw;
