@@ -123,11 +123,6 @@ public class IPFragmentHandler implements PacketHandler {
 	
 	@Override
 	public HandlerStatus handle(IPPacket packet) {
-		if(!packet.getDestinationAddress().equals(pc.getIPAddress())
-		  && !packet.getDestinationAddress().equals(pc.getMulticastAddress())
-		  && !packet.getDestinationAddress().equals(IPProtocol.LIMITED_MULTICAST_ADDRESS)) {
-			return HandlerStatus.CONTINUE;
-		}
 		if(packet.getIdentification() ==0) {
 			if(packet.isMoreFragments()) {
 				return HandlerStatus.invalid("Invalid fragment info for packet with identification 0");
