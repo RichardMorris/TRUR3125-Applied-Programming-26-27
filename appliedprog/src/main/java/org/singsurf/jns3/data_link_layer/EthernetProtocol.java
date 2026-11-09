@@ -9,49 +9,33 @@ import org.singsurf.jns3.generic_protocol.ProtocolHandler;
 import org.singsurf.jns3.generic_protocol.UpperPort;
 import org.singsurf.jns3.hardware.ProtocolDevice;
 import org.singsurf.jns3.physical_layer.BlockingEndPoint;
-import org.singsurf.jns3.physical_layer.ByteReceiver;
 import org.singsurf.jns3.physical_layer.MultiPortByteReceiver;
 
 public class EthernetProtocol implements Protocol, LowerPhysicalAdapter, UpperPort<EthernetFrame> {
 	String name;
 	ProtocolDevice device;
-
-	ProtocolDelegator<EthernetFrame> delegator;
-	ByteToFrameConverter converter = new ByteToFrameConverter();
-
-	MultiPortByteReceiver byteReceiver;
-	MultiPortFrameSender frameSender; // = new BufferedFrameSender();	
-	PortMapper portMapper;
 	int numPorts;
+
+	PortMapper portMapper;
+	ByteToFrameConverter converter = new ByteToFrameConverter();
+	MultiPortByteReceiver byteReceiver;
+	MultiPortFrameReceiver frameReceiver;
+	FrameDelegator delegator;
+	MultiPortFrameSender frameSender;
 
 	public EthernetProtocol(ProtocolDevice device) {
 		this.name = device.getName() + "-ETH";
 		this.device = device;
-		numPorts = device.getNumPorts();
+		this.numPorts = device.getNumPorts();
 		this.portMapper = new MultiPortMapper(numPorts);
 
-		frameSender = new MultiPortFrameSender(this);
-		this.delegator = new ProtocolDelegator<EthernetFrame>(device.getName());
-		delegator.addHandler(new FrameChecker(device));
+		this.frameSender = new MultiPortFrameSender(this);
+		this.delegator = new FrameDelegator(device.getName());
+		this.delegator.addHandler(new FrameChecker(device));
 
-		if(numPorts == 1) {
-			var byteReceiver = new ByteReceiver() {
-				@Override
-				public void receive(byte[] frame) {
-					EthernetFrame ethernetFrame = converter.fromBytes(frame);
-					delegator.receive(ethernetFrame);
-				}
-			};	
-			this.byteReceiver = new MultiPortByteReceiver() {
-				@Override
-				public void receiveFrame(int portNumber, byte[] frame) {
-					byteReceiver.receive(frame);
-				}
-			};
-		} else {
-			var receiver = new MultiPortFrameReceiver(this, delegator);
+		this.frameReceiver = new MultiPortFrameReceiver(this, (FrameReceiver) delegator);
 			
-			byteReceiver = new MultiPortByteReceiver() {
+			this.byteReceiver = new MultiPortByteReceiver() {
 				@Override
 				public void receiveFrame(int portNumber, byte[] frame) {
 					var ethFrame = converter.fromBytes(frame);
@@ -59,13 +43,9 @@ public class EthernetProtocol implements Protocol, LowerPhysicalAdapter, UpperPo
 						Jns3Logger.logError(getName(), "Failed to parse Ethernet frame from bytes");
 						return;
 					}
-					receiver.receiveFrame(portNumber, ethFrame);
+					frameReceiver.receiveFrame(portNumber, ethFrame);
 				}
 			}; 
-
-			
-		}
-
 	}
 
 	// Port and adapter methods
