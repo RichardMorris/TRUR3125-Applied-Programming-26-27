@@ -13,12 +13,10 @@ import org.singsurf.jns3.physical_layer.MultiPortByteReceiver;
 public class RouterEthernetProtocol extends EthernetProtocol {
 	MultiPortFrameSender frameSender;
 	MultiPortFrameReceiver receiver;
-	private int numPorts;
 
 	
 	public RouterEthernetProtocol(ProtocolDevice device) {
 		super(device);
-		numPorts = device.getNumPorts();
 		this.portMapper = new MultiPortMapper(numPorts);
 		
 		frameSender = new MultiPortFrameSender(this);
@@ -37,9 +35,6 @@ public class RouterEthernetProtocol extends EthernetProtocol {
 		}; 
 	}
 
-	public int getNumPorts() {
-		return numPorts;
-	}
 
 	@Override
 	public void setByteSenders(BlockingEndPoint[] bep) {
