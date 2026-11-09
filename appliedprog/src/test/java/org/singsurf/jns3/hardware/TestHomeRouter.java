@@ -10,19 +10,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.application_layer.ChatApplication;
-import org.singsurf.jns3.data_link_layer.RouterEthernetProtocol;
-import org.singsurf.jns3.data_link_layer.arp.ARPProtocol;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPPacket;
-import org.singsurf.jns3.network_layer.IPProtocol;
-import org.singsurf.jns3.network_layer.icmp.ICMPProtocol;
 import org.singsurf.jns3.physical_layer.CountingConnection;
 import org.singsurf.jns3.physical_layer.FILOBufferedConnection;
-import org.singsurf.jns3.physical_layer.PhysicalProtocol;
 import org.singsurf.jns3.physical_layer.SimpleConnection;
 import org.singsurf.jns3.transport_layer.dhcp.DHCPMessage;
-import org.singsurf.jns3.transport_layer.dhcp.DHCPProtocol;
-import org.singsurf.jns3.transport_layer.udp.UDPProtocol;
 
 class TestHomeRouter {
 	PC pc1;
@@ -38,39 +31,7 @@ class TestHomeRouter {
 		pc2 = deviceFactory.createPC("PC2");
 		pc3 = deviceFactory.createPC("PC3");
 		pc4 = deviceFactory.createPC("PC4");
-		
-		router = new HomeRouter("HomeRouter", 
-				DeviceFactory.getInstance().createSequentialMACAddress(),
-				new IPAddress("192.168.1.1"));
-
-		var phys = new PhysicalProtocol(router, HomeRouter.NUM_PORTS);
-		router.addProtocol(phys);
-		
-		var eth = new RouterEthernetProtocol(router);
-		router.addProtocol(eth);
-		phys.register(eth);
-		
-		var arpProtocol= new ARPProtocol(router,true);
-		router.addProtocol(arpProtocol);
-		eth.register(arpProtocol);
-
-		var ipProtocol = new IPProtocol(router,true);
-		router.addProtocol(ipProtocol);
-		eth.register(ipProtocol);
-
-		var imcp = new ICMPProtocol(router);
-		ipProtocol.register(imcp);
-		router.addProtocol(imcp);
-		
-		var udp = new UDPProtocol(router);
-		ipProtocol.register(udp);
-		router.addProtocol(udp);
-		
-		var dhcp = new DHCPProtocol(router,true);
-		udp.register(dhcp);
-		router.addProtocol(dhcp);
-					
-		router.setMulticastAddress(new IPAddress("192.168.1.255"));
+		router = deviceFactory.createHomeRouter("HomeRouter");
 
 		var connection1 = new SimpleConnection(router.getEndPoint(0), pc1.getEndPoint());
 		var connection2 = new SimpleConnection(router.getEndPoint(1), pc2.getEndPoint());

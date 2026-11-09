@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.singsurf.jns3.data_link_layer.EthernetProtocol;
 import org.singsurf.jns3.data_link_layer.MACAddress;
+import org.singsurf.jns3.data_link_layer.RouterEthernetProtocol;
 import org.singsurf.jns3.data_link_layer.arp.ARPProtocol;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPProtocol;
@@ -143,7 +144,45 @@ public class DeviceFactory {
         return pc;
     }
 
-    public HomeRouter0 createHomeRouter(String name) {
+    public HomeRouter createHomeRouter(String name) {
+
+    	HomeRouter router = new HomeRouter(name, 
+				DeviceFactory.getInstance().createMACAddress(),
+				new IPAddress("192.168.1.1"));
+
+		var phys = new PhysicalProtocol(router, HomeRouter.NUM_PORTS);
+		router.addProtocol(phys);
+		
+		var eth = new RouterEthernetProtocol(router);
+		router.addProtocol(eth);
+		phys.register(eth);
+		
+		var arpProtocol= new ARPProtocol(router,true);
+		router.addProtocol(arpProtocol);
+		eth.register(arpProtocol);
+
+		var ipProtocol = new IPProtocol(router,true);
+		router.addProtocol(ipProtocol);
+		eth.register(ipProtocol);
+
+		var imcp = new ICMPProtocol(router);
+		ipProtocol.register(imcp);
+		router.addProtocol(imcp);
+		
+		var udp = new UDPProtocol(router);
+		ipProtocol.register(udp);
+		router.addProtocol(udp);
+		
+		var dhcp = new DHCPProtocol(router,true);
+		udp.register(dhcp);
+		router.addProtocol(dhcp);
+					
+		router.setMulticastAddress(new IPAddress("192.168.1.255"));
+
+		return router;
+    }
+    
+    public HomeRouter0 createHomeRouter0(String name) {
         MACAddress mac = createMACAddress();
         IPAddress ip = createSequentialLocalIPAddress();
 
