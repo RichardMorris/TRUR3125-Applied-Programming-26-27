@@ -7,8 +7,9 @@ import org.singsurf.jns3.generic_protocol.ProtocolDelegator;
 import org.singsurf.jns3.generic_protocol.ProtocolHandler;
 import org.singsurf.jns3.generic_protocol.UpperPort;
 import org.singsurf.jns3.hardware.ProtocolDevice;
-import org.singsurf.jns3.physical_layer.BlockingByteSender;
+import org.singsurf.jns3.physical_layer.BlockingEndPoint;
 import org.singsurf.jns3.physical_layer.ByteReceiver;
+import org.singsurf.jns3.physical_layer.MultiPortReceiver;
 
 public class EthernetProtocol implements Protocol, LowerPhysicalAdapter, UpperPort<EthernetFrame> {
 	String name;
@@ -36,8 +37,8 @@ public class EthernetProtocol implements Protocol, LowerPhysicalAdapter, UpperPo
 	// Port and adapter methods
 	
 	@Override
-	public void setByteSender(BlockingByteSender sender) {
-		bufferedSender.setByteSender(sender);
+	public void setByteSenders(BlockingEndPoint[] bep) {
+		bufferedSender.setByteSender(bep[0]);		
 	}
 
 	@Override
@@ -68,10 +69,6 @@ public class EthernetProtocol implements Protocol, LowerPhysicalAdapter, UpperPo
 		return bufferedSender;
 	}
 
-	@Override
-	public ByteReceiver getByteReceiver() {
-		return byteReceiver;
-	}
 
 	public void receive(EthernetFrame frame) {
 		delegator.receive(frame);
@@ -82,5 +79,17 @@ public class EthernetProtocol implements Protocol, LowerPhysicalAdapter, UpperPo
 		return name;
 	}
 
+	@Override
+	public MultiPortReceiver getMultiByteReceiver() {
+		return new MultiPortReceiver() {
+			@Override
+			public void receiveFrame(int portNumber, byte[] frame) {
+				byteReceiver.receive(frame);
+			}
+		};
+	}
 
+	public void send(EthernetFrame type) {
+		bufferedSender.send(type);		
+	}
 }

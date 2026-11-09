@@ -108,7 +108,7 @@ public class DeviceFactory {
         // boot logic for the PC
         var pc = new PC(name, mac, ip);
 
-        var physicalProtocol = new PhysicalProtocol(pc);
+        var physicalProtocol = new PhysicalProtocol(pc,1);
         pc.addProtocol(physicalProtocol);
 
         EthernetProtocol ethernetProtocol = new EthernetProtocol(pc);
@@ -150,7 +150,7 @@ public class DeviceFactory {
         var router = new HomeRouter0(name, mac, ip);
         
         // boot logic for the PC
-        var physicalProtocol = new PhysicalProtocol(router);
+        var physicalProtocol = new PhysicalProtocol(router,1);
         router.addProtocol(physicalProtocol);
 
 

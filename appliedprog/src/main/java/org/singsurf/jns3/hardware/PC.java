@@ -50,7 +50,7 @@ public class PC extends ProtocolDevice {
     // Setters and Getters for various components
         
     public PhysicalEndPoint getEndPoint() {
-        return 	getPhysicalProtocol().getEndPoint();
+        return 	getPhysicalProtocol().getEndPoint(0);
     }
     
 }

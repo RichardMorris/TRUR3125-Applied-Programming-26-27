@@ -23,6 +23,7 @@ import org.singsurf.jns3.network_layer.PacketHandler;
 import org.singsurf.jns3.network_layer.icmp.ICMPProtocol;
 import org.singsurf.jns3.physical_layer.CountingConnection;
 import org.singsurf.jns3.physical_layer.FILOBufferedConnection;
+import org.singsurf.jns3.physical_layer.PhysicalProtocol;
 import org.singsurf.jns3.physical_layer.SimpleConnection;
 import org.singsurf.jns3.transport_layer.dhcp.DHCPMessage;
 import org.singsurf.jns3.transport_layer.dhcp.DHCPProtocol;
@@ -47,9 +48,12 @@ class TestHomeRouter {
 				DeviceFactory.getInstance().createSequentialMACAddress(),
 				new IPAddress("192.168.1.1"));
 
+		var phys = new PhysicalProtocol(router, HomeRouter.NUM_PORTS);
+		router.addProtocol(phys);
+		
 		var eth = new RouterEthernetProtocol(router);
 		router.addProtocol(eth);
-//		router.getPhysicalProtocol().register(eth);
+		phys.register(eth);
 		
 		var arpProtocol= new ARPProtocol(router,true);
 		router.addProtocol(arpProtocol);
@@ -82,7 +86,7 @@ class TestHomeRouter {
 		eth.addHandler(new ProtocolHandler<EthernetFrame>() {
 			@Override
 			public HandlerStatus handle(EthernetFrame type) {
-				router.send(type);
+				eth.send(type); 
 				return HandlerStatus.COMPLETED;
 			}
 		});
@@ -106,6 +110,11 @@ class TestHomeRouter {
 
 	@Test
 	void can_send_garp_request() {
+		System.out.println(router);
+		System.out.println(pc1);
+		System.out.println(pc2);
+		System.out.println(pc3);
+		System.out.println(pc4);
 		pc1.getArpProtocol().sendGARPRequest();
 		System.out.println(Jns3Logger.asString());
 		assertEquals(
@@ -239,6 +248,7 @@ class TestHomeRouter {
 		System.out.println(Jns3Logger.asString());
 		System.out.println("Captured output:\n"+output);
 		var lines = output.split("\n");
+		assertEquals(2, lines.length);
 		assertEquals("PING " + pc2.getIPAddress() + " 28 bytes of data.", lines[0].trim());
 		assertEquals("28 bytes from "+pc2.getIPAddress()+": icmp_seq=1 ttl=63 time=0 ticks", lines[1].trim());
 		assertEquals(2, Jns3Logger.size());
@@ -270,6 +280,7 @@ class TestHomeRouter {
 		System.out.println(Jns3Logger.asString());
 		System.out.println("Captured output:\n"+output);
 		var lines = output.split("\n");
+		assertEquals(2, lines.length);
 		assertEquals("PING " + router.getIPAddress() + " 28 bytes of data.", lines[0].trim());
 		assertEquals("28 bytes from "+router.getIPAddress()+": icmp_seq=1 ttl=64 time=0 ticks", lines[1].trim());
 
