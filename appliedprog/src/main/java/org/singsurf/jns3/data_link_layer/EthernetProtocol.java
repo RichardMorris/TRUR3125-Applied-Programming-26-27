@@ -1,5 +1,6 @@
 package org.singsurf.jns3.data_link_layer;
 
+import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.generic_protocol.LowerAdapter;
 import org.singsurf.jns3.generic_protocol.LowerPhysicalAdapter;
 import org.singsurf.jns3.generic_protocol.Protocol;
@@ -18,8 +19,8 @@ public class EthernetProtocol implements Protocol, LowerPhysicalAdapter, UpperPo
 	ProtocolDelegator<EthernetFrame> delegator;
 	ByteToFrameConverter converter = new ByteToFrameConverter();
 
-	MultiPortByteReceiver mpr;
-	MultiPortFrameSender bufferedSender; // = new BufferedFrameSender();	
+	MultiPortByteReceiver byteReceiver;
+	MultiPortFrameSender frameSender; // = new BufferedFrameSender();	
 	PortMapper portMapper;
 	int numPorts;
 
@@ -27,33 +28,43 @@ public class EthernetProtocol implements Protocol, LowerPhysicalAdapter, UpperPo
 		this.name = device.getName() + "-ETH";
 		this.device = device;
 		numPorts = device.getNumPorts();
-		bufferedSender = new MultiPortFrameSender(this);
+		this.portMapper = new MultiPortMapper(numPorts);
+
+		frameSender = new MultiPortFrameSender(this);
 		this.delegator = new ProtocolDelegator<EthernetFrame>(device.getName());
 		delegator.addHandler(new FrameChecker(device));
-		var byteReceiver = new ByteReceiver() {
-			@Override
-			public void receive(byte[] frame) {
-				EthernetFrame ethernetFrame = converter.fromBytes(frame);
-				delegator.receive(ethernetFrame);
-			}
-		};
-		this.portMapper = new PortMapper() {
 
-			@Override
-			public int getPortMapping(MACAddress destMac) {
-				return 0;
-			}
-
-			@Override
-			public void putPortMapping(int portNumber, MACAddress srcMac) {
-			}};
-			
-		this.mpr = new MultiPortByteReceiver() {
+		if(numPorts == 1) {
+			var byteReceiver = new ByteReceiver() {
+				@Override
+				public void receive(byte[] frame) {
+					EthernetFrame ethernetFrame = converter.fromBytes(frame);
+					delegator.receive(ethernetFrame);
+				}
+			};	
+			this.byteReceiver = new MultiPortByteReceiver() {
 				@Override
 				public void receiveFrame(int portNumber, byte[] frame) {
 					byteReceiver.receive(frame);
 				}
 			};
+		} else {
+			var receiver = new MultiPortFrameReceiver(this, delegator);
+			
+			byteReceiver = new MultiPortByteReceiver() {
+				@Override
+				public void receiveFrame(int portNumber, byte[] frame) {
+					var ethFrame = converter.fromBytes(frame);
+					if(ethFrame == null) {
+						Jns3Logger.logError(getName(), "Failed to parse Ethernet frame from bytes");
+						return;
+					}
+					receiver.receiveFrame(portNumber, ethFrame);
+				}
+			}; 
+
+			
+		}
 
 	}
 
@@ -61,7 +72,7 @@ public class EthernetProtocol implements Protocol, LowerPhysicalAdapter, UpperPo
 	
 	@Override
 	public void setByteSenders(BlockingEndPoint[] bep) {
-		bufferedSender.setByteSenders(bep);
+		frameSender.setByteSenders(bep);
 	}
 
 	@Override
@@ -89,7 +100,7 @@ public class EthernetProtocol implements Protocol, LowerPhysicalAdapter, UpperPo
 	}
 	
 	public FrameSender getFrameSender() {
-		return bufferedSender;
+		return frameSender;
 	}
 
 
@@ -104,7 +115,7 @@ public class EthernetProtocol implements Protocol, LowerPhysicalAdapter, UpperPo
 
 	@Override
 	public MultiPortByteReceiver getMultiByteReceiver() {
-		return mpr;
+		return byteReceiver;
 	}
 	
 	int getPortForMacAddress(MACAddress destMac) {

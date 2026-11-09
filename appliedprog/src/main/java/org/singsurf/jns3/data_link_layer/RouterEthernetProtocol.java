@@ -2,7 +2,6 @@ package org.singsurf.jns3.data_link_layer;
 
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.hardware.ProtocolDevice;
-import org.singsurf.jns3.physical_layer.BlockingEndPoint;
 import org.singsurf.jns3.physical_layer.MultiPortByteReceiver;
 
 /**
@@ -11,18 +10,15 @@ import org.singsurf.jns3.physical_layer.MultiPortByteReceiver;
  * Has a mapping of port to MacAddress to enable multiplexing. 
  */
 public class RouterEthernetProtocol extends EthernetProtocol {
-	MultiPortFrameSender frameSender;
 	MultiPortFrameReceiver receiver;
 
 	
-	public RouterEthernetProtocol(ProtocolDevice device) {
+	private RouterEthernetProtocol(ProtocolDevice device) {
 		super(device);
-		this.portMapper = new MultiPortMapper(numPorts);
 		
-		frameSender = new MultiPortFrameSender(this);
 		receiver = new MultiPortFrameReceiver(this, delegator);
 		
-		mpr = new MultiPortByteReceiver() {
+		byteReceiver = new MultiPortByteReceiver() {
 			@Override
 			public void receiveFrame(int portNumber, byte[] frame) {
 				var ethFrame = converter.fromBytes(frame);
@@ -33,22 +29,6 @@ public class RouterEthernetProtocol extends EthernetProtocol {
 				receiver.receiveFrame(portNumber, ethFrame);
 			}
 		}; 
-	}
-
-
-	@Override
-	public void setByteSenders(BlockingEndPoint[] bep) {
-		frameSender.setByteSenders(bep);
-	}
-
-	@Override
-	public MultiPortByteReceiver getMultiByteReceiver() {
-		return mpr;
-	}
-
-	@Override
-	public FrameSender getFrameSender() {
-		return frameSender;
 	}
 
 }

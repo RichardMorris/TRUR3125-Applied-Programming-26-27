@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.singsurf.jns3.data_link_layer.EthernetProtocol;
 import org.singsurf.jns3.data_link_layer.MACAddress;
-import org.singsurf.jns3.data_link_layer.RouterEthernetProtocol;
 import org.singsurf.jns3.data_link_layer.arp.ARPProtocol;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPProtocol;
@@ -153,7 +152,7 @@ public class DeviceFactory {
 		var phys = new PhysicalProtocol(router, HomeRouter.NUM_PORTS);
 		router.addProtocol(phys);
 		
-		var eth = new RouterEthernetProtocol(router);
+		var eth = new EthernetProtocol(router);
 		router.addProtocol(eth);
 		phys.register(eth);
 		

@@ -9,10 +9,10 @@ import org.singsurf.jns3.generic_protocol.ProtocolReceiver;
  */
 class MultiPortFrameReceiver {
 	ProtocolReceiver<EthernetFrame> frameReceiver;
-	RouterEthernetProtocol routerEthernetProtocol;
+	EthernetProtocol routerEthernetProtocol;
 	private String name;
 
-	public MultiPortFrameReceiver(RouterEthernetProtocol rep, ProtocolReceiver<EthernetFrame> delegator) {
+	public MultiPortFrameReceiver(EthernetProtocol rep, ProtocolReceiver<EthernetFrame> delegator) {
 		this.name = rep.getName();
 		this.routerEthernetProtocol = rep;
 		this.frameReceiver = delegator;
