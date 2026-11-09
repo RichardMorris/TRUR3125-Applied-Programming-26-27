@@ -19,8 +19,7 @@ public class EthernetProtocol implements Protocol, LowerPhysicalAdapter, UpperPo
 	ByteToFrameConverter converter = new ByteToFrameConverter();
 
 	MultiPortByteReceiver mpr;
-	ByteReceiver byteReceiver;
-	BufferedFrameSender bufferedSender = new BufferedFrameSender();	
+	MultiPortFrameSender bufferedSender; // = new BufferedFrameSender();	
 	PortMapper portMapper;
 	int numPorts;
 
@@ -28,9 +27,10 @@ public class EthernetProtocol implements Protocol, LowerPhysicalAdapter, UpperPo
 		this.name = device.getName() + "-ETH";
 		this.device = device;
 		numPorts = device.getNumPorts();
+		bufferedSender = new MultiPortFrameSender(this);
 		this.delegator = new ProtocolDelegator<EthernetFrame>(device.getName());
 		delegator.addHandler(new FrameChecker(device));
-		byteReceiver = new ByteReceiver() {
+		var byteReceiver = new ByteReceiver() {
 			@Override
 			public void receive(byte[] frame) {
 				EthernetFrame ethernetFrame = converter.fromBytes(frame);
@@ -61,7 +61,7 @@ public class EthernetProtocol implements Protocol, LowerPhysicalAdapter, UpperPo
 	
 	@Override
 	public void setByteSenders(BlockingEndPoint[] bep) {
-		bufferedSender.setByteSender(bep[0]);		
+		bufferedSender.setByteSenders(bep);
 	}
 
 	@Override

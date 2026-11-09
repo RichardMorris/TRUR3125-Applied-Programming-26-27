@@ -1,7 +1,6 @@
 package org.singsurf.jns3.data_link_layer;
 
 import org.singsurf.jns3.Jns3Logger;
-import org.singsurf.jns3.hardware.HomeRouter;
 import org.singsurf.jns3.physical_layer.BlockingEndPoint;
 
 /**
@@ -10,10 +9,10 @@ import org.singsurf.jns3.physical_layer.BlockingEndPoint;
  * Buffers frames for each port to avoid blocking the sending thread.
  */
 class MultiPortFrameSender implements FrameSender {
-	final RouterEthernetProtocol rep;
+	final EthernetProtocol rep;
 	private BufferedFrameSender[] senders;
 
-	MultiPortFrameSender(RouterEthernetProtocol routerEthernetProtocol) {
+	MultiPortFrameSender(EthernetProtocol routerEthernetProtocol) {
 		this.rep = routerEthernetProtocol;
 		senders = new BufferedFrameSender[rep.getNumPorts()];
 		for(int i = 0; i < rep.getNumPorts(); i++) {
@@ -23,11 +22,15 @@ class MultiPortFrameSender implements FrameSender {
 	
 	@Override
 	public void send(EthernetFrame frame) {
+		if(rep.getNumPorts() == 1) {
+			senders[0].send(frame);
+			return;
+		}
 		var destMac = frame.getDestination();
 		var srcMac = frame.getSource();
 		if(destMac.equals(MACAddress.BROADCAST_MAC)) {
 			int index = rep.getPortForMacAddress(srcMac);
-			for(int i = 0; i < HomeRouter.NUM_PORTS; i++) {
+			for(int i = 0; i < rep.getNumPorts(); i++) {
 				if(i != index) {
 					senders[i].send(frame);
 				}
