@@ -1,7 +1,7 @@
 package org.singsurf.jns3.data_link_layer;
 
 import org.singsurf.jns3.Jns3Logger;
-import org.singsurf.jns3.hardware.HomeRouter;
+import org.singsurf.jns3.hardware.ProtocolDevice;
 import org.singsurf.jns3.physical_layer.BlockingEndPoint;
 import org.singsurf.jns3.physical_layer.MultiPortReceiver;
 
@@ -13,7 +13,6 @@ import org.singsurf.jns3.physical_layer.MultiPortReceiver;
 public class RouterEthernetProtocol extends EthernetProtocol {
 	MultiPortFrameSender frameSender;
 	MultiPortFrameReceiver receiver;
-	PortMapper portMapper;
 	private int numPorts;
 
 	MultiPortReceiver mpr = new MultiPortReceiver() {
@@ -28,21 +27,13 @@ public class RouterEthernetProtocol extends EthernetProtocol {
 		}
 	};
 	
-	public RouterEthernetProtocol(HomeRouter device) {
+	public RouterEthernetProtocol(ProtocolDevice device) {
 		super(device);
 		numPorts = device.getNumPorts();
 		this.portMapper = new MultiPortMapper(numPorts);
 		
 		frameSender = new MultiPortFrameSender(this);
 		receiver = new MultiPortFrameReceiver(this, delegator);
-	}
-
-	int getPortForMacAddress(MACAddress destMac) {
-		return portMapper.getPortMapping(destMac);
-	}
-
-	void putPortMapping(int portNumber, MACAddress srcMac) {
-		portMapper.putPortMapping(portNumber, srcMac);
 	}
 
 	public int getNumPorts() {

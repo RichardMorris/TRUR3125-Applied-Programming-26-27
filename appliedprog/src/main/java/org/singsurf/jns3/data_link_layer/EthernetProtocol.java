@@ -19,6 +19,7 @@ public class EthernetProtocol implements Protocol, LowerPhysicalAdapter, UpperPo
 	ByteReceiver byteReceiver;
 	BufferedFrameSender bufferedSender = new BufferedFrameSender();	
 	ByteToFrameConverter converter = new ByteToFrameConverter();
+	PortMapper portMapper;
 
 	public EthernetProtocol(ProtocolDevice device) {
 		this.name = device.getName() + "-ETH";
@@ -32,6 +33,16 @@ public class EthernetProtocol implements Protocol, LowerPhysicalAdapter, UpperPo
 				delegator.receive(ethernetFrame);
 			}
 		};
+		this.portMapper = new PortMapper() {
+
+			@Override
+			public int getPortMapping(MACAddress destMac) {
+				return 0;
+			}
+
+			@Override
+			public void putPortMapping(int portNumber, MACAddress srcMac) {
+			}};
 	}
 
 	// Port and adapter methods
@@ -88,4 +99,13 @@ public class EthernetProtocol implements Protocol, LowerPhysicalAdapter, UpperPo
 			}
 		};
 	}
+	
+	int getPortForMacAddress(MACAddress destMac) {
+		return portMapper.getPortMapping(destMac);
+	}
+
+	void putPortMapping(int portNumber, MACAddress srcMac) {
+		portMapper.putPortMapping(portNumber, srcMac);
+	}
+
 }
