@@ -1,4 +1,4 @@
-# Week 15 A Home-Router
+# Week 16 A Home-Router
 
 ## User Story
 
@@ -84,16 +84,12 @@ See [RFC 1122: STD 3: Requirements for Internet Hosts - Communication Layers](ht
         * Frames to an unknown MAC are dropped with an error log.
 
 3. The `HomeRouter` class' `EthernetProtocol` sends inbound frames to it's registered protocols/handlers:
-        * PortSetter ensures 
-        * ARPProtocol
-        * IPProtocol
-        * ErrorFrameHandler
     * `ARPProtocol` delegates to
         * `ARPSetter` compare sender MAC/IP with it's table
             * If same continue so it can be forwarded
             * If different, update ARPTable, update port mapping
         * `ARPBroadcastForwarder` forwards broadcast packets to ports not matching sender mac
-        * `ARPForwarder` 
+        * `ARPForwarder`
             * if dest IP is in table forward to corresponding hardware port
             * if dest mac is not in table forwards to all packets not matching sender mac
         * `ARPResponder`
@@ -112,5 +108,22 @@ See [RFC 1122: STD 3: Requirements for Internet Hosts - Communication Layers](ht
     * On receiving a DHCP-ACK sends an ARP Reply to the Broadcast MAC address to announce it new IP.
     * On receiving a ARP Reply to Broadcast MAC updates its ARP table.
 
-7. DHCP_INFORM we use this to query other parameters, rather than DISCOVER.
+6. DHCP_INFORM we use this to query other parameters, rather than DISCOVER.
 
+## Design Notes
+
+This week see the conversion of the `HomeRouter` to be a `ProtocolDevice` with a custom set of protocols. Several protocol have been modified to work with routers, and the data-link layer and physical layer modified to work with protocols, via the
+`UpperPhysicalPort` and `LowerPhysicalAdapter` classes.
+
+1. ``DHCPProtocol` has an `isServer` option, that changes the set of handlers to `DiscoverHandler`,`RequestHandler` for servers, and `OfferHandler`,`AckHandler` for clients.
+2. `UDPProtocol` same for clients and servers
+3. `ICMPProtocol` same for clients and servers
+4. `IPProtocol` has an `isRouter` option adding a couple of new handlers:
+    * `TTLDecrementor` Decrements TTL, and if zero send an `DHCP` Time Exceeded to calling host.
+    * `IPPacketForwarder` forwards packets to the correct hardware port.
+5. `ARPProtocol` has an `isRouter` option adding a new handlers:
+    * `ARPForwarder` forwards broadcast packets to other hardware port, as well as handling them by the controller.
+6. `EthernetProtocol`  now works with multiple port devices, treating single port machines as a special case.
+7. `PhysicalProtocol` a new small protocol working with multiple ports.
+    * `BlockingEndPoint` only allows outbound traffic if the connection is not blocked.
+    * Inbound traffic is sent to the `MultiPortByteReceiver`, with the port number.
