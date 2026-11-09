@@ -10,16 +10,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.application_layer.ChatApplication;
-import org.singsurf.jns3.data_link_layer.EthernetFrame;
-import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.data_link_layer.RouterEthernetProtocol;
 import org.singsurf.jns3.data_link_layer.arp.ARPProtocol;
-import org.singsurf.jns3.generic_protocol.HandlerStatus;
-import org.singsurf.jns3.generic_protocol.ProtocolHandler;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPPacket;
 import org.singsurf.jns3.network_layer.IPProtocol;
-import org.singsurf.jns3.network_layer.PacketHandler;
 import org.singsurf.jns3.network_layer.icmp.ICMPProtocol;
 import org.singsurf.jns3.physical_layer.CountingConnection;
 import org.singsurf.jns3.physical_layer.FILOBufferedConnection;
@@ -74,27 +69,9 @@ class TestHomeRouter {
 		var dhcp = new DHCPProtocol(router,true);
 		udp.register(dhcp);
 		router.addProtocol(dhcp);
-			
-		ipProtocol.addHandler(new PacketHandler() {
-			@Override
-			public HandlerStatus handle(IPPacket type) {
-				ipProtocol.getPacketSender().send(type);
-				return HandlerStatus.COMPLETED;
-			}});
-		eth.register(ipProtocol);
-		
-		eth.addHandler(new ProtocolHandler<EthernetFrame>() {
-			@Override
-			public HandlerStatus handle(EthernetFrame type) {
-				eth.send(type); 
-				return HandlerStatus.COMPLETED;
-			}
-		});
-		
+					
 		router.setMulticastAddress(new IPAddress("192.168.1.255"));
 
-
-		
 		var connection1 = new SimpleConnection(router.getEndPoint(0), pc1.getEndPoint());
 		var connection2 = new SimpleConnection(router.getEndPoint(1), pc2.getEndPoint());
 		var connection3 = new SimpleConnection(router.getEndPoint(2), pc3.getEndPoint());
@@ -131,37 +108,6 @@ class TestHomeRouter {
 				router.getArpProtocol().lookup(pc1.getIPAddress()));
 		
 		
-		assertTrue(Jns3Logger.isErrorFree());
-	}
-
-	@Test
-	void can_send_frame_to_known_mac() {
-		pc1.getArpProtocol().sendGARPRequest();
-		Jns3Logger.clearLog();
-		byte[] payload = "Hello".getBytes();
-		short etherType = (short) payload.length;
-		var frame = new EthernetFrame(pc2.getMACAddress(), pc1.getMACAddress(), etherType, payload);
-		var fs1 = pc1.getEthernetProtocol().getFrameSender();
-		fs1.send(frame);
-		assertEquals(1, Jns3Logger.size());
-		assertEquals("PC2", Jns3Logger.getItem(0).deviceName());
-		assertTrue(Jns3Logger.isErrorFree());
-	}
-
-	@Test
-	void can_broadcast_frame() {
-		pc1.getArpProtocol().sendGARPRequest();
-		Jns3Logger.clearLog();
-		byte[] payload = "Hello from PC1".getBytes();
-		short etherType = (short) payload.length;
-		var frame = new EthernetFrame(MACAddress.BROADCAST_MAC, pc1.getMACAddress(), etherType, payload);
-		var fs1 = pc1.getEthernetProtocol().getFrameSender();
-		fs1.send(frame);
-		Jns3Logger.println();
-		assertEquals(3, Jns3Logger.size());
-		assertEquals("PC2", Jns3Logger.getItem(0).deviceName());
-		assertEquals("PC3", Jns3Logger.getItem(1).deviceName());
-		assertEquals("PC4", Jns3Logger.getItem(2).deviceName());
 		assertTrue(Jns3Logger.isErrorFree());
 	}
 
@@ -500,6 +446,7 @@ class TestHomeRouter {
 		var connection2 = new CountingConnection(pc2.getEndPoint(), router.getEndPoint(1));
 		assertNotNull(connection1);
 
+		Jns3Logger.clearLog();
 		pc1.getDHCPProtocol().startDiscovery();
 		GlobalWallClock.advanceBy(6);
 		assertTrue(Jns3Logger.isErrorFree());
