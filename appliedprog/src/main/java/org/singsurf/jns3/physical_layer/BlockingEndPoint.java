@@ -37,7 +37,7 @@ public class BlockingEndPoint extends PhysicalEndPoint implements BlockingByteSe
 		}		
 	}
 
-	public void setByteReceiver(ByteReceiver byteReceiver) {
+	void setByteReceiver(ByteReceiver byteReceiver) {
 		this.byteReceiver = byteReceiver;
 	}
 	

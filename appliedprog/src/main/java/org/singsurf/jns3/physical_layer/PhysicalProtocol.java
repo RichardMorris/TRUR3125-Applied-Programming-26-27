@@ -3,31 +3,31 @@ package org.singsurf.jns3.physical_layer;
 import org.singsurf.jns3.generic_protocol.LowerPhysicalAdapter;
 import org.singsurf.jns3.generic_protocol.Protocol;
 import org.singsurf.jns3.generic_protocol.UpperPhysicalPort;
-import org.singsurf.jns3.hardware.AddressableDevice;
+import org.singsurf.jns3.hardware.ProtocolDevice;
 
 public class PhysicalProtocol implements Protocol, UpperPhysicalPort {
-	AddressableDevice device;
-	BlockingEndPoint[] bep;
-	private int numPorts;
-	private MultiPortByteReceiver byteReceiver;
+	ProtocolDevice device;
+	int numPorts;
+	MultiPortByteReceiver byteReceiver;
+	BlockingEndPoint[] endPoints;
 
-	public PhysicalProtocol(AddressableDevice device, int numPorts) {
+	public PhysicalProtocol(ProtocolDevice device, int numPorts) {
 		super();
 		this.device = device;
 		this.numPorts = numPorts;
-        this.bep = new BlockingEndPoint[numPorts];
+        this.endPoints = new BlockingEndPoint[numPorts];
         for(int i=0; i<numPorts; i++) {
-        		bep[i] = new BlockingEndPoint(device.getName()); 
+        		endPoints[i] = new BlockingEndPoint(device.getName()); 
         }
 	}
 
 	@Override
 	public void register(LowerPhysicalAdapter adapter) {
-			adapter.setByteSenders(bep);
+			adapter.setByteSenders(endPoints);
 			byteReceiver =adapter.getMultiByteReceiver();
 	        for(int i=0; i<numPorts; i++) {
 	        	int j=i;
-	        		bep[i].setByteReceiver(new ByteReceiver() {
+	        		endPoints[i].setByteReceiver(new ByteReceiver() {
 						@Override
 						public void receive(byte[] frame) {
 							byteReceiver.receiveFrame(j, frame);
@@ -37,8 +37,8 @@ public class PhysicalProtocol implements Protocol, UpperPhysicalPort {
 	        }
 	}
 
-	public BlockingEndPoint getEndPoint(int i) {
-		return bep[i];
+	public PhysicalEndPoint getEndPoint(int i) {
+		return endPoints[i];
 	}
 
 
