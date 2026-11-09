@@ -43,7 +43,7 @@ public class EthernetProtocol implements Protocol, LowerPhysicalAdapter, UpperPo
 
 	@Override
 	public void register(LowerAdapter<EthernetFrame> adapter) {
-		adapter.setOutboundSender(bufferedSender);
+		adapter.setOutboundSender(getFrameSender());
 		adapter.setInboundCallback(delegator);
 		for(var h: adapter.getInboundHandlers()) {
 			delegator.addHandler(h);
@@ -87,9 +87,5 @@ public class EthernetProtocol implements Protocol, LowerPhysicalAdapter, UpperPo
 				byteReceiver.receive(frame);
 			}
 		};
-	}
-
-	public void send(EthernetFrame type) {
-		bufferedSender.send(type);		
 	}
 }

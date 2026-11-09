@@ -1,7 +1,6 @@
 package org.singsurf.jns3.data_link_layer;
 
 import org.singsurf.jns3.Jns3Logger;
-import org.singsurf.jns3.generic_protocol.LowerAdapter;
 import org.singsurf.jns3.hardware.HomeRouter;
 import org.singsurf.jns3.physical_layer.BlockingEndPoint;
 import org.singsurf.jns3.physical_layer.MultiPortReceiver;
@@ -38,24 +37,11 @@ public class RouterEthernetProtocol extends EthernetProtocol {
 		receiver = new MultiPortFrameReceiver(this, delegator);
 	}
 
-	@Override
-	public void register(LowerAdapter<EthernetFrame> adapter) {
-		adapter.setOutboundSender(frameSender);
-		adapter.setInboundCallback(delegator);
-		for(var h: adapter.getInboundHandlers()) {
-			delegator.addHandler(h);
-		}
-	}
-
-	public void send(EthernetFrame type) {
-		frameSender.send(type);		
-	}
-
-	public int getPortForMacAddress(MACAddress destMac) {
+	int getPortForMacAddress(MACAddress destMac) {
 		return portMapper.getPortMapping(destMac);
 	}
 
-	public void putPortMapping(int portNumber, MACAddress srcMac) {
+	void putPortMapping(int portNumber, MACAddress srcMac) {
 		portMapper.putPortMapping(portNumber, srcMac);
 	}
 
@@ -71,6 +57,11 @@ public class RouterEthernetProtocol extends EthernetProtocol {
 	@Override
 	public MultiPortReceiver getMultiByteReceiver() {
 		return mpr;
+	}
+
+	@Override
+	public FrameSender getFrameSender() {
+		return frameSender;
 	}
 
 }
