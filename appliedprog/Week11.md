@@ -1,4 +1,4 @@
-# IMCP, Ping and Traceroute
+# ICMP, Ping and Traceroute
 
 ## User Story
 
