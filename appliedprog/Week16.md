@@ -49,7 +49,7 @@ See [RFC 1122: STD 3: Requirements for Internet Hosts - Communication Layers](ht
         * Forwards ARP requests to other machines to the corresponding port if known, or Broadcast if unknown.
         * Forwards ARP replies to correct machine.
     * For IP packets
-        * Decrements the `ttl` 
+        * Decrements the `ttl`
         * If the `ttl` is zero reply with a "TTL Expired" ICMP message.
         * Looks up the destination IP in its table
         * If not found reply with a "Destination unreachable" message.
@@ -153,3 +153,43 @@ The inbound logic for the IP layer posed some problems. The `TTLDecrementor` sho
 This now completes the conversion to using Generic and Protocols. The Protocol level view looks quite clean.
 
 ![Protocol diagram](diagrams/week16%20protocols.png)
+
+The `PhysicalConnection` - `PhysicalEndPoint` also serve as a port-adapter mechanism between the edge of the device, and connections join it to other devices.
+
+The full system can be viewed as multi-level multiplexing system:
+
+* Inbound data on different ports is converted to frames and multiplex into a single channel
+* They are then demultiplex according to the `EtherType` of the frame by the Ethernet protocol's delegator.
+* IP packets are demultiplex according to the `protocol` of the packet.
+* UDP datagrams are demultiplex according the IP Address and Port number.
+
+For outbound traffic
+
+* Data from different application are multiplex into UDP datagrams
+* UDP datagrams and ICMP messages are multiplexed into IP Packets.
+* IP packets and APR messages are multiplexed into frames
+* Frames are demultiplex according to the mac address of the frame.
+
+## Review
+
+Now the full set of Protocol classes have been created its time to reflect on the changes.
+
+Advantages:
+
+* The protocol view looks cleaner, less of the internal functionality is exposed, and the main PC/HomeRouter classes are quite simple.
+* The system should be quite flexible, it should be fairly easy to add a `TCPProtocol` and applications like ftp, http, that require it.
+* It should be fairly easy to modify protocols, when we look at connection from the HomeRouter to the internet then we will need a new Port mapping using subnet masks and IP prefix's.
+* The delegator/handler structure works for most protocols. It's only the IP part that needed a slightly different logic, and that was easy to implement using the framework.
+* The code is largely faithful to the various RFC's.
+
+Disadvantages:
+
+* The code is more complex. In the `PassthroughRouter` much of the logic is contained in a single method. Now its distributed over many classes.
+* The stack trace is deep, each step in the transmission add 1 or two stack frames, and it can take 30 frame for a single Chat application packet to pass out from the PC; through a connection and into the HomeRouter; out on a different port; across another connection; and into the internal logic of the receiving PC.
+* The code is not efficient. Not really a design goal, but for real systems we would want efficient code that can handle millions of transmissions. This would not be written in Java, that uses garbage collection for freeing memory. Instead a language with manual memory management like C, C++, Rust, or [Zig](https://en.wikipedia.org/wiki/Zig_(programming_language)), would give more predictable performance.
+
+## Class Diagram
+
+Showing classes with substantial modification.
+
+![Class diagram](diagrams/week16.png)
