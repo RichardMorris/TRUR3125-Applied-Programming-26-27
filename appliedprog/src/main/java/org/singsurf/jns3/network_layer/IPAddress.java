@@ -1,9 +1,12 @@
-package org.singsurf.jns3;
+package org.singsurf.jns3.network_layer;
 
 import java.util.Arrays;
 
-public class IPAddress extends AbstractAddress {
+import org.singsurf.jns3.AbstractAddress;
 
+public class IPAddress extends AbstractAddress {
+    public static IPAddress ZERO_IP = new IPAddress(new byte[] {0, 0, 0, 0});
+    
     public IPAddress(byte[] bytes) {
         super(4, bytes);
     }
