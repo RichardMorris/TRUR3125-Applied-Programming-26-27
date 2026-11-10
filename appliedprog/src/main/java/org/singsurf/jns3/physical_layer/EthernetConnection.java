@@ -3,10 +3,10 @@ package org.singsurf.jns3.physical_layer;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
 
 /**
- * Represents a physical connection between two devices.
+ * Represents a physical ethernet connection between two devices.
  * Frames sent by one device are received by the other.
  */
-public interface Connection {
+public interface EthernetConnection {
     /**
      * Sends an Ethernet frame from the sender device 
      * to the other device.

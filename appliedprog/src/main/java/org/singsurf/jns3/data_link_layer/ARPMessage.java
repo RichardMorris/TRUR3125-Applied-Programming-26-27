@@ -1,6 +1,6 @@
 package org.singsurf.jns3.data_link_layer;
 
-import org.singsurf.jns3.IPAddress;
+import org.singsurf.jns3.network_layer.IPAddress;
 
 public class ARPMessage {
     private boolean isRequest;

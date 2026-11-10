@@ -68,7 +68,7 @@ can then send messages to each other.
 ### Specification 5
 
 1. An `ARPMessage` message has the format
-    * 2 byte hardware type. Ethernet is 0x0001. 
+    * 2 byte hardware type. Ethernet is 0x0001.
     * 2 byte protocol type, IPv4 is 0x0800.
     * 1 byte length of hardware address, 6 for MAC addresses for Ethernet
     * 1 byte length of protocol address, 4 for IPv4 addresses.
@@ -91,7 +91,7 @@ can then send messages to each other.
     * This is sent to all connected devices to announce the presence of
     a new device
 5. An `ARPController` handles the sending and response of frames with ARP requests
-    and response. 
+    and response.
     * It has a `boolean handle(EthernetFrame)` method that
         * returns true if it is an ARP request/response message, false otherwise
         * stores the senders MAC address and IP address
@@ -103,13 +103,13 @@ can then send messages to each other.
         * `reverseArpTable` a map from known MAC addresses to IP addresses
 6. The `FrameHandler` interface defines the `boolean handle(EthernetFrame)` method.
 7. The `DefaultFrameHandler` handles frames not handled by other FrameHandlers reporting messages in the log.
-8. The `FrameSender` interface defines  methods used by devices 
+8. The `FrameSender` interface defines  methods used by devices
     * `void sendFrame(EthernetFrame frame)`
 9. The abstract base class `Device` is used for most devices. It
     * Has a `name` for reporting purposes specified in the constructor.
     * Has a `MACAddress` specified in the constructor.
     * Has a `IPAddress` specified in the constructor.
-    * Has a `frameFactory` set by a getter. 
+    * Has a `frameFactory` set by a getter.
     * Has an `ARPController` set by a getter.
     * Has a list of `FrameHandler` to handle incoming frames.
     * It implements `FrameReceiver` and it's `receiveFrame(EthernetFrame frame)` method loops through
@@ -117,6 +117,8 @@ can then send messages to each other.
     * It implement `FrameSender` but provides no `sendFrame()` as PC's and network devices differ.
     * It has utility methods `EthernetFrame createEthernetFrame(MACAddress destinationMac, String payload)` and `createEthernetFrame(MACAddress destinationMac, byte[] payload)`
     that create frames using the devices MacAddress as the source address.
+
+
 10. The transport layer is modelled by an interface `Connection` that has a methods
     * `void send(EthernetFrame frame)` to start transmission of the frame down the wire
 11. The `SimpleConnection` represents a simple one way connection between two devices. It
@@ -132,7 +134,7 @@ can then send messages to each other.
     * Has a single `Connection` to one other device, set by a setter.
     * Has an `ARPController`
     * Has a `DefaultFrameHandler`
-    * Has a `FrameFactory` 
+    * Has a `FrameFactory`
     * Has a `void setConnection(Connection connection)` method.
     * Its `sendFrame(EthernetFrame frame)` method sends a frame to its single connection
     * It can send a GARP request via its ARPController.
@@ -146,3 +148,23 @@ can then send messages to each other.
     * Either PC can then look up the other PC's IP Address and MAC Address and use them to send a frame.
 
 See [cisco overview of layer 2](https://community.cisco.com/t5/networking-knowledge-base/overview-of-layer-2-switched-networks-and-communication/ta-p/3128423)
+
+### Design Pattern Usage
+
+1. "Favour Composition over Inheritance". The Device base class delegates much of it work to other components. It could be considered a [Facade](https://refactoring.guru/design-patterns/facade) 
+2. The Connection and SimpleConnection form part of the  [Strategy](https://refactoring.guru/design-patterns/strategy) pattern.
+    * "Strategy is a behavioral design pattern that lets you define a family of algorithms, put each of them into a separate class, and make their objects interchangeable."
+    * Here the algorithm is sending a frame across a simulated connection, define in `Connection` interface.
+    * There is currently only one concrete implementation: `SimpleConnection`
+    * Other types of connection could be defined that loose or corrupt frames, add buffering or create conflicts if both ends try to send messages at the same time.
+3. The way multiple `FrameHandlers` process incoming frames is an example of the [Chain of Responsibility](https://refactoring.guru/design-patterns/chain-of-responsibility)
+    * "Chain of Responsibility is a behavioral design pattern that lets you pass requests along a chain of handlers. Upon receiving a request, each handler decides either to process the request or to pass it to the next handler in the chain."
+    * Here the request is `boolean handleFrame(EthernetFrame frame)`
+    * Each element in the chain attempts to process the frame returning true
+        if it has handled the request ending the chain.
+    * If it returns false then the next handler is called.
+    * We have only 2 handlers:
+        * The first is the `ARPController` which handle ARP frames
+        * The `DefaultFrameHandler` handles all other requests.
+    * Our implementation is simpler than the standard pattern. In that elements in the chain can modify the request before passing it on.
+    * Rather that implementing the Linked List structure in the pattern we simply use a List of Handlers.

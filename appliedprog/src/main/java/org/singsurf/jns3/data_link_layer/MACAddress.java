@@ -3,6 +3,9 @@ package org.singsurf.jns3.data_link_layer;
 import org.singsurf.jns3.AbstractAddress;
 
 public class MACAddress extends AbstractAddress {
+    public static MACAddress BROADCAST_MAC = new MACAddress(new byte[] {(byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF});
+    public static MACAddress ZERO_MAC = new MACAddress(new byte[] {0, 0, 0, 0, 0, 0});
+
     public MACAddress(byte[] bytes) {
         super(6, bytes);
     }
