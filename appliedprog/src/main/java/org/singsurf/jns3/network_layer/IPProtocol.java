@@ -75,7 +75,7 @@ public class IPProtocol implements Protocol, LowerAdapter<EthernetFrame>, UpperP
 		var frameSender = (FrameSender) sender;
 		
         packetSender = new EthernetPacketSender(device, 
-        		arpProtocol.getArpController(),frameSender);
+        		arpProtocol,frameSender);
 
 	}
 

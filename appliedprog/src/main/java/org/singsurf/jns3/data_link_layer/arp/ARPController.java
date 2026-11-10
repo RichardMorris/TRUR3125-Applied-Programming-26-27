@@ -22,7 +22,6 @@ import org.singsurf.jns3.network_layer.IPAddress;
 public class ARPController implements FrameHandler {
 	String name;
     Map<IPAddress, MACAddress> arpTable = new HashMap<>();
-    Map<MACAddress, IPAddress> reverseArpTable = new HashMap<>();
     ARPExtractor arpConverter = ARPExtractor.getInstance();
     AddressableDevice device;
     FrameSender sender;
@@ -33,10 +32,9 @@ public class ARPController implements FrameHandler {
 		this.sender = sender;
 	}
     
-    public ARPController(ARPProtocol prot) {
+    ARPController(ARPProtocol prot) {
 		this.device = prot.device;
-		this.name = prot.name;
-		
+		this.name = prot.name;	
 	}
 
 	private boolean handleFrame(EthernetFrame frame) {
@@ -49,7 +47,6 @@ public class ARPController implements FrameHandler {
                 var arpMessage = arpConverter.extract(frame);
                 // Update ARP tables
                 arpTable.put(arpMessage.getSenderIp(), arpMessage.getSenderMac());
-                reverseArpTable.put(arpMessage.getSenderMac(), arpMessage.getSenderIp());
 
                 if(arpMessage.isRequest()) {
                     // Respond to ARP request
@@ -66,15 +63,13 @@ public class ARPController implements FrameHandler {
         } else {
             Jns3Logger.log(name, Jns3Logger.LogLevel.IGNORED,  "Received ARP frame not for this device");
         }
-
-
         return true;
     }
 
     /**
      * Sends a Gratuitous ARP (GARP) request to announce the device's IP and MAC address to the network.
      */
-    public void sendGARPRequest() {
+    void sendGARPRequest() {
         var garpMessage = ARPMessage.createGarpRequest(
             device.getMACAddress(),
             device.getIPAddress());
@@ -89,7 +84,7 @@ public class ARPController implements FrameHandler {
 	 * Sends an ARP request to resolve the MAC address for the given IP address.
 	 * @param ip The IP address to resolve.
 	 */
-    public void sendArpRequest(IPAddress ip) {
+    void sendArpRequest(IPAddress ip) {
         var request = new ARPMessage(
             true,
             device.getMACAddress(),
@@ -101,23 +96,14 @@ public class ARPController implements FrameHandler {
         sender.send(requestFrame);
     }
 
-    public Map<IPAddress, MACAddress> getArpTable() {
-        return arpTable;
-    }
-
-    public Map<MACAddress, IPAddress> getReverseArpTable() {
-        return reverseArpTable;
-    }
-
     /**
      * Allows manual entry into the table.
      * @param ip
      * @param macAddress
      * @return
      */
-	public MACAddress put(IPAddress ip, MACAddress macAddress) {
+	MACAddress put(IPAddress ip, MACAddress macAddress) {
 		var existingMac = arpTable.put(ip, macAddress);
-		reverseArpTable.put(macAddress, ip);
 		return existingMac;
 	}
 
@@ -126,7 +112,7 @@ public class ARPController implements FrameHandler {
 	 * @param ipAddress The IP address to look up.
 	 * @return The corresponding MAC address, or null if not found.
 	 */
-	public MACAddress lookup(IPAddress ipAddress) {
+	MACAddress lookup(IPAddress ipAddress) {
 		return arpTable.get(ipAddress);
 	}
 
@@ -135,11 +121,11 @@ public class ARPController implements FrameHandler {
 		return handleFrame(type) ? HandlerStatus.COMPLETED : HandlerStatus.CONTINUE;
 	}
 
-	public void setSender(FrameSender sender) {
+	void setSender(FrameSender sender) {
 		this.sender = sender;
 	}
 
-	public void announceAddress(IPAddress ipAddress, MACAddress macAddress) {
+	void announceAddress(IPAddress ipAddress, MACAddress macAddress) {
         var reply = new ARPMessage(
                 false, 
                 device.getMACAddress(), 
@@ -151,9 +137,6 @@ public class ARPController implements FrameHandler {
             		device.getMACAddress(), 
             		ARPProtocol.ARP_ETHER_TYPE, 
             		reply.getBytes());
-            sender.send(replyFrame);
-		
-	}
-	
-	
+            sender.send(replyFrame);	
+	}	
 }

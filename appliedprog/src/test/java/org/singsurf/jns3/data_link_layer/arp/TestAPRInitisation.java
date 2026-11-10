@@ -2,7 +2,6 @@ package org.singsurf.jns3.data_link_layer.arp;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
@@ -48,8 +47,6 @@ public class TestAPRInitisation {
     public void testGRAP() {
         Jns3Logger.clearLog();
         var arpController = pc1.getArpProtocol().getArpController();
-        assertEquals(1, arpController.getArpTable().size());
-        assertEquals(1, arpController.getReverseArpTable().size());
         arpController.sendGARPRequest();
 
         List<LogItem> logs = Jns3Logger.getLogItems();
@@ -67,72 +64,10 @@ public class TestAPRInitisation {
         assertEquals(new Jns3Logger.LogItem("PC1-ARP", 
         		Jns3Logger.LogLevel.RECEIVED,"Received ARP frame"), logs.get(3));
 
-        assertTrue(arpController.getArpTable().containsKey(pc2.getIPAddress()));
-        assertTrue(arpController.getReverseArpTable().containsKey(pc2.getMACAddress())); 
-        assertEquals(pc2.getMACAddress(), arpController.getArpTable().get(pc2.getIPAddress()));
-        assertEquals(pc2.getIPAddress(), arpController.getReverseArpTable().get(pc2.getMACAddress()));
+        assertEquals(pc2.getMACAddress(), arpController.lookup(pc2.getIPAddress()));
 
-        var arpController2 = pc2.getArpProtocol().getArpController();
-        assertTrue(arpController2.getArpTable().containsKey(pc1.getIPAddress()));
-        assertTrue(arpController2.getReverseArpTable().containsKey(pc1.getMACAddress()));
-        assertEquals(pc1.getMACAddress(), pc2.getArpProtocol().getArpController().getArpTable().get(pc1.getIPAddress()));
-        assertEquals(pc1.getIPAddress(), pc2.getArpProtocol().getArpController().getReverseArpTable().get(pc1.getMACAddress()));
+        assertEquals(pc1.getMACAddress(), pc2.getArpProtocol().lookup(pc1.getIPAddress()));
     }
 
-    @Test
-    public void testMessageToAnIP() {
-        var arpController = pc1.getArpProtocol().getArpController();
-        pc1.getArpProtocol().sendGARPRequest();
-
-        Jns3Logger.clearLog();
-
-        for(var entry : arpController.getArpTable().entrySet()) {
-            var ipAddress = entry.getKey();
-            if(ipAddress.equals(pc1.getMulticastAddress())) {
-				continue; // Skip multicast entry
-			}
-            var macAddress = entry.getValue();
-			byte[] payload = ("Hello " + ipAddress).getBytes();
-			short etherType = (short) payload.length;
-            var frame = new EthernetFrame(macAddress, pc1.getMACAddress(), etherType, payload);
-            pc1.getEthernetProtocol().getFrameSender().send(frame);
-            break;
-        }
-        List<LogItem> logs = Jns3Logger.getLogItems();
-        System.out.println(logs);   
-        assertEquals(1, logs.size());
-        assertEquals(new Jns3Logger.LogItem("PC2", 
-        		Jns3Logger.LogLevel.RECEIVED,
-        		"Hello "+ pc2.getIPAddress()), 
-        	logs.get(0));
-    }
-
-    @Test
-    public void testReverseMessageToAnIP() {
-        var arpController = pc2.getArpProtocol().getArpController();
-        arpController.sendGARPRequest();
-
-        Jns3Logger.clearLog();
-        
-        for(var entry : arpController.getArpTable().entrySet()) {
-            var ipAddress = entry.getKey();
-            if(ipAddress.equals(pc1.getMulticastAddress())) {
-				continue; // Skip multicast entry
-			}
-            var macAddress = entry.getValue();
-			byte[] payload = ("Hello " + ipAddress).getBytes();
-			short etherType = (short) payload.length;
-            var frame = new EthernetFrame(macAddress, pc2.getMACAddress(), etherType, payload);
-            pc2.getEthernetProtocol().getFrameSender().send(frame);
-            break;
-        }
-        List<LogItem> logs = Jns3Logger.getLogItems();
-        System.out.println(logs);   
-        assertEquals(1, logs.size());
-        assertEquals(new Jns3Logger.LogItem("PC1", 
-        		Jns3Logger.LogLevel.RECEIVED,
-        		"Hello "+ pc1.getIPAddress()), 
-        	logs.get(0));
-    }
 
 }

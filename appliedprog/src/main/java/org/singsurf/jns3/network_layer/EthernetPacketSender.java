@@ -10,7 +10,7 @@ import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.data_link_layer.FrameSender;
 import org.singsurf.jns3.data_link_layer.MACAddress;
-import org.singsurf.jns3.data_link_layer.arp.ARPController;
+import org.singsurf.jns3.data_link_layer.arp.ARPProtocol;
 import org.singsurf.jns3.hardware.AddressableDevice;
 import org.singsurf.jns3.hardware.GlobalWallClock;
 import org.singsurf.jns3.hardware.GlobalWallClock.TickListener;
@@ -24,7 +24,7 @@ import org.singsurf.jns3.hardware.GlobalWallClock.TickListener;
 public class EthernetPacketSender implements PacketSender, TickListener {
 	AddressableDevice device;
 	String name;
-	ARPController arpController;
+	ARPProtocol arpController;
 	FrameSender frameSender;
 	PacketFragmentor packetFragmentor = new PacketFragmentor();
 	
@@ -49,7 +49,7 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 	}
 	
 	public EthernetPacketSender(AddressableDevice device, 
-			ARPController arpController, FrameSender frameSender) {
+			ARPProtocol arpController, FrameSender frameSender) {
 		this.device = device;
 		this.name = device.getName();
 		this.arpController = arpController;
@@ -62,10 +62,10 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 		
 		var destIP = packet.getDestinationAddress();
 		var srcIP = packet.getSourceAddress();
-		var destMac = arpController.getArpTable().get(destIP);
+		var destMac = arpController.lookup(destIP);
 		var srcMac = srcIP.equals(device.getIPAddress())
 				? device.getMACAddress()
-				: arpController.getArpTable().get(srcIP);
+				: arpController.lookup(srcIP);
 		
 		if(destIP.equals(IPProtocol.LIMITED_MULTICAST_ADDRESS) 
 		 || destIP.equals(device.getMulticastAddress())) {
@@ -114,7 +114,7 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 			var destIp = ent.getKey();
 			var queue = ent.getValue();
 			var size = queue.queue().size();
-			var destMac = arpController.getArpTable().get(destIp);
+			var destMac = arpController.lookup(destIp);
 			if(destMac != null) {
 				while(!queue.queue().isEmpty()) {
 					IPPacket packet = queue.queue().poll();
