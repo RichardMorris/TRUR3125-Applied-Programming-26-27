@@ -1,6 +1,6 @@
 <mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.6.1 Chrome/142.0.7444.265 Electron/39.8.0 Safari/537.36" version="29.6.1">
   <diagram name="Page-1" id="HdKhnBQS1rKC_iiOW2PX">
-    <mxGraphModel dx="4227" dy="2242" grid="1" gridSize="10" guides="1" tooltips="0" connect="1" arrows="0" fold="0" page="0" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="3928" dy="2055" grid="1" gridSize="10" guides="1" tooltips="0" connect="1" arrows="0" fold="0" page="0" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -2210,7 +2210,7 @@
         <mxCell id="nqdENSf3lKKydCwYgqDS-195" parent="1" style="html=1;whiteSpace=wrap;fillColor=#D1FCA1;strokeColor=#000000;" value="Protocol" vertex="1">
           <mxGeometry height="26" width="110" x="-2119" y="-520" as="geometry" />
         </mxCell>
-        <mxCell id="nqdENSf3lKKydCwYgqDS-196" parent="1" style="html=1;whiteSpace=wrap;fillColor=#D1FCA1;strokeColor=#000000;" value="UpperPort&amp;lt;EthernetFrame&amp;gt;" vertex="1">
+        <mxCell id="nqdENSf3lKKydCwYgqDS-196" parent="1" style="html=1;whiteSpace=wrap;fillColor=#D1FCA1;strokeColor=#000000;" value="UpperPhysicalPort" vertex="1">
           <mxGeometry height="26" width="170" x="-2040" y="-470" as="geometry" />
         </mxCell>
         <mxCell id="nqdENSf3lKKydCwYgqDS-197" edge="1" parent="1" source="nqdENSf3lKKydCwYgqDS-191" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=block;endFill=0;endSize=12;">

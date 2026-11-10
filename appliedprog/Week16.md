@@ -119,11 +119,37 @@ This week see the conversion of the `HomeRouter` to be a `ProtocolDevice` with a
 2. `UDPProtocol` same for clients and servers
 3. `ICMPProtocol` same for clients and servers
 4. `IPProtocol` has an `isRouter` option adding a couple of new handlers:
-    * `TTLDecrementor` Decrements TTL, and if zero send an `DHCP` Time Exceeded to calling host.
+    * `TTLDecrementor` Decrements TTL, and if zero send a DHCP Time Exceeded message to calling device.
     * `IPPacketForwarder` forwards packets to the correct hardware port.
 5. `ARPProtocol` has an `isRouter` option adding a new handlers:
     * `ARPForwarder` forwards broadcast packets to other hardware port, as well as handling them by the controller.
 6. `EthernetProtocol`  now works with multiple port devices, treating single port machines as a special case.
+    * `PortMapper` defines a map between MAC addresses and port numbers with the concrete class `MultiPortMapper`.
+    * An anonymous class `MultiPortByteReceiver` extracts EthernetFrames from byte arrays.
+    * A `MultiPortFrameReceiver` with a `receive(int portNum, EthernetFrame frame)` that records the port number and passes the frame to the delegator.
+    * A `MultiPortFrameSender` that takes outbound frames, directs them to the correct port, and buffers
+    if the end point is blocked.
+
 7. `PhysicalProtocol` a new small protocol working with multiple ports.
     * `BlockingEndPoint` only allows outbound traffic if the connection is not blocked.
-    * Inbound traffic is sent to the `MultiPortByteReceiver`, with the port number.
+    * Inbound traffic from the endpoint is sent to the `MultiPortByteReceiver`, with the port number.
+
+8. A `HomeRouter` is a `ProtocolDevice` with this new set of Protocols.
+
+The `HomeRouter` class from the previous week and the `PassthroughRouter` from week 11 server as templates for some of the functionality. The latter had most of the logic in a single method.
+
+To implement the new `HomeRouter` a step by step approach was used. For each layer from the data-link layer up, test are created using existing tests as a basis. The changes to the protocol are implemented. For the data-link layer, a custom `RouterEthernetProtocol` is created.
+
+Once the full stack has been tested, it was time to create a `PhysicalProtocol` with the new Port and Adapter classes. Some reorganisation of classes was necessary
+to ensure the protocol only works with byte arrays and not frames. Buffering was moved to the Ethernet protocol.
+
+Finally functionality of the `RouterEthernetProtocol` is
+pulled up to the `EthernetProtocol` so a single class is used for PC and routers. Again this is done in a step by step fashion, ensuring all tests are green at each step.
+
+Once done the old HomeRouter and a few low level tests were dropped. Coverage reports also identified some now unused methods and classes that are also dropped.
+
+The inbound logic for the IP layer posed some problems. The `TTLDecrementor` should be run once for each inbound packet, and the `IPFragementHandler` passes completed packets back to the delegator. Both classes could not be implemented as `PacketHandler` in the same delegator loop without decrementing the TTL of a recombined packet twice. The simplest solution was to implement the decrementor as chained method passing modified frames to the delegator.
+
+This now completes the conversion to using Generic and Protocols. The Protocol level view looks quite clean.
+
+![Protocol diagram](diagrams/week16%20protocols.png)

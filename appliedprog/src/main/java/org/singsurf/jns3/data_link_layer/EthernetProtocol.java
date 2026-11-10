@@ -35,17 +35,17 @@ public class EthernetProtocol implements Protocol, LowerPhysicalAdapter, UpperPo
 
 		this.frameReceiver = new MultiPortFrameReceiver(this, (FrameReceiver) delegator);
 			
-			this.byteReceiver = new MultiPortByteReceiver() {
-				@Override
-				public void receiveFrame(int portNumber, byte[] frame) {
-					var ethFrame = converter.fromBytes(frame);
-					if(ethFrame == null) {
-						Jns3Logger.logError(getName(), "Failed to parse Ethernet frame from bytes");
-						return;
-					}
-					frameReceiver.receiveFrame(portNumber, ethFrame);
+		this.byteReceiver = new MultiPortByteReceiver() {
+			@Override
+			public void receiveFrame(int portNumber, byte[] frame) {
+				var ethFrame = converter.fromBytes(frame);
+				if(ethFrame == null) {
+					Jns3Logger.logError(getName(), "Failed to parse Ethernet frame from bytes");
+					return;
 				}
-			}; 
+				frameReceiver.receiveFrame(portNumber, ethFrame);
+			}
+		}; 
 	}
 
 	// Port and adapter methods
