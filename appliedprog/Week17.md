@@ -4,6 +4,8 @@
 
 As a teenager I want to chat to my friends over the internet, so I can keep track of all the gossip.
 
+[Moss Introduces Jen To The Internet](https://www.youtube.com/watch?v=iDbyYGrswtg)
+
 ## Acceptance Criteria
 
 Scenario: Router Configuration
