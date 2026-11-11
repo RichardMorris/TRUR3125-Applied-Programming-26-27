@@ -187,6 +187,7 @@ Disadvantages:
 * The code is more complex. In the `PassthroughRouter` much of the logic is contained in a single method. Now its distributed over many classes.
 * The stack trace is deep, each step in the transmission add 1 or two stack frames, and it can take 30 frame for a single Chat application packet to pass out from the PC; through a connection and into the HomeRouter; out on a different port; across another connection; and into the internal logic of the receiving PC.
 * The code is not efficient. Not really a design goal, but for real systems we would want efficient code that can handle millions of transmissions. This would not be written in Java, that uses garbage collection for freeing memory. Instead a language with manual memory management like C, C++, Rust, or [Zig](https://en.wikipedia.org/wiki/Zig_(programming_language)), would give more predictable performance.
+* It has taken a long time from week 13.
 
 ## Class Diagram
 
