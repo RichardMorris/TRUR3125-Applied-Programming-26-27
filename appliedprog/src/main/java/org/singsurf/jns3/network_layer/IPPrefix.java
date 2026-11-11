@@ -9,6 +9,7 @@ public class IPPrefix {
 		this.prefix = prefix;
 		this.prefixLength = prefixLength;
 		this.mask = switch(prefixLength) {
+		case 0 -> new SubnetMask("0.0.0.0");
 		case 1 -> new SubnetMask("128.0.0.0");
 		case 2 -> new SubnetMask("192.0.0.0");
 		case 3 -> new SubnetMask("224.0.0.0");
@@ -40,6 +41,7 @@ public class IPPrefix {
 		case 29 -> new SubnetMask("255.255.255.248");
 		case 30 -> new SubnetMask("255.255.255.252");
 		case 31 -> new SubnetMask("255.255.255.254");
+		case 32 -> new SubnetMask("255.255.255.255");
 		
 		default -> throw new IllegalArgumentException("Unsupported prefix length: " + prefixLength);
 		};

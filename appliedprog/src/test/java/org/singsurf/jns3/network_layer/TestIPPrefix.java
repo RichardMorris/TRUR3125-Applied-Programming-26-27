@@ -13,6 +13,17 @@ class TestIPPrefix {
 	}
 
 	@Test
+	void testWildcard() {
+		IPPrefix prefix = new IPPrefix("0.0.0.0/0");
+		IPAddress addr1 = new IPAddress("0.0.0.0");
+		IPAddress addr2 = new IPAddress("255.255.255.255");
+		IPAddress addr3 = new IPAddress("138.253.39.2");
+		assertTrue(prefix.matches(addr1));
+		assertTrue(prefix.matches(addr2));
+		assertTrue(prefix.matches(addr3));
+	}
+
+	@Test
 	void testClassA() {
 		IPPrefix prefix = new IPPrefix("10.0.0.0/8");
 		IPAddress addr1 = new IPAddress("10.0.0.0");
@@ -50,6 +61,18 @@ class TestIPPrefix {
 		
 		IPAddress addr3 = new IPAddress("192.167.255.255");		
 		IPAddress addr4 = new IPAddress("192.169.0.0");
+		assertFalse(prefix.matches(addr3));
+		assertFalse(prefix.matches(addr4));
+	}
+
+	@Test
+	void testSingleMachine() {
+		IPPrefix prefix = new IPPrefix("192.168.1.1/32");
+		IPAddress addr1 = new IPAddress("192.168.1.1");
+		assertTrue(prefix.matches(addr1));
+		
+		IPAddress addr3 = new IPAddress("192.168.1.2");		
+		IPAddress addr4 = new IPAddress("192.168.1.0");
 		assertFalse(prefix.matches(addr3));
 		assertFalse(prefix.matches(addr4));
 	}
