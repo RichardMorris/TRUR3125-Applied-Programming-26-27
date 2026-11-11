@@ -13,6 +13,10 @@ import org.singsurf.jns3.generic_protocol.ProtocolSender;
 import org.singsurf.jns3.hardware.ProtocolDevice;
 import org.singsurf.jns3.network_layer.IPAddress;
 
+/**
+ * Implements the Address Resolution Protocol (ARP) for resolving IP addresses to MAC addresses.
+ * It handles ARP requests and replies, maintains an ARP table, and provides methods for sending ARP requests.
+ */
 public class ARPProtocol implements Protocol, LowerAdapter<EthernetFrame> {
 	String name;
 	ProtocolDevice device;

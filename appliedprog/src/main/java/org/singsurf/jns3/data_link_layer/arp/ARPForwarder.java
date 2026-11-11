@@ -14,12 +14,12 @@ import org.singsurf.jns3.hardware.AddressableDevice;
  * 
  * For each device hold a table of IP to MAC address mappings and vice versa.
  */
-public class ARPForwarder implements FrameHandler {
+class ARPForwarder implements FrameHandler {
     ARPExtractor extractor = ARPExtractor.getInstance();
     AddressableDevice device;
     FrameSender sender;
     
-    public ARPForwarder(AddressableDevice device) {
+    ARPForwarder(AddressableDevice device) {
 		this.device = device;
 	}
 
@@ -39,7 +39,7 @@ public class ARPForwarder implements FrameHandler {
 	        return HandlerStatus.CONTINUE;
 	}
 
-	public void setSender(FrameSender sender) {
+	void setSender(FrameSender sender) {
 		this.sender = sender;
 	}
 	
