@@ -10,6 +10,7 @@ import org.singsurf.jns3.data_link_layer.arp.ARPProtocol;
 import org.singsurf.jns3.generic_protocol.Protocol;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPProtocol;
+import org.singsurf.jns3.network_layer.SubnetMask;
 import org.singsurf.jns3.network_layer.icmp.ICMPProtocol;
 import org.singsurf.jns3.physical_layer.PhysicalProtocol;
 import org.singsurf.jns3.transport_layer.dhcp.DHCPProtocol;
@@ -25,7 +26,7 @@ public abstract class ProtocolDevice implements AddressableDevice {
 	MACAddress macAddress;
 	IPAddress ipAddress;
 	IPAddress multiCastIP;
-	IPAddress subnetMask;
+	SubnetMask subnetMask;
 	
 	List<Protocol> protocols = new ArrayList<>();
 	private int numPorts;
@@ -116,11 +117,11 @@ public abstract class ProtocolDevice implements AddressableDevice {
 
 	public abstract Terminal getTerminal();
 
-	public Object getSubnetMask() {
+	public SubnetMask getSubnetMask() {
 		return subnetMask;
 	}
 
-	public void setSubnetMask(IPAddress subnetMask) {
+	public void setSubnetMask(SubnetMask subnetMask) {
 		this.subnetMask = subnetMask;		
 	}
 

@@ -6,6 +6,10 @@ public class SubnetMask extends IPAddress {
 		super(addr);
 	}
 
+	public SubnetMask(IPAddress maskIP) {
+		super(maskIP.getBytes());
+	}
+
 	public boolean matches(IPAddress src, IPAddress dst) {
 		var srcBytes = src.getBytes();
 		var dstBytes = dst.getBytes();

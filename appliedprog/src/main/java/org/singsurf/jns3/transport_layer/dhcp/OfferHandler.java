@@ -5,6 +5,7 @@ import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.generic_protocol.HandlerStatus;
 import org.singsurf.jns3.generic_protocol.ProtocolHandler;
 import org.singsurf.jns3.hardware.AddressableDevice;
+import org.singsurf.jns3.network_layer.SubnetMask;
 import org.singsurf.jns3.transport_layer.udp.UDPDatagram;
 
 public class OfferHandler implements ProtocolHandler<DHCPMessage> {
@@ -46,7 +47,8 @@ public class OfferHandler implements ProtocolHandler<DHCPMessage> {
 
 		var subop = message.getOption(DHCPMessage.OPT_SUBNET_MASK);
 		if(subop != null) {
-			var subnetMask = subop.getDataAsIPAddress();
+			var maskIP = subop.getDataAsIPAddress();
+			var subnetMask = new SubnetMask(maskIP);
 			dhcpProtocol.device.setSubnetMask(subnetMask);
 		} else {
 			Jns3Logger.logError(name, "No subnet mask in DHCP Offer message");
