@@ -7,6 +7,7 @@ import java.util.Random;
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.generic_protocol.ProtocolContainer;
+import org.singsurf.jns3.hardware.GlobalWallClock;
 import org.singsurf.jns3.network_layer.IPAddress;
 
 /**
@@ -328,7 +329,7 @@ public class DHCPMessage implements ProtocolContainer {
 		var addresses = new DHCPMessage.DHCPAddresses(mac, ciaddr, yiaddr, siaddr, giaddr);
 		byte op = DHCPMessage.DHCP_OP_DISCOVER;		
 		int xid = rand.nextInt(); 
-		short secs = 0;
+		short secs = (short) GlobalWallClock.getInstance().getTickCount();
 		short flags = 0;
 		List<DHCPOption> options = new ArrayList<>();
 		// First option: 0x350101: Option 53 (DHCP Message Type) 1 octet (containing DHCPDISCOVER)
