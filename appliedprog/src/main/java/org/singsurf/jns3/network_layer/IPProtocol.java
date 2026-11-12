@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.data_link_layer.FrameSender;
+import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.data_link_layer.arp.ARPProtocol;
 import org.singsurf.jns3.generic_protocol.LowerAdapter;
 import org.singsurf.jns3.generic_protocol.Protocol;
@@ -36,6 +37,9 @@ public class IPProtocol implements Protocol, LowerAdapter<EthernetFrame>, UpperP
 		this.isRouter = isRouter;
 		this.name = device.getName() + "-IP";
 		this.arpProtocol = device.getArpProtocol();
+		
+        packetSender = new EthernetPacketSender(device,this);
+		
 		this.arpUpdater = new ARPUpdater(this);
 		this.delegator = new ProtocolDelegator<IPPacket>(device.getName());
 		this.fragmentHandler = new IPFragmentHandler(device, delegator);
@@ -74,8 +78,7 @@ public class IPProtocol implements Protocol, LowerAdapter<EthernetFrame>, UpperP
 	public void setOutboundSender(ProtocolSender<EthernetFrame> sender) {
 		var frameSender = (FrameSender) sender;
 		
-        packetSender = new EthernetPacketSender(device, 
-        		arpProtocol,frameSender);
+        packetSender.setFrameSender(frameSender);
 
 	}
 
@@ -140,6 +143,14 @@ Wireless LAN adapter WiFi:
 
 	public boolean isRouter() {
 		return isRouter;
+	}
+
+	protected void sendArpRequest(IPAddress destIP) {
+		arpProtocol.sendArpRequest(destIP);		
+	}
+
+	protected MACAddress lookup(IPAddress destIP) {
+		return arpProtocol.lookup(destIP);
 	}
 
 }

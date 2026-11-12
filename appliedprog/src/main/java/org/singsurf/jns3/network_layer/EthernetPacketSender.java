@@ -10,7 +10,6 @@ import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.data_link_layer.FrameSender;
 import org.singsurf.jns3.data_link_layer.MACAddress;
-import org.singsurf.jns3.data_link_layer.arp.ARPProtocol;
 import org.singsurf.jns3.hardware.AddressableDevice;
 import org.singsurf.jns3.hardware.GlobalWallClock;
 import org.singsurf.jns3.hardware.GlobalWallClock.TickListener;
@@ -24,7 +23,7 @@ import org.singsurf.jns3.hardware.GlobalWallClock.TickListener;
 public class EthernetPacketSender implements PacketSender, TickListener {
 	AddressableDevice device;
 	String name;
-	ARPProtocol arpController;
+	IPProtocol ipProtocol;
 	FrameSender frameSender;
 	PacketFragmentor packetFragmentor = new PacketFragmentor();
 	
@@ -49,11 +48,10 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 	}
 	
 	public EthernetPacketSender(AddressableDevice device, 
-			ARPProtocol arpController, FrameSender frameSender) {
+			IPProtocol arpController) {
 		this.device = device;
 		this.name = device.getName();
-		this.arpController = arpController;
-		this.frameSender = frameSender;
+		this.ipProtocol = arpController;
 		GlobalWallClock.getInstance().addTickListener(this);
 	}
 
@@ -62,10 +60,10 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 		
 		var destIP = packet.getDestinationAddress();
 		var srcIP = packet.getSourceAddress();
-		var destMac = arpController.lookup(destIP);
+		var destMac = loopup(destIP);
 		var srcMac = srcIP.equals(device.getIPAddress())
 				? device.getMACAddress()
-				: arpController.lookup(srcIP);
+				: loopup(srcIP);
 		
 		if(destIP.equals(IPProtocol.LIMITED_MULTICAST_ADDRESS) 
 		 || destIP.equals(device.getMulticastAddress())) {
@@ -78,11 +76,15 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 			return;
 		}
 		if(destMac == null) {
+			// No ARP entry for destination IP
+			
+			
+			
 			var queue = packetQueue.computeIfAbsent(destIP,
 					k -> new TaggedQueue(new LinkedList<>(),false));
 			queue.queue().add(packet);
 			if(!queue.requested()) {
-				arpController.sendArpRequest(destIP);
+				ipProtocol.sendArpRequest(destIP);
 				queue.requested = true;
 			}
 			packetQueue.put(destIP, new TaggedQueue(queue.queue(), true));
@@ -91,6 +93,11 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 		}
 		
 		sendPacket(packet, srcMac, destMac);
+	}
+
+	protected MACAddress loopup(IPAddress destIP) {
+		MACAddress mac = ipProtocol.lookup(destIP);
+		return mac;
 	}
 
 	private void sendPacket(IPPacket packet, MACAddress srcMac, MACAddress destMac) {
@@ -114,7 +121,7 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 			var destIp = ent.getKey();
 			var queue = ent.getValue();
 			var size = queue.queue().size();
-			var destMac = arpController.lookup(destIp);
+			var destMac = loopup(destIp);
 			if(destMac != null) {
 				while(!queue.queue().isEmpty()) {
 					IPPacket packet = queue.queue().poll();
@@ -129,7 +136,7 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 				packetQueue.remove(ip);
 		}
 		for(var ip: packetQueue.keySet()) {
-			arpController.sendArpRequest(ip);
+			ipProtocol.sendArpRequest(ip);
 		}
 		
 	}
@@ -137,6 +144,10 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 	public void setFragmentSize(int size) {
 		packetFragmentor.setMaxLength(size);
 		
+	}
+
+	public void setFrameSender(FrameSender frameSender2) {
+		this.frameSender = frameSender2;		
 	}
 
 }
