@@ -50,15 +50,15 @@ public class ICMPMessage implements ProtocolContainer {
 		this.psudoHeader = new PsudoHeader(IPAddress.ZERO_ADDRESS, IPAddress.ZERO_ADDRESS, IPPacket.IMCP, (short) (data.length + 8), BAD_CHECKSUM_CODE);
 	}
 
-	public ICMPMessage(byte type, byte code, short restLow, short restHigh) {
-		this(type, code, ((restHigh & 0xFFFF) << 16) | (restLow & 0xFFFF), new byte[0]);
+	public ICMPMessage(byte type, byte code, short id, short seqNo) {
+		this(type, code, ((id & 0xFFFF) << 16) | (seqNo & 0xFFFF), new byte[0]);
 	}
 
-	private ICMPMessage(byte type, byte code, short checksum, short restLow, short restHigh, byte[] data, PsudoHeader psudo) {
+	private ICMPMessage(byte type, byte code, short checksum, short id, short seqNo, byte[] data, PsudoHeader psudo) {
 		this.type = type;
 		this.code = code;
 		this.checksum = checksum;
-		this.restOfHeader = ((restHigh & 0xFFFF) << 16) | (restLow & 0xFFFF);
+		this.restOfHeader = ((id & 0xFFFF) << 16) | (seqNo & 0xFFFF);
 		this.data = data;
 		this.psudoHeader = psudo;
 	}
@@ -102,20 +102,20 @@ public class ICMPMessage implements ProtocolContainer {
 		return restOfHeader;
 	}
 	
-	public short getRestLow() {
+	private short getRestLow() {
 		return (short) (restOfHeader & 0xFFFF);
 	}
 	
-	public short getRestHigh() {
+	private short getRestHigh() {
 		return (short) ((restOfHeader >> 16) & 0xFFFF);
 	}
 	
 	public short getIdentifier() {
-		return getRestLow();
+		return getRestHigh();
 	}
 
 	public short getSequenceNumber() {
-		return getRestHigh();
+		return getRestLow();
 	}
 
 	
@@ -127,12 +127,12 @@ public class ICMPMessage implements ProtocolContainer {
 		byte[] bytes = new byte[8 + data.length];
 		bytes[0] = type;
 		bytes[1] = code;
-		bytes[2] = (byte) (checksum & 0xFF);
-		bytes[3] = (byte) (checksum >> 8);
-		bytes[4] = (byte) (restOfHeader & 0xFF);
-		bytes[5] = (byte) ((restOfHeader >> 8) & 0xFF);
-		bytes[6] = (byte) ((restOfHeader >> 16) & 0xFF);
-		bytes[7] = (byte) ((restOfHeader >> 24) & 0xFF);
+		bytes[2] = (byte) (checksum >> 8);
+		bytes[3] = (byte) (checksum & 0xFF);
+		bytes[4] = (byte) ((restOfHeader >> 24) & 0xFF);
+		bytes[5] = (byte) ((restOfHeader >> 16) & 0xFF);
+		bytes[6] = (byte) ((restOfHeader >> 8) & 0xFF);
+		bytes[7] = (byte) (restOfHeader & 0xFF);
 		System.arraycopy(data, 0, bytes, 8, data.length);
 		return bytes;
 	}
@@ -182,9 +182,9 @@ public class ICMPMessage implements ProtocolContainer {
 		}
 		byte type = data[0];
 		byte code = data[1];
-		short checksum = (short) ((data[2] & 0xFF) | ((data[3] & 0xFF) << 8) );
-		short restLow = (short) ((data[4] & 0xFF) | ((data[5] & 0xFF) << 8));
-		short restHigh = (short) ((data[6] & 0xFF) | ((data[7] & 0xFF) << 8));
+		short checksum = (short) ((data[2] & 0xFF) << 8 | ((data[3] & 0xFF)) );
+		short restLow = (short) ((data[4] & 0xFF) << 8 | ((data[5] & 0xFF)));
+		short restHigh = (short) ((data[6] & 0xFF)  << 8 | ((data[7] & 0xFF)));
 		byte[] icmpData = new byte[data.length - 8];
 		System.arraycopy(data, 8, icmpData, 0, icmpData.length);
 		var psudo = new PsudoHeader(

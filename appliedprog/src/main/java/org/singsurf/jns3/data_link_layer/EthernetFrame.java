@@ -24,7 +24,7 @@ public class EthernetFrame implements ProtocolContainer {
     MACAddress source;
     short etherType;
     byte[] payload;
-    long frameCheck;
+    int frameCheck;
 
     public EthernetFrame(
         MACAddress destination, 
@@ -58,13 +58,14 @@ public class EthernetFrame implements ProtocolContainer {
         System.arraycopy(frame, 6, srcBytes, 0, 6);
         MACAddress destination = new MACAddress(destBytes);
         MACAddress source = new MACAddress(srcBytes);
-        short etherType = (short)((frame[13] << 8) | (frame[12] & 0xFF));
+        short etherType = (short)((frame[12] << 8) | (frame[13] & 0xFF));
         byte[] payload = new byte[frame.length - 14 - 4];
         System.arraycopy(frame, 14, payload, 0, payload.length);
-        long crc = ((long)(frame[14 + payload.length] & 0xFF)) |
-                   ((long)(frame[14 + payload.length + 1] & 0xFF) << 8) |
-                   ((long)(frame[14 + payload.length + 2] & 0xFF) << 16) |
-                   ((long)(frame[14 + payload.length + 3] & 0xFF) << 24);
+        int crc = 
+                (frame[14 + payload.length] & 0xFF) << 24 |
+        		(frame[14 + payload.length + 1] & 0xFF) << 16 |
+        		(frame[14 + payload.length + 2] & 0xFF) << 8 |
+        		(frame[14 + payload.length+ 3] & 0xFF) ;
         return new EthernetFrame(destination, source, etherType, payload, crc);
     }
 
@@ -72,7 +73,7 @@ public class EthernetFrame implements ProtocolContainer {
         MACAddress destination, 
         MACAddress source, 
         short etherType, 
-        byte[] payload, long frameCheck) {
+        byte[] payload, int frameCheck) {
         this.destination = destination;
         this.source = source;
         this.etherType = etherType;
@@ -106,30 +107,30 @@ public class EthernetFrame implements ProtocolContainer {
         byte[] frame = new byte[14 + payload.length + 4]; // 14 bytes for header, 4 bytes for CRC
         System.arraycopy(destination.getBytes(), 0, frame, 0, 6);
         System.arraycopy(source.getBytes(), 0, frame, 6, 6);
-        frame[12] = (byte)(etherType & 0xFF);
-        frame[13] = (byte)(etherType >> 8);
+        frame[12] = (byte)(etherType >> 8);
+        frame[13] = (byte)(etherType & 0xFF);
         System.arraycopy(payload, 0, frame, 14, payload.length);
-        long crc = getFrameCheck();
-        frame[14 + payload.length] = (byte)(crc & 0xFF);
-        frame[14 + payload.length + 1] = (byte)(crc >> 8);
-        frame[14 + payload.length + 2] = (byte)(crc >> 16);
-        frame[14 + payload.length + 3] = (byte)(crc >> 24);
+        int crc = getFrameCheck();
+        frame[14 + payload.length]     = (byte)(crc >> 24);
+        frame[14 + payload.length + 1] = (byte)(crc >> 16);
+        frame[14 + payload.length + 2] = (byte)(crc >> 8);
+        frame[14 + payload.length + 3] = (byte)(crc & 0xFF);
         return frame;
     }
     public String getPayloadAsString() {
         return new String(payload);
     }
     
-    public long calcFrameCheck() {
+    public int calcFrameCheck() {
         CRC32 crc = new CRC32();
         crc.update(destination.getBytes());
         crc.update(source.getBytes());
         crc.update((byte)(etherType >> 8));
         crc.update((byte)(etherType & 0xFF));
         crc.update(payload);
-        return crc.getValue();
+        return (int) crc.getValue();
     }
-    public long getFrameCheck() {
+    public int getFrameCheck() {
         return frameCheck;
     }
     public boolean isValid() {

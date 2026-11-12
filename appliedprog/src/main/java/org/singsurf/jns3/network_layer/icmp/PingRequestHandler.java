@@ -44,7 +44,8 @@ public class PingRequestHandler implements ICMPMessageHandler {
 					+ " TTL: " + message.getPsudoHeader().ttl() + " ticks");
 
 			// Create an ICMP Echo Reply message
-			ICMPMessage replyMessage = new ICMPMessage(ICMPMessage.PING_REPLY_TYPE, (byte) 0, (short) message.getRestLow(),  (short) message.getRestHigh());
+			ICMPMessage replyMessage = new ICMPMessage(ICMPMessage.PING_REPLY_TYPE, (byte) 0, 
+					(short) message.getIdentifier(),  (short) message.getSequenceNumber());
 			IPPacket replyPacket = new IPPacket(
 					IPPacket.IMCP, 64, 
 					device.getIPAddress(), sourceAddress,

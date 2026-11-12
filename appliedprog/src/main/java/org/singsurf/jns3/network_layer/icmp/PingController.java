@@ -66,16 +66,16 @@ public class PingController implements  ICMPMessageHandler {
 		packetSender.send(packet);
 	}
 
-	private IPPacket makePingRequestPacket(int id, int code, IPAddress destinationIP, int ttl) {
+	private IPPacket makePingRequestPacket(int id, int seqNo, IPAddress destinationIP, int ttl) {
 		// Create a ping request message
 		var pingRequest = new ICMPMessage(ICMPMessage.PING_REQUEST_TYPE, 
-				(byte) 0, (short) id, (short) code);
+				(byte) 0, (short) id, (short) seqNo);
 		// Create an IP packet with the ping request as payload
 		IPPacket packet = new IPPacket(
 				IPPacket.IMCP,ttl,
 				pc.getIPAddress(), destinationIP, pingRequest.getBytes());
 		// Send the packet using the provided PacketSender
-		sentPings.put((short) code,
+		sentPings.put((short) seqNo,
 				new SentPing(pingRequest, GlobalWallClock.getTime(), destinationIP,ttl)); // Store the sequence number for tracking
 		return packet;
 	}
