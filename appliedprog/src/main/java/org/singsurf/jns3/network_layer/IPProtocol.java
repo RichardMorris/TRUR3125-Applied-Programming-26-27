@@ -107,6 +107,7 @@ Wireless LAN adapter WiFi:
 		terminal.display("Ethernet adapter "+ name +":\n");
 		displayIPConfigLine("IPv4 Address", device.getIPAddress().toString());
 		displayIPConfigLine("Subnet Mask", device.getSubnetMask().toString());
+		displayIPConfigLine("Default Gateway", device.getDefaultGateway().toString());
 	}
 	
 	private void displayIPConfigLine(String name, String value) {

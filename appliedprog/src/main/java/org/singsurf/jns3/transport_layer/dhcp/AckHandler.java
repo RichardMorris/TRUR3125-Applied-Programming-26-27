@@ -4,6 +4,7 @@ import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.generic_protocol.HandlerStatus;
 import org.singsurf.jns3.generic_protocol.ProtocolHandler;
 import org.singsurf.jns3.hardware.AddressableDevice;
+import org.singsurf.jns3.network_layer.SubnetMask;
 
 public class AckHandler implements ProtocolHandler<DHCPMessage> {
 	DHCPProtocol dhcpProtocol;
@@ -28,7 +29,10 @@ public class AckHandler implements ProtocolHandler<DHCPMessage> {
 		Jns3Logger.logInfo(name, "Received DHCP Ack message YIADDR "+ message.getYiaddr().toString());
 
 		dhcpProtocol.device.setIPAddress(message.getYiaddr());
-		
+		dhcpProtocol.device.setSubnetMask(new SubnetMask(
+				message.getOption(DHCPMessage.OPT_SUBNET_MASK).getDataAsIPAddress()));
+		dhcpProtocol.device.setDefaultGateway(
+				message.getOption(DHCPMessage.OP_ROUTER_IP).getDataAsIPAddress());
 		dhcpProtocol.announceAddress();
 		
 		return HandlerStatus.COMPLETED;

@@ -27,6 +27,7 @@ public abstract class ProtocolDevice implements AddressableDevice {
 	IPAddress ipAddress;
 	IPAddress multiCastIP;
 	SubnetMask subnetMask;
+	IPAddress defaultGateway;
 	
 	List<Protocol> protocols = new ArrayList<>();
 	private int numPorts;
@@ -129,5 +130,13 @@ public abstract class ProtocolDevice implements AddressableDevice {
 		return numPorts;
 	}
 
+	public IPAddress getDefaultGateway() {
+		return defaultGateway;
+	}
+
+	public void setDefaultGateway(IPAddress defaultGateway) {
+		this.defaultGateway = defaultGateway;
+	}
+	
 
 }
