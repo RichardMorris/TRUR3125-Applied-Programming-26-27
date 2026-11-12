@@ -26,7 +26,7 @@ import org.singsurf.jns3.generic_protocol.ProtocolContainer;
  * <li> `destinationAddress` 4 byte, destination IP address
  * <li> `options` not used 0 bytes.
  * </ul>
- * 
+ * Big-endian byte order is used for multi-byte fields.
  */
 public class IPPacket implements ProtocolContainer {
     public static final byte IMCP = 0x01;
