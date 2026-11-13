@@ -14,15 +14,15 @@ class MultiPortFrameSender implements FrameSender {
 
 	MultiPortFrameSender(EthernetProtocol routerEthernetProtocol) {
 		this.ethernetProtocol = routerEthernetProtocol;
-		senders = new BufferedFrameSender[ethernetProtocol.getNumPorts()];
-		for(int i = 0; i < ethernetProtocol.getNumPorts(); i++) {
+		senders = new BufferedFrameSender[ethernetProtocol.device.getNumPorts()];
+		for(int i = 0; i < ethernetProtocol.device.getNumPorts(); i++) {
 			senders[i] = new BufferedFrameSender();
 		}
 	}
 	
 	@Override
 	public void send(EthernetFrame frame) {
-		if(ethernetProtocol.getNumPorts() == 1) {
+		if(ethernetProtocol.device.getNumPorts() == 1) {
 			senders[0].send(frame);
 			return;
 		}
@@ -39,7 +39,7 @@ class MultiPortFrameSender implements FrameSender {
 	}
 
 	public void setByteSenders(BlockingEndPoint[] bep) {
-		for(int i = 0; i < ethernetProtocol.getNumPorts(); i++) {
+		for(int i = 0; i < ethernetProtocol.device.getNumPorts(); i++) {
 			senders[i].setByteSender(bep[i]);
 		}
 	}	

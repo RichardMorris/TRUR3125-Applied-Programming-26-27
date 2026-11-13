@@ -10,9 +10,11 @@ public class MultiPortMapper implements PortMapper {
 
 	Map<Integer,Set<MACAddress>> portMapping = new HashMap<>();
 	private int numPorts;
+	private int numInternalPorts;
 
-	public MultiPortMapper(int numPorts) {
-		this.numPorts = numPorts;
+	public MultiPortMapper(int numInternalPorts, int numExternalPorts) {
+		this.numPorts = numInternalPorts + numExternalPorts;
+		this.numInternalPorts = numInternalPorts;
 	    for(int i = 0; i < numPorts; i++) {
 	    	portMapping.put(i, new HashSet<>());
 		}
@@ -39,7 +41,7 @@ public class MultiPortMapper implements PortMapper {
 		List<Integer> ports = new java.util.ArrayList<>();
 		if(destMac.equals(MACAddress.BROADCAST_MAC)) {
 			int index = getPortMapping(srcMac);
-			for(int i = 0; i < numPorts; i++) {
+			for(int i = 0; i < numInternalPorts; i++) {
 				if(i != index) {
 					ports.add(i);
 				}

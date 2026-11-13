@@ -77,9 +77,6 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 		}
 		if(destMac == null) {
 			// No ARP entry for destination IP
-			
-			
-			
 			var queue = packetQueue.computeIfAbsent(destIP,
 					k -> new TaggedQueue(new LinkedList<>(),false));
 			queue.queue().add(packet);
@@ -95,7 +92,7 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 		sendPacket(packet, srcMac, destMac);
 	}
 
-	protected MACAddress lookup(IPAddress destIP) {
+	MACAddress lookup(IPAddress destIP) {
 		MACAddress mac = ipProtocol.lookup(destIP);
 		return mac;
 	}

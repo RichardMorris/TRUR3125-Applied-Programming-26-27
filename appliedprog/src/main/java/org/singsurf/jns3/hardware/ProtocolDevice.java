@@ -30,12 +30,8 @@ public abstract class ProtocolDevice implements AddressableDevice {
 	IPAddress defaultGateway;
 	
 	List<Protocol> protocols = new ArrayList<>();
-	private int numPorts;
-
-//	public ProtocolDevice(int numPorts) {
-//		super();
-//		this.numPorts = numPorts;
-//	}
+	int numInternalPorts;
+	int numExternalPorts;
 
 	public ProtocolDevice(String name, 
 			MACAddress macAddress, IPAddress ipAddress,
@@ -43,7 +39,18 @@ public abstract class ProtocolDevice implements AddressableDevice {
 		this.name = name;
 		this.macAddress = macAddress;
 		this.ipAddress = ipAddress;
-		this.numPorts = numPorts;
+		this.numInternalPorts = numPorts;
+		this.numExternalPorts = 0;
+	}
+
+	public ProtocolDevice(String name, 
+			MACAddress macAddress, IPAddress ipAddress,
+			int numInternalPorts, int numExternalPorts) {
+		this.name = name;
+		this.macAddress = macAddress;
+		this.ipAddress = ipAddress;
+		this.numInternalPorts = numInternalPorts;
+		this.numExternalPorts = numExternalPorts;
 	}
 
 	public void addProtocol(Protocol prot) {
@@ -109,7 +116,9 @@ public abstract class ProtocolDevice implements AddressableDevice {
 
 	public void setMulticastAddress(IPAddress ip) {
 		multiCastIP = ip;
-		getArpProtocol().put(multiCastIP, MACAddress.BROADCAST_MAC);
+		var ap = getArpProtocol();
+		if(ap!=null)
+			ap.put(multiCastIP, MACAddress.BROADCAST_MAC);
 	}
 
 	public void setIPAddress(IPAddress ip) {
@@ -126,8 +135,12 @@ public abstract class ProtocolDevice implements AddressableDevice {
 		this.subnetMask = subnetMask;		
 	}
 
-	public int getNumPorts() {
-		return numPorts;
+	public int getNumInternalPorts() {
+		return numInternalPorts;
+	}
+	
+	public int getNumExternalPorts() {
+		return numExternalPorts;
 	}
 
 	public IPAddress getDefaultGateway() {
@@ -136,6 +149,10 @@ public abstract class ProtocolDevice implements AddressableDevice {
 
 	public void setDefaultGateway(IPAddress defaultGateway) {
 		this.defaultGateway = defaultGateway;
+	}
+
+	public int getNumPorts() {
+		return numInternalPorts + numExternalPorts;
 	}
 	
 

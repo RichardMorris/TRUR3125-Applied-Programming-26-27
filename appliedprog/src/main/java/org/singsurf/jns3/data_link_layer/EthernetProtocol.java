@@ -16,7 +16,6 @@ import org.singsurf.jns3.physical_layer.MultiPortByteReceiver;
 public class EthernetProtocol implements Protocol, LowerPhysicalAdapter, UpperPort<EthernetFrame> {
 	String name;
 	ProtocolDevice device;
-	int numPorts;
 
 	PortMapper portMapper;
 	ByteToFrameConverter converter = new ByteToFrameConverter();
@@ -28,8 +27,9 @@ public class EthernetProtocol implements Protocol, LowerPhysicalAdapter, UpperPo
 	public EthernetProtocol(ProtocolDevice device) {
 		this.name = device.getName() + "-ETH";
 		this.device = device;
-		this.numPorts = device.getNumPorts();
-		this.portMapper = new MultiPortMapper(numPorts);
+		this.portMapper = new MultiPortMapper(
+			device.getNumInternalPorts(),
+			device.getNumExternalPorts());
 
 		this.frameSender = new MultiPortFrameSender(this);
 		this.delegator = new FrameDelegator(device.getName());
@@ -102,10 +102,6 @@ public class EthernetProtocol implements Protocol, LowerPhysicalAdapter, UpperPo
 	
 	void putPortMapping(int portNumber, MACAddress srcMac) {
 		portMapper.putPortMapping(portNumber, srcMac);
-	}
-
-	public int getNumPorts() {
-		return numPorts;
 	}
 
 	public List<Integer> getPortsForMacAddress(MACAddress destMac, MACAddress srcMac) {

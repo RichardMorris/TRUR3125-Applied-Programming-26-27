@@ -22,7 +22,7 @@ public class HomeRouter extends ProtocolDevice implements PrefixDevice {
 	private IPPrefix publicPrefix;
 		
 	public HomeRouter(String name, MACAddress macAddress, IPAddress ipAddress, IPPrefix publicPrefix) {
-        super(name,macAddress,ipAddress,NUM_PORTS);
+        super(name,macAddress,ipAddress,NUM_PORTS, 1);
         this.publicPrefix = publicPrefix;
      }
     		
@@ -54,6 +54,15 @@ public class HomeRouter extends ProtocolDevice implements PrefixDevice {
 	public IPAddress getPublicIP() {
 		var rp = getProtocol(RoutingProtocol.class);
 		return rp != null ? rp.getPublicIP() : null;
+	}
+
+	public void registerDevice(int i, PrefixDevice theInternet) {
+		var rp = getProtocol(RoutingProtocol.class);
+		if(rp != null) {
+			rp.registerDevice(i, theInternet);
+		} else {
+			Jns3Logger.logError(getName(), "RoutingProtocol not found, cannot register device");
+		}		
 	}
     
 }

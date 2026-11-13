@@ -11,10 +11,10 @@ public class PhysicalProtocol implements Protocol, UpperPhysicalPort {
 	MultiPortByteReceiver byteReceiver;
 	BlockingEndPoint[] endPoints;
 
-	public PhysicalProtocol(ProtocolDevice device, int numPorts) {
+	public PhysicalProtocol(ProtocolDevice device) {
 		super();
 		this.device = device;
-		this.numPorts = numPorts;
+		this.numPorts = device.getNumPorts();
         this.endPoints = new BlockingEndPoint[numPorts];
         for(int i=0; i<numPorts; i++) {
         		endPoints[i] = new BlockingEndPoint(device.getName()); 

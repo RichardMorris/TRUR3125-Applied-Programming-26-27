@@ -125,7 +125,7 @@ public class DeviceFactory {
         // boot logic for the PC
         var pc = new PC(name, mac, ip);
 
-        var physicalProtocol = new PhysicalProtocol(pc,1);
+        var physicalProtocol = new PhysicalProtocol(pc);
         pc.addProtocol(physicalProtocol);
 
         EthernetProtocol ethernetProtocol = new EthernetProtocol(pc);
@@ -167,7 +167,7 @@ public class DeviceFactory {
 				new IPAddress("192.168.1.1"),
 				DeviceFactory.getInstance().createPublicPrefix());
 
-		var phys = new PhysicalProtocol(router, HomeRouter.NUM_PORTS);
+		var phys = new PhysicalProtocol(router);
 		router.addProtocol(phys);
 		
 		var eth = new EthernetProtocol(router);
@@ -178,13 +178,14 @@ public class DeviceFactory {
 		router.addProtocol(arpProtocol);
 		eth.register(arpProtocol);
 		
-		var routingProtocol = new RoutingProtocol(router);
-		router.addProtocol(routingProtocol);
-
 		var ipProtocol = new IPProtocol(router,true);
 		router.addProtocol(ipProtocol);
 		eth.register(ipProtocol);
 
+		var routingProtocol = new RoutingProtocol(router);
+		router.addProtocol(routingProtocol);
+		ipProtocol.register(routingProtocol);
+		
 		var imcp = new ICMPProtocol(router);
 		ipProtocol.register(imcp);
 		router.addProtocol(imcp);
@@ -203,6 +204,47 @@ public class DeviceFactory {
 		return router;
     }
     
+    public TheInternet createTheInternet(String name) {
+
+    	TheInternet internet = new TheInternet(name, 
+				DeviceFactory.getInstance().createMACAddress(),
+				new IPAddress("195.66.226.16"),10);
+
+		var phys = new PhysicalProtocol(internet);
+		internet.addProtocol(phys);
+		
+		var eth = new EthernetProtocol(internet);
+		internet.addProtocol(eth);
+		phys.register(eth);
+		
+		var arpProtocol= new ARPProtocol(internet,true);
+		internet.addProtocol(arpProtocol);
+//		eth.register(arpProtocol);
+		
+		var routingProtocol = new RoutingProtocol(internet);
+		internet.addProtocol(routingProtocol);
+
+		var ipProtocol = new IPProtocol(internet,true);
+		internet.addProtocol(ipProtocol);
+		eth.register(ipProtocol);
+
+		var imcp = new ICMPProtocol(internet);
+		ipProtocol.register(imcp);
+		internet.addProtocol(imcp);
+		
+		var udp = new UDPProtocol(internet);
+		ipProtocol.register(udp);
+		internet.addProtocol(udp);
+		
+		var dhcp = new DHCPProtocol(internet,true);
+		udp.register(dhcp);
+		internet.addProtocol(dhcp);
+					
+		internet.setMulticastAddress(new IPAddress("192.168.1.255"));
+		internet.setSubnetMask(new SubnetMask("255.255.255.255"));
+
+		return internet;
+    }
 
 	public Switch createSwitch(String name, int numPorts) {
         var sw = new Switch(name, numPorts);
