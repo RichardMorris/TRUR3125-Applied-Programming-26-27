@@ -1,5 +1,7 @@
 package org.singsurf.jns3.data_link_layer;
 
+import java.util.List;
+
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.generic_protocol.LowerAdapter;
 import org.singsurf.jns3.generic_protocol.LowerPhysicalAdapter;
@@ -98,16 +100,16 @@ public class EthernetProtocol implements Protocol, LowerPhysicalAdapter, UpperPo
 		return byteReceiver;
 	}
 	
-	int getPortForMacAddress(MACAddress destMac) {
-		return portMapper.getPortMapping(destMac);
-	}
-
 	void putPortMapping(int portNumber, MACAddress srcMac) {
 		portMapper.putPortMapping(portNumber, srcMac);
 	}
 
 	public int getNumPorts() {
 		return numPorts;
+	}
+
+	public List<Integer> getPortsForMacAddress(MACAddress destMac, MACAddress srcMac) {
+		return portMapper.getPortsForMacAddress(destMac, srcMac);
 	}
 
 }

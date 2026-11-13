@@ -28,21 +28,13 @@ class MultiPortFrameSender implements FrameSender {
 		}
 		var destMac = frame.getDestination();
 		var srcMac = frame.getSource();
-		if(destMac.equals(MACAddress.BROADCAST_MAC)) {
-			int index = ethernetProtocol.getPortForMacAddress(srcMac);
-			for(int i = 0; i < ethernetProtocol.getNumPorts(); i++) {
-				if(i != index) {
-					senders[i].send(frame);
-				}
-			}
-			return;
-		} else {
-			int index = ethernetProtocol.getPortForMacAddress(destMac);
-			if(index != -1) {
-					senders[index].send(frame);
-					return;
-			}
+		var indicies = ethernetProtocol.getPortsForMacAddress(destMac,srcMac);
+		
+		if(indicies.size() == 0) {
 			Jns3Logger.logError(ethernetProtocol.getName(), "Destination MAC address " + destMac + " not found in any port mapping");
+		}
+		for(int i : indicies) {
+			senders[i].send(frame);
 		}
 	}
 

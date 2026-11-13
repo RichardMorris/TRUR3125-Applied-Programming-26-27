@@ -10,6 +10,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.singsurf.jns3.Jns3Logger;
+import org.singsurf.jns3.Jns3Logger.LogItem;
 import org.singsurf.jns3.application_layer.ChatApplication;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPPacket;
@@ -394,14 +395,87 @@ class TestHomeRouter {
 
 		assertEquals(pc4.getMACAddress(), pc2.getArpProtocol().lookup(pc4.getIPAddress()));
 		
-		
+
+		IPAddress publicIP = router.getProtocol(RoutingProtocol.class)
+				.getPublicIP(pc1.getIPAddress());
+		var s = publicIP.toString();
+		assertTrue(s.startsWith("81."));
+		assertTrue(s.endsWith(".1"));
+		publicIP = router.getProtocol(RoutingProtocol.class)
+				.getPublicIP(pc2.getIPAddress());
+		s = publicIP.toString();
+		assertTrue(s.startsWith("81."));
+		assertTrue(s.endsWith(".2"));
+		publicIP = router.getProtocol(RoutingProtocol.class)
+				.getPublicIP(pc3.getIPAddress());
+		s = publicIP.toString();
+		assertTrue(s.startsWith("81."));
+		assertTrue(s.endsWith(".3"));
+		publicIP = router.getProtocol(RoutingProtocol.class)
+				.getPublicIP(pc4.getIPAddress());
+		s = publicIP.toString();
+		assertTrue(s.startsWith("81."));
+		assertTrue(s.endsWith(".4"));
+
 		assertTrue(Jns3Logger.isErrorFree());
 		System.out.println(router);
 		System.out.println(pc1);
 		System.out.println(pc2);
 		System.out.println(pc3);
 		System.out.println(pc4);
+	}
 
+	@Test
+	public void public_and_private_chat() throws IOException {
+		ChatApplication.showPrompts = true;
+		Jns3Logger.clearLog();
+		
+		pc1.getDHCPProtocol().startDiscovery();
+		GlobalWallClock.advanceBy(6);
+		pc2.getDHCPProtocol().startDiscovery();
+		GlobalWallClock.advanceBy(6);
+		pc3.getDHCPProtocol().startDiscovery();
+		GlobalWallClock.advanceBy(6);
+		pc4.getDHCPProtocol().startDiscovery();
+		GlobalWallClock.advanceBy(6);
+		assertTrue(Jns3Logger.isErrorFree());
+		// Act
+		Jns3Logger.clearLog();
+		var chat1 = new ChatApplication(pc1,pc2.getIPAddress());
+		var chat2 = new ChatApplication(pc2);
+		chat1.say("Hello from PC1");
+		Jns3Logger.startCapture();
+		GlobalWallClock.advanceBy(2);
+		var output = Jns3Logger.endCapture();
+		System.out.println(Jns3Logger.asString());
+		System.out.print(output);
+		assertEquals("", output.trim());
+		assertEquals(1, Jns3Logger.size());
+		var item0 = Jns3Logger.getItem(0);
+		assertEquals(
+			new LogItem("PC2-UDPController", 
+				Jns3Logger.LogLevel.ERROR, 
+				"No socket found for port 43"),
+			item0);
+		System.out.println(Jns3Logger.asString());
+		Jns3Logger.clearLog();
+		
+		chat2.say("Hello from PC2");
+		Jns3Logger.startCapture();
+		GlobalWallClock.advanceBy(2);
+		output = Jns3Logger.endCapture();
+		System.out.print(output);
+		assertEquals("PC1: " + pc2.getIPAddress() + " says: Hello from PC2", output.trim());
+
+		chat1.sayPublic("Hello all from PC1");
+		Jns3Logger.startCapture();
+		GlobalWallClock.advanceBy(2);
+		output = Jns3Logger.endCapture();
+		System.out.print(output);
+		assertEquals("PC2: " + pc1.getIPAddress() + " says: Hello all from PC1", output.trim());
+
+		
+		assertTrue(Jns3Logger.isErrorFree());
 	}
 
 	@Test
