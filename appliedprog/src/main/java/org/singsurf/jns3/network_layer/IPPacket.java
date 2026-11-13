@@ -297,4 +297,9 @@ public class IPPacket implements ProtocolContainer {
 		return IPPacket.fromBytes(frame.getContents());
 	}
 
+	public void setSourceIP(IPAddress publicIP) {
+		this.sourceAddress = publicIP;
+		recalculateHeaderChecksum();
+	}
+
 }

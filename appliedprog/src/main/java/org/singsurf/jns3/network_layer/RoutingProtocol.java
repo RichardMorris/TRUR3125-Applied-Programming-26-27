@@ -1,26 +1,45 @@
 package org.singsurf.jns3.network_layer;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.singsurf.jns3.Jns3Logger;
+import org.singsurf.jns3.data_link_layer.MACAddress;
+import org.singsurf.jns3.generic_protocol.LowerAdapter;
 import org.singsurf.jns3.generic_protocol.Protocol;
+import org.singsurf.jns3.generic_protocol.ProtocolHandler;
+import org.singsurf.jns3.generic_protocol.ProtocolReceiver;
+import org.singsurf.jns3.generic_protocol.ProtocolSender;
 import org.singsurf.jns3.hardware.PrefixDevice;
+import org.singsurf.jns3.hardware.ProtocolDevice;
 
-public class RoutingProtocol implements Protocol {
+public class RoutingProtocol implements Protocol, LowerAdapter<IPPacket> {
 	String name;
 	
 	NATTable natTable = new NATTable();
 	IPPrefix publicPrefix;
 	List<IPAddress> allocatedPublicIPs = new ArrayList<>();
 	byte seqNumber = 0;
+	Map<Integer, MacAndPrefix> prefixMap = new HashMap<>();
+	IPAddress publicIP;
+	RoutingHandler routingHandler;
+	PrefixDevice prefixDevice;
+	ProtocolDevice protocolDevice;
+	IPProtocol ipProtocol;
 
-	private IPAddress publicIP;
+	private PacketSender packetSender;
 	
-	public RoutingProtocol(PrefixDevice device) {
+	record MacAndPrefix(MACAddress mac, IPPrefix prefix) {}
+	
+	public RoutingProtocol(ProtocolDevice device) {
 		this.name = device.getName() + "NAT";
-		this.publicPrefix = device.getPrefix();
+		this.prefixDevice = (PrefixDevice) device;
+		this.protocolDevice = device;
+		this.publicPrefix = prefixDevice.getPrefix();
 		this.publicIP = allocatePublicIP(device.getIPAddress());
+		routingHandler = new RoutingHandler(this);
 	}
 
 
@@ -50,6 +69,53 @@ public class RoutingProtocol implements Protocol {
 	
 	public IPAddress getPrivateIP(IPAddress publicIP) {
 		return natTable.getPrivateIP(publicIP);
+	}
+
+
+	public void registerDevice(int i, PrefixDevice dev) {
+		prefixMap.put(i, new MacAndPrefix(dev.getMACAddress(), dev.getPrefix()));		
+		var eth = protocolDevice.getEthernetProtocol();
+		eth.putPortMapping(i, dev.getMACAddress());
+	}
+
+
+	@Override
+	public List<ProtocolHandler<IPPacket>> getInboundHandlers() {
+		return List.of(routingHandler);
+	}
+
+
+	@Override
+	public void setInboundCallback(ProtocolReceiver<IPPacket> receiver) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void setOutboundSender(ProtocolSender<IPPacket> sender) {
+		this.packetSender = (PacketSender) sender;
+	}
+
+
+	public MACAddress lookup(IPAddress addr) {
+		if(prefixDevice.getPrefix().matches(addr)) {
+			return prefixDevice.getMACAddress();
+		}
+		
+		
+		for(var entry: prefixMap.entrySet()) {
+			var mnp = entry.getValue();
+			if(mnp.prefix.matches(addr)) {
+				return mnp.mac;
+			}
+		}
+		return null;
+	}
+
+
+	public PacketSender getPacketSender() {
+		return packetSender;
 	}
 
 }

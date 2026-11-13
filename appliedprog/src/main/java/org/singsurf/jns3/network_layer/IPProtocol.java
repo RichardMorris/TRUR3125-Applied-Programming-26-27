@@ -2,7 +2,6 @@ package org.singsurf.jns3.network_layer;
 
 import java.util.List;
 
-import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.data_link_layer.FrameSender;
 import org.singsurf.jns3.data_link_layer.MACAddress;
@@ -92,8 +91,7 @@ public class IPProtocol implements Protocol, LowerAdapter<EthernetFrame>, UpperP
 		delegator.addHandler(defaultReciver);
 	}
 
-	public void displayIPConfig() {
-/*
+/* Example output from ipconfig on Windows 11
 Wireless LAN adapter WiFi:
 
    Connection-specific DNS Suffix  . :
@@ -104,6 +102,7 @@ Wireless LAN adapter WiFi:
 12345678901234567890123456789012345678901234567890
          1         2         3         4      
  */
+	public void displayIPConfig() {
 		var terminal = device.getTerminal();
 		terminal.display("Ethernet adapter "+ name +":\n");
 		displayIPConfigLine("IPv4 Address", device.getIPAddress().toString());
@@ -159,7 +158,20 @@ Wireless LAN adapter WiFi:
 				destIP.equals(device.getMulticastAddress())) {
 			return arpProtocol.lookup(destIP);
 		}
-		Jns3Logger.logError(name, "IP address " + destIP + " is not on the same subnet as " + device.getIPAddress() + " with subnet mask " + device.getSubnetMask());
+		var gate = device.getDefaultGateway();
+		var mac = arpProtocol.lookup(gate);
+		if(mac != null) {
+			return mac;
+		}
+		var rp = device.getProtocol(RoutingProtocol.class);
+		if(rp != null) {
+			mac = rp.lookup(destIP);
+			if(mac != null) {
+				return mac;
+			}
+		}
+		
+//		Jns3Logger.logError(name, "IP address " + destIP + " is not on the same subnet as " + device.getIPAddress() + " with subnet mask " + device.getSubnetMask());
 		return null;
 	}
 

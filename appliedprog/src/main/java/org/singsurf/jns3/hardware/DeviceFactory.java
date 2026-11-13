@@ -239,7 +239,9 @@ public class DeviceFactory {
 		var dhcp = new DHCPProtocol(internet,true);
 		udp.register(dhcp);
 		internet.addProtocol(dhcp);
-					
+	
+		ipProtocol.finalise();
+
 		internet.setMulticastAddress(new IPAddress("192.168.1.255"));
 		internet.setSubnetMask(new SubnetMask("255.255.255.255"));
 

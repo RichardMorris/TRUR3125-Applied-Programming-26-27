@@ -134,6 +134,10 @@ public abstract class ProtocolDevice implements AddressableDevice {
 	public void setSubnetMask(SubnetMask subnetMask) {
 		this.subnetMask = subnetMask;		
 	}
+	
+	public boolean isLocalAddress(IPAddress ip) {
+		return subnetMask.matches(getIPAddress(), ip);
+	}
 
 	public int getNumInternalPorts() {
 		return numInternalPorts;

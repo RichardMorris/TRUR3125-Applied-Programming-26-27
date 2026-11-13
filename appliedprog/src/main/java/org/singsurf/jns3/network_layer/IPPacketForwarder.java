@@ -12,18 +12,22 @@ public class IPPacketForwarder implements PacketHandler {
 
 	@Override
 	public HandlerStatus handle(IPPacket packet) {
-		if(packet.getDestinationAddress().equals(protocol.device.getIPAddress())) {
+		var destIP = packet.getDestinationAddress();
+		if(destIP.equals(protocol.device.getIPAddress())) {
 			return HandlerStatus.CONTINUE;
 		}
-		protocol.getPacketSender().send(packet);
-
-		if(packet.getDestinationAddress().equals(protocol.device.getMulticastAddress()) 
-			|| packet.getDestinationAddress().equals(IPProtocol.LIMITED_MULTICAST_ADDRESS)) {
-			return HandlerStatus.CONTINUE;
-		} else {
-			return HandlerStatus.COMPLETED;
+		if(protocol.device.getSubnetMask().matches(
+				protocol.device.getIPAddress(), destIP)) {
+			protocol.getPacketSender().send(packet);
+			
+			if(destIP.equals(protocol.device.getMulticastAddress()) 
+					|| destIP.equals(IPProtocol.LIMITED_MULTICAST_ADDRESS)) {
+					return HandlerStatus.CONTINUE;
+			} else {
+					return HandlerStatus.COMPLETED;
+			}
 		}
-
+		return HandlerStatus.CONTINUE;
 	}
 
 }

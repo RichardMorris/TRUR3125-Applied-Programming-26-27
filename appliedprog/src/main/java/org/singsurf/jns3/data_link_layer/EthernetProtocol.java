@@ -100,7 +100,7 @@ public class EthernetProtocol implements Protocol, LowerPhysicalAdapter, UpperPo
 		return byteReceiver;
 	}
 	
-	void putPortMapping(int portNumber, MACAddress srcMac) {
+	public void putPortMapping(int portNumber, MACAddress srcMac) {
 		portMapper.putPortMapping(portNumber, srcMac);
 	}
 
