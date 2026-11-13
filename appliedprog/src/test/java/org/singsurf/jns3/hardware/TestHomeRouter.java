@@ -32,7 +32,10 @@ class TestHomeRouter {
 		pc3 = deviceFactory.createPC("PC3");
 		pc4 = deviceFactory.createPC("PC4");
 		router = deviceFactory.createHomeRouter("HomeRouter");
-
+		pc1.setIPAddress(new IPAddress("192.168.1.250"));
+		pc2.setIPAddress(new IPAddress("192.168.1.251"));
+		pc3.setIPAddress(new IPAddress("192.168.1.252"));
+		pc4.setIPAddress(new IPAddress("192.168.1.253"));
 		var connection1 = new SimpleConnection(router.getEndPoint(0), pc1.getEndPoint());
 		var connection2 = new SimpleConnection(router.getEndPoint(1), pc2.getEndPoint());
 		var connection3 = new SimpleConnection(router.getEndPoint(2), pc3.getEndPoint());

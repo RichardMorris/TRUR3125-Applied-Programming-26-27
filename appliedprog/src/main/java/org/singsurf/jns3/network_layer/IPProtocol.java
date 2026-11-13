@@ -2,6 +2,7 @@ package org.singsurf.jns3.network_layer;
 
 import java.util.List;
 
+import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.data_link_layer.FrameSender;
 import org.singsurf.jns3.data_link_layer.MACAddress;
@@ -151,7 +152,15 @@ Wireless LAN adapter WiFi:
 	}
 
 	protected MACAddress lookup(IPAddress destIP) {
-		return arpProtocol.lookup(destIP);
+		if(device.getSubnetMask().matches(device.getIPAddress(), destIP))
+			return arpProtocol.lookup(destIP);
+		if(destIP.equals(IPProtocol.LIMITED_MULTICAST_ADDRESS) ||
+				destIP.equals(IPAddress.ZERO_ADDRESS) ||
+				destIP.equals(device.getMulticastAddress())) {
+			return arpProtocol.lookup(destIP);
+		}
+		Jns3Logger.logError(name, "IP address " + destIP + " is not on the same subnet as " + device.getIPAddress() + " with subnet mask " + device.getSubnetMask());
+		return null;
 	}
 
 }

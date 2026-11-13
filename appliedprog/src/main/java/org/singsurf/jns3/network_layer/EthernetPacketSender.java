@@ -60,10 +60,10 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 		
 		var destIP = packet.getDestinationAddress();
 		var srcIP = packet.getSourceAddress();
-		var destMac = loopup(destIP);
+		var destMac = lookup(destIP);
 		var srcMac = srcIP.equals(device.getIPAddress())
 				? device.getMACAddress()
-				: loopup(srcIP);
+				: lookup(srcIP);
 		
 		if(destIP.equals(IPProtocol.LIMITED_MULTICAST_ADDRESS) 
 		 || destIP.equals(device.getMulticastAddress())) {
@@ -95,7 +95,7 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 		sendPacket(packet, srcMac, destMac);
 	}
 
-	protected MACAddress loopup(IPAddress destIP) {
+	protected MACAddress lookup(IPAddress destIP) {
 		MACAddress mac = ipProtocol.lookup(destIP);
 		return mac;
 	}
@@ -121,7 +121,7 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 			var destIp = ent.getKey();
 			var queue = ent.getValue();
 			var size = queue.queue().size();
-			var destMac = loopup(destIp);
+			var destMac = lookup(destIp);
 			if(destMac != null) {
 				while(!queue.queue().isEmpty()) {
 					IPPacket packet = queue.queue().poll();

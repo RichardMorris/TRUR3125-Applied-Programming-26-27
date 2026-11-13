@@ -20,7 +20,8 @@ public class BufferedFrameSender implements FrameSender, TickListener {
 		if(byteSender.blocked()) {
 			buffer.add(frame);
 		} else {
-			byteSender.send(frame.getBytes());
+			var bytes = frame.getBytes();
+			byteSender.send(bytes);
 		}
 	}
 

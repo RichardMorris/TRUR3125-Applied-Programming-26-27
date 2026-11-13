@@ -11,7 +11,7 @@ import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.Jns3Logger.LogItem;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.data_link_layer.MACAddress;
-import org.singsurf.jns3.network_layer.IPProtocol;
+import org.singsurf.jns3.network_layer.IPAddress;
 
 public class TestPC {
     DeviceFactory deviceFactory = new DeviceFactory();
@@ -20,7 +20,7 @@ public class TestPC {
         PC pc = deviceFactory.createPC("TestPC");
         assertNotNull(pc);
         assertArrayEquals(
-        	IPProtocol.LIMITED_MULTICAST_ADDRESS.getBytes(), 
+        	IPAddress.ZERO_ADDRESS.getBytes(), 
         	pc.getSubnetMask().getBytes());
     }
 

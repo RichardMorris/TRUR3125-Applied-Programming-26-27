@@ -140,7 +140,7 @@ public class DeviceFactory {
         ethernetProtocol.finalise();
 
 		pc.setMulticastAddress(new IPAddress("192.168.1.255"));
-		pc.setSubnetMask(new SubnetMask(IPProtocol.LIMITED_MULTICAST_ADDRESS));
+		pc.setSubnetMask(new SubnetMask(IPAddress.ZERO_ADDRESS));
         return pc;
     }
 
@@ -178,6 +178,7 @@ public class DeviceFactory {
 		router.addProtocol(dhcp);
 					
 		router.setMulticastAddress(new IPAddress("192.168.1.255"));
+		router.setSubnetMask(new SubnetMask("255.255.255.0"));
 
 		return router;
     }
