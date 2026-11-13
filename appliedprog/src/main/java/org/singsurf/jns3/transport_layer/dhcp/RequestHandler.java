@@ -51,8 +51,8 @@ public class RequestHandler implements ProtocolHandler<DHCPMessage> {
 		dhcpProtocol.offerSockets.remove(message.getXid());
 		
 		// Update ARP table with the mapping of the offered IP address to the client's MAC address
-		dhcpProtocol.arpProtocol.put(message.yiaddr, message.getMacAddress());
-
+		dhcpProtocol.updateARP(message.yiaddr, message.getMacAddress());
+		dhcpProtocol.allocatePublicIP(message.yiaddr);
 		return HandlerStatus.COMPLETED;
 	}
 

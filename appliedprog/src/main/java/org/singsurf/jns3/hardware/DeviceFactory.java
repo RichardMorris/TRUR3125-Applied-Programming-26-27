@@ -7,7 +7,9 @@ import org.singsurf.jns3.data_link_layer.EthernetProtocol;
 import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.data_link_layer.arp.ARPProtocol;
 import org.singsurf.jns3.network_layer.IPAddress;
+import org.singsurf.jns3.network_layer.IPPrefix;
 import org.singsurf.jns3.network_layer.IPProtocol;
+import org.singsurf.jns3.network_layer.RoutingProtocol;
 import org.singsurf.jns3.network_layer.SubnetMask;
 import org.singsurf.jns3.network_layer.icmp.ICMPProtocol;
 import org.singsurf.jns3.physical_layer.PhysicalProtocol;
@@ -58,6 +60,20 @@ public class DeviceFactory {
         ipAddresses.add(ip);
         return ip;
     }
+
+    private IPPrefix createPublicPrefix() {
+        int[] bytes = new int[4];
+        IPAddress ip = null;
+        bytes[0] = 81;
+        bytes[3] = 0;
+        do {
+            bytes[1] = (int) (Math.random() * 256);
+            bytes[2] = (int) (Math.random() * 256);
+            ip = new IPAddress(bytes);
+        } while (ipAddresses.contains(ip));
+        ipAddresses.add(ip);
+        return new IPPrefix(ip, 24);
+	}
 
     byte nextSequentialIP = 2;
     
@@ -148,7 +164,8 @@ public class DeviceFactory {
 
     	HomeRouter router = new HomeRouter(name, 
 				DeviceFactory.getInstance().createMACAddress(),
-				new IPAddress("192.168.1.1"));
+				new IPAddress("192.168.1.1"),
+				DeviceFactory.getInstance().createPublicPrefix());
 
 		var phys = new PhysicalProtocol(router, HomeRouter.NUM_PORTS);
 		router.addProtocol(phys);
@@ -160,6 +177,9 @@ public class DeviceFactory {
 		var arpProtocol= new ARPProtocol(router,true);
 		router.addProtocol(arpProtocol);
 		eth.register(arpProtocol);
+		
+		var routingProtocol = new RoutingProtocol(router);
+		router.addProtocol(routingProtocol);
 
 		var ipProtocol = new IPProtocol(router,true);
 		router.addProtocol(ipProtocol);
@@ -183,7 +203,8 @@ public class DeviceFactory {
 		return router;
     }
     
-    public Switch createSwitch(String name, int numPorts) {
+
+	public Switch createSwitch(String name, int numPorts) {
         var sw = new Switch(name, numPorts);
         return sw;
     }

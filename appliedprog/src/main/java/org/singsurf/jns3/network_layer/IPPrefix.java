@@ -74,5 +74,8 @@ public class IPPrefix {
 		return prefixLength;
 	}
 
+	public String toString() {
+		return prefix.toString() + "/" + prefixLength;
+	}
 	
 }

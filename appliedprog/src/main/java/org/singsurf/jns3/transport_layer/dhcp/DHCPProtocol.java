@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.singsurf.jns3.Jns3Logger;
+import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.data_link_layer.arp.ARPProtocol;
 import org.singsurf.jns3.generic_protocol.LowerSocketAdapter;
 import org.singsurf.jns3.generic_protocol.Protocol;
@@ -16,6 +17,7 @@ import org.singsurf.jns3.hardware.GlobalWallClock.TickListener;
 import org.singsurf.jns3.hardware.ProtocolDevice;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPProtocol;
+import org.singsurf.jns3.network_layer.RoutingProtocol;
 import org.singsurf.jns3.transport_layer.udp.DatagramSocket;
 import org.singsurf.jns3.transport_layer.udp.UDPDatagram;
 
@@ -131,5 +133,18 @@ public class DHCPProtocol implements Protocol, LowerSocketAdapter<UDPDatagram>, 
 	public void announceAddress() {
 		arpProtocol.announceAddress(device.getIPAddress(), device.getMACAddress());
 		
+	}
+
+	void updateARP(IPAddress yiaddr, MACAddress macAddress) {
+		arpProtocol.put(yiaddr, macAddress);
+	}
+
+
+	public void allocatePublicIP(IPAddress iaddr) {
+		
+		var routingProtocol = device.getProtocol(RoutingProtocol.class);
+		if(routingProtocol != null) {
+			routingProtocol.allocatePublicIP(iaddr);
+		}		
 	}
 }

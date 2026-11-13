@@ -6,12 +6,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.application_layer.ChatApplication;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPPacket;
+import org.singsurf.jns3.network_layer.RoutingProtocol;
 import org.singsurf.jns3.physical_layer.CountingConnection;
 import org.singsurf.jns3.physical_layer.FILOBufferedConnection;
 import org.singsurf.jns3.physical_layer.SimpleConnection;
@@ -48,7 +50,29 @@ class TestHomeRouter {
 		
 		ChatApplication.showPrompts = false;
 	}
+	
+	@AfterEach
+	void tearDown() throws Exception {
+		assertTrue(Jns3Logger.isErrorFree());
+	}
 
+	@Test
+	void testSetup() {
+		var prefix = router.getPrefix();
+		var s = prefix.toString();
+		assertTrue(s.startsWith("81."));
+		assertTrue(s.endsWith(".0/24"));
+		
+		var pub = router.getPublicIP();
+		var pubStr = pub.toString();
+		assertTrue(pubStr.startsWith("81."));
+		assertTrue(pubStr.endsWith(".0"));
+		
+		assertEquals("255.255.255.0", router.getSubnetMask().toString());
+		System.out.println(router);
+	}
+	
+	
 	@Test
 	void can_send_garp_request() {
 		System.out.println(router);
@@ -272,8 +296,14 @@ class TestHomeRouter {
 		assertEquals(pc1.getMACAddress(), router.getArpProtocol().lookup(yaddr));
 		assertEquals(router.getMACAddress(), pc1.getArpProtocol().lookup(router.getIPAddress()));
 		
-//		assertEquals(0, routerDHCP.offerSockets.size());
-		
+		IPAddress publicIP = router.getProtocol(RoutingProtocol.class)
+				.getPublicIP(pc1.getIPAddress());
+		var s = publicIP.toString();
+		assertTrue(s.startsWith("81."));
+		assertTrue(s.endsWith(".1"));
+		var privateIP = router.getProtocol(RoutingProtocol.class)
+				.getPrivateIP(publicIP);
+		assertEquals(pc1.getIPAddress(), privateIP);
 		
 		assertTrue(Jns3Logger.isErrorFree());
 		System.out.println(router);
