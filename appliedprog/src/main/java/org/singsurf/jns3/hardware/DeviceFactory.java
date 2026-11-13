@@ -8,6 +8,7 @@ import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.data_link_layer.arp.ARPProtocol;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPProtocol;
+import org.singsurf.jns3.network_layer.SubnetMask;
 import org.singsurf.jns3.network_layer.icmp.ICMPProtocol;
 import org.singsurf.jns3.physical_layer.PhysicalProtocol;
 import org.singsurf.jns3.transport_layer.dhcp.DHCPProtocol;
@@ -139,7 +140,7 @@ public class DeviceFactory {
         ethernetProtocol.finalise();
 
 		pc.setMulticastAddress(new IPAddress("192.168.1.255"));
-
+		pc.setSubnetMask(new SubnetMask(IPProtocol.LIMITED_MULTICAST_ADDRESS));
         return pc;
     }
 

@@ -1,5 +1,6 @@
 package org.singsurf.jns3.hardware;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -10,13 +11,17 @@ import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.Jns3Logger.LogItem;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.data_link_layer.MACAddress;
+import org.singsurf.jns3.network_layer.IPProtocol;
 
 public class TestPC {
     DeviceFactory deviceFactory = new DeviceFactory();
     @Test 
     public void createPC() {
-        AddressableDevice pc = deviceFactory.createPC("TestPC");
+        PC pc = deviceFactory.createPC("TestPC");
         assertNotNull(pc);
+        assertArrayEquals(
+        	IPProtocol.LIMITED_MULTICAST_ADDRESS.getBytes(), 
+        	pc.getSubnetMask().getBytes());
     }
 
     @Test 
