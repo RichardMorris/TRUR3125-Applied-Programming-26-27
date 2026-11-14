@@ -16,7 +16,7 @@ import org.singsurf.jns3.Jns3Logger.LogItem;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.physical_layer.SimpleConnection;
 
-public class TestHub {
+class TestHub {
 
     @Nested
     class TwoPCnetwork {

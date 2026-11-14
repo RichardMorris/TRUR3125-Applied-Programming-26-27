@@ -13,7 +13,7 @@ import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.network_layer.IPAddress;
 
-public class TestPC {
+class TestPC {
     DeviceFactory deviceFactory = new DeviceFactory();
     @Test 
     public void createPC() {
