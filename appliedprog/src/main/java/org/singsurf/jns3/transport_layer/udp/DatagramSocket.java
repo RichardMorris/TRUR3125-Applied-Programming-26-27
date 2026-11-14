@@ -54,7 +54,7 @@ public class DatagramSocket extends PolledSocket<UDPDatagram> implements NamedDe
 
 	/**
 	 * Binds the socket to a specific IP address and port number.
-	 * @param address
+	 * @param ip
 	 * @param boundPort
 	 */
 	@Override

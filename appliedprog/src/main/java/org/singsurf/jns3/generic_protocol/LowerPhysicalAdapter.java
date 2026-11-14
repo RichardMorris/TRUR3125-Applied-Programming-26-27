@@ -4,8 +4,7 @@ import org.singsurf.jns3.physical_layer.BlockingEndPoint;
 import org.singsurf.jns3.physical_layer.MultiPortByteReceiver;
 
 /**
- * An adapter on the lower side of a protocols handling code.
- * @param <A> data carrier for the lower level protocol.
+ * An adapter on the lower side of a protocols handling byte arrays.
  */
 public interface LowerPhysicalAdapter {
 

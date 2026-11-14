@@ -8,14 +8,9 @@ import org.singsurf.jns3.generic_protocol.HandlerStatus;
 import org.singsurf.jns3.hardware.AddressableDevice;
 
 /**
- * Controls the Address Resolution Protocol that
- * allows PC's to request each each other MAC address
- * from from an IP address.
- * 
- * For each device hold a table of IP to MAC address mappings and vice versa.
+ * Forwards ARP frames to all devices on the local network.
  */
 class ARPForwarder implements FrameHandler {
-    ARPExtractor extractor = ARPExtractor.getInstance();
     AddressableDevice device;
     FrameSender sender;
     

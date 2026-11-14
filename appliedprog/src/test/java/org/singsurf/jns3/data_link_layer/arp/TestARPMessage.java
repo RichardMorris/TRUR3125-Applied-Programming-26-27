@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.network_layer.IPAddress;
 
-public class TestARPMessage {
+class TestARPMessage {
     @Test
     public void testCreateGarpRequest() {
         MACAddress senderMac = new MACAddress(new byte[] {0x00, 0x11, 0x22, 0x33, 0x44, 0x55});

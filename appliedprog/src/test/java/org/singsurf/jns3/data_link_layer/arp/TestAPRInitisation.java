@@ -14,7 +14,7 @@ import org.singsurf.jns3.hardware.DeviceFactory;
 import org.singsurf.jns3.hardware.PC;
 import org.singsurf.jns3.physical_layer.SimpleConnection;
 
-public class TestAPRInitisation {
+class TestAPRInitisation {
 
     private PC pc1;
     private PC pc2;

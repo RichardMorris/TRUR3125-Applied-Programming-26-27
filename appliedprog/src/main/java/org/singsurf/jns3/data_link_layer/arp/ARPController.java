@@ -22,7 +22,6 @@ import org.singsurf.jns3.network_layer.IPAddress;
 public class ARPController implements FrameHandler {
 	String name;
     Map<IPAddress, MACAddress> arpTable = new HashMap<>();
-    ARPExtractor arpConverter = ARPExtractor.getInstance();
     AddressableDevice device;
     FrameSender sender;
 
@@ -44,7 +43,7 @@ public class ARPController implements FrameHandler {
             || frame.getDestination().equals(device.getMACAddress())) {
 
                 Jns3Logger.log(name, Jns3Logger.LogLevel.RECEIVED,  "Received ARP frame");
-                var arpMessage = arpConverter.extract(frame);
+                var arpMessage = ARPMessage.fromFrame(frame);
                 // Update ARP tables
                 arpTable.put(arpMessage.getSenderIp(), arpMessage.getSenderMac());
 
