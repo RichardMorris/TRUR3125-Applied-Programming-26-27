@@ -12,7 +12,7 @@ import org.singsurf.jns3.hardware.DeviceFactory;
 import org.singsurf.jns3.hardware.GlobalWallClock;
 import org.singsurf.jns3.hardware.PC;
 
-public class TestThrottledConnection {
+class TestThrottledConnection {
     private PC pc1;
     private PC pc2;
 

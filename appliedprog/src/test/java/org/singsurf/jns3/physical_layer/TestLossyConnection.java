@@ -10,7 +10,7 @@ import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.hardware.DeviceFactory;
 import org.singsurf.jns3.hardware.PC;
 
-public class TestLossyConnection {
+class TestLossyConnection {
     private PC pc1;
     private PC pc2;
 

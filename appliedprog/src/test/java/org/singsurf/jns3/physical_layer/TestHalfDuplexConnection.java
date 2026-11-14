@@ -15,7 +15,7 @@ import org.singsurf.jns3.hardware.DeviceFactory;
 import org.singsurf.jns3.hardware.GlobalWallClock;
 import org.singsurf.jns3.hardware.PC;
 
-public class TestHalfDuplexConnection {
+class TestHalfDuplexConnection {
     private PC pc1;
     private PC pc2;
 

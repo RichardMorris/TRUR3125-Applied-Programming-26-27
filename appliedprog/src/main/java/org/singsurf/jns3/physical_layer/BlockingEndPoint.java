@@ -2,6 +2,9 @@ package org.singsurf.jns3.physical_layer;
 
 import org.singsurf.jns3.Jns3Logger;
 
+/**
+ * A PhysicalEndPoint that can be blocked depending on the state of the connection.
+ */
 public class BlockingEndPoint extends PhysicalEndPoint implements BlockingByteSender {
 	ByteReceiver byteReceiver;
 	

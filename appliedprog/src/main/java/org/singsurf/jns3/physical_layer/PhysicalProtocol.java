@@ -5,6 +5,11 @@ import org.singsurf.jns3.generic_protocol.Protocol;
 import org.singsurf.jns3.generic_protocol.UpperPhysicalPort;
 import org.singsurf.jns3.hardware.ProtocolDevice;
 
+/**
+ * A Protocol representing the external interface of a device.
+ * It provides a number of {@link PhysicalEndPoint} objects, one for each port on the device,
+ * and directs traffic through the {@link LowerPhysicalAdapter}.
+ */
 public class PhysicalProtocol implements Protocol, UpperPhysicalPort {
 	ProtocolDevice device;
 	int numPorts;

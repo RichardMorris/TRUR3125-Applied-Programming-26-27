@@ -14,7 +14,7 @@ import org.singsurf.jns3.hardware.DeviceFactory;
 import org.singsurf.jns3.hardware.NamedDevice;
 import org.singsurf.jns3.hardware.PC;
 
-public class TestCorruptedConnection {
+class TestCorruptedConnection {
     PC pc1;
     CorruptedConnection cc;
     BlockingEndPoint ep2;
