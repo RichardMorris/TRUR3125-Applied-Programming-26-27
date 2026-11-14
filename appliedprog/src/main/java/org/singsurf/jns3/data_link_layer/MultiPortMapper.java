@@ -6,6 +6,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * A PortMapper implementation that allows multiple MAC addresses 
+ * to be associated with each port.
+ */
 public class MultiPortMapper implements PortMapper {
 
 	Map<Integer,Set<MACAddress>> portMapping = new HashMap<>();

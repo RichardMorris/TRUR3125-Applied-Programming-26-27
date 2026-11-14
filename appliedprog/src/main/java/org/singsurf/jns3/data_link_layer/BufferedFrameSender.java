@@ -7,6 +7,10 @@ import org.singsurf.jns3.hardware.GlobalWallClock;
 import org.singsurf.jns3.hardware.GlobalWallClock.TickListener;
 import org.singsurf.jns3.physical_layer.BlockingByteSender;
 
+/**
+ * Buffers outbound frames and sends them when the underlying {@link BlockingByteSender} 
+ * is not blocked.
+ */
 public class BufferedFrameSender implements FrameSender, TickListener {
 	Queue<EthernetFrame> buffer = new LinkedList<>();
 	BlockingByteSender byteSender;

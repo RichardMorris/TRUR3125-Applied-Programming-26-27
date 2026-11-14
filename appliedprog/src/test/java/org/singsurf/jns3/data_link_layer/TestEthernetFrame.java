@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-public class TestEthernetFrame {
+class TestEthernetFrame {
     @Test 
     public void testCreateEthernetFrame() {
         MACAddress destination = new MACAddress("00:11:22:33:44:55");

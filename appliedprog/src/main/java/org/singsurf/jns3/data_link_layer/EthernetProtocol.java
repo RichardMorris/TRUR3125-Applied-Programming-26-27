@@ -13,6 +13,10 @@ import org.singsurf.jns3.hardware.ProtocolDevice;
 import org.singsurf.jns3.physical_layer.BlockingEndPoint;
 import org.singsurf.jns3.physical_layer.MultiPortByteReceiver;
 
+/**
+ * Implements the Ethernet protocol, including frame sending and receiving, 
+ * port mapping, and delegation to handlers.
+ */
 public class EthernetProtocol implements Protocol, LowerPhysicalAdapter, UpperPort<EthernetFrame> {
 	String name;
 	ProtocolDevice device;
@@ -84,12 +88,6 @@ public class EthernetProtocol implements Protocol, LowerPhysicalAdapter, UpperPo
 	public FrameSender getFrameSender() {
 		return frameSender;
 	}
-
-
-	public void receive(EthernetFrame frame) {
-		delegator.receive(frame);
-	}
-
 
 	public String getName() {
 		return name;

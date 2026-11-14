@@ -8,7 +8,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-public class TestFrameCreation {
+class TestFrameCreation {
     
     /**
      * A Factory method to create multiple Ethernet frames from a message string.

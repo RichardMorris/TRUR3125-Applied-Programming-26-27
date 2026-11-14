@@ -10,7 +10,7 @@ import org.singsurf.jns3.hardware.DeviceFactory;
 import org.singsurf.jns3.hardware.PC;
 import org.singsurf.jns3.physical_layer.CorruptedConnection;
 
-public class TestFrameChecker {
+class TestFrameChecker {
         private PC pc1;
     private PC pc2;
 

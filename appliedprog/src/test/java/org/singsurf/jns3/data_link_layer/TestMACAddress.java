@@ -1,12 +1,12 @@
 package org.singsurf.jns3.data_link_layer;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import org.junit.jupiter.api.Test;
 
-public class TestMACAddress {
+class TestMACAddress {
 
     @Test 
     public void constructor_from_bytes() {
