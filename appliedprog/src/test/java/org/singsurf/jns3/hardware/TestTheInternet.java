@@ -74,7 +74,7 @@ class TestTheInternet {
 		pc4.getDHCPProtocol().startDiscovery();
 		GlobalWallClock.advanceBy(6);
 		
-		Jns3Logger.println();
+//		Jns3Logger.println();
 		assertTrue(Jns3Logger.isErrorFree());
 
 		ChatApplication.showPrompts = false;
@@ -213,6 +213,29 @@ class TestTheInternet {
 		assertTrue(Jns3Logger.isErrorFree());
 	}
 	
+	@Test
+	public void private_chat_across_the_internet() throws IOException {
+		ChatApplication.showPrompts = true;
+		Jns3Logger.clearLog();
+		
+		var pc1pub = router1.getPublicIP(pc1.getIPAddress());
+		var pc5pub = router2.getPublicIP(pc5.getIPAddress());
+		
+		var chat1 = new ChatApplication(pc1,pc5pub);
+		var chat2 = new ChatApplication(pc5,pc1pub);
+		assertNotNull(chat2);
+		chat1.say("Hello from PC1");
+		Jns3Logger.startCapture();
+		GlobalWallClock.advanceBy(3);
+		var output = Jns3Logger.endCapture();
+		System.out.print(output);
+		assertEquals("PC5: " + pc1pub + " says: Hello from PC1", output.trim());
+		
+		System.out.println(Jns3Logger.asString());
+		assertEquals(0, Jns3Logger.size());
+		assertTrue(Jns3Logger.isErrorFree());
+	}
+
 	@AfterEach
 	void tearDown() throws Exception {
 		assertTrue(Jns3Logger.isErrorFree());
