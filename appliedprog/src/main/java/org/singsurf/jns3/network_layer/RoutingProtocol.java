@@ -12,6 +12,7 @@ import org.singsurf.jns3.generic_protocol.Protocol;
 import org.singsurf.jns3.generic_protocol.ProtocolHandler;
 import org.singsurf.jns3.generic_protocol.ProtocolReceiver;
 import org.singsurf.jns3.generic_protocol.ProtocolSender;
+import org.singsurf.jns3.hardware.DeviceFactory;
 import org.singsurf.jns3.hardware.PrefixDevice;
 import org.singsurf.jns3.hardware.ProtocolDevice;
 
@@ -121,6 +122,11 @@ public class RoutingProtocol implements Protocol, LowerAdapter<IPPacket> {
 
 	public PacketSender getPacketSender() {
 		return packetSender;
+	}
+
+
+	public IPAddress allocateLocalIP() {
+		return DeviceFactory.getInstance().createSequentialLocalIPAddress();
 	}
 
 }

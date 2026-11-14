@@ -11,22 +11,26 @@ import org.singsurf.jns3.hardware.GlobalWallClock;
 import org.singsurf.jns3.network_layer.IPAddress;
 
 /**
- * 
- * OP - 1 byte op type, 0x01 for discover
- * HTYPE - 1 byte hardware type, 0x01 for ethernet
- * HLEN - 1 byte header length - 0x06
- * HOPS - number of hops, 0x00
- * XID - 4 bytes, 0x3903F326
- * SECS - 2 byte, 0x0000
- * FLAGS - 2 byte, 0x0000
- * CIADDR - Client IP address, 4 byte
- * YIADDR  - Your IP address, 4 bytes
- * SIADDR - Server IP address, 4 bytes
- * GIADDR - Gateway IP address: 4 bytes
- * CHADDR -Client Hardware address, 4 * 4 bytes
- * BOOTP File Name Options - 192 octets all zero, not implemented
- * MAGIC COOKIE - marks end of options 4 byte 0x63825363
-
+ * A DHCPMessage represents a message in the Dynamic Host Configuration Protocol (DHCP).
+ * <p>
+ * Structure of a DHCP message:
+ * <ul>
+ * <li>OP - 1 byte op type, 0x01 for discover
+ * <li>HTYPE - 1 byte hardware type, 0x01 for ethernet
+ * <li>HLEN - 1 byte header length - 0x06
+ * <li>HOPS - number of hops, 0x00
+ * <li>XID - 4 bytes, 0x3903F326
+ * <li>SECS - 2 byte, 0x0000
+ * <li>FLAGS - 2 byte, 0x0000
+ * <li>CIADDR - Client IP address, 4 byte
+ * <li>YIADDR  - Your IP address, 4 bytes
+ * <li>SIADDR - Server IP address, 4 bytes
+ * <li>GIADDR - Gateway IP address: 4 bytes
+ * <li>CHADDR -Client Hardware address, 4 * 4 bytes
+ * <li>BOOTP File Name Options - 192 octets all zero, not implemented
+ * <li>MAGIC COOKIE - marks end of options 4 byte 0x63825363
+ * <li>OPTIONS - variable number of options in the Type-Length-Value format
+ * </ul>
  */
 public class DHCPMessage implements ProtocolContainer {
 
@@ -342,7 +346,7 @@ public class DHCPMessage implements ProtocolContainer {
 
 	public static DHCPMessage createOfferMessage(
 			MACAddress serverMac, IPAddress serverIP, IPAddress offerIP, 
-			DHCPMessage orig) {
+			DHCPMessage orig, IPAddress subnetMask) {
 		
 		MACAddress clientMac = orig.getMacAddress();
 		
@@ -358,7 +362,7 @@ public class DHCPMessage implements ProtocolContainer {
 		var op = DHCPMessage.DHCP_OP_OFFER;
 		options.add(new DHCPOption(OPT_MSG_TYPE, op ));
 	    // Second option: 0x0104ffffff00: Option 1 (Subnet mask) 4 octets (containing 255.255.255.0)
-		options.add(new DHCPOption(OPT_SUBNET_MASK, DHCPProtocol.SUBNET_MASK));
+		options.add(new DHCPOption(OPT_SUBNET_MASK, subnetMask));
 	    // Third option: 0x0304c0A80101: Option: 3 (Router) 4 octets (containing 192.168.1.1)
 		options.add(new DHCPOption(OP_ROUTER_IP, serverIP));
 		// Fourth option: 0x330400015080: Option 51 (Address time) 4 octets (a 86400 second lease time)
@@ -396,7 +400,7 @@ public class DHCPMessage implements ProtocolContainer {
 		return message;
 	}
 
-	public static DHCPMessage createAckMessage(MACAddress serverMac, DHCPMessage orig) {
+	public static DHCPMessage createAckMessage(MACAddress serverMac, DHCPMessage orig, IPAddress subnetMask) {
 		var ciaddr = IPAddress.ZERO_ADDRESS;
 		var yiaddr =  orig.getYiaddr();
 		var siaddr = orig.getSiaddr();
@@ -410,7 +414,7 @@ public class DHCPMessage implements ProtocolContainer {
 		// First option: 0x350105: Option 53 (DHCP Message Type) 1 octet (containing DHCPACK)
 		options.add(new DHCPOption(OPT_MSG_TYPE, DHCPMessage.DHCP_OP_ACK ));
 		// Second option: 0x0104ffffff00: Option 1 (Subnet mask) 4 octets (containing 255.255.255.0)
-		options.add(new DHCPOption(OPT_SUBNET_MASK, DHCPProtocol.SUBNET_MASK));
+		options.add(new DHCPOption(OPT_SUBNET_MASK, subnetMask));
 	    // Third option: 0x0304c0A80101: Option: 3 (Router) 4 octets (containing 192.168.1.1)
 		options.add(new DHCPOption(OP_ROUTER_IP, siaddr));
 		// Fourth option: 0x330400015080: Option 51 (Address time) 4 octets (a 86400 second lease time)

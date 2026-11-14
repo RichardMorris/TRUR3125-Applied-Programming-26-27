@@ -3,18 +3,19 @@ package org.singsurf.jns3.transport_layer.dhcp;
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.generic_protocol.HandlerStatus;
 import org.singsurf.jns3.generic_protocol.ProtocolHandler;
-import org.singsurf.jns3.hardware.AddressableDevice;
-import org.singsurf.jns3.hardware.DeviceFactory;
+import org.singsurf.jns3.hardware.ProtocolDevice;
 import org.singsurf.jns3.network_layer.IPAddress;
+import org.singsurf.jns3.network_layer.RoutingProtocol;
 import org.singsurf.jns3.transport_layer.udp.DatagramSocket;
 import org.singsurf.jns3.transport_layer.udp.UDPDatagram;
 
 /**
  * Handles incoming DHCP Discover messages and sends DHCP Offer messages in response.
+ * Local IP addresses are found from the {@link RoutingProtocol}.
  */
 public class DiscoverHandler implements ProtocolHandler<DHCPMessage> {
 	DHCPProtocol dhcpProtocol;
-	AddressableDevice device;
+	ProtocolDevice device;
 	String name;
 	public DiscoverHandler(DHCPProtocol dhcpProtocol) {
 		this.dhcpProtocol = dhcpProtocol;
@@ -35,19 +36,21 @@ public class DiscoverHandler implements ProtocolHandler<DHCPMessage> {
 			return HandlerStatus.COMPLETED;
 		}
 		
-		var offerIP = DeviceFactory.getInstance().createSequentialLocalIPAddress();
-		
+		var routingProtocol = device.getRoutingProtocol();
+		var offerIP = routingProtocol.allocateLocalIP();
+				
 		DHCPMessage reply = DHCPMessage.createOfferMessage(
 				device.getMACAddress(), 
 				device.getIPAddress(), 
 				offerIP,
-				message);
+				message,
+				device.getSubnetMask());
 		UDPDatagram datagram = new UDPDatagram(
 				DHCPProtocol.DHCP_SERVER_PORT, 
 				DHCPProtocol.DHCP_CLIENT_PORT,  
 				reply.getBytes());
 
-		dhcpProtocol.arpProtocol.put(currentIP, message.getMacAddress());
+		device.getArpProtocol().put(currentIP, message.getMacAddress());
 
 		var sock = dhcpProtocol.factory.createSocket("DHCP Offer Socket");
 		sock.bind(currentIP, DHCPProtocol.DHCP_SERVER_PORT);

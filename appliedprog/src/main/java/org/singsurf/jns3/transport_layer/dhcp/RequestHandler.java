@@ -3,13 +3,20 @@ package org.singsurf.jns3.transport_layer.dhcp;
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.generic_protocol.HandlerStatus;
 import org.singsurf.jns3.generic_protocol.ProtocolHandler;
-import org.singsurf.jns3.hardware.AddressableDevice;
+import org.singsurf.jns3.hardware.ProtocolDevice;
 import org.singsurf.jns3.network_layer.IPAddress;
+import org.singsurf.jns3.network_layer.RoutingProtocol;
 import org.singsurf.jns3.transport_layer.udp.UDPDatagram;
 
+/**
+ * Handles incoming DHCP Request messages and sends DHCP Acknowledgment (ACK) messages 
+ * in response.
+ * It also updates the ARP table 
+ * and allocates the public IP address to the device through the {@link RoutingProtocol}.
+ */
 public class RequestHandler implements ProtocolHandler<DHCPMessage> {
 	DHCPProtocol dhcpProtocol;
-	AddressableDevice device;
+	ProtocolDevice device;
 	String name;
 	public RequestHandler(DHCPProtocol dhcpProtocol) {
 		this.dhcpProtocol = dhcpProtocol;
@@ -31,7 +38,7 @@ public class RequestHandler implements ProtocolHandler<DHCPMessage> {
 		Jns3Logger.logInfo(name, "Received DHCP request message");
 
 		DHCPMessage reply = DHCPMessage.createAckMessage(
-				device.getMACAddress(), message);
+				device.getMACAddress(), message, device.getSubnetMask());
 
 		UDPDatagram datagram = new UDPDatagram(
 				DHCPProtocol.DHCP_SERVER_PORT, 
@@ -51,8 +58,9 @@ public class RequestHandler implements ProtocolHandler<DHCPMessage> {
 		dhcpProtocol.offerSockets.remove(message.getXid());
 		
 		// Update ARP table with the mapping of the offered IP address to the client's MAC address
-		dhcpProtocol.updateARP(message.yiaddr, message.getMacAddress());
-		dhcpProtocol.allocatePublicIP(message.yiaddr);
+		device.getArpProtocol().put(message.yiaddr, message.getMacAddress());
+		var routingProtocol = dhcpProtocol.device.getRoutingProtocol();
+		routingProtocol.allocatePublicIP(message.yiaddr);
 		return HandlerStatus.COMPLETED;
 	}
 

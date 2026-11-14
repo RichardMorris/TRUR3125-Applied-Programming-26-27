@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.singsurf.jns3.Jns3Logger;
-import org.singsurf.jns3.data_link_layer.MACAddress;
-import org.singsurf.jns3.data_link_layer.arp.ARPProtocol;
 import org.singsurf.jns3.generic_protocol.LowerSocketAdapter;
 import org.singsurf.jns3.generic_protocol.Protocol;
 import org.singsurf.jns3.generic_protocol.ProtocolDelegator;
@@ -15,24 +13,26 @@ import org.singsurf.jns3.generic_protocol.SocketFactory;
 import org.singsurf.jns3.hardware.GlobalWallClock;
 import org.singsurf.jns3.hardware.GlobalWallClock.TickListener;
 import org.singsurf.jns3.hardware.ProtocolDevice;
-import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPProtocol;
+import org.singsurf.jns3.network_layer.RoutingProtocol;
 import org.singsurf.jns3.transport_layer.udp.DatagramSocket;
 import org.singsurf.jns3.transport_layer.udp.UDPDatagram;
 
+/**
+ * Implements the Dynamic Host Configuration Protocol (DHCP) for dynamically assigning IP addresses to devices on a network.
+ * It handles DHCP Discover, Offer, Request, and Acknowledgment messages, 
+ * Local IP addresses are allocated from the {@link RoutingProtocol}.
+ */
 public class DHCPProtocol implements Protocol, LowerSocketAdapter<UDPDatagram>, ProtocolReceiver<UDPDatagram>, TickListener {
 	public static final short DHCP_SERVER_PORT = 67; 
 	public static final short DHCP_CLIENT_PORT = 68;
 		
-	public static final IPAddress  SUBNET_MASK  = new IPAddress("255.255.255.0");
-
 	boolean isServer;
 	ProtocolDevice device;
 
 	DatagramSocket multicast_socket;	
 	SocketFactory<UDPDatagram> factory;
 	ProtocolDelegator<DHCPMessage> delgator;
-	ARPProtocol arpProtocol;
 	
 	/** Sockets used by server to send offers/acknowledgements to clients.
 	 *  Key is the xid the messages. 
@@ -70,7 +70,6 @@ public class DHCPProtocol implements Protocol, LowerSocketAdapter<UDPDatagram>, 
 			delgator.addHandler(new AckHandler(this));
 		}
 		GlobalWallClock.getInstance().addTickListener(this);
-		this.arpProtocol = device.getArpProtocol();
 	}
 
 
@@ -109,6 +108,10 @@ public class DHCPProtocol implements Protocol, LowerSocketAdapter<UDPDatagram>, 
 		}
 	}
 
+	/**
+	 * Start the DHCP discovery process by sending a DHCP Discover message to the network.
+	 * This is typically called by a client device to request an IP address from a DHCP server.
+	 */
 	public void startDiscovery() {
 		DHCPMessage message = DHCPMessage.createDiscoverMessage(device.getMACAddress(), device.getIPAddress());
 		UDPDatagram datagram = new UDPDatagram(DHCP_CLIENT_PORT, DHCP_SERVER_PORT, message.getBytes());
@@ -123,27 +126,20 @@ public class DHCPProtocol implements Protocol, LowerSocketAdapter<UDPDatagram>, 
 		delgator.receive(dhcpMessage);
 	}
 
-
+	/**
+	 * Get the accepted offer messages.
+	 * @return a map of accepted offer messages, keyed by their transaction ID (xid)
+	 */
 	public Map<Integer, DHCPMessage> getAcceptedOfferMessages() {
 		return acceptedOfferMessages;
 	}
 
-
+	/**
+	 * Announce the device's IP address to the network using ARP.
+	 * Called after the ACK message is received and the device's IP address is set.
+	 */
 	public void announceAddress() {
-		arpProtocol.announceAddress(device.getIPAddress(), device.getMACAddress());
+		device.getArpProtocol().announceAddress(device.getIPAddress(), device.getMACAddress());
 		
-	}
-
-	void updateARP(IPAddress yiaddr, MACAddress macAddress) {
-		arpProtocol.put(yiaddr, macAddress);
-	}
-
-
-	public void allocatePublicIP(IPAddress iaddr) {
-		
-		var routingProtocol = device.getRoutingProtocol();
-		if(routingProtocol != null) {
-			routingProtocol.allocatePublicIP(iaddr);
-		}		
 	}
 }

@@ -6,6 +6,10 @@ import org.singsurf.jns3.generic_protocol.ProtocolHandler;
 import org.singsurf.jns3.hardware.AddressableDevice;
 import org.singsurf.jns3.network_layer.SubnetMask;
 
+/**
+ * Handles incoming DHCP Acknowledgment (ACK) messages 
+ * and sets the device's IP address, subnet mask, and default gateway accordingly.
+ */
 public class AckHandler implements ProtocolHandler<DHCPMessage> {
 	DHCPProtocol dhcpProtocol;
 	AddressableDevice device;

@@ -1,16 +1,23 @@
 package org.singsurf.jns3.transport_layer.dhcp;
 
+import java.util.ArrayList;
+
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.generic_protocol.HandlerStatus;
 import org.singsurf.jns3.generic_protocol.ProtocolHandler;
-import org.singsurf.jns3.hardware.AddressableDevice;
+import org.singsurf.jns3.hardware.ProtocolDevice;
 import org.singsurf.jns3.network_layer.SubnetMask;
 import org.singsurf.jns3.transport_layer.udp.UDPDatagram;
 
+/**
+ * Handles incoming DHCP Offer messages and stores them in the protocol for later processing.
+ * The client should call {@link #acceptOffer(DHCPMessage)} to accept an offer 
+ * and send a DHCP Request message to the server.
+ */
 public class OfferHandler implements ProtocolHandler<DHCPMessage> {
 	DHCPProtocol dhcpProtocol;
-	AddressableDevice device;
+	ProtocolDevice device;
 	String name;
 	
 	public OfferHandler(DHCPProtocol dhcpProtocol) {
@@ -34,12 +41,12 @@ public class OfferHandler implements ProtocolHandler<DHCPMessage> {
 		Jns3Logger.logInfo(name, "Received DHCP Offer message YIADDR "+ message.getYiaddr().toString());
 		MACAddress mac = message.getOption(DHCPMessage.OPT_SERVER_MAC).getDataAsMACAddress();
 		if(mac == null) {
-			Jns3Logger.logError(name, "No server MAC address in DHCP Offer message");
-			return HandlerStatus.COMPLETED;
+			return HandlerStatus.invalid("No server MAC address in DHCP Offer message");
 		}
-		dhcpProtocol.arpProtocol.put(message.siaddr, mac);
+		device.getArpProtocol().put(message.siaddr, mac);
 
-		var offers = dhcpProtocol.offerMessages.computeIfAbsent(message.getXid(), k -> new java.util.ArrayList<>());
+		var offers = dhcpProtocol.offerMessages.computeIfAbsent(message.getXid(), k ->
+			new ArrayList<>());
 		offers.add(message);
 		
 	    // Second option: 0x0104ffffff00: Option 1 (Subnet mask) 4 octets (containing 255.255.255.0)
@@ -53,12 +60,13 @@ public class OfferHandler implements ProtocolHandler<DHCPMessage> {
 		} else {
 			Jns3Logger.logError(name, "No subnet mask in DHCP Offer message");
 		}
-		
-
-		
 		return HandlerStatus.COMPLETED;
 	}
 	
+	/**
+	 * Accepts the DHCP Offer message and sends a DHCP Request message to the server.
+	 * @param message The DHCP Offer message to accept.
+	 */
 	public void acceptOffer(DHCPMessage message) {
 		Jns3Logger.logInfo(name, "Sending DCHP Request YIADDR "+ message.getYiaddr().toString());
 		DHCPMessage reply = DHCPMessage.createRequestMessage(message);
