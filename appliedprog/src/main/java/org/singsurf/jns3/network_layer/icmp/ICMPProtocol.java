@@ -12,6 +12,12 @@ import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPPacket;
 import org.singsurf.jns3.network_layer.PacketSender;
 
+/**
+ * Implements the ICMP protocol,
+ *  including ping, traceroute and handling TTL expired messages.
+ *   sending and receiving, 
+ * ping requests, and delegation to handlers.
+ */
 public class ICMPProtocol implements Protocol, LowerAdapter<IPPacket> {
 	ProtocolDevice device;
 

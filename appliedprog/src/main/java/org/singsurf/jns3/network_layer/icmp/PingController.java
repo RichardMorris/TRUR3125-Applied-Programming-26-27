@@ -53,7 +53,7 @@ public class PingController implements  ICMPMessageHandler {
 		++sequenceNumber;
 		var packet = makePingRequestPacket(identifier, sequenceNumber, destinationIP, ttl);
 		console.display("PING " + destinationIP + " " + packet.getTotalLength()+ " bytes of data.");
-		if(!ICMPPacketExtractor.getInstance().isExtractable(packet)) {
+		if(!ICMPMessage.isICMPMessage(packet)) {
 			Jns3Logger.logError(pc.getName(), "Bad packet: " + packet);
 		}
 		packetSender.send(packet);
@@ -92,7 +92,7 @@ public class PingController implements  ICMPMessageHandler {
 				Jns3Logger.logInfo(pc.getName(), "Received TTL expired message not for ICMP: " + msg);
 				return HandlerStatus.CONTINUE;
 			}
-			var originalMsg = ICMPPacketExtractor.getInstance().extract(pkt);
+			var originalMsg = ICMPMessage.parsePacket(pkt);
 			if(originalMsg.getType() != ICMPMessage.PING_REQUEST_TYPE) {
 				Jns3Logger.logInfo(pc.getName(), "Received TTL expired message not for ping request: " + msg);
 				return HandlerStatus.CONTINUE;

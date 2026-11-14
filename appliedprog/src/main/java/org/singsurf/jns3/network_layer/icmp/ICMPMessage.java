@@ -29,6 +29,11 @@ public class ICMPMessage implements ProtocolContainer {
 	static final byte TTL_EXCEEDED_CODE = 0;
 	static final byte PARAMETER_PROBLEM = 12;
 	
+	/**
+	 * A pseudo-header with information from the enclosing IPPacket.
+	 * It includes the source and destination IP addresses, protocol type, 
+	 * length of the ICMP message, and time-to-live (TTL) value.
+	 */
 	public record PsudoHeader(IPAddress sourceIP, IPAddress destIP, 
 			byte protocol, short length, byte ttl) { }
 
@@ -160,7 +165,7 @@ public class ICMPMessage implements ProtocolContainer {
 		return type == PARAMETER_PROBLEM;
 	}
 
-	static boolean isICMPMessage(IPPacket packet) {
+	public static boolean isICMPMessage(IPPacket packet) {
 		return packet.getProtocol() == 1;
 	}
 
@@ -172,7 +177,7 @@ public class ICMPMessage implements ProtocolContainer {
 	 * @return the parsed ICMP message, or an error message if the packet is invalid
 	 * @throws IllegalArgumentException if the packet is not an ICMP packet
 	 */
-	static ICMPMessage parsePacket(IPPacket packet) {
+	public static ICMPMessage parsePacket(IPPacket packet) {
 		if(packet.getProtocol() != 1 ) {
 			throw new IllegalArgumentException("Not an ICMP packet");
 		}

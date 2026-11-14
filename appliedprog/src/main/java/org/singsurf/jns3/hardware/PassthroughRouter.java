@@ -12,7 +12,6 @@ import org.singsurf.jns3.network_layer.IPPacketExtractor;
 import org.singsurf.jns3.network_layer.IPProtocol;
 import org.singsurf.jns3.network_layer.PacketSender;
 import org.singsurf.jns3.network_layer.icmp.ICMPMessage;
-import org.singsurf.jns3.network_layer.icmp.ICMPPacketExtractor;
 import org.singsurf.jns3.network_layer.icmp.PingRequestHandler;
 
 /**
@@ -108,16 +107,16 @@ public class PassthroughRouter extends MultiPortDevice implements AddressableDev
 				sendFrame(1 - portNumber, frame);
 				return;
 			}
-			if(!ICMPPacketExtractor.getInstance().isExtractable(packet)) {
+			if(!ICMPMessage.isICMPMessage(packet)) {
 				Jns3Logger.logError(name, "Received non ICMPPacket directed here"+packet);
 				return;
 			}
 		}				
-		if(!ICMPPacketExtractor.getInstance().isExtractable(packet)) {
+		if(!ICMPMessage.isICMPMessage(packet)) {
 			Jns3Logger.logInfo(name, "Dropped packet "+packet.toString());
 			return;
 		}
-		var icmp = ICMPPacketExtractor.getInstance().extract(packet);
+		var icmp = ICMPMessage.parsePacket(packet);
 		if(icmp.isParemeterProblem()) {
 			var errorPacket = new IPPacket(
 				IPPacket.IMCP, 64,

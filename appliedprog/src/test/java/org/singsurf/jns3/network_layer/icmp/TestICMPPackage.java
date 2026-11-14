@@ -59,7 +59,7 @@ class TestICMPPackage {
 		var destinationIP = deviceFactory.createLocalIPAddress();
 
 		var packet = new IPPacket(IPPacket.IMCP, 64, senderIP, destinationIP, data);
-		var msg = ICMPPacketExtractor.getInstance().extract(packet);
+		var msg = ICMPMessage.parsePacket(packet);
 		assertEquals((byte) 12, msg.getType());
 		assertEquals((byte) 0, msg.getCode());
 //		assertEquals(0x12345678, msg.getRestOfHeader());
@@ -74,7 +74,7 @@ class TestICMPPackage {
 		var destinationIP = deviceFactory.createLocalIPAddress();
 
 		var packet = new IPPacket(IPPacket.IMCP, 64, senderIP, destinationIP, data);
-		var msg = ICMPPacketExtractor.getInstance().extract(packet);
+		var msg = ICMPMessage.parsePacket(packet);
 		assertEquals((byte) 12, msg.getType());
 		assertEquals((byte) 2, msg.getCode());
 //		assertEquals(0x12345678, msg.getRestOfHeader());
@@ -95,7 +95,7 @@ class TestICMPPackage {
 		IPPacket packet = new IPPacket(
 				IPPacket.IMCP,ttl,
 				senderIP, destinationIP, msg.getBytes());
-		var reply = ICMPPacketExtractor.getInstance().extract(packet);
+		var reply = ICMPMessage.parsePacket(packet);
 		
 		assertEquals((byte) 0x08, reply.getType());
 		assertEquals((byte) 0x09, reply.getCode());
