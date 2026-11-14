@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -115,6 +117,39 @@ class TestTheInternet {
 		assertTrue(Jns3Logger.isErrorFree());
 	}
 
+	@Test
+	public void can_ping_the_internet() throws IOException {		
+		System.out.println(theInternet);
+		System.out.println(router);
+		System.out.println(pc1);
+		System.out.println(pc2);
+		System.out.println(pc3);
+		System.out.println(pc4);
+
+		Jns3Logger.clearLog();
+		Jns3Logger.startCapture();
+		pc1.getICMPProtocol().sendPingRequest(theInternet.getIPAddress(), 64);
+		var output = Jns3Logger.endCapture();
+		System.out.println(Jns3Logger.asString());
+		System.out.println("Captured output:\n"+output);
+		var lines = output.split("\n");
+		assertEquals(2, lines.length);
+		assertEquals("PING " + theInternet.getIPAddress() + " 28 bytes of data.", lines[0].trim());
+		assertEquals("28 bytes from "+theInternet.getIPAddress()+": icmp_seq=1 ttl=63 time=0 ticks", lines[1].trim());
+
+		assertEquals(2, Jns3Logger.size());
+		var item0 = Jns3Logger.getItem(0);
+		var item1 = Jns3Logger.getItem(1);
+		assertEquals("TheInternet", item0.deviceName());
+		assertEquals(Jns3Logger.LogLevel.RECEIVED, item0.level());
+		assertTrue(item0.message().startsWith("Received ping request from 81."));
+		assertEquals("PC1", item1.deviceName());
+		assertEquals(Jns3Logger.LogLevel.RECEIVED, item1.level());
+		assertTrue(item1.message().startsWith("Received ping reply from "+theInternet.getIPAddress()));
+		assertTrue(Jns3Logger.isErrorFree());
+	}
+
+	
 	@AfterEach
 	void tearDown() throws Exception {
 		assertTrue(Jns3Logger.isErrorFree());

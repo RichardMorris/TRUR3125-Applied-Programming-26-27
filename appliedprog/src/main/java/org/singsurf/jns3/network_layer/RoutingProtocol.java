@@ -99,9 +99,6 @@ public class RoutingProtocol implements Protocol, LowerAdapter<IPPacket> {
 
 
 	public MACAddress lookup(IPAddress addr) {
-		if(prefixDevice.getPrefix().matches(addr)) {
-			return prefixDevice.getMACAddress();
-		}
 		
 		
 		for(var entry: prefixMap.entrySet()) {
@@ -109,6 +106,9 @@ public class RoutingProtocol implements Protocol, LowerAdapter<IPPacket> {
 			if(mnp.prefix.matches(addr)) {
 				return mnp.mac;
 			}
+		}
+		if(prefixDevice.getPrefix().matches(addr)) {
+			return prefixDevice.getMACAddress();
 		}
 		return null;
 	}

@@ -22,10 +22,13 @@ public class RoutingHandler implements ProtocolHandler<IPPacket> {
 					return HandlerStatus.CONTINUE;
 		}		
 		var publicIP = routingProtocol.getPublicIP(sourceIP);
-		if(publicIP == null) {
-			return HandlerStatus.invalid("Source IP " + sourceIP + " not found in NAT table");
+		if(publicIP != null) {
+			packet.setSourceIP(publicIP);
 		}
-		packet.setSourceIP(publicIP);
+		var privateIP = routingProtocol.getPrivateIP(destIP);
+		if(privateIP != null) {
+			packet.setDestinationIP(privateIP);
+		}
 		
 		routingProtocol.getPacketSender().send(packet);
 

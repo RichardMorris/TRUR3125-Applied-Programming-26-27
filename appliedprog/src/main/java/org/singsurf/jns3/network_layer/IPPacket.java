@@ -302,4 +302,9 @@ public class IPPacket implements ProtocolContainer {
 		recalculateHeaderChecksum();
 	}
 
+	public void setDestinationIP(IPAddress privateIP) {
+		this.destinationAddress = privateIP;
+		recalculateHeaderChecksum();
+	}
+
 }
