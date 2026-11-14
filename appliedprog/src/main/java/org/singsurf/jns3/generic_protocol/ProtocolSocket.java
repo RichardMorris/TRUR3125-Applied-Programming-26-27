@@ -2,6 +2,11 @@ package org.singsurf.jns3.generic_protocol;
 
 import org.singsurf.jns3.network_layer.IPAddress;
 
+/**
+ * A generic protocol socket interface for sending and receiving datagrams.
+ * 
+ * @param <T> The type of datagram that this socket can send and receive.
+ */
 public interface ProtocolSocket<T> {
 
 	/**
