@@ -268,6 +268,33 @@ class TestTheInternet {
 		assertTrue(Jns3Logger.isErrorFree());
 	}
 
+	@Test
+	public void traceroute_to_LAN() throws IOException {		
+		System.out.println(theInternet);
+		System.out.println(router1);
+		System.out.println(pc1);
+		System.out.println(pc2);
+		
+		Jns3Logger.clearLog();
+		Jns3Logger.startCapture();
+		var pc2IP = pc2.getIPAddress();
+		pc1.traceroute(pc2IP);
+		for(int i=0; i<10; i++) {
+//			System.out.println("tick "+i);
+			GlobalWallClock.advanceBy(1);
+		}
+		var output = Jns3Logger.endCapture();
+		System.out.println(Jns3Logger.asString());
+		System.out.println("Captured output:\n"+output);
+		var lines = output.split("\n");
+		assertEquals(3, lines.length);
+		assertEquals("traceroute to " + pc2IP + ", 64 hops max", lines[0].trim());
+		assertEquals("1\t"+router1.getIPAddress()+"\t0 ticks", lines[1].trim());
+		assertEquals("2\t"+pc2IP+"\t0 ticks", lines[2].trim());
+
+		assertTrue(Jns3Logger.isErrorFree());
+	}
+
 	@AfterEach
 	void tearDown() throws Exception {
 		assertTrue(Jns3Logger.isErrorFree());

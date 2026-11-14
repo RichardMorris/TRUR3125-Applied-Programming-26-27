@@ -3,13 +3,13 @@ import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPPrefix;
-import org.singsurf.jns3.physical_layer.PhysicalEndPoint;
 
 /**
  * Represents a home router.
- * Acts as a Facade to the various layers in the system.
+ * Acts as a Facade to the various layers in the system,
+ * has four internal ports and one external port.
  */
-public class HomeRouter extends ProtocolDevice implements PrefixDevice {
+public class HomeRouter extends RoutingDevice {
 	public static final int NUM_PORTS = 4;
 		
     Terminal terminal = new Terminal() {
@@ -17,12 +17,9 @@ public class HomeRouter extends ProtocolDevice implements PrefixDevice {
 		public void display(String string) {
 			Jns3Logger.logError(getName(), string);
 		}};
-
-	private IPPrefix publicPrefix;
 		
 	public HomeRouter(String name, MACAddress macAddress, IPAddress ipAddress, IPPrefix publicPrefix) {
-        super(name,macAddress,ipAddress,NUM_PORTS, 1);
-        this.publicPrefix = publicPrefix;
+        super(name,macAddress,ipAddress,publicPrefix, NUM_PORTS, 1);
      }
     		
 	public Terminal getTerminal() {
@@ -40,31 +37,17 @@ public class HomeRouter extends ProtocolDevice implements PrefixDevice {
 
     // Setters and Getters for various components
         
-    public PhysicalEndPoint getEndPoint(int i) {
-    	return getPhysicalProtocol().getEndPoint(i);
-    }
-
-	@Override
-	public IPPrefix getPrefix() {
-		return this.publicPrefix;
-	}
-
 	@Override
 	public IPAddress getPublicIP() {
 		var rp = getRoutingProtocol();
 		return rp != null ? rp.getPublicIP() : null;
 	}
 
-	@Override
-	public void registerDevice(int i, PrefixDevice theInternet) {
-		var rp = getRoutingProtocol();
-		if(rp != null) {
-			rp.registerDevice(i, theInternet);
-		} else {
-			Jns3Logger.logError(getName(), "RoutingProtocol not found, cannot register device");
-		}		
-	}
-
+	/**
+	 * Get the public IP address corresponding to a private IP address.
+	 * @param ipAddress The private IP address.
+	 * @return The public IP
+	 */
 	public IPAddress getPublicIP(IPAddress ipAddress) {
 		var rp = getRoutingProtocol();
 		return rp.getPublicIP(ipAddress);

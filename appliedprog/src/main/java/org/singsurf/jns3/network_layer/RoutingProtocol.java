@@ -15,11 +15,20 @@ import org.singsurf.jns3.generic_protocol.ProtocolSender;
 import org.singsurf.jns3.hardware.PrefixDevice;
 import org.singsurf.jns3.hardware.ProtocolDevice;
 
+/**
+ * A routing protocol that translates between private and public IP addresses.
+ * It maintains a NAT table mapping private to public IP's.
+ * LAN devices are assigned public IP addresses.
+ * and a mapping of prefixes to MAC addresses.
+ * The {@link RoutingHandler} is used to handle incoming packets and translate their destination IP addresses.
+ * Outgoing packets are sent via the {@link EthernetPacketSender} 
+ * that uses this protocol to translate the source IP.
+ */
 public class RoutingProtocol implements Protocol, LowerAdapter<IPPacket> {
 	String name;
+	IPPrefix publicPrefix;
 	
 	NATTable natTable = new NATTable();
-	IPPrefix publicPrefix;
 	List<IPAddress> allocatedPublicIPs = new ArrayList<>();
 	byte seqNumber = 0;
 	Map<Integer, MacAndPrefix> prefixMap = new HashMap<>();
@@ -27,9 +36,7 @@ public class RoutingProtocol implements Protocol, LowerAdapter<IPPacket> {
 	RoutingHandler routingHandler;
 	PrefixDevice prefixDevice;
 	ProtocolDevice protocolDevice;
-	IPProtocol ipProtocol;
-
-	private PacketSender packetSender;
+	PacketSender packetSender;
 	
 	record MacAndPrefix(MACAddress mac, IPPrefix prefix) {}
 	
@@ -40,7 +47,7 @@ public class RoutingProtocol implements Protocol, LowerAdapter<IPPacket> {
 		this.publicPrefix = prefixDevice.getPrefix();
 		this.publicIP = prefixDevice.getPublicIP() != null
 				? prefixDevice.getPublicIP()
-				:allocatePublicIP(device.getIPAddress());
+				: allocatePublicIP(device.getIPAddress());
 		routingHandler = new RoutingHandler(this);
 	}
 
@@ -89,8 +96,6 @@ public class RoutingProtocol implements Protocol, LowerAdapter<IPPacket> {
 
 	@Override
 	public void setInboundCallback(ProtocolReceiver<IPPacket> receiver) {
-		// TODO Auto-generated method stub
-		
 	}
 
 
@@ -101,8 +106,6 @@ public class RoutingProtocol implements Protocol, LowerAdapter<IPPacket> {
 
 
 	public MACAddress lookup(IPAddress addr) {
-		
-		
 		for(var entry: prefixMap.entrySet()) {
 			var mnp = entry.getValue();
 			if(mnp.prefix.matches(addr)) {
