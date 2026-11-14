@@ -64,5 +64,10 @@ public class HomeRouter extends ProtocolDevice implements PrefixDevice {
 			Jns3Logger.logError(getName(), "RoutingProtocol not found, cannot register device");
 		}		
 	}
+
+	public IPAddress getPublicIP(IPAddress ipAddress) {
+		var rp = getProtocol(RoutingProtocol.class);
+		return rp.getPublicIP(ipAddress);
+	}
     
 }

@@ -120,6 +120,12 @@ public class DeviceFactory {
         IPAddress ip = createLocalIPAddress();
         return createPC(name, ip, mac);
     }
+    
+	public PC createPC(String name, IPAddress ip) {
+        MACAddress mac = createMACAddress();
+        return createPC(name, ip, mac);
+	}
+
         
     public PC createPC(String name, IPAddress ip, MACAddress mac) {
         // boot logic for the PC
@@ -221,12 +227,13 @@ public class DeviceFactory {
 		internet.addProtocol(arpProtocol);
 //		eth.register(arpProtocol);
 		
-		var routingProtocol = new RoutingProtocol(internet);
-		internet.addProtocol(routingProtocol);
-
 		var ipProtocol = new IPProtocol(internet,true);
 		internet.addProtocol(ipProtocol);
 		eth.register(ipProtocol);
+
+		var routingProtocol = new RoutingProtocol(internet);
+		internet.addProtocol(routingProtocol);
+		ipProtocol.register(routingProtocol);
 
 		var imcp = new ICMPProtocol(internet);
 		ipProtocol.register(imcp);
@@ -261,5 +268,6 @@ public class DeviceFactory {
 	public static DeviceFactory getInstance() {
 		return instance;
 	}
+
 
 }
