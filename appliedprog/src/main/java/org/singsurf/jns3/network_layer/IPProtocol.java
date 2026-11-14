@@ -15,6 +15,13 @@ import org.singsurf.jns3.generic_protocol.ProtocolSender;
 import org.singsurf.jns3.generic_protocol.UpperPort;
 import org.singsurf.jns3.hardware.ProtocolDevice;
 
+/**
+ * Implements the IP protocol, including packet sending and receiving, 
+ * ARP updates, and delegation to handlers.
+ * <P>
+ * It can be configured as a router or a host, 
+ * and handles IP fragmentation, TTL decrementing, and LAN forwarding.
+ */	
 public class IPProtocol implements Protocol, LowerAdapter<EthernetFrame>, UpperPort<IPPacket> {
 	public static final IPAddress LIMITED_MULTICAST_ADDRESS = new IPAddress("255.255.255.255");
 	public static final short ETHERTYPE = 0x800;
@@ -46,7 +53,7 @@ public class IPProtocol implements Protocol, LowerAdapter<EthernetFrame>, UpperP
 		if(isRouter) {
 			this.ttlDecrementor = new TTLDecrementor(this, delegator);
 			this.frameHandler = new IPFrameHandler(ttlDecrementor);
-			delegator.addHandler(new IPPacketForwarder(this));
+			delegator.addHandler(new LanForwarder(this));
 		} else {
 			this.frameHandler = new IPFrameHandler(delegator);
 			delegator.addHandler(fragmentHandler);

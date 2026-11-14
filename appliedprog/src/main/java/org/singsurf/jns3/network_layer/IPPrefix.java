@@ -1,5 +1,10 @@
 package org.singsurf.jns3.network_layer;
 
+/**
+ * Represents an IP prefix, which consists of an IP address and a prefix length.
+ * The prefix length indicates how many bits of the IP address are significant for the prefix.
+ * The {@link #matches(IPAddress)} method can be used to check if a given IP address matches this prefix.
+ */
 public class IPPrefix {
 	SubnetMask mask;
 	IPAddress prefix;
@@ -47,17 +52,19 @@ public class IPPrefix {
 		};
 	}
 	
+	/**
+	 * Constructs an IPPrefix from a string like {@code 192.168.1.0/24}.
+	 * @param prefixStr the string representation of the IP prefix
+	 */
 	public IPPrefix(String prefixStr) {
 		this(prefixStr.split("/"));
 	}
 	
-	
-	private IPPrefix(String[] split) {
-		this(new IPAddress(split[0]), Integer.parseInt(split[1]));
-		if(split.length != 2)
-		throw new IllegalArgumentException("Invalid prefix format: " + String.join("/", split));
-	}
-
+	/**
+	 * Checks if the given IP address matches this prefix.
+	 * @param addr the IP address to check
+	 * @return true if the address matches the prefix, false otherwise
+	 */
 	public boolean matches(IPAddress addr) {
 		return mask.matches(prefix, addr);
 	}
@@ -78,4 +85,10 @@ public class IPPrefix {
 		return prefix.toString() + "/" + prefixLength;
 	}
 	
+	private IPPrefix(String[] split) {
+		this(new IPAddress(split[0]), Integer.parseInt(split[1]));
+		if(split.length != 2)
+		throw new IllegalArgumentException("Invalid prefix format: " + String.join("/", split));
+	}
+
 }

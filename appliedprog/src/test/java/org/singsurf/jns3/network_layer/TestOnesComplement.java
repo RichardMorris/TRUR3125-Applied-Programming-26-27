@@ -1,9 +1,10 @@
 package org.singsurf.jns3.network_layer;
 
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TestOnesComplement {
+import org.junit.jupiter.api.Test;
+
+class TestOnesComplement {
     @Test
     public void test_add() {
         // example from https://stackoverflow.com/questions/66449588/what-is-1s-complement-addition

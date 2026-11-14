@@ -11,7 +11,8 @@ import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.generic_protocol.HandlerStatus;
 import org.singsurf.jns3.hardware.DeviceFactory;
 import org.singsurf.jns3.physical_layer.SimpleConnection;
-public class TestIPPacket {
+
+class TestIPPacket {
 
     @Test
     public void test_creation() {

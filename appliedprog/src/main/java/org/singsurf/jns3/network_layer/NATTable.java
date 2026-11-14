@@ -3,6 +3,10 @@ package org.singsurf.jns3.network_layer;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * A simple NAT (Network Address Translation) table that maps private IP addresses 
+ * to public IP addresses and vice versa.
+ */
 public class NATTable {
 	Map<IPAddress, IPAddress> natMap = new HashMap<>();
 	Map<IPAddress, IPAddress> reverseNatMap = new HashMap<>();

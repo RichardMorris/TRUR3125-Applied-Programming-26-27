@@ -1,9 +1,10 @@
 package org.singsurf.jns3.network_layer;
 
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TestIPAddress {
+import org.junit.jupiter.api.Test;
+
+class TestIPAddress {
     @Test 
     public void testGetIntValue() {
         IPAddress ip = new IPAddress(new byte[] {127, 0, 0, 1});

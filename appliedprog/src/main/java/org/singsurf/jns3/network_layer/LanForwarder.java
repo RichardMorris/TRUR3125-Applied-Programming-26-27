@@ -2,11 +2,20 @@ package org.singsurf.jns3.network_layer;
 
 import org.singsurf.jns3.generic_protocol.HandlerStatus;
 
-public class IPPacketForwarder implements PacketHandler {
+/**
+ * Forwards IP packets to devices on the LAN.
+ * <p>
+ * Uni-cast packets to the device's own IP address are passed on to the next handler.
+ * Uni-cast packets to devices matching the subnet mask are sent and no further handlers
+ * are used.
+ * Local multi-cast packets to the device's multi-cast address or limited multi-cast
+ * address forwarded and pass to the next handler.  
+ */
+public class LanForwarder implements PacketHandler {
 
 	private IPProtocol protocol;
 
-	public IPPacketForwarder(IPProtocol protocol) {
+	public LanForwarder(IPProtocol protocol) {
 		this.protocol = protocol;
 	}
 
