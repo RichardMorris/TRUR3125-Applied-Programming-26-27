@@ -17,7 +17,6 @@ import org.singsurf.jns3.hardware.GlobalWallClock.TickListener;
 import org.singsurf.jns3.hardware.ProtocolDevice;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPProtocol;
-import org.singsurf.jns3.network_layer.RoutingProtocol;
 import org.singsurf.jns3.transport_layer.udp.DatagramSocket;
 import org.singsurf.jns3.transport_layer.udp.UDPDatagram;
 
@@ -71,7 +70,7 @@ public class DHCPProtocol implements Protocol, LowerSocketAdapter<UDPDatagram>, 
 			delgator.addHandler(new AckHandler(this));
 		}
 		GlobalWallClock.getInstance().addTickListener(this);
-		this.arpProtocol = device.getProtocol(ARPProtocol.class);
+		this.arpProtocol = device.getArpProtocol();
 	}
 
 
@@ -142,7 +141,7 @@ public class DHCPProtocol implements Protocol, LowerSocketAdapter<UDPDatagram>, 
 
 	public void allocatePublicIP(IPAddress iaddr) {
 		
-		var routingProtocol = device.getProtocol(RoutingProtocol.class);
+		var routingProtocol = device.getRoutingProtocol();
 		if(routingProtocol != null) {
 			routingProtocol.allocatePublicIP(iaddr);
 		}		

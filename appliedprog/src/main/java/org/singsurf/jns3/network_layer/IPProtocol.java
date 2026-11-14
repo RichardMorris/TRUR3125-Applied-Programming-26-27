@@ -163,7 +163,7 @@ Wireless LAN adapter WiFi:
 		if(mac != null) {
 			return mac;
 		}
-		var rp = device.getProtocol(RoutingProtocol.class);
+		var rp = device.getRoutingProtocol();
 		if(rp != null) {
 			mac = rp.lookup(destIP);
 			if(mac != null) {

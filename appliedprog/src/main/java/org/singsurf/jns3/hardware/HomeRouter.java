@@ -3,7 +3,6 @@ import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPPrefix;
-import org.singsurf.jns3.network_layer.RoutingProtocol;
 import org.singsurf.jns3.physical_layer.PhysicalEndPoint;
 
 /**
@@ -52,12 +51,12 @@ public class HomeRouter extends ProtocolDevice implements PrefixDevice {
 
 	@Override
 	public IPAddress getPublicIP() {
-		var rp = getProtocol(RoutingProtocol.class);
+		var rp = getRoutingProtocol();
 		return rp != null ? rp.getPublicIP() : null;
 	}
 
 	public void registerDevice(int i, PrefixDevice theInternet) {
-		var rp = getProtocol(RoutingProtocol.class);
+		var rp = getRoutingProtocol();
 		if(rp != null) {
 			rp.registerDevice(i, theInternet);
 		} else {
@@ -66,7 +65,7 @@ public class HomeRouter extends ProtocolDevice implements PrefixDevice {
 	}
 
 	public IPAddress getPublicIP(IPAddress ipAddress) {
-		var rp = getProtocol(RoutingProtocol.class);
+		var rp = getRoutingProtocol();
 		return rp.getPublicIP(ipAddress);
 	}
     

@@ -10,6 +10,7 @@ import org.singsurf.jns3.data_link_layer.arp.ARPProtocol;
 import org.singsurf.jns3.generic_protocol.Protocol;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPProtocol;
+import org.singsurf.jns3.network_layer.RoutingProtocol;
 import org.singsurf.jns3.network_layer.SubnetMask;
 import org.singsurf.jns3.network_layer.icmp.ICMPProtocol;
 import org.singsurf.jns3.physical_layer.PhysicalProtocol;
@@ -28,11 +29,19 @@ public abstract class ProtocolDevice implements AddressableDevice {
 	IPAddress multiCastIP;
 	SubnetMask subnetMask;
 	IPAddress defaultGateway;
-	
-	List<Protocol> protocols = new ArrayList<>();
 	int numInternalPorts;
 	int numExternalPorts;
-
+	
+	List<Protocol> protocols = new ArrayList<>();
+	PhysicalProtocol physicalProtocol;
+	EthernetProtocol ethernetProtocol;
+	ARPProtocol arpProtocol;
+	IPProtocol ipProtocol;
+	RoutingProtocol routingProtocol;
+	ICMPProtocol icmpProtocol;
+	UDPProtocol udpProtocol;
+	DHCPProtocol dhcpProtocol;
+	
 	public ProtocolDevice(String name, 
 			MACAddress macAddress, IPAddress ipAddress,
 			int numPorts) {
@@ -55,6 +64,17 @@ public abstract class ProtocolDevice implements AddressableDevice {
 
 	public void addProtocol(Protocol prot) {
 		protocols.add(prot);
+		switch(prot) {
+		case PhysicalProtocol pp -> physicalProtocol = pp;
+		case EthernetProtocol ep -> ethernetProtocol = ep;
+		case ARPProtocol ap -> arpProtocol = ap;
+		case IPProtocol ipp -> ipProtocol = ipp;
+		case RoutingProtocol rp -> routingProtocol = rp;
+		case ICMPProtocol icmpp -> icmpProtocol = icmpp;
+		case UDPProtocol udpp -> udpProtocol = udpp;
+		case DHCPProtocol dhcpp -> dhcpProtocol = dhcpp;
+		default -> {}
+		}
 	}
 
 	public <T extends Protocol> T getProtocol(Class<T> cl) {
@@ -68,31 +88,35 @@ public abstract class ProtocolDevice implements AddressableDevice {
 	}
 
 	public PhysicalProtocol getPhysicalProtocol() {
-		return getProtocol(PhysicalProtocol.class);
+		return physicalProtocol;
 	}
 
 	public EthernetProtocol getEthernetProtocol() {
-		return getProtocol(EthernetProtocol.class);
+		return ethernetProtocol;
 	}
 
 	public ARPProtocol getArpProtocol() {
-		return getProtocol(ARPProtocol.class);
+		return arpProtocol;
 	}
 
 	public IPProtocol getIPProtocol() {
-		return getProtocol(IPProtocol.class);
+		return ipProtocol;
+	}
+
+	public RoutingProtocol getRoutingProtocol() {
+		return routingProtocol;
 	}
 
 	public ICMPProtocol getICMPProtocol() {
-		return getProtocol(ICMPProtocol.class);
+		return icmpProtocol;
 	}
 
 	public UDPProtocol getUDPProtocol() {
-		return getProtocol(UDPProtocol.class);
+		return udpProtocol;
 	}
 
 	public DHCPProtocol getDHCPProtocol() {
-		return getProtocol(DHCPProtocol.class);
+		return dhcpProtocol;
 	}
 
 	@Override
@@ -158,6 +182,7 @@ public abstract class ProtocolDevice implements AddressableDevice {
 	public int getNumPorts() {
 		return numInternalPorts + numExternalPorts;
 	}
+
 	
 
 }

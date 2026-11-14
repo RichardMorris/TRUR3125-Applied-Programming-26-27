@@ -14,7 +14,6 @@ import org.singsurf.jns3.Jns3Logger.LogItem;
 import org.singsurf.jns3.application_layer.ChatApplication;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPPacket;
-import org.singsurf.jns3.network_layer.RoutingProtocol;
 import org.singsurf.jns3.physical_layer.CountingConnection;
 import org.singsurf.jns3.physical_layer.FILOBufferedConnection;
 import org.singsurf.jns3.physical_layer.SimpleConnection;
@@ -297,12 +296,12 @@ class TestHomeRouter {
 		assertEquals(pc1.getMACAddress(), router.getArpProtocol().lookup(yaddr));
 		assertEquals(router.getMACAddress(), pc1.getArpProtocol().lookup(router.getIPAddress()));
 		
-		IPAddress publicIP = router.getProtocol(RoutingProtocol.class)
+		IPAddress publicIP = router.getRoutingProtocol()
 				.getPublicIP(pc1.getIPAddress());
 		var s = publicIP.toString();
 		assertTrue(s.startsWith("81."));
 		assertTrue(s.endsWith(".1"));
-		var privateIP = router.getProtocol(RoutingProtocol.class)
+		var privateIP = router.getRoutingProtocol()
 				.getPrivateIP(publicIP);
 		assertEquals(pc1.getIPAddress(), privateIP);
 		
@@ -396,22 +395,22 @@ class TestHomeRouter {
 		assertEquals(pc4.getMACAddress(), pc2.getArpProtocol().lookup(pc4.getIPAddress()));
 		
 
-		IPAddress publicIP = router.getProtocol(RoutingProtocol.class)
+		IPAddress publicIP = router.getRoutingProtocol()
 				.getPublicIP(pc1.getIPAddress());
 		var s = publicIP.toString();
 		assertTrue(s.startsWith("81."));
 		assertTrue(s.endsWith(".1"));
-		publicIP = router.getProtocol(RoutingProtocol.class)
+		publicIP = router.getRoutingProtocol()
 				.getPublicIP(pc2.getIPAddress());
 		s = publicIP.toString();
 		assertTrue(s.startsWith("81."));
 		assertTrue(s.endsWith(".2"));
-		publicIP = router.getProtocol(RoutingProtocol.class)
+		publicIP = router.getRoutingProtocol()
 				.getPublicIP(pc3.getIPAddress());
 		s = publicIP.toString();
 		assertTrue(s.startsWith("81."));
 		assertTrue(s.endsWith(".3"));
-		publicIP = router.getProtocol(RoutingProtocol.class)
+		publicIP = router.getRoutingProtocol()
 				.getPublicIP(pc4.getIPAddress());
 		s = publicIP.toString();
 		assertTrue(s.startsWith("81."));
