@@ -10,9 +10,9 @@ import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.data_link_layer.FrameSender;
 import org.singsurf.jns3.data_link_layer.MACAddress;
-import org.singsurf.jns3.hardware.AddressableDevice;
 import org.singsurf.jns3.hardware.GlobalWallClock;
 import org.singsurf.jns3.hardware.GlobalWallClock.TickListener;
+import org.singsurf.jns3.hardware.ProtocolDevice;
 
 /**
  * Sends IP packets over Ethernet. 
@@ -21,7 +21,7 @@ import org.singsurf.jns3.hardware.GlobalWallClock.TickListener;
  * Our implementation uses the low size of 140 bytes.
  */
 public class EthernetPacketSender implements PacketSender, TickListener {
-	AddressableDevice device;
+	ProtocolDevice device;
 	String name;
 	IPProtocol ipProtocol;
 	FrameSender frameSender;
@@ -47,7 +47,7 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 		}
 	}
 	
-	public EthernetPacketSender(AddressableDevice device, 
+	public EthernetPacketSender(ProtocolDevice device, 
 			IPProtocol arpController) {
 		this.device = device;
 		this.name = device.getName();
@@ -64,7 +64,15 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 		var srcMac = srcIP.equals(device.getIPAddress())
 				? device.getMACAddress()
 				: lookup(srcIP);
-		
+		var rp = device.getRoutingProtocol();
+		if(rp != null) {
+			if(!device.isLocalAddress(destIP)) {
+				var publicIP = rp.getPublicIP(srcIP);
+				if(publicIP != null) {
+					packet.setSourceIP(publicIP);
+				}
+			}
+		}
 		if(destIP.equals(IPProtocol.LIMITED_MULTICAST_ADDRESS) 
 		 || destIP.equals(device.getMulticastAddress())) {
 			destMac = MACAddress.BROADCAST_MAC;

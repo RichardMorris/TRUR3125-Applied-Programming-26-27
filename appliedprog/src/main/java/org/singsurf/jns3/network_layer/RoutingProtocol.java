@@ -38,7 +38,9 @@ public class RoutingProtocol implements Protocol, LowerAdapter<IPPacket> {
 		this.prefixDevice = (PrefixDevice) device;
 		this.protocolDevice = device;
 		this.publicPrefix = prefixDevice.getPrefix();
-		this.publicIP = allocatePublicIP(device.getIPAddress());
+		this.publicIP = prefixDevice.getPublicIP() != null
+				? prefixDevice.getPublicIP()
+				:allocatePublicIP(device.getIPAddress());
 		routingHandler = new RoutingHandler(this);
 	}
 

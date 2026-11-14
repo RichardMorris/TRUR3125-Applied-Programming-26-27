@@ -55,6 +55,7 @@ public class HomeRouter extends ProtocolDevice implements PrefixDevice {
 		return rp != null ? rp.getPublicIP() : null;
 	}
 
+	@Override
 	public void registerDevice(int i, PrefixDevice theInternet) {
 		var rp = getRoutingProtocol();
 		if(rp != null) {

@@ -15,15 +15,10 @@ public class RoutingHandler implements ProtocolHandler<IPPacket> {
 	@Override
 	public HandlerStatus handle(IPPacket packet) {
 		var destIP = packet.getDestinationAddress();
-		var sourceIP = packet.getSourceAddress();
 		if(device.isLocalAddress(destIP)
 			|| destIP.equals(device.getMulticastAddress()) 
 			|| destIP.equals(IPProtocol.LIMITED_MULTICAST_ADDRESS)) {
 					return HandlerStatus.CONTINUE;
-		}		
-		var publicIP = routingProtocol.getPublicIP(sourceIP);
-		if(publicIP != null) {
-			packet.setSourceIP(publicIP);
 		}
 		var privateIP = routingProtocol.getPrivateIP(destIP);
 		if(privateIP != null) {

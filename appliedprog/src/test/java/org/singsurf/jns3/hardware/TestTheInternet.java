@@ -236,6 +236,38 @@ class TestTheInternet {
 		assertTrue(Jns3Logger.isErrorFree());
 	}
 
+	@Test
+	public void traceroute_across_the_internet() throws IOException {		
+		System.out.println(theInternet);
+		System.out.println(router1);
+		System.out.println(pc1);
+		System.out.println(router2);
+		System.out.println(pc5);
+
+		var pc5pub = router2.getPublicIP(pc5.getIPAddress());
+		
+		Jns3Logger.clearLog();
+		Jns3Logger.startCapture();
+		pc1.traceroute(pc5pub);
+		for(int i=0; i<10; i++) {
+//			System.out.println("tick "+i);
+			GlobalWallClock.advanceBy(1);
+		}
+		var output = Jns3Logger.endCapture();
+		System.out.println(Jns3Logger.asString());
+		System.out.println("Captured output:\n"+output);
+		var lines = output.split("\n");
+		assertEquals(5, lines.length);
+		assertEquals("traceroute to " + pc5pub + ", 64 hops max", lines[0].trim());
+		assertEquals("1\t"+router1.getIPAddress()+"\t0 ticks", lines[1].trim());
+		assertEquals("2\t"+theInternet.getIPAddress()+"\t2 ticks", lines[2].trim());
+		assertEquals("3\t"+router2.getPublicIP()+"\t4 ticks", lines[3].trim());
+		assertEquals("4\t"+pc5pub+"\t4 ticks", lines[4].trim());
+
+
+		assertTrue(Jns3Logger.isErrorFree());
+	}
+
 	@AfterEach
 	void tearDown() throws Exception {
 		assertTrue(Jns3Logger.isErrorFree());
