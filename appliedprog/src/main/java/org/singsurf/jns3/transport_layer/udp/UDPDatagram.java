@@ -27,6 +27,14 @@ public class UDPDatagram implements ProtocolContainer {
 	byte[] contents;
 	PsudoHeader psudoHeader;
 	
+	/**
+	 * A psudo header contained additional information from the enclosing packet.
+	 * <ul>
+	 * <li>Source IP Address: 4 bytes
+	 * <li>Destination IP Address: 4 bytes
+	 * <li>Protocol: 1 byte
+	 * </ul>
+	 */
 	public record PsudoHeader(
 			IPAddress sourceIP, 
 			IPAddress destinationIP, 

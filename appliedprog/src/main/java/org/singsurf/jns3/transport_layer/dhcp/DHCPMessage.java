@@ -83,6 +83,10 @@ public class DHCPMessage implements ProtocolContainer {
 
 	static Random rand = new Random();
 	
+	/**
+	 * A DHCPOption represents an option in a DHCP message.
+	 * Each option has a code, a length, and a data field.
+	 */
 	public record DHCPOption(byte code, byte length, byte[] data) {
 		public DHCPOption(byte code, byte data) {
 			this(code, (byte) 1, new byte[] {data});
@@ -153,6 +157,9 @@ public class DHCPMessage implements ProtocolContainer {
 		}
 	}
 	
+	/**
+	 * DHCPAddresses is a record that holds the addresses used in a DHCP message.
+	 */
 	public record DHCPAddresses(MACAddress chaddr, IPAddress ciaddr, IPAddress yiaddr, IPAddress siaddr, IPAddress giaddr) {}
 	
 	public DHCPMessage(byte op, int xid, short secs, short flags, DHCPAddresses addresses,

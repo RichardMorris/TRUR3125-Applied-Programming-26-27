@@ -13,6 +13,7 @@ import org.singsurf.jns3.network_layer.IPPacket;
 import org.singsurf.jns3.network_layer.IPProtocol;
 import org.singsurf.jns3.network_layer.PacketHandler;
 import org.singsurf.jns3.network_layer.PacketSender;
+import org.singsurf.jns3.transport_layer.udp.UDPDatagram.PsudoHeader;
 
 /**
  * Controller for incoming/outbound data
@@ -24,7 +25,6 @@ public class UDPController implements PacketHandler, NamedDevice {
 	AddressableDevice device;
 	PacketSender packetSender;
 	Map<IPAddress,Map<Short, ProtocolSocket<UDPDatagram>>> bindings = new HashMap<>();
-	UDPExtractor udpExtractor = UDPExtractor.getInstance();
 	
 	UDPController(AddressableDevice device) {
 		this.name = device.getName() + "-UDPController";
@@ -36,7 +36,8 @@ public class UDPController implements PacketHandler, NamedDevice {
 	}
 
 	private void receive(IPPacket packet) {
-		var datagram = udpExtractor.extract(packet);
+		var psudo = new PsudoHeader(packet.getSourceAddress(), packet.getDestinationAddress(), IPPacket.UDP);
+		var datagram = UDPDatagram.fromBytes(packet.getContents(),psudo);
 		var lookupAddress = 
 				packet.getDestinationAddress().equals(device.getMulticastAddress())
 					|| packet.getDestinationAddress().equals(IPProtocol.LIMITED_MULTICAST_ADDRESS)
@@ -110,7 +111,7 @@ public class UDPController implements PacketHandler, NamedDevice {
 
 	@Override
 	public HandlerStatus handle(IPPacket packet) {
-		if(!udpExtractor.isExtractable(packet)) {
+		if(packet.getProtocol() != IPPacket.UDP) {
 			return HandlerStatus.CONTINUE;
 		}
 		receive(packet);
