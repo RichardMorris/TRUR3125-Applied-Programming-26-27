@@ -80,4 +80,17 @@ public class ARPProtocol implements Protocol, LowerAdapter<EthernetFrame> {
 		arpController.announceAddress(ipAddress, macAddress);
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append(name).append("\n");
+		for (var entry : arpController.arpTable.entrySet()) {
+			sb.append("\t").append(entry.getKey()).append("\t").append(entry.getValue()).append("\n");
+		}
+		return sb.toString();
+	}
+
+	public void remove(IPAddress ciaddr) {
+		arpController.remove(ciaddr);		
+	}
 }

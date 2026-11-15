@@ -137,5 +137,9 @@ public class ARPController implements FrameHandler {
             		ARPProtocol.ARP_ETHER_TYPE, 
             		reply.getBytes());
             sender.send(replyFrame);	
+	}
+
+	public void remove(IPAddress ciaddr) {
+		arpTable.remove(ciaddr);
 	}	
 }
