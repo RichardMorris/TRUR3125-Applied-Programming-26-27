@@ -13,6 +13,7 @@ import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.hardware.GlobalWallClock;
 import org.singsurf.jns3.hardware.GlobalWallClock.TickListener;
 import org.singsurf.jns3.hardware.ProtocolDevice;
+import org.singsurf.jns3.network_layer.icmp.ICMPMessage;
 
 /**
  * Sends IP packets over Ethernet. 
@@ -117,10 +118,17 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 		} else {
 			var rp = device.getRoutingProtocol();
 			var srcMac = device.getMACAddress();
-//			var srcMac = rp.lookup(srcIP);
 			var destMac = rp.lookup(destIP);
 			if(destMac == null) {
-				Jns3Logger.logError(ipProtocol.name, "No RP entry for destination IP " + destIP + ". Cannot send packet.");
+				
+				var errorMsg = ICMPMessage.createHostUnreachable(packet);
+				var errorPacket = new IPPacket(
+					IPPacket.IMCP, 64,
+					device.getIPAddress(), packet.getSourceAddress(), 
+					errorMsg.getBytes());
+				Jns3Logger.logWarn(device.getName(), "Host unreachable "+packet);
+				
+				send(errorPacket);
 				return;
 			}
 			if(srcMac == null) {
@@ -130,28 +138,6 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 			sendPacket(packet, srcMac, destMac);
 			return;
 		}
-//		MACAddress mac = ipProtocol.lookup(destIP);
-//		var destMac = mac;
-//		var srcMac = srcIP.equals(device.getIPAddress())
-//				? device.getMACAddress()
-//				: ipProtocol.lookup(srcIP);
-//		var rp = device.getRoutingProtocol();
-//		if(rp != null) {
-//			if(!isSrcLocal) {
-//				var publicIP = rp.getPublicIP(srcIP);
-//				if(publicIP != null) {
-//					packet.setSourceIP(publicIP);
-//				}
-//			}
-//		}
-//		if(destIP.equals(IPProtocol.LIMITED_MULTICAST_ADDRESS) 
-//		 || destIP.equals(device.getMulticastAddress())) {
-//			destMac = MACAddress.BROADCAST_MAC;
-//			if(srcMac == null) {
-//				Jns3Logger.logError(ipProtocol.name, "No ARP entry for source IP " + srcIP + ". Cannot send multicast packet.");
-//				return;
-//			}
-//		}
 	}
 
 	private void queuePacket(IPPacket packet) {
