@@ -21,6 +21,8 @@ import org.singsurf.jns3.hardware.ProtocolDevice;
  * Our implementation uses the low size of 140 bytes.
  */
 public class EthernetPacketSender implements PacketSender, TickListener {
+	public static boolean logMessages = false;
+
 	ProtocolDevice device;
 	IPProtocol ipProtocol;
 	FrameSender frameSender;
@@ -58,48 +60,120 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 		
 		var destIP = packet.getDestinationAddress();
 		var srcIP = packet.getSourceAddress();
-		MACAddress mac = ipProtocol.lookup(destIP);
-		var destMac = mac;
-		var srcMac = srcIP.equals(device.getIPAddress())
-				? device.getMACAddress()
-				: ipProtocol.lookup(srcIP);
-		var rp = device.getRoutingProtocol();
-		if(rp != null) {
-			if(!device.isLocalAddress(destIP)) {
+		var isSrcLocal = device.isLocalAddress(srcIP);
+		var isDestLocal = device.isLocalAddress(destIP);
+		
+		if(isSrcLocal && isDestLocal) {
+			var srcMac = device.getArpProtocol().lookup(srcIP);
+			var destMac = device.getArpProtocol().lookup(destIP);
+			if(destIP.equals(IPProtocol.LIMITED_MULTICAST_ADDRESS) 
+			 || destIP.equals(device.getMulticastAddress())) {
+				destMac = MACAddress.BROADCAST_MAC;
+			} 
+			
+			if(srcMac == null) {
+				Jns3Logger.logError(ipProtocol.name, "No ARP entry for source IP " + srcIP + ". Cannot send packet.");
+				return;
+			}
+			if(destMac == null) {
+				queuePacket(packet);
+				return;
+			}
+			sendPacket(packet, srcMac, destMac);
+			return;
+		} else if(isSrcLocal && !isDestLocal) {
+			var rp = device.getRoutingProtocol();
+			var srcMac = device.getMACAddress();
+			MACAddress  destMac;
+			if(rp != null) {
+				destMac = rp.lookup(destIP);
 				var publicIP = rp.getPublicIP(srcIP);
 				if(publicIP != null) {
 					packet.setSourceIP(publicIP);
+				}else {
+					Jns3Logger.logError(ipProtocol.name, "No public IP found for source IP " + srcIP + ". Cannot send packet.");
+					return;
 				}
+			} else {
+				var gate = device.getDefaultGateway();
+				destMac = device.getArpProtocol().lookup(gate);
 			}
-		}
-		if(destIP.equals(IPProtocol.LIMITED_MULTICAST_ADDRESS) 
-		 || destIP.equals(device.getMulticastAddress())) {
-			destMac = MACAddress.BROADCAST_MAC;
+			if(destMac == null) {
+				Jns3Logger.logError(ipProtocol.name, "No RP entry for destination IP " + destIP + ". Cannot send packet.");
+				return;
+			}
+			sendPacket(packet, srcMac, destMac);
+			return;
+		} else if(!isSrcLocal && isDestLocal) {
+			// sent from the routing protocol, with destIP modified to be on the local subnet
+			var srcMac = device.getMACAddress();
+			var destMac = device.getArpProtocol().lookup(destIP);
+			if(destMac == null) {
+				queuePacket(packet);
+				return;
+			}
+			sendPacket(packet, srcMac, destMac);
+			return;
+		} else {
+			var rp = device.getRoutingProtocol();
+			var srcMac = device.getMACAddress();
+//			var srcMac = rp.lookup(srcIP);
+			var destMac = rp.lookup(destIP);
+			if(destMac == null) {
+				Jns3Logger.logError(ipProtocol.name, "No RP entry for destination IP " + destIP + ". Cannot send packet.");
+				return;
+			}
 			if(srcMac == null) {
-				Jns3Logger.logError(ipProtocol.name, "No ARP entry for source IP " + srcIP + ". Cannot send multicast packet.");
+				Jns3Logger.logError(ipProtocol.name, "No ARP entry for source IP " + srcIP + ". Cannot send packet.");
 				return;
 			}
 			sendPacket(packet, srcMac, destMac);
 			return;
 		}
-		if(destMac == null) {
-			// No ARP entry for destination IP
-			var queue = packetQueue.computeIfAbsent(destIP,
-					k -> new TaggedQueue(new LinkedList<>(),false));
-			queue.queue().add(packet);
-			if(!queue.requested()) {
-				device.getArpProtocol().sendArpRequest(destIP);
-				queue.requested = true;
-			}
-			packetQueue.put(destIP, new TaggedQueue(queue.queue(), true));
-			Jns3Logger.logInfo(ipProtocol.name, "No ARP entry for " + destIP + ". Packet queud.");
-			return;
+//		MACAddress mac = ipProtocol.lookup(destIP);
+//		var destMac = mac;
+//		var srcMac = srcIP.equals(device.getIPAddress())
+//				? device.getMACAddress()
+//				: ipProtocol.lookup(srcIP);
+//		var rp = device.getRoutingProtocol();
+//		if(rp != null) {
+//			if(!isSrcLocal) {
+//				var publicIP = rp.getPublicIP(srcIP);
+//				if(publicIP != null) {
+//					packet.setSourceIP(publicIP);
+//				}
+//			}
+//		}
+//		if(destIP.equals(IPProtocol.LIMITED_MULTICAST_ADDRESS) 
+//		 || destIP.equals(device.getMulticastAddress())) {
+//			destMac = MACAddress.BROADCAST_MAC;
+//			if(srcMac == null) {
+//				Jns3Logger.logError(ipProtocol.name, "No ARP entry for source IP " + srcIP + ". Cannot send multicast packet.");
+//				return;
+//			}
+//		}
+	}
+
+	private void queuePacket(IPPacket packet) {
+		// No ARP entry for destination IP
+		var destIP = packet.getDestinationAddress();
+		var queue = packetQueue.computeIfAbsent(destIP,
+				k -> new TaggedQueue(new LinkedList<>(),false));
+		queue.queue().add(packet);
+		if(!queue.requested()) {
+			device.getArpProtocol().sendArpRequest(destIP);
+			queue.requested = true;
 		}
-		
-		sendPacket(packet, srcMac, destMac);
+		packetQueue.put(destIP, new TaggedQueue(queue.queue(), true));
+		Jns3Logger.logInfo(ipProtocol.name, "No ARP entry for " + destIP + ". Packet queud.");
 	}
 
 	private void sendPacket(IPPacket packet, MACAddress srcMac, MACAddress destMac) {
+		if(logMessages) {
+			Jns3Logger.logSend(ipProtocol.name, srcMac.toString() +" -> " 
+					+ destMac.toString() + " " + packet.toShortString());
+		}
+
 		List<IPPacket> packets = packetFragmentor.getFragments(packet);
 		for(IPPacket p : packets) {
 			EthernetFrame frame = new EthernetFrame(
