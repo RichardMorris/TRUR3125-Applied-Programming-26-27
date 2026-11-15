@@ -73,6 +73,9 @@ public class ARPProtocol implements Protocol, LowerAdapter<EthernetFrame> {
 	}
 
 	public MACAddress lookup(IPAddress ipAddress) {
+		if(device.getIPAddress().equals(ipAddress)) {
+			return device.getMACAddress();
+		}
 		return arpController.lookup(ipAddress);
 	}
 
