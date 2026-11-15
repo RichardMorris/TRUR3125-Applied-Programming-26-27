@@ -28,6 +28,7 @@ public abstract class RoutingDevice extends ProtocolDevice implements PrefixDevi
 		this.prefix = prefix;
 	}
 
+	@Override
 	public void registerDevice(int i, PrefixDevice dev) {
 		var rp = getRoutingProtocol();
 		rp.registerDevice(i, dev);
