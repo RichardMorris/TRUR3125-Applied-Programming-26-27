@@ -22,7 +22,6 @@ import org.singsurf.jns3.hardware.ProtocolDevice;
  */
 public class EthernetPacketSender implements PacketSender, TickListener {
 	ProtocolDevice device;
-	String name;
 	IPProtocol ipProtocol;
 	FrameSender frameSender;
 	PacketFragmentor packetFragmentor = new PacketFragmentor();
@@ -48,10 +47,9 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 	}
 	
 	public EthernetPacketSender(ProtocolDevice device, 
-			IPProtocol arpController) {
+			IPProtocol ipProtocol) {
 		this.device = device;
-		this.name = device.getName();
-		this.ipProtocol = arpController;
+		this.ipProtocol = ipProtocol;
 		GlobalWallClock.getInstance().addTickListener(this);
 	}
 
@@ -60,10 +58,11 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 		
 		var destIP = packet.getDestinationAddress();
 		var srcIP = packet.getSourceAddress();
-		var destMac = lookup(destIP);
+		MACAddress mac = ipProtocol.lookup(destIP);
+		var destMac = mac;
 		var srcMac = srcIP.equals(device.getIPAddress())
 				? device.getMACAddress()
-				: lookup(srcIP);
+				: ipProtocol.lookup(srcIP);
 		var rp = device.getRoutingProtocol();
 		if(rp != null) {
 			if(!device.isLocalAddress(destIP)) {
@@ -77,7 +76,7 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 		 || destIP.equals(device.getMulticastAddress())) {
 			destMac = MACAddress.BROADCAST_MAC;
 			if(srcMac == null) {
-				Jns3Logger.logError(name, "No ARP entry for source IP " + srcIP + ". Cannot send multicast packet.");
+				Jns3Logger.logError(ipProtocol.name, "No ARP entry for source IP " + srcIP + ". Cannot send multicast packet.");
 				return;
 			}
 			sendPacket(packet, srcMac, destMac);
@@ -89,20 +88,15 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 					k -> new TaggedQueue(new LinkedList<>(),false));
 			queue.queue().add(packet);
 			if(!queue.requested()) {
-				ipProtocol.sendArpRequest(destIP);
+				device.getArpProtocol().sendArpRequest(destIP);
 				queue.requested = true;
 			}
 			packetQueue.put(destIP, new TaggedQueue(queue.queue(), true));
-			Jns3Logger.logInfo(name, "No ARP entry for " + destIP + ". Packet queud.");
+			Jns3Logger.logInfo(ipProtocol.name, "No ARP entry for " + destIP + ". Packet queud.");
 			return;
 		}
 		
 		sendPacket(packet, srcMac, destMac);
-	}
-
-	MACAddress lookup(IPAddress destIP) {
-		MACAddress mac = ipProtocol.lookup(destIP);
-		return mac;
 	}
 
 	private void sendPacket(IPPacket packet, MACAddress srcMac, MACAddress destMac) {
@@ -113,7 +107,7 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 					IPProtocol.ETHERTYPE,
 					p.getBytes());
 			if(!IPPacketExtractor.getInstance().isExtractable(frame)) {
-				Jns3Logger.logError(name, "Frame is not extractable as IP packet. Frame: " + frame);
+				Jns3Logger.logError(ipProtocol.name, "Frame is not extractable as IP packet. Frame: " + frame);
 			}
 			frameSender.send(frame);
 		}
@@ -126,14 +120,14 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 			var destIp = ent.getKey();
 			var queue = ent.getValue();
 			var size = queue.queue().size();
-			var destMac = lookup(destIp);
+			var destMac = ipProtocol.lookup(destIp);
 			if(destMac != null) {
 				while(!queue.queue().isEmpty()) {
 					IPPacket packet = queue.queue().poll();
 					send(packet);
 				}
 				toRemove.add(destIp);
-				Jns3Logger.logInfo(name, "Sent "+size+" queued packets to " + destIp + " after ARP resolution.");
+				Jns3Logger.logInfo(ipProtocol.name, "Sent "+size+" queued packets to " + destIp + " after ARP resolution.");
 			}
 		}
 		for(var ip: toRemove) {
@@ -141,7 +135,7 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 				packetQueue.remove(ip);
 		}
 		for(var ip: packetQueue.keySet()) {
-			ipProtocol.sendArpRequest(ip);
+			device.getArpProtocol().sendArpRequest(ip);
 		}
 		
 	}

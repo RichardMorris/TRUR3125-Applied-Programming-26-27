@@ -5,7 +5,6 @@ import java.util.List;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.data_link_layer.FrameSender;
 import org.singsurf.jns3.data_link_layer.MACAddress;
-import org.singsurf.jns3.data_link_layer.arp.ARPProtocol;
 import org.singsurf.jns3.generic_protocol.LowerAdapter;
 import org.singsurf.jns3.generic_protocol.Protocol;
 import org.singsurf.jns3.generic_protocol.ProtocolDelegator;
@@ -37,13 +36,11 @@ public class IPProtocol implements Protocol, LowerAdapter<EthernetFrame>, UpperP
 	IPFrameHandler frameHandler;
 	DefaultPacketHandler defaultReciver;
 
-	ARPProtocol arpProtocol;
-
 	public IPProtocol(ProtocolDevice device, boolean isRouter) {
 		this.device = device;
 		this.isRouter = isRouter;
 		this.name = device.getName() + "-IP";
-		this.arpProtocol = device.getArpProtocol();
+//		this.arpProtocol = device.getArpProtocol();
 		
         packetSender = new EthernetPacketSender(device,this);
 		
@@ -153,20 +150,16 @@ Wireless LAN adapter WiFi:
 		return isRouter;
 	}
 
-	protected void sendArpRequest(IPAddress destIP) {
-		arpProtocol.sendArpRequest(destIP);		
-	}
-
-	protected MACAddress lookup(IPAddress destIP) {
+	MACAddress lookup(IPAddress destIP) {
 		if(device.getSubnetMask().matches(device.getIPAddress(), destIP))
-			return arpProtocol.lookup(destIP);
+			return device.getArpProtocol().lookup(destIP);
 		if(destIP.equals(IPProtocol.LIMITED_MULTICAST_ADDRESS) ||
 				destIP.equals(IPAddress.ZERO_ADDRESS) ||
 				destIP.equals(device.getMulticastAddress())) {
-			return arpProtocol.lookup(destIP);
+			return device.getArpProtocol().lookup(destIP);
 		}
 		var gate = device.getDefaultGateway();
-		var mac = arpProtocol.lookup(gate);
+		var mac = device.getArpProtocol().lookup(gate);
 		if(mac != null) {
 			return mac;
 		}
