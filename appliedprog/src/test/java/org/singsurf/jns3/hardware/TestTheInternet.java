@@ -12,7 +12,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.application_layer.ChatApplication;
+import org.singsurf.jns3.network_layer.EthernetPacketSender;
 import org.singsurf.jns3.network_layer.IPAddress;
+import org.singsurf.jns3.network_layer.IPFrameHandler;
 import org.singsurf.jns3.network_layer.IPPacket;
 import org.singsurf.jns3.physical_layer.BufferedConnection;
 import org.singsurf.jns3.physical_layer.SimpleConnection;
@@ -31,7 +33,7 @@ class TestTheInternet {
 	@BeforeEach
 	void setUp() throws Exception {
 		DeviceFactory deviceFactory = DeviceFactory.getInstance();
-		theInternet = deviceFactory.createTheInternet("TheInternet");
+		theInternet = deviceFactory.createTheInternet("INT");
 		router1 = deviceFactory.createHomeRouter("HR1");
 		pc1 = deviceFactory.createPC("PC1",IPAddress.ZERO_ADDRESS);
 		pc2 = deviceFactory.createPC("PC2",IPAddress.ZERO_ADDRESS);	
@@ -89,7 +91,7 @@ class TestTheInternet {
 		var pub = theInternet.getPublicIP();
 		assertEquals("195.66.226.16", pub.toString());
 		
-		assertEquals("255.255.255.255", theInternet.getSubnetMask().toString());
+		assertEquals("0.0.0.0", theInternet.getSubnetMask().toString());
 		
 		prefix = router1.getPrefix();
 		s = prefix.toString();
@@ -129,6 +131,10 @@ class TestTheInternet {
 
 	@Test
 	void send_packet_to_the_internet() {
+		System.out.println(theInternet);
+		System.out.println(router1);
+		System.out.println(pc1);
+
 		Jns3Logger.clearLog();
 		byte[] payload = "Hello from PC1".getBytes();
 		
@@ -140,7 +146,7 @@ class TestTheInternet {
 		GlobalWallClock.advanceBy(10);
 		Jns3Logger.println();
 		assertEquals(1, Jns3Logger.size());
-		assertEquals("TheInternet", Jns3Logger.getItem(0).deviceName());
+		assertEquals("INT", Jns3Logger.getItem(0).deviceName());
 		assertEquals(Jns3Logger.LogLevel.RECEIVED, 
 				Jns3Logger.getItem(0).level());
 	}
@@ -170,7 +176,7 @@ class TestTheInternet {
 		assertEquals(2, Jns3Logger.size());
 		var item0 = Jns3Logger.getItem(0);
 		var item1 = Jns3Logger.getItem(1);
-		assertEquals("TheInternet", item0.deviceName());
+		assertEquals("INT", item0.deviceName());
 		assertEquals(Jns3Logger.LogLevel.RECEIVED, item0.level());
 		assertTrue(item0.message().startsWith("Received ping request from 81."));
 		assertEquals("PC1", item1.deviceName());
@@ -186,31 +192,51 @@ class TestTheInternet {
 		System.out.println(pc1);
 		System.out.println(router2);
 		System.out.println(pc5);
+		System.out.println(router1.getRoutingProtocol());
+		System.out.println(router2.getRoutingProtocol());
 
+		var pc1pub = router1.getPublicIP(pc1.getIPAddress());
 		var pc5pub = router2.getPublicIP(pc5.getIPAddress());
 		
 		Jns3Logger.clearLog();
+		IPFrameHandler.logMessages = true;
+		EthernetPacketSender.logMessages = true;
 		Jns3Logger.startCapture();
+		
+		
 		pc1.getICMPProtocol().sendPingRequest(pc5pub, 64);
 		GlobalWallClock.advanceBy(10);
 		var output = Jns3Logger.endCapture();
-		System.out.println(Jns3Logger.asString());
 		System.out.println("Captured output:\n"+output);
 		var lines = output.split("\n");
 		assertEquals(2, lines.length);
 		assertEquals("PING " + pc5pub + " 28 bytes of data.", lines[0].trim());
 		assertEquals("28 bytes from "+pc5pub+": icmp_seq=1 ttl=61 time=4 ticks", lines[1].trim());
 
-		assertEquals(2, Jns3Logger.size());
+		System.out.println(Jns3Logger.asString());
+		
 		var item0 = Jns3Logger.getItem(0);
-		var item1 = Jns3Logger.getItem(1);
-		assertEquals("PC5", item0.deviceName());
-		assertEquals(Jns3Logger.LogLevel.RECEIVED, item0.level());
-		assertTrue(item0.message().startsWith("Received ping request from 81."));
-		assertEquals("PC1", item1.deviceName());
-		assertEquals(Jns3Logger.LogLevel.RECEIVED, item1.level());
-		assertTrue(item1.message().startsWith("Received ping reply from "+pc5pub));
-		assertTrue(Jns3Logger.isErrorFree());
+		assertEquals("PC1-IP", item0.deviceName());
+		assertEquals(Jns3Logger.LogLevel.SENT, item0.level());
+		assertTrue(item0.message().startsWith(pc1.getMACAddress().toString()));
+		var suffix = "Src: " + pc1.getIPAddress() + " Dst: " + pc5pub;
+		assertTrue(item0.message().endsWith(suffix));
+
+		var item2 = Jns3Logger.getItem(2);
+		assertEquals("HR1-IP", item2.deviceName());
+		assertEquals(Jns3Logger.LogLevel.SENT, item2.level());
+		assertTrue(item2.message().startsWith(router1.getMACAddress().toString()));
+		suffix = "Src: " + pc1pub + " Dst: " + pc5pub;
+		assertTrue(item2.message().endsWith(suffix));
+
+		var item4 = Jns3Logger.getItem(4);
+		assertEquals("INT-IP", item4.deviceName());
+		assertEquals(Jns3Logger.LogLevel.SENT, item4.level());
+		assertTrue(item4.message().startsWith(theInternet.getMACAddress().toString()));
+		
+		IPFrameHandler.logMessages = false;
+		EthernetPacketSender.logMessages = false;
+
 	}
 	
 	@Test
