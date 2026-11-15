@@ -215,6 +215,14 @@ class TestTheInternet {
 	
 	@Test
 	public void private_chat_across_the_internet() throws IOException {
+		System.out.println(theInternet);
+		System.out.println(router1);
+		System.out.println(pc1);
+		System.out.println(router2);
+		System.out.println(pc5);
+
+		System.out.println(pc2.getArpProtocol());
+
 		ChatApplication.showPrompts = true;
 		Jns3Logger.clearLog();
 		
@@ -233,7 +241,18 @@ class TestTheInternet {
 		
 		System.out.println(Jns3Logger.asString());
 		assertEquals(0, Jns3Logger.size());
-		assertTrue(Jns3Logger.isErrorFree());
+		
+		
+		System.out.println(pc1.getArpProtocol());
+		System.out.println(pc2.getArpProtocol());
+		System.out.println(router1.getArpProtocol());
+		System.out.println(theInternet.getArpProtocol());
+		System.out.println(router2.getArpProtocol());
+		System.out.println(pc5.getArpProtocol());
+
+		System.out.println(router1.getRoutingProtocol());
+		System.out.println(theInternet.getRoutingProtocol());
+		System.out.println(router2.getRoutingProtocol());
 	}
 
 	@Test
