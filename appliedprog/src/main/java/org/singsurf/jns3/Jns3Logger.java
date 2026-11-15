@@ -19,6 +19,7 @@ public class Jns3Logger {
         RECEIVED, // Frame was received successfully
         IGNORED, // Frame was ignored 
         ERROR, 
+        WARN, 
         SENT,
         INFO
     }
@@ -59,6 +60,9 @@ public class Jns3Logger {
         logItems.add(new LogItem(name, LogLevel.INFO, message));
 	}
 
+	public static void logWarn(String name, String message) {
+        logItems.add(new LogItem(name, LogLevel.WARN, message));
+	}
 
     static public List<LogItem> getLogItems() {
         return logItems;
@@ -133,5 +137,6 @@ public class Jns3Logger {
 		}
 		return sb.toString();
 	}
+
 
 }
