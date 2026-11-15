@@ -306,7 +306,7 @@ class TestProtocolsComponents {
 		assertEquals(1, Jns3Logger.getLogItems().size());
 		System.out.println(Jns3Logger.asString());
 		assertTrue(Jns3Logger.isErrorFree());
-		assertEquals("[INFO] BCHandler: Message extracted: C[hello]", Jns3Logger.getItem(0).toString());
+		assertEquals("[INFO]    \tBCHandler\tMessage extracted: C[hello]", Jns3Logger.getItem(0).toString());
 	}
 
 	
@@ -323,7 +323,7 @@ class TestProtocolsComponents {
 		assertEquals(1, Jns3Logger.getLogItems().size());
 		System.out.println(Jns3Logger.asString());
 		assertTrue(Jns3Logger.isErrorFree());
-		assertEquals("[INFO] ALoggingSender: Message extracted: A[ABAND WELCOME]", 
+		assertEquals("[INFO]    \tALoggingSender\tMessage extracted: A[ABAND WELCOME]", 
 				Jns3Logger.getItem(0).toString());
 	}
 

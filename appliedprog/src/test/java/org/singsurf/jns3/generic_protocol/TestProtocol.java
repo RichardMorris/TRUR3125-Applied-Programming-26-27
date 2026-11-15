@@ -558,7 +558,7 @@ class TestProtocol {
 		// assert
 		assertEquals(1, Jns3Logger.getLogItems().size());
 		System.out.println(Jns3Logger.asString());
-		assertEquals("[INFO] BCHandler: Message extracted: C[hello]", Jns3Logger.getItem(0).toString());
+		assertEquals("[INFO]    \tBCHandler\tMessage extracted: C[hello]", Jns3Logger.getItem(0).toString());
 		assertTrue(Jns3Logger.isErrorFree());
 	}
 
@@ -571,7 +571,7 @@ class TestProtocol {
 		// assert
 		assertEquals(1, Jns3Logger.getLogItems().size());
 		System.out.println(Jns3Logger.asString());
-		assertEquals("[INFO] ALoggingSender: Message extracted: A[ABAND WELCOME]", 
+		assertEquals("[INFO]    \tALoggingSender\tMessage extracted: A[ABAND WELCOME]", 
 				Jns3Logger.getItem(0).toString());
 
 		assertTrue(Jns3Logger.isErrorFree());
@@ -587,7 +587,7 @@ class TestProtocol {
 		// assert
 		System.out.println(Jns3Logger.asString());
 		assertEquals(1, Jns3Logger.getLogItems().size());
-		assertEquals("[INFO] BDHandler: Message extracted: D[hello]", Jns3Logger.getItem(0).toString());
+		assertEquals("[INFO]    \tBDHandler\tMessage extracted: D[hello]", Jns3Logger.getItem(0).toString());
 		assertTrue(Jns3Logger.isErrorFree());
 	}
 
@@ -599,7 +599,7 @@ class TestProtocol {
 		// assert
 		assertEquals(1, Jns3Logger.getLogItems().size());
 		System.out.println(Jns3Logger.asString());
-		assertEquals("[INFO] ALoggingSender: Message extracted: A[ABAND WELCOME]", 
+		assertEquals("[INFO]    \tALoggingSender\tMessage extracted: A[ABAND WELCOME]", 
 				Jns3Logger.getItem(0).toString());
 
 		assertTrue(Jns3Logger.isErrorFree());
@@ -614,7 +614,7 @@ class TestProtocol {
 		// assert
 		assertEquals(1, Jns3Logger.getLogItems().size());
 		System.out.println(Jns3Logger.asString());
-		assertEquals("[INFO] BCHandler: Message extracted: C[hello!]", Jns3Logger.getItem(0).toString());
+		assertEquals("[INFO]    \tBCHandler\tMessage extracted: C[hello!]", Jns3Logger.getItem(0).toString());
 		assertTrue(Jns3Logger.isErrorFree());
 	}
 
@@ -627,7 +627,7 @@ class TestProtocol {
 		// assert
 		System.out.println(Jns3Logger.asString());
 		assertEquals(1, Jns3Logger.getLogItems().size());
-		assertEquals("[ERROR] pdb: Invalid message: Failed: B[fhello]", Jns3Logger.getItem(0).toString());
+		assertEquals("[ERROR]    \tpdb\tInvalid message: Failed: B[fhello]", Jns3Logger.getItem(0).toString());
 		assertFalse(Jns3Logger.isErrorFree());
 	}
 
@@ -640,8 +640,8 @@ class TestProtocol {
 		// assert
 		System.out.println(Jns3Logger.asString());
 		assertEquals(2, Jns3Logger.getLogItems().size());
-		assertEquals("[INFO] BCHandler: Message extracted: C[hello]", Jns3Logger.getItem(0).toString());
-		assertEquals("[INFO] BDHandler: Message extracted: D[hello]", Jns3Logger.getItem(1).toString());
+		assertEquals("[INFO]    \tBCHandler\tMessage extracted: C[hello]", Jns3Logger.getItem(0).toString());
+		assertEquals("[INFO]    \tBDHandler\tMessage extracted: D[hello]", Jns3Logger.getItem(1).toString());
 		assertTrue(Jns3Logger.isErrorFree());
 	}
 

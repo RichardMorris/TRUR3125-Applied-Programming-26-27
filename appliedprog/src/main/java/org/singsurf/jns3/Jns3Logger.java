@@ -29,7 +29,11 @@ public class Jns3Logger {
     public static record LogItem(String deviceName, LogLevel level, String message) {
         @Override
         public String toString() {
-            return "[" + level + "] " + deviceName + ": " + message;
+        	var levelStr = "[" + level + "]";
+        	if(levelStr.length() < 9) {
+        		levelStr = levelStr + "    ";
+        	}
+            return levelStr + "\t" + deviceName + "\t" + message;
         }
     }
 
