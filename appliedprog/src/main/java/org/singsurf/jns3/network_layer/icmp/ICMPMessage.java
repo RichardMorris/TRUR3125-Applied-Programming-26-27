@@ -23,8 +23,13 @@ import org.singsurf.jns3.network_layer.OnesComplementNumber;
 public class ICMPMessage implements ProtocolContainer {
 	private static final byte TOO_SHORT_CODE = (byte) 2;
 	private static final byte BAD_CHECKSUM_CODE = (byte) 0;
+	
 	static final byte PING_REPLY_TYPE = 0;
+	static final byte DEST_UNREACHABLE_TYPE = 3;
+	static final byte HOST_UNREACHABLE_CODE = 1;
+	
 	static final byte PING_REQUEST_TYPE = 8;
+
 	static final byte TIME_EXCEEDED = 11;
 	static final byte TTL_EXCEEDED_CODE = 0;
 	static final byte PARAMETER_PROBLEM = 12;
@@ -142,10 +147,24 @@ public class ICMPMessage implements ProtocolContainer {
 		return bytes;
 	}
 	
+	public IPPacket dataAsIPHeader() {
+		if(data.length < 20) {
+			throw new IllegalArgumentException("Data too short to be an IP header");
+		}
+		return IPPacket.fromBytes(data);
+	}
 	@Override
 	public String toString() {
-		return String.format("ICMP[%d, %d, 0x%08X, %d]", 
-				type & 0xFF, code & 0xFF, restOfHeader, data != null ? data.length : 0);
+		String dataStr = data != null
+				? String.format("%d bytes", data.length) 
+				: "null";
+		if(type == TIME_EXCEEDED || type == PARAMETER_PROBLEM || type == DEST_UNREACHABLE_TYPE) {
+			// Data contains the original IP header and the first 8 bytes of the original payload
+			dataStr = dataAsIPHeader().toShortString();
+		}
+
+		return String.format("ICMP[%d, %d, 0x%08X, %s]", 
+				type & 0xFF, code & 0xFF, restOfHeader, dataStr);
 	}
 
 
@@ -165,6 +184,10 @@ public class ICMPMessage implements ProtocolContainer {
 		return type == PARAMETER_PROBLEM;
 	}
 
+	public boolean isUnreachable() {
+		return type == DEST_UNREACHABLE_TYPE;
+	}
+	
 	public static boolean isICMPMessage(IPPacket packet) {
 		return packet.getProtocol() == 1;
 	}
@@ -204,6 +227,10 @@ public class ICMPMessage implements ProtocolContainer {
 		return res;
 	}
 
+
+	public static ICMPMessage createHostUnreachable(IPPacket packet) {
+		return createMessage(DEST_UNREACHABLE_TYPE, HOST_UNREACHABLE_CODE, packet);
+	}
 
 	public static ICMPMessage createTTLExpired(IPPacket packet) {
 		return createMessage(TIME_EXCEEDED, TTL_EXCEEDED_CODE, packet);
