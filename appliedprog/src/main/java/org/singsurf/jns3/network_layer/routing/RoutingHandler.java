@@ -1,8 +1,11 @@
-package org.singsurf.jns3.network_layer;
+package org.singsurf.jns3.network_layer.routing;
 
 import org.singsurf.jns3.generic_protocol.HandlerStatus;
 import org.singsurf.jns3.generic_protocol.ProtocolHandler;
 import org.singsurf.jns3.hardware.ProtocolDevice;
+import org.singsurf.jns3.network_layer.IPPacket;
+import org.singsurf.jns3.network_layer.IPProtocol;
+import org.singsurf.jns3.network_layer.PacketSender;
 
 /**
  * A handler for routing in-bound IP packets from the internet.
@@ -13,9 +16,11 @@ import org.singsurf.jns3.hardware.ProtocolDevice;
 public class RoutingHandler implements ProtocolHandler<IPPacket> {
 	RoutingProtocol routingProtocol;
 	ProtocolDevice device;
+	public PacketSender packetSender;
+	
 	public RoutingHandler(RoutingProtocol routingProtocol) {
 		this.routingProtocol = routingProtocol;
-		this.device = routingProtocol.protocolDevice;
+		this.device = routingProtocol.device;
 	}
 
 	@Override
@@ -31,7 +36,7 @@ public class RoutingHandler implements ProtocolHandler<IPPacket> {
 			packet.setDestinationIP(privateIP);
 		}
 		
-		routingProtocol.getPacketSender().send(packet);
+		packetSender.send(packet);
 
 		return HandlerStatus.COMPLETED;
 	}

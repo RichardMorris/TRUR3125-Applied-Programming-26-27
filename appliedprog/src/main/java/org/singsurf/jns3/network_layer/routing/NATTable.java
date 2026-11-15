@@ -1,7 +1,9 @@
-package org.singsurf.jns3.network_layer;
+package org.singsurf.jns3.network_layer.routing;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import org.singsurf.jns3.network_layer.IPAddress;
 
 /**
  * A simple NAT (Network Address Translation) table that maps private IP addresses 
@@ -10,6 +12,7 @@ import java.util.Map;
 public class NATTable {
 	Map<IPAddress, IPAddress> natMap = new HashMap<>();
 	Map<IPAddress, IPAddress> reverseNatMap = new HashMap<>();
+	
 	public NATTable() {
 	}
 
