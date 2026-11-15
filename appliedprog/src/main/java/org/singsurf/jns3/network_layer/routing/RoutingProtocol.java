@@ -101,9 +101,6 @@ public class RoutingProtocol implements Protocol, LowerAdapter<IPPacket> {
 				return mnp.mac;
 			}
 		}
-		if(device.getPrefix().matches(addr)) {
-			return device.getMACAddress();
-		}
 		return null;
 	}
 
@@ -126,4 +123,10 @@ public class RoutingProtocol implements Protocol, LowerAdapter<IPPacket> {
 		}
 		return sb.toString();
 	}
+	
+	@Override
+	public String getName() {
+		return name;
+	}
+	
 }

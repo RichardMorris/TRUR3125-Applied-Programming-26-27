@@ -9,11 +9,11 @@ import org.singsurf.jns3.network_layer.icmp.ICMPMessage;
  * and handles expired packets by sending an ICMP error message.
  */
 public class TTLDecrementor implements PacketReceiver {
-	IPProtocol device;
+	IPProtocol protocol;
 	ProtocolDelegator<IPPacket> delegator;
 
 	public TTLDecrementor(IPProtocol device, ProtocolDelegator<IPPacket> delegator) {
-		this.device = device;
+		this.protocol = device;
 		this.delegator = delegator;
 	}
 
@@ -28,10 +28,10 @@ public class TTLDecrementor implements PacketReceiver {
 		var errorMsg = ICMPMessage.createTTLExpired(packet);
 		var errorPacket = new IPPacket(
 			IPPacket.IMCP, 64,
-			device.device.getIPAddress(), packet.getSourceAddress(), 
+			protocol.device.getIPAddress(), packet.getSourceAddress(), 
 			errorMsg.getBytes());
-		Jns3Logger.logInfo(device.device.getName(), "Expired TTL "+packet);
-		device.getPacketSender().send(errorPacket);
+		Jns3Logger.logInfo(protocol.getName(), "Expired TTL "+packet);
+		protocol.getPacketSender().send(errorPacket);
 	}
 
 }
