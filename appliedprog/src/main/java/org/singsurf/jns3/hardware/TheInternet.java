@@ -21,6 +21,11 @@ public class TheInternet extends RoutingDevice {
 	}
     
     @Override
+	public boolean isLocalAddress(IPAddress ip) {
+		return false;
+	}
+
+	@Override
     public String toString() {
         return "TheInternet\t" + getName() + "\t" + getMACAddress() 
         	+ "\t" + getIPAddress() + "\t" + getSubnetMask()

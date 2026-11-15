@@ -250,7 +250,8 @@ public class DeviceFactory {
 		ipProtocol.finalise();
 
 		internet.setMulticastAddress(new IPAddress("192.168.1.255"));
-		internet.setSubnetMask(new SubnetMask("255.255.255.255"));
+//		internet.setSubnetMask(new SubnetMask("255.255.255.255"));
+		internet.setSubnetMask(new SubnetMask("0.0.0.0"));
 
 		return internet;
     }
