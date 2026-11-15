@@ -3,7 +3,7 @@ package org.singsurf.jns3.hardware;
 import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPPrefix;
-import org.singsurf.jns3.network_layer.RoutingProtocol;
+import org.singsurf.jns3.network_layer.routing.RoutingProtocol;
 import org.singsurf.jns3.physical_layer.PhysicalEndPoint;
 
 /**
