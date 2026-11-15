@@ -64,11 +64,11 @@ Scenario: traceroute
 * And: PC1 displays
 
   ```text
-  traceroute to 81.123.45.2 (81.95.52.64), 64 hops max
+  traceroute to 81.95.52.1, 64 hops max
   1   192.168.1.1  2 ticks
   2   195.66.226.16  4 ticks
   3   81.95.52.0  6 ticks
-  4   81.123.45.2  8 ticks
+  4   81.95.52.1  8 ticks
   ```
 
 Scenario: IPConfig 
@@ -85,8 +85,24 @@ Scenario: IPConfig
 Scenario: Chat across internet
 
 * Given: Two PC connect via HomeRouters to the internet via buffered connections
-* When: Both PC start private chats using each others public IP addresses
+* When: Both PC start private chats using each other's public IP addresses
 * Then: Both PC can send and receive chat message
+
+Scenario: ping to unknown IP
+
+* Given: Two PC connect via HomeRouters to the internet via buffered connections
+* When: PC1 sends a ping to unknown IP address
+* Then: The internet receives the message
+* Then: It responds with an ICMP Dest Unreachable message
+* Then: PC1 store the warning message and logs a warning
+
+Scenario: ping to unknown IP on remote network
+
+* Given: Two PC connect via HomeRouters to the internet via buffered connections
+* When: PC1 sends a ping to an IP matching a remote routers prefix, but does not match a machine
+* Then: The remote router receives the message
+* Then: It responds with an ICMP Dest Unreachable message
+* Then: PC1 store the warning message and logs a warning
 
 ## Specification
 
@@ -111,7 +127,7 @@ Scenario: Chat across internet
     * Is an `AddressableDevice`
     * Has and `IPPrefix` with a `getIPPrefix` method.
 4. The internet-in-a-box or `TheInternet`
-    * Is a `ProtocolDevice`
+    * Is a `ProtocolDevice` and `PrefixDevice`
     * It has a `MultiPortDevice`
     * It has a custom `ARPProtocol` that
         * Has a `put(IPPrefix, MACAddress)` method
@@ -122,7 +138,7 @@ Scenario: Chat across internet
         * adds a mapping between the devices IPPrefix and MAC Address.
     * It can deliver the packets using the routing prefix of connected devices
 
-2. A `HomeRouter`
+5. A `HomeRouter`
     * Has a `IPPrefix` like `138.253.39.0/24`
     * Has a local IP address `192.168.1.1`
     * Has a `SubnetMask` of `255.255.255.0`
@@ -138,3 +154,42 @@ Scenario: Chat across internet
     * Receives packet matching its prefix from the internet and
         * changes the global ip into a local ip
         * forwards the packet to the correct port
+
+6. PC's lookup of an IPAddress and sending a packet
+    * PC checks the address against its SubnetMask
+    * If it matches
+        * Lookup address in ARPProtocol
+        * If found use provided MAC address
+        * If not found, send APR Request and queue packet
+    * If it does not match
+        * Find address of Default Gateway - here the address of the router that sent the DHCP Offer.
+        * Send the frame to the MAC address of Default Gateway.
+
+7. Router forwarding of packets from lan
+    * If dest IP matches the subnet mask
+        * Use existing logic
+    * Otherwise
+        * Check dest IP matches prefix of internet port.
+            * IMCP host-unreachable if not
+        * Look up src-ip in translation table.
+        * Modify packet's src private IP to the public IP.
+        * Use the internet's mac address in the outbound frame.
+
+    ```text
+    Type    DestMac     DestIP          SrcIP       Forward By  Ports
+    ARP RQ  ff:..:ff    na              na          ARPFwd      2,3,4
+    ARP RP  11:..:01    na              na          ARPFwd      1
+    IP      11:..:02    192.168.1.3     192.168.1.2 LANFwd      2
+    IP-LMC  ff:..:ff    192.168.1.255   192.168.1.2 LANFwd
+                                                    MPFrmSnd    2,3,4  
+    IP-Pub  11:..:00    81.123.45.2     192.168.1.2 RtrHdl
+
+    ```
+
+8. Router forwarding of packets from internet
+    * Look up the dest IP finding the corresponding local IP
+        * If not found send a ICMP Host Unreachable back
+    * If found modify the packet dest IP
+    * Sender looks up the 
+
+
