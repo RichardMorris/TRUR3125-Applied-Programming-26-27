@@ -33,7 +33,10 @@ public class ARPUpdater implements FrameHandler {
 
 		var sourceIP = packet.getSourceAddress();
 		var sourceMAC = frame.getSource();
-		ipProtocol.arpProtocol.put(sourceIP, sourceMAC);
+		if(ipProtocol.device.getSubnetMask().matches(
+				ipProtocol.device.getIPAddress(), sourceIP)) {			
+			ipProtocol.device.getArpProtocol().put(sourceIP, sourceMAC);
+		}
 		return HandlerStatus.CONTINUE;
 	}
 
