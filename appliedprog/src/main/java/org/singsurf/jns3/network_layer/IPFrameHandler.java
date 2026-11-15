@@ -1,5 +1,6 @@
 package org.singsurf.jns3.network_layer;
 
+import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.data_link_layer.FrameHandler;
 import org.singsurf.jns3.generic_protocol.HandlerStatus;
@@ -9,10 +10,13 @@ import org.singsurf.jns3.generic_protocol.ProtocolReceiver;
  * Handles Ethernet frames that contain IP packets and passes them to a ProtocolReceiver.
  */
 public class IPFrameHandler implements FrameHandler {
+	public static boolean logMessages = false;
 	ProtocolReceiver<IPPacket> receiver;
+	IPProtocol ipProtocol;
 
-	public IPFrameHandler(ProtocolReceiver<IPPacket> receiver) {
+	public IPFrameHandler(ProtocolReceiver<IPPacket> receiver, IPProtocol ipProtocol) {
 		this.receiver = receiver;
+		this.ipProtocol = ipProtocol;
 	}
 
 	@Override
@@ -29,6 +33,13 @@ public class IPFrameHandler implements FrameHandler {
 			return new HandlerStatus.Invalid("Frame with IP EtherType but wrong version/headerlength: " + byteStr);
 		}
 		var packet = IPPacketExtractor.getInstance().extract(frame);
+		if(logMessages) {
+			if(logMessages) {
+				Jns3Logger.logRec(ipProtocol.name, 
+						frame.getSource().toString() +" -> " 
+						+ frame.getDestination().toString() + " " + packet.toShortString());
+			}
+		}
 		receiver.receive(packet);
 		return HandlerStatus.COMPLETED;
 	}

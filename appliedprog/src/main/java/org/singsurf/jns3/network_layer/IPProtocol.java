@@ -49,10 +49,10 @@ public class IPProtocol implements Protocol, LowerAdapter<EthernetFrame>, UpperP
 		this.fragmentHandler = new IPFragmentHandler(device, delegator);
 		if(isRouter) {
 			this.ttlDecrementor = new TTLDecrementor(this, delegator);
-			this.frameHandler = new IPFrameHandler(ttlDecrementor);
+			this.frameHandler = new IPFrameHandler(ttlDecrementor,this);
 			delegator.addHandler(new LanForwarder(this));
 		} else {
-			this.frameHandler = new IPFrameHandler(delegator);
+			this.frameHandler = new IPFrameHandler(delegator,this);
 			delegator.addHandler(fragmentHandler);
 		}
 	}

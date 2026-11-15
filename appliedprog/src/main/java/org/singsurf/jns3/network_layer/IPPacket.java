@@ -283,6 +283,15 @@ public class IPPacket implements ProtocolContainer {
 				data.length);
 	}
 
+	public String toShortString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("IPv").append(version)
+		  .append(" ").append(protocol)
+		  .append(" Src: ").append(sourceAddress)
+		  .append(" Dst: ").append(destinationAddress);
+		return sb.toString();
+	}
+
 	public void setTimeToLive(int i) {
 		timeToLive = (byte) i;
 		recalculateHeaderChecksum();
@@ -306,5 +315,6 @@ public class IPPacket implements ProtocolContainer {
 		this.destinationAddress = privateIP;
 		recalculateHeaderChecksum();
 	}
+
 
 }
