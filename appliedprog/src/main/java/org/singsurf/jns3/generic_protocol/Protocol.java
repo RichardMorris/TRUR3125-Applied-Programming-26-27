@@ -6,4 +6,6 @@ package org.singsurf.jns3.generic_protocol;
  */
 public interface Protocol {
 
+	String getName();
+
 }

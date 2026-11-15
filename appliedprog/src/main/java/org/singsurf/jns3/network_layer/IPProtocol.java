@@ -148,4 +148,9 @@ Wireless LAN adapter WiFi:
 	public boolean isRouter() {
 		return isRouter;
 	}
+
+	@Override
+	public String getName() {
+		return name;
+	}
 }

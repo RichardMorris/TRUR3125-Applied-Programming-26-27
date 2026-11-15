@@ -29,6 +29,7 @@ public class DHCPProtocol implements Protocol, LowerSocketAdapter<UDPDatagram>, 
 		
 	boolean isServer;
 	ProtocolDevice device;
+	String name;
 
 	DatagramSocket multicast_socket;	
 	SocketFactory<UDPDatagram> factory;
@@ -60,6 +61,7 @@ public class DHCPProtocol implements Protocol, LowerSocketAdapter<UDPDatagram>, 
 	public DHCPProtocol(ProtocolDevice device,boolean isServer) {
 		this.isServer = isServer;
 		this.device = device;
+		this.name = device.getName() + "-DHC";
 		delgator = new ProtocolDelegator<DHCPMessage>(device.getName());
 		if(isServer) {
 			delgator.addHandler(new DiscoverHandler(this));
@@ -142,4 +144,10 @@ public class DHCPProtocol implements Protocol, LowerSocketAdapter<UDPDatagram>, 
 		device.getArpProtocol().announceAddress(device.getIPAddress(), device.getMACAddress());
 		
 	}
+	
+	@Override
+	public String getName() {
+		return name;
+	}
+
 }

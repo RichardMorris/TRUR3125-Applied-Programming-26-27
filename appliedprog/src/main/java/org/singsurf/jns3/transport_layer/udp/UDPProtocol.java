@@ -23,10 +23,12 @@ public class UDPProtocol implements Protocol, LowerAdapter<IPPacket>, UpperSocke
 
 	UDPController udpController;
 	ProtocolDevice device;
+	String name;
 	UDPSocketFactory socketFactory;
 	
 	public UDPProtocol(ProtocolDevice device) {
 		this.device = device;
+		this.name = device.getName() + "-UDP";
 		udpController = new UDPController(device);
 		socketFactory = new UDPSocketFactory(this);
 	}
@@ -54,6 +56,10 @@ public class UDPProtocol implements Protocol, LowerAdapter<IPPacket>, UpperSocke
 		return socketFactory;
 	}
 	
-	
+	@Override
+	public String getName() {
+		return name;
+	}
+
 
 }

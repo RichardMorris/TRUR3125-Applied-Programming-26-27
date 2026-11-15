@@ -96,4 +96,10 @@ public class ARPProtocol implements Protocol, LowerAdapter<EthernetFrame> {
 	public void remove(IPAddress ciaddr) {
 		arpController.remove(ciaddr);		
 	}
+	
+	@Override
+	public String getName() {
+		return name;
+	}
+
 }

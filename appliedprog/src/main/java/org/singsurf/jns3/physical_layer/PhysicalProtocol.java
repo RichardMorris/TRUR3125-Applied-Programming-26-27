@@ -12,6 +12,7 @@ import org.singsurf.jns3.hardware.ProtocolDevice;
  */
 public class PhysicalProtocol implements Protocol, UpperPhysicalPort {
 	ProtocolDevice device;
+	String name;
 	int numPorts;
 	MultiPortByteReceiver byteReceiver;
 	BlockingEndPoint[] endPoints;
@@ -19,6 +20,7 @@ public class PhysicalProtocol implements Protocol, UpperPhysicalPort {
 	public PhysicalProtocol(ProtocolDevice device) {
 		super();
 		this.device = device;
+		this.name = device.getName() + "-PHY";
 		this.numPorts = device.getNumPorts();
         this.endPoints = new BlockingEndPoint[numPorts];
         for(int i=0; i<numPorts; i++) {
@@ -44,6 +46,11 @@ public class PhysicalProtocol implements Protocol, UpperPhysicalPort {
 
 	public PhysicalEndPoint getEndPoint(int i) {
 		return endPoints[i];
+	}
+
+	@Override
+	public String getName() {
+		return name;
 	}
 
 
