@@ -1,8 +1,10 @@
 package org.singsurf.jns3.hardware;
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.data_link_layer.MACAddress;
+import org.singsurf.jns3.generic_protocol.Protocol;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPPrefix;
+import org.singsurf.jns3.network_layer.routing.RoutingProtocol;
 
 /**
  * Represents a home router.
@@ -11,7 +13,8 @@ import org.singsurf.jns3.network_layer.IPPrefix;
  */
 public class HomeRouter extends RoutingDevice {
 	public static final int NUM_PORTS = 4;
-		
+	
+	IPAddress publicIP;
     Terminal terminal = new Terminal() {
 		@Override
 		public void display(String string) {
@@ -39,8 +42,7 @@ public class HomeRouter extends RoutingDevice {
         
 	@Override
 	public IPAddress getPublicIP() {
-		var rp = getRoutingProtocol();
-		return rp != null ? rp.getPublicIP() : null;
+		return publicIP;
 	}
 
 	/**
@@ -51,6 +53,15 @@ public class HomeRouter extends RoutingDevice {
 	public IPAddress getPublicIP(IPAddress ipAddress) {
 		var rp = getRoutingProtocol();
 		return rp.getPublicIP(ipAddress);
+	}
+
+	@Override
+	public void addProtocol(Protocol prot) {
+		if(prot instanceof RoutingProtocol) {
+			var rp = (RoutingProtocol) prot;
+			this.publicIP = rp.allocatePublicIP(ipAddress);
+		}
+		super.addProtocol(prot);
 	}
     
 }
