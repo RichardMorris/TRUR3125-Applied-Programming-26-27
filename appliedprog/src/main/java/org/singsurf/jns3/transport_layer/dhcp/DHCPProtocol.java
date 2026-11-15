@@ -14,7 +14,7 @@ import org.singsurf.jns3.hardware.GlobalWallClock;
 import org.singsurf.jns3.hardware.GlobalWallClock.TickListener;
 import org.singsurf.jns3.hardware.ProtocolDevice;
 import org.singsurf.jns3.network_layer.IPProtocol;
-import org.singsurf.jns3.network_layer.RoutingProtocol;
+import org.singsurf.jns3.network_layer.routing.RoutingProtocol;
 import org.singsurf.jns3.transport_layer.udp.DatagramSocket;
 import org.singsurf.jns3.transport_layer.udp.UDPDatagram;
 
