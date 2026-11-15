@@ -38,10 +38,11 @@ public class PingController implements  ICMPMessageHandler {
 	Terminal console;
 	Map<Short, SentPing> sentPings = new HashMap<>();
 	List<PingReplyRecord> completed = new ArrayList<>();
+	List<PingReplyRecord> warnings = new ArrayList<>();
 	
 	record SentPing(ICMPMessage request, int sentTime, IPAddress dest, int ttl) {}
 
-	record PingReplyRecord(IPAddress ip, ICMPMessage msg, int rtt) {}
+	public record PingReplyRecord(IPAddress ip, ICMPMessage msg, int rtt) {}
 
 	private PingController(ProtocolDevice pc2, short identifier) {
 		this.pc = pc2;
@@ -49,7 +50,7 @@ public class PingController implements  ICMPMessageHandler {
 		this.console = pc2.getTerminal();
 	}
 
-	public void sendPingRequest(IPAddress destinationIP,int ttl) {
+	void sendPingRequest(IPAddress destinationIP,int ttl) {
 		++sequenceNumber;
 		var packet = makePingRequestPacket(identifier, sequenceNumber, destinationIP, ttl);
 		console.display("PING " + destinationIP + " " + packet.getTotalLength()+ " bytes of data.");
@@ -59,7 +60,7 @@ public class PingController implements  ICMPMessageHandler {
 		packetSender.send(packet);
 	}
 
-	public void sendTraceroute(IPAddress destinationIP) {
+	void sendTraceroute(IPAddress destinationIP) {
 		++sequenceNumber;
 		var packet = makePingRequestPacket(identifier+ TRACEROUTE_OFFSET, sequenceNumber, destinationIP, 1);
 		console.display(String.format("traceroute to %s, 64 hops max", destinationIP));
@@ -104,6 +105,14 @@ public class PingController implements  ICMPMessageHandler {
 			}
 			handle2(msg,originalMsg.getIdentifier(), originalMsg.getSequenceNumber());
 			return HandlerStatus.COMPLETED;
+		} else if(msg.isParemeterProblem()) {
+			Jns3Logger.logWarn(pc.getName(), "Received Parameter Problem: " + msg);
+			warnings.add(new PingReplyRecord(msg.getPsudoHeader().sourceIP(), msg, msg.getPsudoHeader().ttl())); // Store the received ping reply
+			return HandlerStatus.COMPLETED;
+		} else if(msg.isUnreachable()) {
+			Jns3Logger.logWarn(pc.getName(), "Received Dest Unreachable: " + msg);
+			warnings.add(new PingReplyRecord(msg.getPsudoHeader().sourceIP(), msg, msg.getPsudoHeader().ttl())); // Store the received ping reply
+			return HandlerStatus.COMPLETED;
 		}
 		else {
 			return HandlerStatus.CONTINUE;
@@ -113,12 +122,10 @@ public class PingController implements  ICMPMessageHandler {
 	private void handle2(ICMPMessage message, short id, short seqNum) {
 		var sourceAddress = message.psudoHeader.sourceIP();
 		var destinationAddress = message.psudoHeader.destIP();
-//		var rest = message.getRestOfHeader();
 		if(!destinationAddress.equals(pc.getIPAddress())) {
 			Jns3Logger.logError(pc.getName(), "Received ping reply not for this host: " + message);
 			return;
 		}
-//		var sequenceNumber = message.getRestHigh();
 		if(!sentPings.containsKey(seqNum)) {
 			Jns3Logger.logError(pc.getName(), 
 					"Received orphaned ping reply from " + sourceAddress 
@@ -147,10 +154,11 @@ public class PingController implements  ICMPMessageHandler {
 
 				completed.add(new PingReplyRecord(sourceAddress, message, rtt)); // Store the received ping reply
 		} else {
-			Jns3Logger.logError(pc.getName(), 
+			Jns3Logger.logWarn(pc.getName(), 
 					"Received error from " + sourceAddress 
 					+ " " + message.toString()
 					+ " RTT: " + rtt + " ticks");
+			warnings.add(new PingReplyRecord(sourceAddress, message, rtt)); // Store the received ping reply
 		}
 	}
 
@@ -173,9 +181,17 @@ public class PingController implements  ICMPMessageHandler {
 		this.packetSender = packetSender;
 	}
 
-	public static PingController newInstance(ProtocolDevice pc) {
+	static PingController newInstance(ProtocolDevice pc) {
 		PingController controller = new PingController(pc, currentIdentifier++);
 		return controller;
+	}
+
+	List<PingReplyRecord> getCompletedPings() {
+		return completed;
+	}
+
+	List<PingReplyRecord> getWarnings() {
+		return warnings;
 	}
 
 }
