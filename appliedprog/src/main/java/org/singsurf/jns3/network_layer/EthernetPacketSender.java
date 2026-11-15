@@ -194,7 +194,7 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 			var destIp = ent.getKey();
 			var queue = ent.getValue();
 			var size = queue.queue().size();
-			var destMac = ipProtocol.lookup(destIp);
+			var destMac = device.getArpProtocol().lookup(destIp);
 			if(destMac != null) {
 				while(!queue.queue().isEmpty()) {
 					IPPacket packet = queue.queue().poll();

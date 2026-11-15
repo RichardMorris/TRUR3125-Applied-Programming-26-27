@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.data_link_layer.FrameSender;
-import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.generic_protocol.LowerAdapter;
 import org.singsurf.jns3.generic_protocol.Protocol;
 import org.singsurf.jns3.generic_protocol.ProtocolDelegator;
@@ -149,30 +148,4 @@ Wireless LAN adapter WiFi:
 	public boolean isRouter() {
 		return isRouter;
 	}
-
-	MACAddress lookup(IPAddress destIP) {
-		if(device.getSubnetMask().matches(device.getIPAddress(), destIP))
-			return device.getArpProtocol().lookup(destIP);
-		if(destIP.equals(IPProtocol.LIMITED_MULTICAST_ADDRESS) ||
-				destIP.equals(IPAddress.ZERO_ADDRESS) ||
-				destIP.equals(device.getMulticastAddress())) {
-			return device.getArpProtocol().lookup(destIP);
-		}
-		var gate = device.getDefaultGateway();
-		var mac = device.getArpProtocol().lookup(gate);
-		if(mac != null) {
-			return mac;
-		}
-		var rp = device.getRoutingProtocol();
-		if(rp != null) {
-			mac = rp.lookup(destIP);
-			if(mac != null) {
-				return mac;
-			}
-		}
-		
-//		Jns3Logger.logError(name, "IP address " + destIP + " is not on the same subnet as " + device.getIPAddress() + " with subnet mask " + device.getSubnetMask());
-		return null;
-	}
-
 }
