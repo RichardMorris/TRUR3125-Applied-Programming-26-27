@@ -1,11 +1,13 @@
 package org.singsurf.jns3.network_layer.routing;
 
+import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.generic_protocol.HandlerStatus;
 import org.singsurf.jns3.generic_protocol.ProtocolHandler;
 import org.singsurf.jns3.hardware.RoutingDevice;
 import org.singsurf.jns3.network_layer.IPPacket;
 import org.singsurf.jns3.network_layer.IPProtocol;
 import org.singsurf.jns3.network_layer.PacketSender;
+import org.singsurf.jns3.network_layer.icmp.ICMPMessage;
 
 /**
  * A handler for routing in-bound IP packets from the internet.
@@ -38,9 +40,19 @@ public class RoutingHandler implements ProtocolHandler<IPPacket> {
 			if(privateIP != null) {
 				packet.setDestinationIP(privateIP);
 			} else {
-				var mac = routingProtocol.lookup(destIP);
-				if(mac == null) {
-					return HandlerStatus.invalid("No private IP found for public IP: " + destIP);
+				var srcMac = routingProtocol.lookup(packet.getSourceAddress());
+				var destMac = routingProtocol.lookup(destIP);
+				if(destMac == null || srcMac.equals(destMac)) {
+					
+					var errorMsg = ICMPMessage.createHostUnreachable(packet);
+					var errorPacket = new IPPacket(
+						IPPacket.IMCP, 64,
+						device.getIPAddress(), packet.getSourceAddress(), 
+						errorMsg.getBytes());
+					Jns3Logger.logWarn(device.getName(), "Host unreachable "+packet);
+					
+					packetSender.send(errorPacket);
+					return HandlerStatus.COMPLETED;
 				}
 			}
 		}
