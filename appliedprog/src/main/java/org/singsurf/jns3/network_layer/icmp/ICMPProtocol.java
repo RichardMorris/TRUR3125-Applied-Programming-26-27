@@ -20,13 +20,14 @@ import org.singsurf.jns3.network_layer.PacketSender;
  */
 public class ICMPProtocol implements Protocol, LowerAdapter<IPPacket> {
 	ProtocolDevice device;
-
+	String name;
 	ICMPPacketReceiver icmpPacketReceiver;
 	PingController pingController;
 	PingRequestHandler pingRequestHandler;
 	
 	public ICMPProtocol(ProtocolDevice device) {
 		this.device = device;
+		this.name = device.getName() + "-ICM";
 		icmpPacketReceiver = new ICMPPacketReceiver(device.getName());
 		pingController = PingController.newInstance(device);
 		icmpPacketReceiver.addHandler(pingController);
@@ -59,4 +60,16 @@ public class ICMPProtocol implements Protocol, LowerAdapter<IPPacket> {
 		pingController.sendTraceroute(ipAddress2);
 	}
 
+	public List<PingController.PingReplyRecord> getCompletedPings() {
+		return pingController.getCompletedPings();
+	}
+	
+	public List<PingController.PingReplyRecord> getWarnings() {
+		return pingController.getWarnings();
+	}
+	
+	@Override
+	public String getName() {
+		return name;
+	}
 }
