@@ -10,9 +10,9 @@ import org.singsurf.jns3.data_link_layer.arp.ARPProtocol;
 import org.singsurf.jns3.generic_protocol.Protocol;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPProtocol;
-import org.singsurf.jns3.network_layer.RoutingProtocol;
 import org.singsurf.jns3.network_layer.SubnetMask;
 import org.singsurf.jns3.network_layer.icmp.ICMPProtocol;
+import org.singsurf.jns3.network_layer.routing.RoutingProtocol;
 import org.singsurf.jns3.physical_layer.PhysicalProtocol;
 import org.singsurf.jns3.transport_layer.dhcp.DHCPProtocol;
 import org.singsurf.jns3.transport_layer.udp.UDPProtocol;
@@ -160,7 +160,10 @@ public abstract class ProtocolDevice implements AddressableDevice {
 	}
 	
 	public boolean isLocalAddress(IPAddress ip) {
-		return subnetMask.matches(getIPAddress(), ip);
+		return subnetMask.matches(getIPAddress(), ip)
+				|| ip.equals(getMulticastAddress())
+				|| ip.equals(IPProtocol.LIMITED_MULTICAST_ADDRESS)
+				|| ip.equals(IPAddress.ZERO_ADDRESS);
 	}
 
 	public int getNumInternalPorts() {
