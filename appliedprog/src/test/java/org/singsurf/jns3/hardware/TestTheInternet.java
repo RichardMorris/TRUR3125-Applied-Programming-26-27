@@ -340,6 +340,68 @@ class TestTheInternet {
 		assertTrue(Jns3Logger.isErrorFree());
 	}
 
+	
+	@Test
+	public void ping_to_unkown_host() throws IOException {		
+		System.out.println(theInternet);
+		System.out.println(router1);
+		System.out.println(pc1);
+		System.out.println(router2);
+		System.out.println(router1.getRoutingProtocol());
+
+		var pc1pub = router1.getPublicIP(pc1.getIPAddress());
+		var destIP = new IPAddress("138.253.39.2");
+		
+		Jns3Logger.clearLog();
+		IPFrameHandler.logMessages = true;
+		EthernetPacketSender.logMessages = true;
+		Jns3Logger.startCapture();
+		
+		
+		pc1.getICMPProtocol().sendPingRequest(destIP, 64);
+		GlobalWallClock.advanceBy(10);
+		var output = Jns3Logger.endCapture();
+		System.out.println("Captured output:\n"+output);
+		var lines = output.split("\n");
+		assertEquals(1, lines.length);
+		assertEquals("PING " + destIP + " 28 bytes of data.", lines[0].trim());
+//		assertEquals("28 bytes from "+destIP+": icmp_seq=1 ttl=61 time=4 ticks", lines[1].trim());
+
+		System.out.println(Jns3Logger.asString());
+		
+		var item0 = Jns3Logger.getItem(0);
+		assertEquals("PC1-IP", item0.deviceName());
+		assertEquals(Jns3Logger.LogLevel.SENT, item0.level());
+		assertTrue(item0.message().startsWith(pc1.getMACAddress().toString()));
+		var suffix = "Src: " + pc1.getIPAddress() + " Dst: " + destIP;
+		assertTrue(item0.message().endsWith(suffix));
+
+		var item2 = Jns3Logger.getItem(2);
+		assertEquals("HR1-IP", item2.deviceName());
+		assertEquals(Jns3Logger.LogLevel.SENT, item2.level());
+		assertTrue(item2.message().startsWith(router1.getMACAddress().toString()));
+		suffix = "Src: " + pc1pub + " Dst: " + destIP;
+		assertTrue(item2.message().endsWith(suffix));
+
+		var item4 = Jns3Logger.getItem(4);
+		assertEquals("INT", item4.deviceName());
+		assertEquals(Jns3Logger.LogLevel.WARN, item4.level());
+		assertTrue(item4.message().startsWith("Host unreachable"));
+
+		var item9 = Jns3Logger.getItem(9);
+		assertEquals("PC1", item9.deviceName());
+		assertEquals(Jns3Logger.LogLevel.WARN, item9.level());
+		assertTrue(item9.message().startsWith("Received Dest Unreachable: ICMP[3"));
+
+		var warning = pc1.getICMPProtocol().getWarnings();
+		assertEquals(1, warning.size());
+		System.out.println("Warnings:\n"+warning.get(0));
+		IPFrameHandler.logMessages = false;
+		EthernetPacketSender.logMessages = false;
+
+	}
+
+	
 	@AfterEach
 	void tearDown() throws Exception {
 		assertTrue(Jns3Logger.isErrorFree());

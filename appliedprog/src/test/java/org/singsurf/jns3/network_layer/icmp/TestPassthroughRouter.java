@@ -266,7 +266,7 @@ class TestPassthroughRouter {
 		assertEquals(2, Jns3Logger.size());
 		var item1 = Jns3Logger.getItem(1);
 		assertEquals("PC1", item1.deviceName());
-		assertEquals(Jns3Logger.LogLevel.ERROR, item1.level());
+		assertEquals(Jns3Logger.LogLevel.WARN, item1.level());
 		assertTrue(item1.message().startsWith("Received error from "+router.getIPAddress()));
 		assertEquals("", output.trim());
 		
