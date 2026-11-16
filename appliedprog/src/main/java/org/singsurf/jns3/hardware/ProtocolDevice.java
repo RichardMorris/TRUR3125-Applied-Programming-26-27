@@ -161,6 +161,7 @@ public abstract class ProtocolDevice implements AddressableDevice {
 	
 	public boolean isLocalAddress(IPAddress ip) {
 		return subnetMask.matches(getIPAddress(), ip)
+				|| ip.equals(getIPAddress())
 				|| ip.equals(getMulticastAddress())
 				|| ip.equals(IPProtocol.LIMITED_MULTICAST_ADDRESS)
 				|| ip.equals(IPAddress.ZERO_ADDRESS);

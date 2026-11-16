@@ -5,7 +5,6 @@ import org.singsurf.jns3.generic_protocol.HandlerStatus;
 import org.singsurf.jns3.generic_protocol.ProtocolHandler;
 import org.singsurf.jns3.hardware.RoutingDevice;
 import org.singsurf.jns3.network_layer.IPPacket;
-import org.singsurf.jns3.network_layer.IPProtocol;
 import org.singsurf.jns3.network_layer.PacketSender;
 import org.singsurf.jns3.network_layer.icmp.ICMPMessage;
 
@@ -28,10 +27,7 @@ public class RoutingHandler implements ProtocolHandler<IPPacket> {
 	@Override
 	public HandlerStatus handle(IPPacket packet) {
 		var destIP = packet.getDestinationAddress();
-		if(device.isLocalAddress(destIP)
-			|| destIP.equals(device.getIPAddress())
-			|| destIP.equals(device.getMulticastAddress()) 
-			|| destIP.equals(IPProtocol.LIMITED_MULTICAST_ADDRESS)) {
+		if(device.isLocalAddress(destIP)) {
 					return HandlerStatus.CONTINUE;
 		}
 		

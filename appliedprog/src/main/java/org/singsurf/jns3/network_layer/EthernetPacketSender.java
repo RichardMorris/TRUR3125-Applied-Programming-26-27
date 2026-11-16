@@ -91,7 +91,7 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 				var publicIP = rp.getPublicIP(srcIP);
 				if(publicIP != null) {
 					packet.setSourceIP(publicIP);
-				}else {
+				} else {
 					Jns3Logger.logError(ipProtocol.name, "No public IP found for source IP " + srcIP + ". Cannot send packet.");
 					return;
 				}
