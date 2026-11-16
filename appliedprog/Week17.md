@@ -71,7 +71,7 @@ Scenario: traceroute
   4   81.95.52.1  8 ticks
   ```
 
-Scenario: IPConfig 
+Scenario: IPConfig
 
 * When: The pc displays its `ipconfig`
 * Then: it displays a message like
@@ -150,7 +150,17 @@ Scenario: chat to device not listening to port
     * It has an `allocatePublicIP(IPAddress localIP)` method that allocates public IP to each LAN device.
     * It has a `registerDevice(int i, PrefixDevice dev)` that updates its NATTable and prefix map.
     * It has a `MACAddress lookup(IPAddress addr)` method that tests the address against each prefix, returning the matching MaCAddress.
-6. The modified `EthernetPacketSender` route outbound traffic in multiple ways
+    * On construction it allocates a public IP to the device if needed, and adds the local and public IP's the the NAT table.
+6. The `RoutingHandler` handles incoming IP packets
+    * Packets for local destination IP's are passed to the next handler.
+    * If the packet destination IP matches the device's prefix
+        * The local IP is found from the NAT Table
+            * If found the packet is modified to use this address
+            * If not found the MAC addresses of source and destination are found
+            * If the destination MAC is null or if it matches the source MAC, indication a loop
+                * A ICMP host unreachable message is sent
+    * The (modified) packet is sent to the packet sender.
+7. The modified `EthernetPacketSender` route outbound traffic in multiple ways
     * Local traffic uses ARP to direct traffic to the local ports.
     * Traffic from the LAN to the internet
         * If a routing protocol is set then
@@ -162,37 +172,23 @@ Scenario: chat to device not listening to port
         * The device's MAC address is used as the source MAC.
         * Arp protocol is used to find the dest MAC.
     * Traffic from the internet to the internet
-        * 
-4. The internet-in-a-box or `TheInternet`
-    * Is a `ProtocolDevice` and `PrefixDevice`
-    * It has a `MultiPortDevice`
-    * It has a custom `ARPProtocol` that
-        * Has a `put(IPPrefix, MACAddress)` method
-        * implements `lookup(IPAddress)` using the `IPPrefix`
-        * Is no handlers so never receives ARP messages.
-    * It has an `register(PrefixDevice dev,int port)` method that
-        * adds mapping between the devices MAC address and port number
-        * adds a mapping between the devices IPPrefix and MAC Address.
-    * It can deliver the packets using the routing prefix of connected devices
-
-5. A `HomeRouter`
+        * Uses the device's MAC address as the source MAC
+        * Looks up the destination MAC via the routing protocol
+        * If not found send a IMCP Host unreachable message.
+8. `TheInternet`
+    * Is a `RoutingDevice` with 0 internal and 10 external ports.
+    * It has a public IP and private IP' both 195.66.226.16
+    * It has an APR protocol, but it handlers are not registered
+    * It has a Routing Protocol
+    * Other protocols as for a HomeRouter.
+9. A `HomeRouter`
+    * Is a `RoutingDevice` with 4 internal and 1 external ports.
     * Has a `IPPrefix` like `138.253.39.0/24`
     * Has a local IP address `192.168.1.1`
     * Has a `SubnetMask` of `255.255.255.0`
-    * Has a routing table than maps local IP address to
-    global address in the prefix range.
-    * Has 4 ethernet connections to the LAN
-    * Has 1 connection to the internet
-    * Can assign local IP addresses to devices on the LAN.
-    * Forward frames for local IP to the correct port
-    * Forwards packets for global IP to the internet
-        * The local IP is changed to the corresponding global IP
-    * Informs the internet of its IPPrefix
-    * Receives packet matching its prefix from the internet and
-        * changes the global ip into a local ip
-        * forwards the packet to the correct port
-
-6. PC's lookup of an IPAddress and sending a packet
+    * It has a Routing Protocol
+    * It has all other protocol with the router option set.
+10. PC's lookup of an IPAddress and sending a packet
     * PC checks the address against its SubnetMask
     * If it matches
         * Lookup address in ARPProtocol
@@ -202,15 +198,6 @@ Scenario: chat to device not listening to port
         * Find address of Default Gateway - here the address of the router that sent the DHCP Offer.
         * Send the frame to the MAC address of Default Gateway.
 
-7. Router forwarding of packets from lan
-    * If dest IP matches the subnet mask
-        * Use existing logic
-    * Otherwise
-        * Check dest IP matches prefix of internet port.
-            * IMCP host-unreachable if not
-        * Look up src-ip in translation table.
-        * Modify packet's src private IP to the public IP.
-        * Use the internet's mac address in the outbound frame.
 
     ```text
     Type    DestMac     DestIP          SrcIP       Forward By  Ports
@@ -223,10 +210,32 @@ Scenario: chat to device not listening to port
 
     ```
 
-8. Router forwarding of packets from internet
-    * Look up the dest IP finding the corresponding local IP
-        * If not found send a ICMP Host Unreachable back
-    * If found modify the packet dest IP
-    * Sender looks up the 
+## Notes
 
+We can finally drop the `ipswitch` package. The same functionality is now achieved by the routing protocol, closer to how routing works over the internet.
 
+Logic for routing internet traffic is quite simple.
+
+* Each registered device has a MAC Address and Prefix
+* The MAC address is associated with a hardware port number
+* To direct traffic to the correct port the the destination IP
+    is tested against each entry in the PrefixTable.
+* If found the corresponding MAC address is used in the outbound frame.
+* The frame is directed to the correct outbound port.
+
+The tricky part was ensuring the logic worked for the three main types of device, PC, HomeRouter and TheInternet, and with messages for all the different protocols.
+
+Tests need to include the good-path for successful operation, as well as various bad path options. Now several part of code detecting error than were not included in the coverage reports can be return ICMP host unreachable methods, and test cases for these constructed.
+
+Whether the `RoutingProtocol` should be an interdependent protocol, or part of the `IPProtocol` was one design decision. It's anticipated that routing will become more complex when we get to TCP and need to calculate the best routes between hosts, so we expect more complex code to emerge,
+and the network layer package is already quite full.
+
+## Class Diagrams
+
+Protocol level diagram.
+
+![Protocol class diagram](diagrams/week17-protocols.png)
+
+Modified components.
+
+![Protocol class diagram](diagrams/week17-protocols.png)
