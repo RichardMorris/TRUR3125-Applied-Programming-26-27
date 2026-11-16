@@ -104,6 +104,16 @@ Scenario: ping to unknown IP on remote network
 * Then: It responds with an ICMP Dest Unreachable message
 * Then: PC1 store the warning message and logs a warning
 
+Scenario: chat to device not listening to port
+
+* Given: Two PC connect via HomeRouters to the internet via buffered connections
+* And: PC1 has started a chat with PC5
+* And: PC5 has not started the chat
+* When: PC1 says a message
+* Then: The PC5 receives the message
+* Then: It responds with an ICMP Port Unreachable message
+* Then: PC1 store the warning message and logs a warning
+
 ## Specification
 
 1. A `SubnetMask`
@@ -123,9 +133,36 @@ Scenario: ping to unknown IP on remote network
         * Class A `10.0.0.0/8`
         * Class B `172.16.0.0/12`
         * Class C `192.168.0.0/16`
-3. A `PrefixDevice`
-    * Is an `AddressableDevice`
-    * Has and `IPPrefix` with a `getIPPrefix` method.
+3. The `PrefixDevice` interface defines devices that has a `IPPrefix` used to route
+    traffic to the device, and can be manually connected together for WAN traffic.
+    * Extends `AddressableDevice`
+    * It has a `IPPrefix getIPPrefix()` method.
+    * It has a `IPAddress getPublicIP()` for its address on the internet.
+    * It has a `registerDevice(int i, PrefixDevice dev)` method for manual configuration.
+4. A `RoutingDevice` is a `ProtocolDevice` and a `PrefixDevice`
+    * It has a fixed number of internal ports for LAN traffic
+    * It has a fixed number of external ports for internet traffic.
+    * It has a `RoutingProtocol` to manage routing of traffic over the internet.
+    * It has a modified `EthernetPacketSender` for directing traffic
+5. The `RoutingProtocol` manages routing
+    * It has a `NATTable` that translates public to private IP's.
+    * It has a `Map<IPPrefix, MACAddress>` that associate the MAC address to prefix.
+    * It has an `allocatePublicIP(IPAddress localIP)` method that allocates public IP to each LAN device.
+    * It has a `registerDevice(int i, PrefixDevice dev)` that updates its NATTable and prefix map.
+    * It has a `MACAddress lookup(IPAddress addr)` method that tests the address against each prefix, returning the matching MaCAddress.
+6. The modified `EthernetPacketSender` route outbound traffic in multiple ways
+    * Local traffic uses ARP to direct traffic to the local ports.
+    * Traffic from the LAN to the internet
+        * If a routing protocol is set then
+            * Local source IP are converted to public IP addresses
+            * The destination MAC address is found from the routing protocol.
+        * Otherwise use the MAC of the default gateway.
+    * Traffic from the internet to the LAN
+        * Destination IP are converted to local IP by the routing handler.
+        * The device's MAC address is used as the source MAC.
+        * Arp protocol is used to find the dest MAC.
+    * Traffic from the internet to the internet
+        * 
 4. The internet-in-a-box or `TheInternet`
     * Is a `ProtocolDevice` and `PrefixDevice`
     * It has a `MultiPortDevice`

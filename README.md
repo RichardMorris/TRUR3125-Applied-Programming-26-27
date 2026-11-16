@@ -10,7 +10,7 @@ model network operations.
 Each week is stored in a separate branch in the repo, so the evolution of the program can be observed. Branches are merged into main after each lesson.
 
 * Week 3 - JNS3 and the Imaginary Protocol. The first experimental attempt.
-  * See [ipswitch](appliedprog/src/main/java/org/singsurf/jns3/ipswitch/README.md)
+  * See [Week 3](appliedprog/Week3.md)
   * Branch [week-3-routing](https://github.com/RichardMorris/TRUR3125-Applied-Programming-26-27/tree/week-3-routing)
 
 * Week 4 - Data Link Layer - basic ethernet frames with MAC address, and a PC that can receive a frame.
@@ -64,3 +64,7 @@ Each week is stored in a separate branch in the repo, so the evolution of the pr
 * Week 16 - HomeRouter- modifying the protocol framework for a new type of device.
   * See [week 16](appliedprog/Week16.md)
   * Branch [wk16_HomeRouter](https://github.com/RichardMorris/TRUR3125-Applied-Programming-26-27/tree/wk16_HomeRouter)
+
+* Week 17 - The Internet - using IP Prefixes to route traffic and translate local to public IP's.
+  * See [week 17](appliedprog/Week17.md)
+  * Branch [wk17-the-internet](https://github.com/RichardMorris/TRUR3125-Applied-Programming-26-27/tree/wk17-the-internet)
