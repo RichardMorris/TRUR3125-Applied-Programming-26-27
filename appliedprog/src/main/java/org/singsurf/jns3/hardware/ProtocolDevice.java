@@ -141,8 +141,7 @@ public abstract class ProtocolDevice implements AddressableDevice {
 	public void setMulticastAddress(IPAddress ip) {
 		multiCastIP = ip;
 		var ap = getArpProtocol();
-		if(ap!=null)
-			ap.put(multiCastIP, MACAddress.BROADCAST_MAC);
+		ap.put(multiCastIP, MACAddress.BROADCAST_MAC);
 	}
 
 	public void setIPAddress(IPAddress ip) {
@@ -158,7 +157,22 @@ public abstract class ProtocolDevice implements AddressableDevice {
 	public void setSubnetMask(SubnetMask subnetMask) {
 		this.subnetMask = subnetMask;		
 	}
-	
+
+	public IPAddress getDefaultGateway() {
+		return defaultGateway;
+	}
+
+	public void setDefaultGateway(IPAddress defaultGateway) {
+		this.defaultGateway = defaultGateway;
+	}
+
+	/**
+	 * Checks if the given IP address is local to this device.
+	 * An IP address is considered local if it matches the device's IP address,
+	 * falls within the device's subnet, or is a multicast or zero address.
+	 * @param ip The IP address to check.
+	 * @return true if the IP address is local, false otherwise.
+	 */
 	public boolean isLocalAddress(IPAddress ip) {
 		return subnetMask.matches(getIPAddress(), ip)
 				|| ip.equals(getIPAddress())
@@ -173,14 +187,6 @@ public abstract class ProtocolDevice implements AddressableDevice {
 	
 	public int getNumExternalPorts() {
 		return numExternalPorts;
-	}
-
-	public IPAddress getDefaultGateway() {
-		return defaultGateway;
-	}
-
-	public void setDefaultGateway(IPAddress defaultGateway) {
-		this.defaultGateway = defaultGateway;
 	}
 
 	public int getNumPorts() {

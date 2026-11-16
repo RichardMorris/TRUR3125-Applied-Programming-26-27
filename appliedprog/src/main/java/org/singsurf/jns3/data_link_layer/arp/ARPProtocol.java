@@ -12,6 +12,7 @@ import org.singsurf.jns3.generic_protocol.ProtocolReceiver;
 import org.singsurf.jns3.generic_protocol.ProtocolSender;
 import org.singsurf.jns3.hardware.ProtocolDevice;
 import org.singsurf.jns3.network_layer.IPAddress;
+import org.singsurf.jns3.network_layer.IPProtocol;
 
 /**
  * Implements the Address Resolution Protocol (ARP) for resolving IP addresses to MAC addresses.
@@ -34,7 +35,7 @@ public class ARPProtocol implements Protocol, LowerAdapter<EthernetFrame> {
 		this.arpController = new ARPController(this);
 		this.isRouter = isRouter;
 		arpForwarder = new ARPForwarder(device);
-
+		arpController.put(IPProtocol.LIMITED_MULTICAST_ADDRESS, MACAddress.BROADCAST_MAC);
 	}
 
 	@Override

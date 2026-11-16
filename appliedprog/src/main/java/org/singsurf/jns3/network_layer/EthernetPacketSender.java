@@ -65,13 +65,9 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 		var isDestLocal = device.isLocalAddress(destIP);
 		
 		if(isSrcLocal && isDestLocal) {
-			var srcMac = device.getArpProtocol().lookup(srcIP);
-			var destMac = device.getArpProtocol().lookup(destIP);
-			if(destIP.equals(IPProtocol.LIMITED_MULTICAST_ADDRESS) 
-			 || destIP.equals(device.getMulticastAddress())) {
-				destMac = MACAddress.BROADCAST_MAC;
-			} 
+			MACAddress destMac = device.getArpProtocol().lookup(destIP);
 			
+			var srcMac = device.getArpProtocol().lookup(srcIP);
 			if(srcMac == null) {
 				Jns3Logger.logError(ipProtocol.name, "No ARP entry for source IP " + srcIP + ". Cannot send packet.");
 				return;
@@ -88,6 +84,7 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 			MACAddress  destMac;
 			if(rp != null) {
 				destMac = rp.lookup(destIP);
+				
 				var publicIP = rp.getPublicIP(srcIP);
 				if(publicIP != null) {
 					packet.setSourceIP(publicIP);
