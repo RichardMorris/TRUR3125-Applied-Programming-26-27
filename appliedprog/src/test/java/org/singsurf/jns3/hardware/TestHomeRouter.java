@@ -53,7 +53,10 @@ class TestHomeRouter {
 	
 	@AfterEach
 	void tearDown() throws Exception {
-		assertTrue(Jns3Logger.isErrorFree());
+		GlobalWallClock.getInstance().clear();
+		var errorFree = Jns3Logger.isErrorFree();
+		Jns3Logger.clearLog();
+		assertTrue(errorFree);
 	}
 
 	@Test
