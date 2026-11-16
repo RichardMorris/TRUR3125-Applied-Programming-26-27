@@ -458,6 +458,7 @@ class TestTheInternet {
 	
 	@AfterEach
 	void tearDown() throws Exception {
+		GlobalWallClock.getInstance().clear();
 		assertTrue(Jns3Logger.isErrorFree());
 	}
 
