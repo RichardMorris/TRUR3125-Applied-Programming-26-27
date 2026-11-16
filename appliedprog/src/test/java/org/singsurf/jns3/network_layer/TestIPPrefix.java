@@ -77,4 +77,78 @@ class TestIPPrefix {
 		assertFalse(prefix.matches(addr4));
 	}
 
+	@Test
+	void testBitLength1() {
+		// Test prefixes from /1
+		// 128.0.0.0/1 matches 128.0.0.0 to 255.255.255.255
+		// 0.0.0.0/1 matches 0.0.0.0 to 127.255.255.255
+
+		IPPrefix prefix = new IPPrefix("128.0.0.0/1");
+		assertTrue(prefix.matches(new IPAddress("128.0.0.0")));
+		assertTrue(prefix.matches(new IPAddress("128.0.0.1")));
+		assertTrue(prefix.matches(new IPAddress("128.0.1.0")));
+		assertTrue(prefix.matches(new IPAddress("128.1.0.0")));
+		assertTrue(prefix.matches(new IPAddress("129.0.0.0")));
+		assertTrue(prefix.matches(new IPAddress("255.255.255.255")));
+		assertFalse(prefix.matches(new IPAddress("0.0.0.0")));
+		assertFalse(prefix.matches(new IPAddress("127.255.255.255")));
+
+		prefix = new IPPrefix("0.0.0.0/1");
+		assertTrue(prefix.matches(new IPAddress("0.0.0.0")));
+		assertTrue(prefix.matches(new IPAddress("0.0.0.1")));
+		assertTrue(prefix.matches(new IPAddress("0.0.1.0")));
+		assertTrue(prefix.matches(new IPAddress("0.1.0.0")));
+		assertTrue(prefix.matches(new IPAddress("1.0.0.0")));
+		assertTrue(prefix.matches(new IPAddress("127.255.255.255")));
+		assertFalse(prefix.matches(new IPAddress("128.0.0.0")));
+		assertFalse(prefix.matches(new IPAddress("255.255.255.255")));
+
+	}
+
+	private IPAddress flipBit(IPAddress addr, int bitIndex) {
+		byte[] octets = addr.getBytes();
+		int byteIndex = bitIndex / 8;
+		int bitInByte = 7 - (bitIndex % 8); // MSB is bit 7
+		octets[byteIndex] ^= (1 << bitInByte);
+		return new IPAddress(octets);
+	}
+	
+	@Test
+	void testBitLength31() {
+		// Test prefixes from /1
+		// 128.0.0.0/1 matches 128.0.0.0 to 255.255.255.255
+		// 0.0.0.0/1 matches 0.0.0.0 to 127.255.255.255
+
+		IPPrefix prefix = new IPPrefix("123.45.67.88/31");
+		assertTrue(prefix.matches(new IPAddress("123.45.67.88")));
+		assertTrue(prefix.matches(new IPAddress("123.45.67.89")));
+		assertFalse(prefix.matches(new IPAddress("123.45.67.87")));
+		assertFalse(prefix.matches(new IPAddress("123.45.67.90")));
+		
+		IPAddress flipped = flipBit(prefix.getAddress(), 31);
+		assertTrue(prefix.matches(prefix.getAddress()));
+		assertTrue(prefix.matches(flipped));
+		flipped = flipBit(prefix.getAddress(), 30);
+		assertFalse(prefix.matches(flipped));
+
+		prefix = new IPPrefix("123.45.67.90/31");
+		assertTrue(prefix.matches(new IPAddress("123.45.67.90")));
+		assertTrue(prefix.matches(new IPAddress("123.45.67.91")));
+		assertFalse(prefix.matches(new IPAddress("123.45.67.89")));
+		assertFalse(prefix.matches(new IPAddress("123.45.67.92")));
+	}
+
+	@Test
+	void tastAllBitLengths() {
+		for (int i = 1; i <= 31; i++) {
+			IPPrefix prefix = new IPPrefix("123.45.67.89"+ "/" + i);
+			assertTrue(prefix.matches(prefix.getAddress()));
+			for(int j = i; j < 32; j++) {
+				IPAddress flipped = flipBit(prefix.getAddress(), j);
+				assertTrue(prefix.matches(flipped));
+			}
+			var flipped = flipBit(prefix.getAddress(), i - 1);
+			assertFalse(prefix.matches(flipped));
+		}
+	}
 }

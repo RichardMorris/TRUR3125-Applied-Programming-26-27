@@ -65,7 +65,7 @@ public class RoutingProtocol implements Protocol, LowerAdapter<IPPacket> {
 			Jns3Logger.logError(name,"No more available addresses");
 			return null;
 		}
-		var preIP = device.getPrefix().getPrefix();
+		var preIP = device.getPrefix().getAddress();
 		var bytes = preIP.getBytes();
 		bytes[3] = seqNumber++;
 		var publicIP = new IPAddress(bytes);

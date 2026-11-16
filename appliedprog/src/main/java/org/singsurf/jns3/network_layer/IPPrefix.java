@@ -73,7 +73,7 @@ public class IPPrefix {
 		return mask;
 	}
 
-	public IPAddress getPrefix() {
+	public IPAddress getAddress() {
 		return prefix;
 	}
 
