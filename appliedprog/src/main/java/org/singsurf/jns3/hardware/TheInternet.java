@@ -22,7 +22,7 @@ public class TheInternet extends RoutingDevice {
     
     @Override
 	public boolean isLocalAddress(IPAddress ip) {
-		return false;
+    	return ip.equals(getPublicIP());
 	}
 
 	@Override

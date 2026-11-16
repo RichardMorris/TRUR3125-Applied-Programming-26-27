@@ -48,4 +48,8 @@ public abstract class RoutingDevice extends ProtocolDevice implements PrefixDevi
     	return getPhysicalProtocol().getEndPoint(i);
     }
 
+	public void setPublicIP(IPAddress allocatePublicIP) {
+		this.publicIP = allocatePublicIP;		
+	}
+
 }
