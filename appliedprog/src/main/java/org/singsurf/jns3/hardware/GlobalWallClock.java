@@ -76,6 +76,12 @@ public class GlobalWallClock {
 		}
 	}
 	
+	public void clear() {
+		for(var lst : listnersByPriority.entrySet()) {
+			lst.getValue().clear();
+		}
+	}
+	
 	public int getTickCount() {
 		return tickCount;
 	}
