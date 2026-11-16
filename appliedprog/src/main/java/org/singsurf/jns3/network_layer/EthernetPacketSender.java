@@ -118,7 +118,7 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 			var destMac = rp.lookup(destIP);
 			if(destMac == null) {
 				
-				var errorMsg = ICMPMessage.createHostUnreachable(packet);
+				var errorMsg = ICMPMessage.createDestUnreachable(packet,ICMPMessage.HOST_UNREACHABLE_CODE);
 				var errorPacket = new IPPacket(
 					IPPacket.IMCP, 64,
 					device.getIPAddress(), packet.getSourceAddress(), 

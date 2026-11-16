@@ -40,7 +40,7 @@ public class RoutingHandler implements ProtocolHandler<IPPacket> {
 				var destMac = routingProtocol.lookup(destIP);
 				if(destMac == null || srcMac.equals(destMac)) {
 					
-					var errorMsg = ICMPMessage.createHostUnreachable(packet);
+					var errorMsg = ICMPMessage.createDestUnreachable(packet, ICMPMessage.HOST_UNREACHABLE_CODE);
 					var errorPacket = new IPPacket(
 						IPPacket.IMCP, 64,
 						device.getIPAddress(), packet.getSourceAddress(), 

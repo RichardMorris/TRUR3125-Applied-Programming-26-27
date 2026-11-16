@@ -215,14 +215,14 @@ class TestUDPChatApplication {
 		System.out.println(Jns3Logger.asString());
 		System.out.print(output);
 		assertEquals("", output.trim());
-		assertEquals(1, Jns3Logger.size());
-		var item0 = Jns3Logger.getItem(0);
-		assertEquals(
-			new LogItem("PC2-UDPController", 
-				Jns3Logger.LogLevel.ERROR, 
-				"No socket found for port 43"),
-			item0);
+		assertEquals(2, Jns3Logger.size());
 		System.out.println(Jns3Logger.asString());
+		
+		var item1 = Jns3Logger.getItem(1);
+		assertEquals("PC1", item1.deviceName());
+		assertEquals(Jns3Logger.LogLevel.WARN, item1.level());
+		assertTrue(item1.message().startsWith("Received Dest Unreachable: ICMP[3"));
+
 		Jns3Logger.clearLog();
 		
 		chat2.say("Hello from PC2");
@@ -260,14 +260,14 @@ class TestUDPChatApplication {
 		var output = Jns3Logger.endCapture();
 		System.out.print(output);
 		assertEquals("", output.trim());
-		assertEquals(1, Jns3Logger.size());
-		var item0 = Jns3Logger.getItem(0);
-		assertEquals(
-			new LogItem("PC2-UDPController", 
-				Jns3Logger.LogLevel.ERROR, 
-				"No socket found for port 43"),
-			item0);
+		assertEquals(2, Jns3Logger.size());
 		System.out.println(Jns3Logger.asString());
+		
+		var item1 = Jns3Logger.getItem(1);
+		assertEquals("PC1", item1.deviceName());
+		assertEquals(Jns3Logger.LogLevel.WARN, item1.level());
+		assertTrue(item1.message().startsWith("Received Dest Unreachable: ICMP[3"));
+
 		Jns3Logger.clearLog();
 		
 		chat2.say("Hello from PC2");

@@ -25,13 +25,16 @@ public class ICMPMessage implements ProtocolContainer {
 	private static final byte BAD_CHECKSUM_CODE = (byte) 0;
 	
 	static final byte PING_REPLY_TYPE = 0;
+
 	static final byte DEST_UNREACHABLE_TYPE = 3;
-	static final byte HOST_UNREACHABLE_CODE = 1;
+	public static final byte HOST_UNREACHABLE_CODE = 1;
+	public static final byte PORT_UNREACHABLE_CODE = 3;
 	
 	static final byte PING_REQUEST_TYPE = 8;
 
 	static final byte TIME_EXCEEDED = 11;
 	static final byte TTL_EXCEEDED_CODE = 0;
+
 	static final byte PARAMETER_PROBLEM = 12;
 	
 	/**
@@ -228,8 +231,8 @@ public class ICMPMessage implements ProtocolContainer {
 	}
 
 
-	public static ICMPMessage createHostUnreachable(IPPacket packet) {
-		return createMessage(DEST_UNREACHABLE_TYPE, HOST_UNREACHABLE_CODE, packet);
+	public static ICMPMessage createDestUnreachable(IPPacket packet, byte code) {
+		return createMessage(DEST_UNREACHABLE_TYPE, code, packet);
 	}
 
 	public static ICMPMessage createTTLExpired(IPPacket packet) {

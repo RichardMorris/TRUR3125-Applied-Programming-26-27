@@ -456,6 +456,40 @@ class TestTheInternet {
 
 	}
 	
+	@Test
+	public void private_chat_across_the_internet_when_remote_not_listerning() throws IOException {
+		System.out.println(theInternet);
+		System.out.println(router1);
+		System.out.println(pc1);
+		System.out.println(router2);
+		System.out.println(pc5);
+
+		System.out.println(pc2.getArpProtocol());
+
+		ChatApplication.showPrompts = true;
+		Jns3Logger.clearLog();
+		
+		var pc5pub = router2.getPublicIP(pc5.getIPAddress());
+		
+		var chat1 = new ChatApplication(pc1,pc5pub);
+//		var chat2 = new ChatApplication(pc5,pc1pub);
+//		assertNotNull(chat2);
+		chat1.say("Hello from PC1");
+		Jns3Logger.startCapture();
+		GlobalWallClock.advanceBy(10);
+		var output = Jns3Logger.endCapture();
+		System.out.print(output);
+//		assertEquals("PC5: " + pc1pub + " says: Hello from PC1", output.trim());
+		
+		Jns3Logger.println();
+		assertEquals(2, Jns3Logger.size());
+		var item1 = Jns3Logger.getItem(1);
+		assertEquals("PC1", item1.deviceName());
+		assertEquals(Jns3Logger.LogLevel.WARN, item1.level());
+		assertTrue(item1.message().startsWith("Received Dest Unreachable: ICMP[3"));
+	}
+
+	
 	@AfterEach
 	void tearDown() throws Exception {
 		GlobalWallClock.getInstance().clear();

@@ -13,6 +13,7 @@ import org.singsurf.jns3.network_layer.IPPacket;
 import org.singsurf.jns3.network_layer.IPProtocol;
 import org.singsurf.jns3.network_layer.PacketHandler;
 import org.singsurf.jns3.network_layer.PacketSender;
+import org.singsurf.jns3.network_layer.icmp.ICMPMessage;
 import org.singsurf.jns3.transport_layer.udp.UDPDatagram.PsudoHeader;
 
 /**
@@ -64,7 +65,14 @@ public class UDPController implements PacketHandler, NamedDevice {
 			if(packet.getDestinationAddress().equals(device.getMulticastAddress())) {
 				Jns3Logger.logInfo(name, "No socket found for port " + datagram.getDestinationPort());				
 			} else {
-				Jns3Logger.logError(name, "No socket found for port " + datagram.getDestinationPort());
+				var errorMsg = ICMPMessage.createDestUnreachable(packet, ICMPMessage.PORT_UNREACHABLE_CODE);
+				var errorPacket = new IPPacket(
+					IPPacket.IMCP, 64,
+					device.getIPAddress(), packet.getSourceAddress(), 
+					errorMsg.getBytes());
+				Jns3Logger.logWarn(device.getName(), "Host unreachable "+packet);
+				
+				packetSender.send(errorPacket);
 			}
 			
 			return;
