@@ -96,14 +96,17 @@ class TestHalfDuplexConnection {
         assertEquals(3, Jns3Logger.size());
         var logs = Jns3Logger.getLogItems();
         assertEquals(new LogItem("PC1-ARP",SENT,"Sent GARP request frame"), logs.get(0));
-        assertEquals(new LogItem("PC2-ARP",RECEIVED,"Received ARP frame"), logs.get(1));
+        assertEquals(new LogItem("PC2-ARP",RECEIVED,"Received ARP frame from "+
+        		pc1.getIPAddress() + " ("+ pc1.getMACAddress()+")"), logs.get(1));
         assertEquals(new LogItem("PC2-ARP",SENT,"Sent ARP reply frame"), logs.get(2));
         
         Jns3Logger.clearLog();
         GlobalWallClock.getInstance().advanceTime();
         assertEquals(1, Jns3Logger.size());
         logs = Jns3Logger.getLogItems();
-        assertEquals(new LogItem("PC1-ARP",RECEIVED,"Received ARP frame"), logs.get(0));
+        assertEquals(new LogItem("PC1-ARP",RECEIVED,"Received ARP frame from "
+        	+ pc2.getIPAddress() + " ("+ pc2.getMACAddress()+")"),	
+        		logs.get(0));
         
         Jns3Logger.clearLog();
         GlobalWallClock.getInstance().advanceTime();

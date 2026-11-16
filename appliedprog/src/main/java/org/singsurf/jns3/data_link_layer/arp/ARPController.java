@@ -42,8 +42,10 @@ public class ARPController implements FrameHandler {
         if(frame.getDestination().equals(MACAddress.BROADCAST_MAC)
             || frame.getDestination().equals(device.getMACAddress())) {
 
-                Jns3Logger.log(name, Jns3Logger.LogLevel.RECEIVED,  "Received ARP frame");
                 var arpMessage = ARPMessage.fromFrame(frame);
+                Jns3Logger.logRec(name, "Received ARP frame from "
+                	+ arpMessage.getSenderIp() 
+                	+ " (" + arpMessage.getSenderMac() + ")");
                 // Update ARP tables
                 arpTable.put(arpMessage.getSenderIp(), arpMessage.getSenderMac());
 

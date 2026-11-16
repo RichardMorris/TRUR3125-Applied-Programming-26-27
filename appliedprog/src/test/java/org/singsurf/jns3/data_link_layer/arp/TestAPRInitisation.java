@@ -56,13 +56,15 @@ class TestAPRInitisation {
         		Jns3Logger.LogLevel.SENT,"Sent GARP request frame"), logs.get(0));
 
         assertEquals(new Jns3Logger.LogItem("PC2-ARP", 
-        		Jns3Logger.LogLevel.RECEIVED,"Received ARP frame"), logs.get(1));
-
+        		Jns3Logger.LogLevel.RECEIVED,"Received ARP frame from "+
+                		pc1.getIPAddress() + " ("+ pc1.getMACAddress()+")"), logs.get(1));
+        
         assertEquals(new Jns3Logger.LogItem("PC2-ARP", 
         		Jns3Logger.LogLevel.SENT,"Sent ARP reply frame"), logs.get(2));
 
         assertEquals(new Jns3Logger.LogItem("PC1-ARP", 
-        		Jns3Logger.LogLevel.RECEIVED,"Received ARP frame"), logs.get(3));
+        		Jns3Logger.LogLevel.RECEIVED,"Received ARP frame from "+
+                		pc2.getIPAddress() + " ("+ pc2.getMACAddress()+")"), logs.get(3));
 
         assertEquals(pc2.getMACAddress(), arpController.lookup(pc2.getIPAddress()));
 
