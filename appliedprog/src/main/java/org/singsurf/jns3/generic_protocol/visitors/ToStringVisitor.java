@@ -4,7 +4,9 @@ import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.data_link_layer.EthernetProtocol;
 import org.singsurf.jns3.data_link_layer.arp.ARPMessage;
 import org.singsurf.jns3.data_link_layer.arp.ARPProtocol;
+import org.singsurf.jns3.generic_protocol.ProtocolContainer;
 import org.singsurf.jns3.generic_protocol.ProtocolVisitor;
+import org.singsurf.jns3.hardware.ProtocolDevice;
 import org.singsurf.jns3.network_layer.IPPacket;
 import org.singsurf.jns3.network_layer.IPProtocol;
 import org.singsurf.jns3.network_layer.icmp.ICMPMessage;
@@ -21,10 +23,37 @@ import org.singsurf.jns3.transport_layer.udp.UDPProtocol;
  * @since week 18
  */
 public class ToStringVisitor implements ProtocolVisitor<String> {
+	ProtocolDevice device;
 
-	public ToStringVisitor() {
+
+	public ToStringVisitor(ProtocolDevice device) {
+		this.device = device;
 	}
-
+	
+	public String toString(ProtocolContainer container) {
+		switch(container) {
+			case EthernetFrame frame -> {
+				return visit(device.getEthernetProtocol(), frame);
+			}
+			case IPPacket packet -> {
+				return visit(device.getIPProtocol(), packet);
+			}
+			case ARPMessage msg -> {
+				return visit(device.getArpProtocol(), msg);
+			}
+			case ICMPMessage msg -> {
+				return visit(device.getICMPProtocol(), msg);
+			}
+			case UDPDatagram datagram -> {
+				return visit(device.getUDPProtocol(), datagram);
+			}
+			case DHCPMessage msg -> {
+				return visit(device.getDHCPProtocol(), msg);
+			}
+		default -> throw new IllegalArgumentException("Unexpected value: " + container);
+		}
+		
+	}
 	String indent(String str) {
 		String[] lines = str.split("\n");
 		StringBuilder sb = new StringBuilder();
@@ -33,6 +62,7 @@ public class ToStringVisitor implements ProtocolVisitor<String> {
 		}
 		return sb.toString();
 	}
+	
 	@Override
 	public String visit(EthernetProtocol protocol, EthernetFrame frame) {
 		StringBuilder sb = new StringBuilder();
@@ -77,13 +107,28 @@ public class ToStringVisitor implements ProtocolVisitor<String> {
 
 	@Override
 	public String visit(ICMPProtocol protocol, ICMPMessage msg) {
-		return msg.toString() + "\n";
+		StringBuilder sb = new StringBuilder();
+		sb.append(msg.toHeaderString()).append('\n');
+		if(msg.getType() == ICMPMessage.TIME_EXCEEDED 
+			|| msg.getType() == ICMPMessage.PARAMETER_PROBLEM 
+			|| msg.getType() == ICMPMessage.DEST_UNREACHABLE_TYPE) {
+			// Data contains the original IP header and the first 8 bytes of the original payload
+			var ipHeader = msg.dataAsIPHeader();
+			var inner = visit(device.getIPProtocol(), ipHeader);
+			sb.append(indent(inner));
+		} else if(msg.getContents().length > 0) {
+			sb.append("  ").append(new String(msg.getContents())).append('\n');
+		}
+		return sb.toString();
 	}
 
 	@Override
 	public String visit(UDPProtocol protocol, UDPDatagram datagram) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(datagram.toHeaderString()).append('\n');
+		if(datagram.getContents().length == 0) {
+			return sb.toString();
+		}
 		boolean foundChild = false;
 		for(var child: protocol.getChildProtocols()) {
 			var res = child.accept(this, datagram);
@@ -93,7 +138,9 @@ public class ToStringVisitor implements ProtocolVisitor<String> {
 			}
 		}
 		if(!foundChild) {
-			sb.append("  ").append(new String(datagram.getContents())).append('\n');
+			if(datagram.getContents().length > 0) {
+				sb.append("  ").append(new String(datagram.getContents())).append('\n');
+			}
 		}		
 		return sb.toString();
 	}

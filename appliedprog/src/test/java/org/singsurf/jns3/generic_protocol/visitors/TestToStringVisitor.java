@@ -20,7 +20,7 @@ import org.singsurf.jns3.transport_layer.udp.UDPDatagram;
 
 class TestToStringVisitor {
 
-	ToStringVisitor visitor = new ToStringVisitor();
+	ToStringVisitor visitor;
 	PC pc1;
 	PC pc2;
 	
@@ -28,6 +28,7 @@ class TestToStringVisitor {
 	void setUp() throws Exception {
 		pc1 = DeviceFactory.getInstance().createPC("PC1");
 		pc2 = DeviceFactory.getInstance().createPC("PC2");
+		visitor = new ToStringVisitor(pc1);
 	}
 
 	@Test
@@ -42,7 +43,7 @@ class TestToStringVisitor {
         EthernetFrame frame = new EthernetFrame(destination, source, (short) payload.length, payload);
 
         // act
-        String result = visitor.visit(pc1.getEthernetProtocol(), frame);
+        String result = visitor.toString(frame);
         
         // assert
         System.out.println(result);
@@ -62,7 +63,7 @@ class TestToStringVisitor {
         		ARPProtocol.ARP_ETHER_TYPE, arpMessage.getBytes());
         
         // act
-        String result = visitor.visit(pc1.getEthernetProtocol(), frame);
+        String result = visitor.toString(frame);
         System.out.println(result);
         
         // assert
@@ -84,7 +85,7 @@ class TestToStringVisitor {
         		IPProtocol.ETHERTYPE, packet.getBytes());
         
         // act
-        String result = visitor.visit(pc1.getEthernetProtocol(), frame);
+        String result = visitor.toString(frame);
         System.out.println(result);
         
         // assert
@@ -103,7 +104,7 @@ class TestToStringVisitor {
             pc1.getIPAddress(), pc2.getIPAddress(), data); 
         
         // act
-        String result = visitor.visit(pc1.getIPProtocol(), packet);
+        String result = visitor.toString(packet);
         System.out.println(result);
         
         // assert
@@ -116,10 +117,62 @@ class TestToStringVisitor {
 	void icmp_ping() {
 		var pingRequest = new ICMPMessage(ICMPMessage.PING_REQUEST_TYPE, 
 				(byte) 0, (short) 0x1234, (short) 0x5678);
-		String result = visitor.visit(pc1.getICMPProtocol(), pingRequest);
+		String result = visitor.toString(pingRequest);
 		System.out.println(result);
 		String expected = pingRequest.toString() + "\n";
 		assertEquals(expected, result);
+	}
+
+	@Test
+	void ttl_exceeded_for_icmp_ping_in_packet() {
+		var pingRequest = new ICMPMessage(ICMPMessage.PING_REQUEST_TYPE, 
+				(byte) 0, (short) 0x1234, (short) 0x5678);
+        IPPacket packet = new IPPacket(IPPacket.IMCP, 64,
+                pc1.getIPAddress(), pc2.getIPAddress(), pingRequest.getBytes()); 
+		
+		var errorMsg = ICMPMessage.createTTLExpired(packet);
+		var errorPacket = new IPPacket(
+			IPPacket.IMCP, 64,
+			pc2.getIPAddress(), packet.getSourceAddress(), 
+			errorMsg.getBytes());
+
+		
+		String result = visitor.toString(errorPacket);
+		System.out.println(result);
+		StringBuilder expected = new StringBuilder();
+		expected.append(errorPacket.toHeaderString()).append('\n');
+		expected.append("  ").append(errorMsg.toHeaderString()).append('\n');
+		expected.append("    ").append(packet.toHeaderString()).append('\n');
+		expected.append("      ").append(pingRequest.toString()).append('\n');
+		System.out.println(expected);
+		assertEquals(expected.toString(), result);
+	}
+
+	@Test
+	void ttl_exceeded_for_dhcp() {
+		var dhcpDiscover = DHCPMessage.createDiscoverMessage(
+				pc1.getMACAddress(), pc1.getIPAddress());
+		var datagram = new UDPDatagram(DHCPProtocol.DHCP_CLIENT_PORT, 
+				DHCPProtocol.DHCP_SERVER_PORT, 
+				dhcpDiscover.getBytes());
+        IPPacket packet = new IPPacket(IPPacket.UDP, 64,
+                pc1.getIPAddress(), pc2.getIPAddress(), datagram.getBytes()); 
+		
+		var errorMsg = ICMPMessage.createTTLExpired(packet);
+		var errorPacket = new IPPacket(
+			IPPacket.IMCP, 64,
+			pc2.getIPAddress(), packet.getSourceAddress(), 
+			errorMsg.getBytes());
+
+		
+		String result = visitor.toString(errorPacket);
+		System.out.println(result);
+		StringBuilder expected = new StringBuilder();
+		expected.append(errorPacket.toHeaderString()).append('\n');
+		expected.append("  ").append(errorMsg.toHeaderString()).append('\n');
+		expected.append("    ").append(packet.toHeaderString()).append('\n');
+		expected.append("      ").append(datagram.toHeaderString()).append('\n');
+		assertEquals(expected.toString(), result);
 	}
 
 	@Test
@@ -129,7 +182,7 @@ class TestToStringVisitor {
         IPPacket packet = new IPPacket(IPPacket.IMCP, 64,
                 pc1.getIPAddress(), pc2.getIPAddress(), pingRequest.getBytes()); 
 
-		String result = visitor.visit(pc1.getIPProtocol(), packet);
+		String result = visitor.toString(packet);
 		System.out.println(result);
 		String expected = 
 				packet.toHeaderString()
@@ -147,7 +200,7 @@ class TestToStringVisitor {
         		pc2.getMACAddress(), pc1.getMACAddress(),
         		IPProtocol.ETHERTYPE, packet.getBytes());
 
-        String result = visitor.visit(pc1.getEthernetProtocol(), frame);
+        String result = visitor.toString(frame);
 		System.out.println(result);
 		String expected = 
 				frame.toHeaderString() 
@@ -165,7 +218,7 @@ class TestToStringVisitor {
         byte[] data = content.getBytes();
 		var udpDatagram = new UDPDatagram(srcPort, destPort, data);
 
-		String result = visitor.visit(pc1.getUDPProtocol(), udpDatagram);
+		String result = visitor.toString(udpDatagram);
 		System.out.println(result);
 		String expected = udpDatagram.toHeaderString() + "\n"
 				+ "  " + content + "\n";
@@ -181,7 +234,7 @@ class TestToStringVisitor {
 		var datagram = new UDPDatagram(srcPort, destPort, data);
 		IPPacket packet = datagram.toIPPacket(pc1.getIPAddress(), pc2.getIPAddress(), 64);
 
-		String result = visitor.visit(pc1.getIPProtocol(), packet);
+		String result = visitor.toString(packet);
 		System.out.println(result);
 		String expected = 
 				packet.toHeaderString() + "\n"
@@ -203,7 +256,7 @@ class TestToStringVisitor {
         		pc2.getMACAddress(), pc1.getMACAddress(),
         		IPProtocol.ETHERTYPE, packet.getBytes());
 
-        String result = visitor.visit(pc1.getEthernetProtocol(), frame);
+        String result = visitor.toString(frame);
 		System.out.println(result);
 		String expected = 
 				frame.toHeaderString() + "\n"
@@ -216,7 +269,7 @@ class TestToStringVisitor {
 	@Test
 	void dhcp_discover() {
 		var dhcpDiscover = DHCPMessage.createDiscoverMessage(pc1.getMACAddress(), pc1.getIPAddress());
-		String result = visitor.visit(pc1.getDHCPProtocol(), dhcpDiscover);
+		String result = visitor.toString(dhcpDiscover);
 		System.out.println(result);
 		StringBuilder expected = new StringBuilder(dhcpDiscover.toHeaderString() + "\n");
 		var options = dhcpDiscover.getOptions();
@@ -233,7 +286,7 @@ class TestToStringVisitor {
 				DHCPProtocol.DHCP_SERVER_PORT, 
 				dhcpDiscover.getBytes());
 		
-		String result = visitor.visit(pc1.getUDPProtocol(), datagram);
+		String result = visitor.toString(datagram);
 		System.out.println(result);
 		StringBuilder expected = new StringBuilder();
 		expected.append(datagram.toHeaderString()).append("\n");
@@ -253,7 +306,7 @@ class TestToStringVisitor {
 				dhcpDiscover.getBytes());
 		IPPacket packet = datagram.toIPPacket(pc1.getIPAddress(), pc2.getIPAddress(), 64);
 		
-		String result = visitor.visit(pc1.getIPProtocol(), packet);
+		String result = visitor.toString(packet);
 		System.out.println(result);
 		StringBuilder expected = new StringBuilder();
 		expected.append(packet.toHeaderString()).append("\n");
@@ -277,7 +330,7 @@ class TestToStringVisitor {
         		pc2.getMACAddress(), pc1.getMACAddress(),
         		IPProtocol.ETHERTYPE, packet.getBytes());
 		
-		String result = visitor.visit(pc1.getEthernetProtocol(), frame);
+		String result = visitor.toString(frame);
 		System.out.println(result);
 		StringBuilder expected = new StringBuilder();
 		expected.append(frame.toHeaderString()).append("\n");
@@ -295,7 +348,7 @@ class TestToStringVisitor {
 		var datagram = new UDPDatagram(ChatApplication.PRIVATE_PORT, 
 				ChatApplication.PUBLIC_PORT, "Chat hello".getBytes());
 
-		String result = visitor.visit(pc1.getUDPProtocol(), datagram);
+		String result = visitor.toString(datagram);
 		System.out.println(result);
 		String expected = datagram.toHeaderString() + "\n"
 				+ "  Chat hello\n";
