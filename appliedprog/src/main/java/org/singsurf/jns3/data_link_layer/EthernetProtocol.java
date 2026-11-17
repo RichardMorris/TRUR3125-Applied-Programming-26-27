@@ -1,5 +1,6 @@
 package org.singsurf.jns3.data_link_layer;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.singsurf.jns3.Jns3Logger;
@@ -27,6 +28,7 @@ public class EthernetProtocol implements Protocol, LowerPhysicalAdapter, UpperPo
 	MultiPortFrameReceiver frameReceiver;
 	FrameDelegator delegator;
 	MultiPortFrameSender frameSender;
+	List<LowerAdapter<EthernetFrame>> childProtocols = new ArrayList<>();
 
 	public EthernetProtocol(ProtocolDevice device) {
 		this.name = device.getName() + "-ETH";
@@ -68,6 +70,7 @@ public class EthernetProtocol implements Protocol, LowerPhysicalAdapter, UpperPo
 		for(var h: adapter.getInboundHandlers()) {
 			delegator.addHandler(h);
 		}
+		childProtocols.add(adapter);
 	}
 
 	@Override
@@ -104,6 +107,11 @@ public class EthernetProtocol implements Protocol, LowerPhysicalAdapter, UpperPo
 
 	public List<Integer> getPortsForMacAddress(MACAddress destMac, MACAddress srcMac) {
 		return portMapper.getPortsForMacAddress(destMac, srcMac);
+	}
+
+	@Override
+	public List<LowerAdapter<EthernetFrame>> getChildProtocols() {
+		return childProtocols;
 	}
 
 }

@@ -7,6 +7,7 @@ import org.singsurf.jns3.generic_protocol.Protocol;
 import org.singsurf.jns3.generic_protocol.ProtocolHandler;
 import org.singsurf.jns3.generic_protocol.ProtocolReceiver;
 import org.singsurf.jns3.generic_protocol.ProtocolSender;
+import org.singsurf.jns3.generic_protocol.ProtocolVisitor;
 import org.singsurf.jns3.hardware.ProtocolDevice;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPPacket;
@@ -71,5 +72,12 @@ public class ICMPProtocol implements Protocol, LowerAdapter<IPPacket> {
 	@Override
 	public String getName() {
 		return name;
+	}
+
+	@Override
+	public <R> R accept(ProtocolVisitor<R> visitor, IPPacket frame) {
+		if(! ICMPMessage.isICMPMessage(frame)) return null;
+		var icmpMessage = ICMPMessage.parsePacket(frame);
+		return visitor.visit(this, icmpMessage);
 	}
 }

@@ -1,5 +1,6 @@
 package org.singsurf.jns3.network_layer;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
@@ -10,6 +11,7 @@ import org.singsurf.jns3.generic_protocol.ProtocolDelegator;
 import org.singsurf.jns3.generic_protocol.ProtocolHandler;
 import org.singsurf.jns3.generic_protocol.ProtocolReceiver;
 import org.singsurf.jns3.generic_protocol.ProtocolSender;
+import org.singsurf.jns3.generic_protocol.ProtocolVisitor;
 import org.singsurf.jns3.generic_protocol.UpperPort;
 import org.singsurf.jns3.hardware.ProtocolDevice;
 
@@ -34,7 +36,7 @@ public class IPProtocol implements Protocol, LowerAdapter<EthernetFrame>, UpperP
 	ARPUpdater arpUpdater;
 	IPFrameHandler frameHandler;
 	DefaultPacketHandler defaultReciver;
-
+	List<LowerAdapter<IPPacket>> childProtocols = new ArrayList<>();
 	public IPProtocol(ProtocolDevice device, boolean isRouter) {
 		this.device = device;
 		this.isRouter = isRouter;
@@ -65,6 +67,7 @@ public class IPProtocol implements Protocol, LowerAdapter<EthernetFrame>, UpperP
 		for(var h: adapter.getInboundHandlers()) {
 			delegator.addHandler(h);
 		}
+		childProtocols.add(adapter);
 	}
 
 	@Override
@@ -153,4 +156,18 @@ Wireless LAN adapter WiFi:
 	public String getName() {
 		return name;
 	}
+	
+	@Override
+	public <R> R accept(ProtocolVisitor<R> visitor, EthernetFrame frame) {
+		var extractor = IPPacketExtractor.getInstance();
+		if(!extractor.isExtractable(frame)) return null;
+		var packet = extractor.extract(frame);
+	    return visitor.visit(this, packet);
+	}
+
+	@Override
+	public List<LowerAdapter<IPPacket>> getChildProtocols() {
+		return childProtocols;
+	}
+
 }

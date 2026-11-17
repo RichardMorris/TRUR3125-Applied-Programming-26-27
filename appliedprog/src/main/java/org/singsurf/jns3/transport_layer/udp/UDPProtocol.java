@@ -8,10 +8,12 @@ import org.singsurf.jns3.generic_protocol.Protocol;
 import org.singsurf.jns3.generic_protocol.ProtocolHandler;
 import org.singsurf.jns3.generic_protocol.ProtocolReceiver;
 import org.singsurf.jns3.generic_protocol.ProtocolSender;
+import org.singsurf.jns3.generic_protocol.ProtocolVisitor;
 import org.singsurf.jns3.generic_protocol.UpperSocketPort;
 import org.singsurf.jns3.hardware.ProtocolDevice;
 import org.singsurf.jns3.network_layer.IPPacket;
 import org.singsurf.jns3.network_layer.PacketSender;
+import org.singsurf.jns3.transport_layer.udp.UDPDatagram.PseudoHeader;
 
 /**
  * Implements the User Datagram Protocol.
@@ -59,6 +61,14 @@ public class UDPProtocol implements Protocol, LowerAdapter<IPPacket>, UpperSocke
 	@Override
 	public String getName() {
 		return name;
+	}
+
+	@Override
+	public <R> R accept(ProtocolVisitor<R> visitor, IPPacket packet) {
+		if(packet.getProtocol() != IPPacket.UDP) return null;
+		var psudo = new PseudoHeader(packet.getSourceAddress(), packet.getDestinationAddress(), IPPacket.UDP);
+		var datagram = UDPDatagram.fromBytes(packet.getContents(),psudo);
+		return visitor.visit(this, datagram);
 	}
 
 

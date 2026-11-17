@@ -10,6 +10,7 @@ import org.singsurf.jns3.generic_protocol.Protocol;
 import org.singsurf.jns3.generic_protocol.ProtocolHandler;
 import org.singsurf.jns3.generic_protocol.ProtocolReceiver;
 import org.singsurf.jns3.generic_protocol.ProtocolSender;
+import org.singsurf.jns3.generic_protocol.ProtocolVisitor;
 import org.singsurf.jns3.hardware.ProtocolDevice;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPProtocol;
@@ -101,6 +102,14 @@ public class ARPProtocol implements Protocol, LowerAdapter<EthernetFrame> {
 	@Override
 	public String getName() {
 		return name;
+	}
+
+	@Override
+	public <R> R accept(ProtocolVisitor<R> visitor, EthernetFrame frame) {
+		if(frame.getEtherType() != ARPProtocol.ARP_ETHER_TYPE) return null;
+
+	    var arpMessage = ARPMessage.fromFrame(frame);
+	    return visitor.visit(this, arpMessage);
 	}
 
 }
