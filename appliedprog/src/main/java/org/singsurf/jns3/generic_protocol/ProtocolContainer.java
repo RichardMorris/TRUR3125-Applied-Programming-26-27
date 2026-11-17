@@ -24,6 +24,7 @@ public interface ProtocolContainer {
 	 * Returns a string representation of the header of the protocol container,
 	 * but not the data section.
 	 * @return a string representation of the header, with no line breaks.
+	 * @since week 18
 	 */
 	String toHeaderString();
 }
