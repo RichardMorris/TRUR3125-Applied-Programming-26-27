@@ -88,7 +88,7 @@ public class ARPMessage implements ProtocolContainer {
 		return frame.getEtherType() == ARPProtocol.ARP_ETHER_TYPE;
 	}
     
-    static ARPMessage fromFrame(EthernetFrame frame) {
+    static ARPMessage fromFrame(ProtocolContainer frame) {
         byte[] data = frame.getContents();
         boolean isRequest = data[6] == 0x00 && data[7] == 0x01;
         byte[] senderMacBytes = new byte[6];
@@ -126,4 +126,16 @@ public class ARPMessage implements ProtocolContainer {
 	public boolean isValid() {
 		return true;
 	}
+	
+	@Override
+	public String toString() {
+		return "ARPMessage[isRequest=" + isRequest + ", senderMac=" + senderMac + ", targetMac=" + targetMac
+				+ ", senderIp=" + senderIp + ", targetIp=" + targetIp + "]";
+	}
+
+	@Override
+	public String toHeaderString() {
+		return toString();
+	}
+	
 }

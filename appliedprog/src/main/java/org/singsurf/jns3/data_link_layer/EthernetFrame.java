@@ -140,12 +140,12 @@ public class EthernetFrame implements ProtocolContainer {
     
     @Override
     public String toString() {
-        return "EthernetFrame{" +
-                "destination=" + destination +
-                ", source=" + source +
+        return "EthernetFrame[" +
+                "destMAC=" + destination +
+                ", srcMAC=" + source +
                 ", etherType=" + etherType +
                 ", payload=" + new String(payload) +
-                '}';
+                ']';
     }
     
     @Override
@@ -167,6 +167,15 @@ public class EthernetFrame implements ProtocolContainer {
                 destination.equals(that.destination) &&
                 source.equals(that.source) &&
                 Arrays.equals(payload, that.payload);
+    }
+
+    @Override
+	public String toHeaderString() {
+        return "EthernetFrame[" +
+                "destMAC=" + destination +
+                ", srcMAC=" + source +
+                ", etherType=" + String.format("0x%04X", etherType) +
+                ']';
     }
 
 

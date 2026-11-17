@@ -2,7 +2,6 @@ package org.singsurf.jns3.network_layer;
 
 import java.util.Arrays;
 
-import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.generic_protocol.ProtocolContainer;
 
 /**
@@ -96,8 +95,7 @@ public class IPPacket implements ProtocolContainer {
         this.data = data;
     }
 
-    public IPPacket(byte protocol, FragmentInfo frag,
-            byte timeToLive, 
+    public IPPacket(byte protocol, FragmentInfo frag, byte timeToLive, 
             IPAddress sourceAddress, IPAddress destinationAddress, byte[] data) {
         this.data = data != null ? data.clone() : new byte[0];
         this.totalLength = (short) (20 + data.length);
@@ -302,7 +300,7 @@ public class IPPacket implements ProtocolContainer {
 		headerChecksum = this.calculateHeaderChecksum().getComplement().getValue();
 	}
 
-	static IPPacket fromFrame(EthernetFrame frame) {
+	static IPPacket fromFrame(ProtocolContainer frame) {
 		return IPPacket.fromBytes(frame.getContents());
 	}
 
@@ -314,6 +312,10 @@ public class IPPacket implements ProtocolContainer {
 	public void setDestinationIP(IPAddress privateIP) {
 		this.destinationAddress = privateIP;
 		recalculateHeaderChecksum();
+	}
+
+	public String toHeaderString() {
+		return toString();
 	}
 
 

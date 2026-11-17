@@ -19,4 +19,11 @@ public interface ProtocolContainer {
 	 * @return true if it passes all check, false otherwise. 
 	 */
 	public boolean isValid();
+	
+	/**
+	 * Returns a string representation of the header of the protocol container,
+	 * but not the data section.
+	 * @return a string representation of the header, with no line breaks.
+	 */
+	String toHeaderString();
 }

@@ -443,5 +443,10 @@ public class DHCPMessage implements ProtocolContainer {
 				", options=" + options.size() + "]";
 	}
 
+	@Override
+	public String toHeaderString() {
+		return toString();
+	}
+
 
 }

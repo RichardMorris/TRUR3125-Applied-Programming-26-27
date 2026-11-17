@@ -30,7 +30,7 @@ public class ICMPMessage implements ProtocolContainer {
 	public static final byte HOST_UNREACHABLE_CODE = 1;
 	public static final byte PORT_UNREACHABLE_CODE = 3;
 	
-	static final byte PING_REQUEST_TYPE = 8;
+	public static final byte PING_REQUEST_TYPE = 8;
 
 	static final byte TIME_EXCEEDED = 11;
 	static final byte TTL_EXCEEDED_CODE = 0;
@@ -263,6 +263,11 @@ public class ICMPMessage implements ProtocolContainer {
 
 	public PsudoHeader getPsudoHeader() {
 		return psudoHeader;
+	}
+
+	@Override
+	public String toHeaderString() {
+		return toString();
 	}
 
 }
