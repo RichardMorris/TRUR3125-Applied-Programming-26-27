@@ -11,10 +11,11 @@ import org.singsurf.jns3.hardware.NamedDevice;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPPacket;
 import org.singsurf.jns3.network_layer.IPProtocol;
+import org.singsurf.jns3.network_layer.OnesComplementNumber;
 import org.singsurf.jns3.network_layer.PacketHandler;
 import org.singsurf.jns3.network_layer.PacketSender;
 import org.singsurf.jns3.network_layer.icmp.ICMPMessage;
-import org.singsurf.jns3.transport_layer.udp.UDPDatagram.PsudoHeader;
+import org.singsurf.jns3.transport_layer.udp.UDPDatagram.PseudoHeader;
 
 /**
  * Controller for incoming/outbound data
@@ -37,14 +38,17 @@ public class UDPController implements PacketHandler, NamedDevice {
 	}
 
 	private void receive(IPPacket packet) {
-		var psudo = new PsudoHeader(packet.getSourceAddress(), packet.getDestinationAddress(), IPPacket.UDP);
+		var psudo = new PseudoHeader(packet.getSourceAddress(), packet.getDestinationAddress(), IPPacket.UDP);
 		var datagram = UDPDatagram.fromBytes(packet.getContents(),psudo);
 		var lookupAddress = 
 				packet.getDestinationAddress().equals(device.getMulticastAddress())
 					|| packet.getDestinationAddress().equals(IPProtocol.LIMITED_MULTICAST_ADDRESS)
 				? packet.getDestinationAddress() 
 				: packet.getSourceAddress();
-		
+		var check = datagram.calculateHeaderChecksum();
+		if(!check.equals(OnesComplementNumber.MINUS_ZERO)) {
+			Jns3Logger.logWarn(name, "Received UDP datagram with invalid checksum from " + packet.getSourceAddress() + " on port " + datagram.getDestinationPort());
+		}
 		
 		var table = bindings.get(lookupAddress);
 		if(table == null) {
@@ -95,8 +99,13 @@ public class UDPController implements PacketHandler, NamedDevice {
 			Jns3Logger.logError(name, "No socket found for port " + port);
 			return;
 		}
-		var packet = new IPPacket(IPPacket.UDP, 64,
-				device.getIPAddress(), boundAddress, datagram.getBytes()); 
+		IPPacket packet = datagram.toIPPacket(device.getIPAddress(), boundAddress, 64);
+		var check = datagram.calculateHeaderChecksum();
+		if(!check.equals(OnesComplementNumber.MINUS_ZERO)) {
+			Jns3Logger.logError(name, "Sending UDP datagram with invalid checksum from " + packet.getSourceAddress() + " on port " + datagram.getDestinationPort());
+			return;
+		}
+
 		packetSender.send(packet);		  
 	}
 
