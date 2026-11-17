@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import org.singsurf.jns3.generic_protocol.ProtocolContainer;
 
 class TestFrameCreation {
     
@@ -90,7 +91,7 @@ class TestFrameCreation {
         assertEquals((short) (message.length() - 1500), frame2.getEtherType());
         assertArrayEquals(message.substring(1500).getBytes(), frame2.getContents());
 		StringBuilder sb1 = new StringBuilder();
-		for (EthernetFrame frame : frames) {
+		for (ProtocolContainer frame : frames) {
 		    sb1.append(new String(frame.getContents()));
 		}
         String res = sb1.toString();

@@ -17,4 +17,5 @@ public class ByteToFrameConverter implements ByteConverter<EthernetFrame> {
 		return frame.getBytes();
 	}
 
+
 }

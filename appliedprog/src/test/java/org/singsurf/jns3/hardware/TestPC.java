@@ -32,7 +32,7 @@ class TestPC {
 		byte[] payload = "Hello, PC!".getBytes();
 		short etherType = (short) payload.length;
 
-        EthernetFrame frame = new EthernetFrame(destination, source, etherType, payload);
+        var frame = new EthernetFrame(destination, source, etherType, payload);
 
         Jns3Logger.clearLog();
         pc.getEthernetProtocol().getFrameReceiver().receive(frame);
@@ -53,7 +53,7 @@ class TestPC {
 		byte[] payload = "Hello, PC!".getBytes();
 		short etherType = (short) payload.length;
 
-        EthernetFrame frame = new EthernetFrame(destination, source, etherType, payload);
+        var frame = new EthernetFrame(destination, source, etherType, payload);
 
         Jns3Logger.clearLog();
         pc.getEthernetProtocol().getFrameReceiver().receive(frame);

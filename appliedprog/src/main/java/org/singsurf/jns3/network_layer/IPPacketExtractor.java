@@ -11,18 +11,19 @@ public class IPPacketExtractor implements ProtocolExtractor<EthernetFrame, IPPac
 	public IPPacketExtractor() {
 	}
 
-	@Override
-	public IPPacket extract(EthernetFrame type) {
-		return IPPacket.fromFrame(type);
-	}
-
 	public static IPPacketExtractor getInstance() {
 		return INSTANCE;
 	}
 
+
 	@Override
 	public boolean isExtractable(EthernetFrame frame) {
 		return IPPacket.isIPPacket(frame.getContents());
+	}
+
+	@Override
+	public IPPacket extract(EthernetFrame type) {
+		return IPPacket.fromBytes(type.getContents());
 	}
 
 }

@@ -62,7 +62,7 @@ class TestEthernetFrame {
         byte[] payload = new byte[] {
             0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x2C, 0x20, 0x45, 0x74, 0x68, 0x65, 0x72, 0x6E, 0x65, 0x74, 0x21
         };
-        EthernetFrame frame = new EthernetFrame(destination, source, (short) payload.length, payload);
+        var frame = new EthernetFrame(destination, source, (short) payload.length, payload);
         byte[] frameBytes = converter.toBytes(frame);
         
         

@@ -10,6 +10,7 @@ import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.data_link_layer.FrameReceiver;
 import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.data_link_layer.MACAddressable;
+import org.singsurf.jns3.generic_protocol.ProtocolContainer;
 import org.singsurf.jns3.hardware.DeviceFactory;
 import org.singsurf.jns3.hardware.NamedDevice;
 import org.singsurf.jns3.hardware.PC;
@@ -125,7 +126,7 @@ class TestCorruptedConnection {
     public void test_corrupt_CRC() {
 		byte[] payload = "Hello PC2 from PC1".getBytes();
 		short etherType = (short) payload.length;
-		var frame = new EthernetFrame(receiver.getMACAddress(), pc1.getMACAddress(), etherType, payload);
+		ProtocolContainer frame = new EthernetFrame(receiver.getMACAddress(), pc1.getMACAddress(), etherType, payload);
         byte[] bytes = frame.getBytes();
 
         for(int i=0; i<14+frame.getContents().length+4; ++i) {
