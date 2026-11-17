@@ -6,6 +6,7 @@ import org.singsurf.jns3.data_link_layer.arp.ARPMessage;
 import org.singsurf.jns3.data_link_layer.arp.ARPProtocol;
 import org.singsurf.jns3.generic_protocol.ProtocolContainer;
 import org.singsurf.jns3.generic_protocol.ProtocolVisitor;
+import org.singsurf.jns3.generic_protocol.UpperPort;
 import org.singsurf.jns3.hardware.ProtocolDevice;
 import org.singsurf.jns3.network_layer.IPPacket;
 import org.singsurf.jns3.network_layer.IPProtocol;
@@ -20,16 +21,25 @@ import org.singsurf.jns3.transport_layer.udp.UDPProtocol;
  * A visitor that generates a string representation of the protocol container and its children.
  * Each layer in the string is include on a separate line
  * indented to show the hierarchy of the protocol stack.
- * @since week 18
+ * @since Week 18
  */
 public class ToStringVisitor implements ProtocolVisitor<String> {
-	ProtocolDevice device;
+	private static final String INDENT_STR = "  ";
 
+	ProtocolDevice device;
 
 	public ToStringVisitor(ProtocolDevice device) {
 		this.device = device;
 	}
 	
+	/**
+	 * Main entry point for generating a string representation of a protocol container
+	 * and its children.
+	 * Uses <a href="https://openjdk.org/jeps/441">JEP 441: Pattern Matching for switch</a> 
+	 * to determine the type of the container and dispatch to the appropriate visit method.
+	 * @param container the frame or packet or other type of message to generate a string representation for.
+	 * @return a string representation of the container and its children
+	 */
 	public String toString(ProtocolContainer container) {
 		switch(container) {
 			case EthernetFrame frame -> {
@@ -58,46 +68,45 @@ public class ToStringVisitor implements ProtocolVisitor<String> {
 		String[] lines = str.split("\n");
 		StringBuilder sb = new StringBuilder();
 		for(String line: lines) {
-			sb.append("  ").append(line).append('\n');
+			sb.append(INDENT_STR).append(line).append('\n');
+		}
+		return sb.toString();
+	}
+	
+	/**
+	 * A template method that handles the common logic of visiting a protocol container and its children.
+	 * <p>
+	 * Only public for explanatory purposes.
+	 * @param <T> The type of the protocol container.
+	 * @param prot The protocol to visit.
+	 * @param container The protocol container to process.
+	 * @return a string representation of the protocol container and its children, or null if no children were found.
+	 */
+	public <T extends ProtocolContainer> String innerVisit(UpperPort<T> prot, T container) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(container.toHeaderString()).append('\n');
+		boolean foundChild = false;
+		for(var child: prot.getChildProtocols()) {
+			var res = child.accept(this, container);
+			if(res != null) {
+				sb.append(indent(res));
+				foundChild = true;
+			}
+		}
+		if(!foundChild) {
+			sb.append(INDENT_STR).append(new String(container.getContents())).append('\n');
 		}
 		return sb.toString();
 	}
 	
 	@Override
 	public String visit(EthernetProtocol protocol, EthernetFrame frame) {
-		StringBuilder sb = new StringBuilder();
-		sb.append(frame.toHeaderString()).append('\n');
-		boolean foundChild = false;
-		for(var child: protocol.getChildProtocols()) {
-			var res = child.accept(this, frame);
-			if(res != null) {
-				sb.append(indent(res));
-				foundChild = true;
-			}
-		}
-		if(!foundChild) {
-			sb.append("  ").append(frame.getPayloadAsString()).append('\n');
-		}
-		
-		return sb.toString();
+		return innerVisit(protocol, frame);
 	}
 
 	@Override
 	public String visit(IPProtocol protocol, IPPacket packet) {
-		StringBuilder sb = new StringBuilder();
-		sb.append(packet.toHeaderString()).append('\n');
-		boolean foundChild = false;
-		for(var child: protocol.getChildProtocols()) {
-			var res = child.accept(this, packet);
-			if(res != null) {
-				sb.append(indent(res));
-				foundChild = true;
-			}
-		}
-		if(!foundChild) {
-			sb.append("  ").append(packet.getDataAsString()).append('\n');
-		}		
-		return sb.toString();
+		return innerVisit(protocol, packet);
 	}
 
 	@Override
@@ -117,7 +126,7 @@ public class ToStringVisitor implements ProtocolVisitor<String> {
 			var inner = visit(device.getIPProtocol(), ipHeader);
 			sb.append(indent(inner));
 		} else if(msg.getContents().length > 0) {
-			sb.append("  ").append(new String(msg.getContents())).append('\n');
+			sb.append(INDENT_STR).append(new String(msg.getContents())).append('\n');
 		}
 		return sb.toString();
 	}
@@ -129,19 +138,16 @@ public class ToStringVisitor implements ProtocolVisitor<String> {
 		if(datagram.getContents().length == 0) {
 			return sb.toString();
 		}
-		boolean foundChild = false;
 		for(var child: protocol.getChildProtocols()) {
 			var res = child.accept(this, datagram);
 			if(res != null) {
 				sb.append(indent(res));
-				foundChild = true;
+				return sb.toString();
 			}
 		}
-		if(!foundChild) {
-			if(datagram.getContents().length > 0) {
-				sb.append("  ").append(new String(datagram.getContents())).append('\n');
-			}
-		}		
+		if(datagram.getContents().length > 0) {
+			sb.append(INDENT_STR).append(new String(datagram.getContents())).append('\n');
+		}
 		return sb.toString();
 	}
 
@@ -151,7 +157,7 @@ public class ToStringVisitor implements ProtocolVisitor<String> {
 		sb.append(msg.toHeaderString()).append('\n');
 		var options = msg.getOptions();
 		for(var option: options) {
-			sb.append("  ").append(option).append('\n');
+			sb.append(INDENT_STR).append(option).append('\n');
 		}
 		return sb.toString();
 	}
