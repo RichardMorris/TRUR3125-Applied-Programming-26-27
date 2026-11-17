@@ -49,6 +49,11 @@ class TestProtocolsComponents {
 		public boolean isValid() {
 			return true;
 		}
+		@Override
+		public String toHeaderString() {
+			// TODO Auto-generated method stub
+			return null;
+		}
 	}
 
 	
@@ -74,6 +79,11 @@ class TestProtocolsComponents {
 		public boolean isValid() {
 			return true;
 		}
+		@Override
+		public String toHeaderString() {
+			// TODO Auto-generated method stub
+			return null;
+		}
 	}
 	
 	
@@ -98,6 +108,11 @@ class TestProtocolsComponents {
 		@Override
 		public boolean isValid() {
 			return true;
+		}
+		@Override
+		public String toHeaderString() {
+			// TODO Auto-generated method stub
+			return null;
 		}
 	}
 	

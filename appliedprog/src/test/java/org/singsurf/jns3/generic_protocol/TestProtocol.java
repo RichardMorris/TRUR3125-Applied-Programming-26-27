@@ -38,6 +38,11 @@ class TestProtocol {
 		public boolean isValid() {
 			return true;
 		}
+		@Override
+		public String toHeaderString() {
+			// TODO Auto-generated method stub
+			return null;
+		}
 	}
 
 	
@@ -62,6 +67,11 @@ class TestProtocol {
 		@Override
 		public boolean isValid() {
 			return true;
+		}
+		@Override
+		public String toHeaderString() {
+			// TODO Auto-generated method stub
+			return null;
 		}
 	}
 	
@@ -88,6 +98,11 @@ class TestProtocol {
 		public boolean isValid() {
 			return true;
 		}
+		@Override
+		public String toHeaderString() {
+			// TODO Auto-generated method stub
+			return null;
+		}
 	}
 
 
@@ -112,6 +127,11 @@ class TestProtocol {
 		@Override
 		public boolean isValid() {
 			return true;
+		}
+		@Override
+		public String toHeaderString() {
+			// TODO Auto-generated method stub
+			return null;
 		}
 	}
 
@@ -145,6 +165,12 @@ class TestProtocol {
 		public void finalise() {
 			// TODO Auto-generated method stub
 			
+		}
+
+		@Override
+		public List<LowerAdapter<TypeA>> getChildProtocols() {
+			// TODO Auto-generated method stub
+			return null;
 		}
 	}
 	
@@ -246,6 +272,18 @@ class TestProtocol {
 			
 		}
 
+		@Override
+		public <R> R accept(ProtocolVisitor<R> visitor, TypeA frame) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public List<LowerAdapter<TypeB>> getChildProtocols() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
 	}
 	
 	
@@ -319,6 +357,12 @@ class TestProtocol {
 		
 		@Override
 		public void setInboundCallback(ProtocolReceiver<TypeB> r) {
+		}
+
+		@Override
+		public <R> R accept(ProtocolVisitor<R> visitor, TypeB frame) {
+			// TODO Auto-generated method stub
+			return null;
 		}
 
 
@@ -395,6 +439,12 @@ class TestProtocol {
 			transDB.send(packed);
 		}
 
+		@Override
+		public <R> R accept(ProtocolVisitor<R> visitor, TypeB frame) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
 	}
 
 	/**
@@ -438,6 +488,12 @@ class TestProtocol {
 		public void setInboundCallback(ProtocolReceiver<TypeB> r) {
 			delegator = r;
 		}
+
+		@Override
+		public <R> R accept(ProtocolVisitor<R> visitor, TypeB frame) {
+			// TODO Auto-generated method stub
+			return null;
+		}
 	}	
 	
 
@@ -475,6 +531,12 @@ class TestProtocol {
 		}
 		@Override
 		public void setInboundCallback(ProtocolReceiver<TypeB> r) {
+		}
+
+		@Override
+		public <R> R accept(ProtocolVisitor<R> visitor, TypeB frame) {
+			// TODO Auto-generated method stub
+			return null;
 		}
 	}	
 
@@ -518,6 +580,12 @@ class TestProtocol {
 		@Override
 		public void setInboundCallback(ProtocolReceiver<TypeB> r) {
 			delegator = r;
+		}
+
+		@Override
+		public <R> R accept(ProtocolVisitor<R> visitor, TypeB frame) {
+			// TODO Auto-generated method stub
+			return null;
 		}
 
 	}	
