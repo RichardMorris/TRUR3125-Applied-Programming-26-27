@@ -21,21 +21,20 @@ import org.singsurf.jns3.network_layer.OnesComplementNumber;
  * See <a href="../../../../../../../Week11.md">Week 11</a>.
  */
 public class ICMPMessage implements ProtocolContainer {
-	private static final byte TOO_SHORT_CODE = (byte) 2;
-	private static final byte BAD_CHECKSUM_CODE = (byte) 0;
-	
-	static final byte PING_REPLY_TYPE = 0;
+	public static final byte PING_REPLY_TYPE = 0;
 
-	static final byte DEST_UNREACHABLE_TYPE = 3;
+	public static final byte DEST_UNREACHABLE_TYPE = 3;
 	public static final byte HOST_UNREACHABLE_CODE = 1;
 	public static final byte PORT_UNREACHABLE_CODE = 3;
 	
 	public static final byte PING_REQUEST_TYPE = 8;
 
-	static final byte TIME_EXCEEDED = 11;
-	static final byte TTL_EXCEEDED_CODE = 0;
+	public static final byte TIME_EXCEEDED = 11;
+	public static final byte TTL_EXCEEDED_CODE = 0;
 
-	static final byte PARAMETER_PROBLEM = 12;
+	public static final byte PARAMETER_PROBLEM = 12;
+	public static final byte BAD_CHECKSUM_CODE = 0;
+	public static final byte TOO_SHORT_CODE = 2;
 	
 	/**
 	 * A pseudo-header with information from the enclosing IPPacket.

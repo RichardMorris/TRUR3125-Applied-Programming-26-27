@@ -149,6 +149,14 @@ public class UDPDatagram implements ProtocolContainer {
 		return new UDPDatagram(sourcePort, destinationPort, contents,psudo);
 	}
 
+	/**
+	 * Creates a UDPDatagram from the given byte array and pseudo header.
+	 * Checksum and length are taken from the datagram, not recalculated,
+	 * so may produce an invalid UDPDatagram if the checksum is incorrect.
+	 * @param datagram the byte array containing the UDP datagram
+	 * @param psudo the pseudo header used for checksum calculation
+	 * @return a new UDPDatagram instance
+	 */
 	public static UDPDatagram safeFromBytes(byte[] datagram, PseudoHeader psudo) {
 		short sourcePort = (short) ((datagram[0] << 8) | (datagram[1] & 0xFF));
 		short destinationPort = (short) ((datagram[2] << 8) | (datagram[3] & 0xFF));
