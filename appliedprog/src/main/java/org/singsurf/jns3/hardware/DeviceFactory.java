@@ -1,14 +1,13 @@
 package org.singsurf.jns3.hardware;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import org.singsurf.jns3.data_link_layer.ARPController;
 import org.singsurf.jns3.data_link_layer.DefaultFrameHandler;
+import org.singsurf.jns3.data_link_layer.FrameChecker;
 import org.singsurf.jns3.data_link_layer.FrameFactory;
 import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.network_layer.IPAddress;
-import org.singsurf.jns3.data_link_layer.FrameChecker;
-import java.util.ArrayList;
 
 public class DeviceFactory {
     List<MACAddress> macAddresses = new ArrayList<>();
