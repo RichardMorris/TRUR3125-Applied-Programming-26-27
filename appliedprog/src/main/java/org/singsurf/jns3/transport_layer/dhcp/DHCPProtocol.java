@@ -157,6 +157,9 @@ public class DHCPProtocol implements Protocol, LowerSocketAdapter<UDPDatagram>, 
 		if(container.getDestinationPort() !=  DHCP_SERVER_PORT  
 				&& container.getDestinationPort() != DHCP_CLIENT_PORT) 
 			return null;
+		if(!DHCPMessage.isExtractable(container)) {
+			return null;
+		}
 		DHCPMessage dhcpMessage = new DHCPMessage(container.getContents());
 		return visitor.visit(this, dhcpMessage);
 	}
