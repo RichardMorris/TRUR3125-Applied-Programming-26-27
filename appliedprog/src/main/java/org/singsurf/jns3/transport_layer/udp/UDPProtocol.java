@@ -70,7 +70,7 @@ public class UDPProtocol implements Protocol, LowerAdapter<IPPacket>, UpperSocke
 	public <R> R accept(ProtocolVisitor<R> visitor, IPPacket packet) {
 		if(packet.getProtocol() != IPPacket.UDP) return null;
 		var psudo = new PseudoHeader(packet.getSourceAddress(), packet.getDestinationAddress(), IPPacket.UDP);
-		var datagram = UDPDatagram.fromBytes(packet.getContents(),psudo);
+		var datagram = UDPDatagram.safeFromBytes(packet.getContents(),psudo);
 		return visitor.visit(this, datagram);
 	}
 

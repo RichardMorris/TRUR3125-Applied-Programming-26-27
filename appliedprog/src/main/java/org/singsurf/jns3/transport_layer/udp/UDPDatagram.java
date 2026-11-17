@@ -80,11 +80,19 @@ public class UDPDatagram implements ProtocolContainer {
 
 	/**
 	 * Uses the provided checksum
+	 * @param srcPort source port
+	 * @param destPort destination port
+	 * @param check checksum - used rather than recalculated
+	 * @param origLen original length of the datagram
+	 * @param contents payload
+	 * @param psudoHeader used for calculating the checksum, not transmitted
 	 */
-	public UDPDatagram(short sourcePort, short destinationPort, short check, byte[] contents, PseudoHeader psudoHeader) {
+	public UDPDatagram(short sourcePort, short destinationPort, 
+			short check, short origLen, 
+			byte[] contents, PseudoHeader psudoHeader) {
 		this.sourcePort = sourcePort;
 		this.destinationPort = destinationPort;
-		this.length = (short) (contents.length+ 8); // 8 bytes for the UDP header
+		this.length = origLen; // 8 bytes for the UDP header
 		this.checksum = check;
 		this.contents = contents;
 		this.psudoHeader = psudoHeader;
@@ -124,7 +132,14 @@ public class UDPDatagram implements ProtocolContainer {
 		return datagram;
 	}
 	
-	static UDPDatagram fromBytes(byte[] datagram, PseudoHeader psudo) {
+	/**
+	 * Creates a UDPDatagram from the given byte array and pseudo header.
+	 * Checksum and length are calculated from the datagram and pseudo header.
+	 * @param datagram the byte array containing the UDP datagram
+	 * @param psudo the pseudo header used for checksum calculation
+	 * @return a new UDPDatagram instance
+	 */
+	public static UDPDatagram fromBytes(byte[] datagram, PseudoHeader psudo) {
 		short sourcePort = (short) ((datagram[0] << 8) | (datagram[1] & 0xFF));
 		short destinationPort = (short) ((datagram[2] << 8) | (datagram[3] & 0xFF));
 		short length = (short) ((datagram[4] << 8) | (datagram[5] & 0xFF));
@@ -132,6 +147,17 @@ public class UDPDatagram implements ProtocolContainer {
 		byte[] contents = new byte[length - 8];
 		System.arraycopy(datagram, 8, contents, 0, contents.length);
 		return new UDPDatagram(sourcePort, destinationPort, contents,psudo);
+	}
+
+	public static UDPDatagram safeFromBytes(byte[] datagram, PseudoHeader psudo) {
+		short sourcePort = (short) ((datagram[0] << 8) | (datagram[1] & 0xFF));
+		short destinationPort = (short) ((datagram[2] << 8) | (datagram[3] & 0xFF));
+		short origLen = (short) ((datagram[4] << 8) | (datagram[5] & 0xFF));
+		short checksum = (short) ((datagram[6] << 8) | (datagram[7] & 0xFF));
+		short length = (short) (datagram.length);
+		byte[] contents = new byte[length - 8];
+		System.arraycopy(datagram, 8, contents, 0, contents.length);
+		return new UDPDatagram(sourcePort, destinationPort, checksum, origLen, contents, psudo);
 	}
 
 	public String toString() {
