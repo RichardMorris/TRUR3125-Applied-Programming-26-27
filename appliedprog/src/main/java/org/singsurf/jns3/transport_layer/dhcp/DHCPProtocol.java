@@ -9,6 +9,7 @@ import org.singsurf.jns3.generic_protocol.LowerSocketAdapter;
 import org.singsurf.jns3.generic_protocol.Protocol;
 import org.singsurf.jns3.generic_protocol.ProtocolDelegator;
 import org.singsurf.jns3.generic_protocol.ProtocolReceiver;
+import org.singsurf.jns3.generic_protocol.ProtocolVisitor;
 import org.singsurf.jns3.generic_protocol.SocketFactory;
 import org.singsurf.jns3.hardware.GlobalWallClock;
 import org.singsurf.jns3.hardware.GlobalWallClock.TickListener;
@@ -148,6 +149,16 @@ public class DHCPProtocol implements Protocol, LowerSocketAdapter<UDPDatagram>, 
 	@Override
 	public String getName() {
 		return name;
+	}
+
+
+	@Override
+	public <R> R accept(ProtocolVisitor<R> visitor, UDPDatagram container) {
+		if(container.getDestinationPort() !=  DHCP_SERVER_PORT  
+				&& container.getDestinationPort() != DHCP_CLIENT_PORT) 
+			return null;
+		DHCPMessage dhcpMessage = new DHCPMessage(container.getContents());
+		return visitor.visit(this, dhcpMessage);
 	}
 
 }

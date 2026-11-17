@@ -4,8 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.singsurf.jns3.application_layer.ChatApplication;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
-import org.singsurf.jns3.data_link_layer.EthernetProtocol;
 import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.data_link_layer.arp.ARPMessage;
 import org.singsurf.jns3.data_link_layer.arp.ARPProtocol;
@@ -14,6 +14,8 @@ import org.singsurf.jns3.hardware.PC;
 import org.singsurf.jns3.network_layer.IPPacket;
 import org.singsurf.jns3.network_layer.IPProtocol;
 import org.singsurf.jns3.network_layer.icmp.ICMPMessage;
+import org.singsurf.jns3.transport_layer.dhcp.DHCPMessage;
+import org.singsurf.jns3.transport_layer.dhcp.DHCPProtocol;
 import org.singsurf.jns3.transport_layer.udp.UDPDatagram;
 
 class TestToStringVisitor {
@@ -21,15 +23,11 @@ class TestToStringVisitor {
 	ToStringVisitor visitor = new ToStringVisitor();
 	PC pc1;
 	PC pc2;
-	private EthernetProtocol ethProtocol;
-	private IPProtocol ipProtocol;
 	
 	@BeforeEach
 	void setUp() throws Exception {
 		pc1 = DeviceFactory.getInstance().createPC("PC1");
 		pc2 = DeviceFactory.getInstance().createPC("PC2");
-		ethProtocol = pc1.getEthernetProtocol();
-		ipProtocol = pc1.getIPProtocol();
 	}
 
 	@Test
@@ -44,12 +42,12 @@ class TestToStringVisitor {
         EthernetFrame frame = new EthernetFrame(destination, source, (short) payload.length, payload);
 
         // act
-        String result = visitor.visit(ethProtocol, frame);
+        String result = visitor.visit(pc1.getEthernetProtocol(), frame);
         
         // assert
+        System.out.println(result);
         String expected = frame.toHeaderString() + "\n  " + frame.getPayloadAsString() + "\n";
         assertEquals(expected, result);
-        System.out.println(result);
 	}
 
 	@Test
@@ -64,7 +62,7 @@ class TestToStringVisitor {
         		ARPProtocol.ARP_ETHER_TYPE, arpMessage.getBytes());
         
         // act
-        String result = visitor.visit(ethProtocol, frame);
+        String result = visitor.visit(pc1.getEthernetProtocol(), frame);
         System.out.println(result);
         
         // assert
@@ -86,7 +84,7 @@ class TestToStringVisitor {
         		IPProtocol.ETHERTYPE, packet.getBytes());
         
         // act
-        String result = visitor.visit(ethProtocol, frame);
+        String result = visitor.visit(pc1.getEthernetProtocol(), frame);
         System.out.println(result);
         
         // assert
@@ -105,7 +103,7 @@ class TestToStringVisitor {
             pc1.getIPAddress(), pc2.getIPAddress(), data); 
         
         // act
-        String result = visitor.visit(ipProtocol, packet);
+        String result = visitor.visit(pc1.getIPProtocol(), packet);
         System.out.println(result);
         
         // assert
@@ -131,7 +129,7 @@ class TestToStringVisitor {
         IPPacket packet = new IPPacket(IPPacket.IMCP, 64,
                 pc1.getIPAddress(), pc2.getIPAddress(), pingRequest.getBytes()); 
 
-		String result = visitor.visit(ipProtocol, packet);
+		String result = visitor.visit(pc1.getIPProtocol(), packet);
 		System.out.println(result);
 		String expected = 
 				packet.toHeaderString()
@@ -149,7 +147,7 @@ class TestToStringVisitor {
         		pc2.getMACAddress(), pc1.getMACAddress(),
         		IPProtocol.ETHERTYPE, packet.getBytes());
 
-        String result = visitor.visit(ethProtocol, frame);
+        String result = visitor.visit(pc1.getEthernetProtocol(), frame);
 		System.out.println(result);
 		String expected = 
 				frame.toHeaderString() 
@@ -181,9 +179,7 @@ class TestToStringVisitor {
 		String content = "Hello UDP";
         byte[] data = content.getBytes();
 		var datagram = new UDPDatagram(srcPort, destPort, data);
-		
 		IPPacket packet = datagram.toIPPacket(pc1.getIPAddress(), pc2.getIPAddress(), 64);
-
 
 		String result = visitor.visit(pc1.getIPProtocol(), packet);
 		System.out.println(result);
@@ -203,20 +199,106 @@ class TestToStringVisitor {
 		var udpDatagram = new UDPDatagram(srcPort, destPort, data);
         IPPacket packet = udpDatagram.toIPPacket(pc1.getIPAddress(), pc2.getIPAddress(), 64);
         		
-//        		new IPPacket(IPPacket.UDP, 64,
-//                pc1.getIPAddress(), pc2.getIPAddress(), udpDatagram.getBytes()); 
         EthernetFrame frame = new EthernetFrame(
         		pc2.getMACAddress(), pc1.getMACAddress(),
         		IPProtocol.ETHERTYPE, packet.getBytes());
 
-        String result = visitor.visit(ethProtocol, frame);
+        String result = visitor.visit(pc1.getEthernetProtocol(), frame);
 		System.out.println(result);
 		String expected = 
 				frame.toHeaderString() + "\n"
 				+ "  " + packet.toHeaderString() + "\n"
 				+ "    " + udpDatagram.toHeaderString() + "\n"
 				+ "      " + content + "\n";
-		System.out.println(expected);
+		assertEquals(expected, result);
+	}
+
+	@Test
+	void dhcp_discover() {
+		var dhcpDiscover = DHCPMessage.createDiscoverMessage(pc1.getMACAddress(), pc1.getIPAddress());
+		String result = visitor.visit(pc1.getDHCPProtocol(), dhcpDiscover);
+		System.out.println(result);
+		StringBuilder expected = new StringBuilder(dhcpDiscover.toHeaderString() + "\n");
+		var options = dhcpDiscover.getOptions();
+		expected.append("  ").append(options.get(0)).append("\n");
+		expected.append("  ").append(options.get(1)).append("\n");
+		assertEquals(expected.toString(), result);
+	}
+
+	@Test
+	void dhcp_discover_in_datagram() {
+		var dhcpDiscover = DHCPMessage.createDiscoverMessage(
+				pc1.getMACAddress(), pc1.getIPAddress());
+		var datagram = new UDPDatagram(DHCPProtocol.DHCP_CLIENT_PORT, 
+				DHCPProtocol.DHCP_SERVER_PORT, 
+				dhcpDiscover.getBytes());
+		
+		String result = visitor.visit(pc1.getUDPProtocol(), datagram);
+		System.out.println(result);
+		StringBuilder expected = new StringBuilder();
+		expected.append(datagram.toHeaderString()).append("\n");
+		expected.append("  ").append(dhcpDiscover.toHeaderString() + "\n");
+		var options = dhcpDiscover.getOptions();
+		expected.append("    ").append(options.get(0)).append("\n");
+		expected.append("    ").append(options.get(1)).append("\n");
+		assertEquals(expected.toString(), result);
+	}
+
+	@Test
+	void dhcp_discover_in_packet() {
+		var dhcpDiscover = DHCPMessage.createDiscoverMessage(
+				pc1.getMACAddress(), pc1.getIPAddress());
+		var datagram = new UDPDatagram(DHCPProtocol.DHCP_CLIENT_PORT, 
+				DHCPProtocol.DHCP_SERVER_PORT, 
+				dhcpDiscover.getBytes());
+		IPPacket packet = datagram.toIPPacket(pc1.getIPAddress(), pc2.getIPAddress(), 64);
+		
+		String result = visitor.visit(pc1.getIPProtocol(), packet);
+		System.out.println(result);
+		StringBuilder expected = new StringBuilder();
+		expected.append(packet.toHeaderString()).append("\n");
+		expected.append("  ").append(datagram.toHeaderString()).append("\n");
+		expected.append("    ").append(dhcpDiscover.toHeaderString() + "\n");
+		var options = dhcpDiscover.getOptions();
+		expected.append("      ").append(options.get(0)).append("\n");
+		expected.append("      ").append(options.get(1)).append("\n");
+		assertEquals(expected.toString(), result);
+	}
+
+	@Test
+	void dhcp_discover_in_frame() {
+		var dhcpDiscover = DHCPMessage.createDiscoverMessage(
+				pc1.getMACAddress(), pc1.getIPAddress());
+		var datagram = new UDPDatagram(DHCPProtocol.DHCP_CLIENT_PORT, 
+				DHCPProtocol.DHCP_SERVER_PORT, 
+				dhcpDiscover.getBytes());
+		IPPacket packet = datagram.toIPPacket(pc1.getIPAddress(), pc2.getIPAddress(), 64);
+        EthernetFrame frame = new EthernetFrame(
+        		pc2.getMACAddress(), pc1.getMACAddress(),
+        		IPProtocol.ETHERTYPE, packet.getBytes());
+		
+		String result = visitor.visit(pc1.getEthernetProtocol(), frame);
+		System.out.println(result);
+		StringBuilder expected = new StringBuilder();
+		expected.append(frame.toHeaderString()).append("\n");
+		expected.append("  ").append(packet.toHeaderString()).append("\n");
+		expected.append("    ").append(datagram.toHeaderString()).append("\n");
+		expected.append("      ").append(dhcpDiscover.toHeaderString() + "\n");
+		var options = dhcpDiscover.getOptions();
+		expected.append("        ").append(options.get(0)).append("\n");
+		expected.append("        ").append(options.get(1)).append("\n");
+		assertEquals(expected.toString(), result);
+	}
+
+	@Test
+	void chat_massage_in_udp_datagram() {
+		var datagram = new UDPDatagram(ChatApplication.PRIVATE_PORT, 
+				ChatApplication.PUBLIC_PORT, "Chat hello".getBytes());
+
+		String result = visitor.visit(pc1.getUDPProtocol(), datagram);
+		System.out.println(result);
+		String expected = datagram.toHeaderString() + "\n"
+				+ "  Chat hello\n";
 		assertEquals(expected, result);
 	}
 

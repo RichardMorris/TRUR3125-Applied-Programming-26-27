@@ -1,5 +1,6 @@
 package org.singsurf.jns3.transport_layer.udp;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.singsurf.jns3.generic_protocol.LowerAdapter;
@@ -27,6 +28,7 @@ public class UDPProtocol implements Protocol, LowerAdapter<IPPacket>, UpperSocke
 	ProtocolDevice device;
 	String name;
 	UDPSocketFactory socketFactory;
+	List<LowerSocketAdapter<UDPDatagram>> childProtocols = new ArrayList<>();
 	
 	public UDPProtocol(ProtocolDevice device) {
 		this.device = device;
@@ -51,7 +53,8 @@ public class UDPProtocol implements Protocol, LowerAdapter<IPPacket>, UpperSocke
 
 	@Override
 	public void register(LowerSocketAdapter<UDPDatagram> adapter) {
-		adapter.setSocketFactory(socketFactory);		
+		adapter.setSocketFactory(socketFactory);
+		childProtocols.add(adapter);
 	}
 
 	public UDPSocketFactory getSocketFactory() {
@@ -69,6 +72,11 @@ public class UDPProtocol implements Protocol, LowerAdapter<IPPacket>, UpperSocke
 		var psudo = new PseudoHeader(packet.getSourceAddress(), packet.getDestinationAddress(), IPPacket.UDP);
 		var datagram = UDPDatagram.fromBytes(packet.getContents(),psudo);
 		return visitor.visit(this, datagram);
+	}
+
+	@Override
+	public List<LowerSocketAdapter<UDPDatagram>> getChildProtocols() {
+		return childProtocols;
 	}
 
 

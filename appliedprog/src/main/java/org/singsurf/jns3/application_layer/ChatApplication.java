@@ -24,8 +24,8 @@ import org.singsurf.jns3.transport_layer.udp.UDPSocketFactory;
  * See <a href="../../../../../../Week12.md">Week 12</a>.
  */
 public class ChatApplication implements TickListener, LowerSocketAdapter<UDPDatagram> {
-	static final short PUBLIC_PORT = 42;
-	static final short PRIVATE_PORT = 43;
+	public static final short PUBLIC_PORT = 42;
+	public static final short PRIVATE_PORT = 43;
 
 	ProtocolDevice pc;
 	Terminal terminal;

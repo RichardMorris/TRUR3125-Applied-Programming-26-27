@@ -82,13 +82,31 @@ public class ToStringVisitor implements ProtocolVisitor<String> {
 
 	@Override
 	public String visit(UDPProtocol protocol, UDPDatagram datagram) {
-		return datagram.toHeaderString() + "\n"
-				+ "  " + new String(datagram.getContents()) + "\n";
+		StringBuilder sb = new StringBuilder();
+		sb.append(datagram.toHeaderString()).append('\n');
+		boolean foundChild = false;
+		for(var child: protocol.getChildProtocols()) {
+			var res = child.accept(this, datagram);
+			if(res != null) {
+				sb.append(indent(res));
+				foundChild = true;
+			}
+		}
+		if(!foundChild) {
+			sb.append("  ").append(new String(datagram.getContents())).append('\n');
+		}		
+		return sb.toString();
 	}
 
 	@Override
 	public String visit(DHCPProtocol protocol, DHCPMessage msg) {
-		return msg.toString() + "\n";
+		StringBuilder sb = new StringBuilder();
+		sb.append(msg.toHeaderString()).append('\n');
+		var options = msg.getOptions();
+		for(var option: options) {
+			sb.append("  ").append(option).append('\n');
+		}
+		return sb.toString();
 	}
 
 }

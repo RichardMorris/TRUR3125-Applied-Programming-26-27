@@ -1,5 +1,7 @@
 package org.singsurf.jns3.generic_protocol;
 
+import java.util.List;
+
 /**
  * A port on the upper side of a protocols using sockets
  * allowing application and higher level protocols to register
@@ -15,4 +17,12 @@ public interface UpperSocketPort<T extends ProtocolContainer> {
 	 * @param adapter
 	 */
 	public void register(LowerSocketAdapter<T> adapter);
+	
+	/**
+	 * Returns the list of child protocols for this protocol.
+	 * Used by the {@link ProtocolVisitor} to recurse down the protocol tree.
+	 * @return list of child protocols.
+	 */
+	List<LowerSocketAdapter<T>> getChildProtocols();
+
 }
