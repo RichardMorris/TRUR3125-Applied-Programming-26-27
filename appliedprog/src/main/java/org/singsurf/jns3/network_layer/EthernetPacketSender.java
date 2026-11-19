@@ -10,6 +10,7 @@ import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.data_link_layer.FrameSender;
 import org.singsurf.jns3.data_link_layer.MACAddress;
+import org.singsurf.jns3.generic_protocol.visitors.ValidityChecker;
 import org.singsurf.jns3.hardware.GlobalWallClock;
 import org.singsurf.jns3.hardware.GlobalWallClock.TickListener;
 import org.singsurf.jns3.hardware.ProtocolDevice;
@@ -28,6 +29,7 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 	IPProtocol ipProtocol;
 	FrameSender frameSender;
 	PacketFragmentor packetFragmentor = new PacketFragmentor();
+    ValidityChecker vc;
 	
 	Map<IPAddress, TaggedQueue> packetQueue = new HashMap<>();
 	
@@ -54,6 +56,7 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 		this.device = device;
 		this.ipProtocol = ipProtocol;
 		GlobalWallClock.getInstance().addTickListener(this);
+		this.vc = new ValidityChecker(device);
 	}
 
 	@Override
@@ -156,7 +159,9 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 			Jns3Logger.logSend(ipProtocol.name, srcMac.toString() +" -> " 
 					+ destMac.toString() + " " + packet.toShortString());
 		}
-
+		if(!vc.check(packet, ValidityChecker.Level.NETWORK)) {
+			Jns3Logger.logError(device.getName(), "VC failed for unfragmented package");
+		}
 		List<IPPacket> packets = packetFragmentor.getFragments(packet);
 		for(IPPacket p : packets) {
 			EthernetFrame frame = new EthernetFrame(
@@ -165,6 +170,9 @@ public class EthernetPacketSender implements PacketSender, TickListener {
 					p.getBytes());
 			if(!IPPacketExtractor.getInstance().isExtractable(frame)) {
 				Jns3Logger.logError(ipProtocol.name, "Frame is not extractable as IP packet. Frame: " + frame);
+			}
+			if(!vc.check(frame, ValidityChecker.Level.NETWORK)) {
+				Jns3Logger.logError(device.getName(), "VC failed fragmented package");
 			}
 			frameSender.send(frame);
 		}

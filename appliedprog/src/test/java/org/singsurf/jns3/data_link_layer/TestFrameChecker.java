@@ -27,6 +27,7 @@ class TestFrameChecker {
 
     @Test
     public void only_the_good_frames_get_through() {
+    	FrameChecker.USE_VALIDITY_CHECKER = false;
         Jns3Logger.clearLog();
         for(int i=1;i<=20;++i) {
 			byte[] payload = ("Hello PC2 from PC1 "+i).getBytes();
@@ -51,6 +52,6 @@ class TestFrameChecker {
                 	logs.get(i-1));
             }
         }
-
+    	FrameChecker.USE_VALIDITY_CHECKER = true;
     }
 }

@@ -6,8 +6,9 @@ import java.util.Map;
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.generic_protocol.HandlerStatus;
 import org.singsurf.jns3.generic_protocol.ProtocolSocket;
-import org.singsurf.jns3.hardware.AddressableDevice;
+import org.singsurf.jns3.generic_protocol.visitors.ValidityChecker;
 import org.singsurf.jns3.hardware.NamedDevice;
+import org.singsurf.jns3.hardware.ProtocolDevice;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPPacket;
 import org.singsurf.jns3.network_layer.IPProtocol;
@@ -24,11 +25,11 @@ import org.singsurf.jns3.transport_layer.udp.UDPDatagram.PseudoHeader;
 public class UDPController implements PacketHandler, NamedDevice {
 	static boolean LOG_MESSAGES = false;
 	String name;
-	AddressableDevice device;
+	ProtocolDevice device;
 	PacketSender packetSender;
 	Map<IPAddress,Map<Short, ProtocolSocket<UDPDatagram>>> bindings = new HashMap<>();
 	
-	UDPController(AddressableDevice device) {
+	UDPController(ProtocolDevice device) {
 		this.name = device.getName() + "-UDPController";
 		this.device = device;
 	}
@@ -105,7 +106,10 @@ public class UDPController implements PacketHandler, NamedDevice {
 			Jns3Logger.logError(name, "Sending UDP datagram with invalid checksum from " + packet.getSourceAddress() + " on port " + datagram.getDestinationPort());
 			return;
 		}
-
+		ValidityChecker vc = new ValidityChecker(device);
+		if(!vc.check(packet)) {
+			Jns3Logger.logError(name, "VC failed");
+		}
 		packetSender.send(packet);		  
 	}
 
