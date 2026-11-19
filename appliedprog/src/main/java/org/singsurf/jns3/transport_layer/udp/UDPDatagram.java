@@ -1,5 +1,6 @@
 package org.singsurf.jns3.transport_layer.udp;
 
+import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.generic_protocol.ProtocolContainer;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPPacket;
@@ -135,6 +136,7 @@ public class UDPDatagram implements ProtocolContainer {
 	/**
 	 * Creates a UDPDatagram from the given byte array and pseudo header.
 	 * Checksum and length are calculated from the datagram and pseudo header.
+	 * An error is logged if the length field does not match the length of the datagram.
 	 * @param datagram the byte array containing the UDP datagram
 	 * @param psudo the pseudo header used for checksum calculation
 	 * @return a new UDPDatagram instance
@@ -143,6 +145,9 @@ public class UDPDatagram implements ProtocolContainer {
 		short sourcePort = (short) ((datagram[0] << 8) | (datagram[1] & 0xFF));
 		short destinationPort = (short) ((datagram[2] << 8) | (datagram[3] & 0xFF));
 		short length = (short) ((datagram[4] << 8) | (datagram[5] & 0xFF));
+		if(length != datagram.length) {
+			Jns3Logger.logError("UDPDatagram", "Length field in UDP datagram "+length+"does not match length of bytes" + datagram.length);
+		}
 //		short checksum = (short) ((datagram[6] << 8) | (datagram[7] & 0xFF));
 		byte[] contents = new byte[length - 8];
 		System.arraycopy(datagram, 8, contents, 0, contents.length);
@@ -152,12 +157,14 @@ public class UDPDatagram implements ProtocolContainer {
 	/**
 	 * Creates a UDPDatagram from the given byte array and pseudo header.
 	 * Checksum and length are taken from the datagram, not recalculated,
-	 * so may produce an invalid UDPDatagram if the checksum is incorrect.
+	 * so may produce an invalid UDPDatagram if the checksum is incorrect, 
+	 * and the length field may not match the length of the datagram
 	 * @param datagram the byte array containing the UDP datagram
 	 * @param psudo the pseudo header used for checksum calculation
 	 * @return a new UDPDatagram instance
+	 * @since Week 18
 	 */
-	public static UDPDatagram safeFromBytes(byte[] datagram, PseudoHeader psudo) {
+	public static UDPDatagram unsafeFromBytes(byte[] datagram, PseudoHeader psudo) {
 		short sourcePort = (short) ((datagram[0] << 8) | (datagram[1] & 0xFF));
 		short destinationPort = (short) ((datagram[2] << 8) | (datagram[3] & 0xFF));
 		short origLen = (short) ((datagram[4] << 8) | (datagram[5] & 0xFF));
@@ -168,9 +175,13 @@ public class UDPDatagram implements ProtocolContainer {
 		return new UDPDatagram(sourcePort, destinationPort, checksum, origLen, contents, psudo);
 	}
 
+	public static boolean isExtractable(byte[] contents2) {
+		return (contents2.length >= 8);
+	}
+
 	public String toString() {
 		return "UDPDatagram [sourcePort=" + sourcePort + ", destinationPort=" + destinationPort + ", length=" + length
-				+ ", checksum=" + checksum + ", contents=" + new String(contents) + "]";
+				+ ", checksum=" + String.format("0x%04X", checksum) + ", contents=" + new String(contents) + "]";
 	}
 
 	public OnesComplementNumber calculateHeaderChecksum() {
