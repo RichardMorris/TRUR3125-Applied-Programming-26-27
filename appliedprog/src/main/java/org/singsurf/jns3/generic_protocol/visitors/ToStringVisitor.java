@@ -5,7 +5,6 @@ import org.singsurf.jns3.data_link_layer.EthernetProtocol;
 import org.singsurf.jns3.data_link_layer.arp.ARPMessage;
 import org.singsurf.jns3.data_link_layer.arp.ARPProtocol;
 import org.singsurf.jns3.generic_protocol.ProtocolContainer;
-import org.singsurf.jns3.generic_protocol.ProtocolVisitor;
 import org.singsurf.jns3.generic_protocol.UpperPort;
 import org.singsurf.jns3.hardware.ProtocolDevice;
 import org.singsurf.jns3.network_layer.IPPacket;
@@ -23,47 +22,23 @@ import org.singsurf.jns3.transport_layer.udp.UDPProtocol;
  * indented to show the hierarchy of the protocol stack.
  * @since Week 18
  */
-public class ToStringVisitor implements ProtocolVisitor<String> {
+public class ToStringVisitor extends AbstractVisitor<String> {
 	private static final String INDENT_STR = "  ";
 
-	ProtocolDevice device;
-
 	public ToStringVisitor(ProtocolDevice device) {
-		this.device = device;
+		super(device);
 	}
 	
 	/**
 	 * Main entry point for generating a string representation of a protocol container
 	 * and its children.
-	 * Uses <a href="https://openjdk.org/jeps/441">JEP 441: Pattern Matching for switch</a> 
-	 * to determine the type of the container and dispatch to the appropriate visit method.
 	 * @param container the frame or packet or other type of message to generate a string representation for.
 	 * @return a string representation of the container and its children
 	 */
 	public String toString(ProtocolContainer container) {
-		switch(container) {
-			case EthernetFrame frame -> {
-				return visit(device.getEthernetProtocol(), frame);
-			}
-			case IPPacket packet -> {
-				return visit(device.getIPProtocol(), packet);
-			}
-			case ARPMessage msg -> {
-				return visit(device.getArpProtocol(), msg);
-			}
-			case ICMPMessage msg -> {
-				return visit(device.getICMPProtocol(), msg);
-			}
-			case UDPDatagram datagram -> {
-				return visit(device.getUDPProtocol(), datagram);
-			}
-			case DHCPMessage msg -> {
-				return visit(device.getDHCPProtocol(), msg);
-			}
-		default -> throw new IllegalArgumentException("Unexpected value: " + container);
-		}
-		
+		return start(container);
 	}
+	
 	String indent(String str) {
 		String[] lines = str.split("\n");
 		StringBuilder sb = new StringBuilder();

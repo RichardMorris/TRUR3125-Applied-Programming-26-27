@@ -26,10 +26,10 @@ import org.singsurf.jns3.transport_layer.udp.UDPProtocol;
 public interface ProtocolVisitor<R> {
 
 	R visit(EthernetProtocol protocol, EthernetFrame frame);
-	R visit(IPProtocol protocol, IPPacket frame);
-	R visit(ARPProtocol protocol, ARPMessage frame);
-	R visit(ICMPProtocol protocol, ICMPMessage frame);
-	R visit(UDPProtocol protocol, UDPDatagram frame);
-	R visit(DHCPProtocol protocol, DHCPMessage frame);
+	R visit(IPProtocol protocol, IPPacket packet);
+	R visit(ARPProtocol protocol, ARPMessage message);
+	R visit(ICMPProtocol protocol, ICMPMessage message);
+	R visit(UDPProtocol protocol, UDPDatagram datagram);
+	R visit(DHCPProtocol protocol, DHCPMessage message);
 
 }
