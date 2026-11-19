@@ -318,5 +318,9 @@ public class IPPacket implements ProtocolContainer {
 		return toString();
 	}
 
+	public boolean isFragment() {
+		return (!isDontFragment() && (isMoreFragments() || getFragmentOffset() > 0));
+	}
+
 
 }
