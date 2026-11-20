@@ -46,5 +46,7 @@ public interface LowerAdapter<A extends ProtocolContainer> {
 	 * the container could not be converted to the protocols data type.
 	 * @since week 18
 	 */
-	public <R> R accept(ProtocolVisitor<R> visitor, A container);
+	public default <R> R accept(ProtocolVisitor<R> visitor, A container) {
+		return null;
+	};
 }
