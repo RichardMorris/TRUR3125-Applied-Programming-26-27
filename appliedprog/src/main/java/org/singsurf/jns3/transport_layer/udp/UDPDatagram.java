@@ -88,11 +88,11 @@ public class UDPDatagram implements ProtocolContainer {
 	 * @param contents payload
 	 * @param psudoHeader used for calculating the checksum, not transmitted
 	 */
-	public UDPDatagram(short sourcePort, short destinationPort, 
+	public UDPDatagram(short srcPort, short destPort, 
 			short check, short origLen, 
 			byte[] contents, PseudoHeader psudoHeader) {
-		this.sourcePort = sourcePort;
-		this.destinationPort = destinationPort;
+		this.sourcePort = srcPort;
+		this.destinationPort = destPort;
 		this.length = origLen; // 8 bytes for the UDP header
 		this.checksum = check;
 		this.contents = contents;
