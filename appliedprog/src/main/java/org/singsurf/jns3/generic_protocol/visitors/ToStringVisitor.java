@@ -51,13 +51,12 @@ public class ToStringVisitor extends AbstractVisitor<String> {
 	/**
 	 * A template method that handles the common logic of visiting a protocol container and its children.
 	 * <p>
-	 * Only public for explanatory purposes.
 	 * @param <T> The type of the protocol container.
 	 * @param prot The protocol to visit.
 	 * @param container The protocol container to process.
 	 * @return a string representation of the protocol container and its children, or null if no children were found.
 	 */
-	public <T extends ProtocolContainer> String innerVisit(UpperPort<T> prot, T container) {
+	private <T extends ProtocolContainer> String innerVisit(UpperPort<T> prot, T container) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(container.toHeaderString()).append('\n');
 		boolean foundChild = false;
