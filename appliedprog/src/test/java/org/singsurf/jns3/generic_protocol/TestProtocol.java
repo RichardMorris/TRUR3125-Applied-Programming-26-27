@@ -248,7 +248,6 @@ class TestProtocol {
 				delegatorB.addHandler(h);
 			}
 			adapter.setOutboundSender(logicBA);
-			adapter.setInboundCallback(delegatorB);
 		}
 
 		@Override
@@ -259,11 +258,6 @@ class TestProtocol {
 		@Override
 		public void setOutboundSender(ProtocolSender<TypeA> s) {
 			senderA = s;			
-		}
-
-		@Override
-		public void setInboundCallback(ProtocolReceiver<TypeA> r) {
-			callbackA = r;
 		}
 
 		@Override
@@ -356,10 +350,6 @@ class TestProtocol {
 		}
 		
 		@Override
-		public void setInboundCallback(ProtocolReceiver<TypeB> r) {
-		}
-
-		@Override
 		public <R> R accept(ProtocolVisitor<R> visitor, TypeB frame) {
 			// TODO Auto-generated method stub
 			return null;
@@ -429,10 +419,6 @@ class TestProtocol {
 			senderB = s;
 		}
 
-		@Override
-		public void setInboundCallback(ProtocolReceiver<TypeB> r) {
-		}
-
 		// Methods exposed to the PC/test environment
 		public void outbound(String message) {
 			var packed = new TypeD(message);
@@ -485,11 +471,6 @@ class TestProtocol {
 		}
 		
 		@Override
-		public void setInboundCallback(ProtocolReceiver<TypeB> r) {
-			delegator = r;
-		}
-
-		@Override
 		public <R> R accept(ProtocolVisitor<R> visitor, TypeB frame) {
 			// TODO Auto-generated method stub
 			return null;
@@ -528,9 +509,6 @@ class TestProtocol {
 		@Override
 		public void setOutboundSender(ProtocolSender<TypeB> s) {
 			
-		}
-		@Override
-		public void setInboundCallback(ProtocolReceiver<TypeB> r) {
 		}
 
 		@Override
@@ -577,11 +555,6 @@ class TestProtocol {
 			
 		}
 		
-		@Override
-		public void setInboundCallback(ProtocolReceiver<TypeB> r) {
-			delegator = r;
-		}
-
 		@Override
 		public <R> R accept(ProtocolVisitor<R> visitor, TypeB frame) {
 			// TODO Auto-generated method stub
@@ -674,19 +647,6 @@ class TestProtocol {
 	}
 
 	@Test
-	void protE_manipulates_inbound() {
-		// arrange
-		Jns3Logger.clearLog();
-		// act
-		protA.inbound("ABEHello");
-		// assert
-		assertEquals(1, Jns3Logger.getLogItems().size());
-		System.out.println(Jns3Logger.asString());
-		assertEquals("[INFO]    \tBCHandler\tMessage extracted: C[hello!]", Jns3Logger.getItem(0).toString());
-		assertTrue(Jns3Logger.isErrorFree());
-	}
-
-	@Test
 	void protF_always_fails() {
 		// arrange
 		Jns3Logger.clearLog();
@@ -697,20 +657,6 @@ class TestProtocol {
 		assertEquals(1, Jns3Logger.getLogItems().size());
 		assertEquals("[ERROR]    \tpdb\tInvalid message: Failed: B[fhello]", Jns3Logger.getItem(0).toString());
 		assertFalse(Jns3Logger.isErrorFree());
-	}
-
-	@Test
-	void protocolG_doubles_redirecting_to_C_and_D() {
-		// arrange
-		Jns3Logger.clearLog();
-		// act
-		protA.inbound("ABGHello");
-		// assert
-		System.out.println(Jns3Logger.asString());
-		assertEquals(2, Jns3Logger.getLogItems().size());
-		assertEquals("[INFO]    \tBCHandler\tMessage extracted: C[hello]", Jns3Logger.getItem(0).toString());
-		assertEquals("[INFO]    \tBDHandler\tMessage extracted: D[hello]", Jns3Logger.getItem(1).toString());
-		assertTrue(Jns3Logger.isErrorFree());
 	}
 
 }

@@ -7,7 +7,6 @@ import org.singsurf.jns3.generic_protocol.LowerAdapter;
 import org.singsurf.jns3.generic_protocol.LowerSocketAdapter;
 import org.singsurf.jns3.generic_protocol.Protocol;
 import org.singsurf.jns3.generic_protocol.ProtocolHandler;
-import org.singsurf.jns3.generic_protocol.ProtocolReceiver;
 import org.singsurf.jns3.generic_protocol.ProtocolSender;
 import org.singsurf.jns3.generic_protocol.ProtocolVisitor;
 import org.singsurf.jns3.generic_protocol.UpperSocketPort;
@@ -40,10 +39,6 @@ public class UDPProtocol implements Protocol, LowerAdapter<IPPacket>, UpperSocke
 	@Override
 	public List<ProtocolHandler<IPPacket>> getInboundHandlers() {
 		return List.of(udpController);
-	}
-
-	@Override
-	public void setInboundCallback(ProtocolReceiver<IPPacket> receiver) {
 	}
 
 	@Override

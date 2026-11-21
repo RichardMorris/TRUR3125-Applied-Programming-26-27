@@ -18,12 +18,12 @@ public interface LowerAdapter<A extends ProtocolContainer> {
 	 */
 	public List<ProtocolHandler<A>> getInboundHandlers();
 
-	/**
-	 * Sets the callback function provide by the lower level
-	 * protocol for handling modified messages.
-	 * @param receiver the receiver for new or modified messages.
-	 */
-	public void setInboundCallback(ProtocolReceiver<A> receiver);
+//	/**
+//	 * Sets the callback function provide by the lower level
+//	 * protocol for handling modified messages.
+//	 * @param receiver the receiver for new or modified messages.
+//	 */
+//	public void setInboundCallback(ProtocolReceiver<A> receiver);
 	
 	/**
 	 * Sets the sender used to for transmitting out bound messages.

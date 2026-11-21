@@ -9,7 +9,6 @@ import org.singsurf.jns3.generic_protocol.LowerAdapter;
 import org.singsurf.jns3.generic_protocol.Protocol;
 import org.singsurf.jns3.generic_protocol.ProtocolDelegator;
 import org.singsurf.jns3.generic_protocol.ProtocolHandler;
-import org.singsurf.jns3.generic_protocol.ProtocolReceiver;
 import org.singsurf.jns3.generic_protocol.ProtocolSender;
 import org.singsurf.jns3.generic_protocol.ProtocolVisitor;
 import org.singsurf.jns3.generic_protocol.UpperPort;
@@ -63,7 +62,6 @@ public class IPProtocol implements Protocol, LowerAdapter<EthernetFrame>, UpperP
 	@Override
 	public void register(LowerAdapter<IPPacket> adapter) {
 		adapter.setOutboundSender(packetSender);
-		adapter.setInboundCallback(delegator);
 		for(var h: adapter.getInboundHandlers()) {
 			delegator.addHandler(h);
 		}
@@ -73,11 +71,6 @@ public class IPProtocol implements Protocol, LowerAdapter<EthernetFrame>, UpperP
 	@Override
 	public List<ProtocolHandler<EthernetFrame>> getInboundHandlers() {
 		return List.of(arpUpdater,frameHandler);
-	}
-
-	@Override
-	public void setInboundCallback(ProtocolReceiver<EthernetFrame> receiver) {
-		
 	}
 
 	@Override

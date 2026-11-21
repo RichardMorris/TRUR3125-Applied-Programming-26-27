@@ -9,7 +9,6 @@ import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.generic_protocol.LowerAdapter;
 import org.singsurf.jns3.generic_protocol.Protocol;
 import org.singsurf.jns3.generic_protocol.ProtocolHandler;
-import org.singsurf.jns3.generic_protocol.ProtocolReceiver;
 import org.singsurf.jns3.generic_protocol.ProtocolSender;
 import org.singsurf.jns3.hardware.DeviceFactory;
 import org.singsurf.jns3.hardware.PrefixDevice;
@@ -98,11 +97,6 @@ public class RoutingProtocol implements Protocol, LowerAdapter<IPPacket> {
 	@Override
 	public List<ProtocolHandler<IPPacket>> getInboundHandlers() {
 		return List.of(routingHandler);
-	}
-
-
-	@Override
-	public void setInboundCallback(ProtocolReceiver<IPPacket> receiver) {
 	}
 
 

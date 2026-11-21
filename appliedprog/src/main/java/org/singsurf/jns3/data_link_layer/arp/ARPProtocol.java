@@ -8,7 +8,6 @@ import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.generic_protocol.LowerAdapter;
 import org.singsurf.jns3.generic_protocol.Protocol;
 import org.singsurf.jns3.generic_protocol.ProtocolHandler;
-import org.singsurf.jns3.generic_protocol.ProtocolReceiver;
 import org.singsurf.jns3.generic_protocol.ProtocolSender;
 import org.singsurf.jns3.generic_protocol.ProtocolVisitor;
 import org.singsurf.jns3.hardware.ProtocolDevice;
@@ -45,11 +44,6 @@ public class ARPProtocol implements Protocol, LowerAdapter<EthernetFrame> {
 			return List.of(arpForwarder, arpController);
 		}
 		return List.of(arpController);
-	}
-
-	@Override
-	public void setInboundCallback(ProtocolReceiver<EthernetFrame> receiver) {
-		
 	}
 
 	@Override
