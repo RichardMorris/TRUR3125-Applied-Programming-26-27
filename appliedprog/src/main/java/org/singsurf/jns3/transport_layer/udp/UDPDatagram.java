@@ -38,6 +38,8 @@ public class UDPDatagram implements ProtocolContainer {
 	 * <li>Source IP Address: 4 bytes
 	 * <li>Destination IP Address: 4 bytes
 	 * <li>Protocol: 1 byte
+	 * <li>Zeros: 1 byte
+	 * <li>UDP Length: 2 bytes
 	 * </ul>
 	 */
 	public record PseudoHeader(
@@ -101,21 +103,6 @@ public class UDPDatagram implements ProtocolContainer {
 		this.psudoHeader = psudoHeader;
 	}
 
-	public short getSourcePort() {
-		return sourcePort;
-	}
-	
-	public short getDestinationPort() {
-		return destinationPort;
-	}
-	
-	public short getLength() {
-		return length;
-	}
-	
-	public short getChecksum() {
-		return checksum;
-	}
 	
 	public byte[] getContents() {
 		return contents;
@@ -135,6 +122,82 @@ public class UDPDatagram implements ProtocolContainer {
 		return datagram;
 	}
 	
+
+
+	public OnesComplementNumber calculateHeaderChecksum() {
+        var sum = new OnesComplementNumber((byte) 0, psudoHeader.protocol);
+
+        sum = sum.add(psudoHeader.sourceIP.getHighWord());
+        sum = sum.add(psudoHeader.sourceIP.getLowWord());
+        sum = sum.add(psudoHeader.destinationIP.getHighWord());
+        sum = sum.add(psudoHeader.destinationIP.getLowWord());
+        sum = sum.add(psudoHeader.protocol, (byte) 0);
+        sum = sum.add(psudoHeader.length); 
+        sum = sum.add(sourcePort);
+        sum = sum.add(destinationPort);
+        sum = sum.add(length); 
+        sum = sum.add(checksum);
+        sum.add(contents);
+
+        return sum;
+    }
+
+	@Override
+	public boolean isValid() {
+		return calculateHeaderChecksum().equals(OnesComplementNumber.MINUS_ZERO);
+	}
+
+
+	public String toString() {
+		return "UDPDatagram [sourcePort=" + sourcePort + ", destinationPort=" + destinationPort + ", length=" + length
+				+ ", checksum=" + String.format("0x%04X", checksum) + ", contents=" + new String(contents) + "]";
+	}
+
+	public String toHeaderString() {
+		return "UDPDatagram[srcPort=" + sourcePort + ", destPort=" + destinationPort + ", len=" + length
+			+ ", check=" + String.format("0x%04X", checksum) + "]";
+	}
+
+	// Getters
+	
+	public short getSourcePort() {
+		return sourcePort;
+	}
+	
+	public short getDestinationPort() {
+		return destinationPort;
+	}
+	
+	public short getLength() {
+		return length;
+	}
+	
+	public short getChecksum() {
+		return checksum;
+	}
+
+	public PseudoHeader getPsudoHeader() {
+		return this.psudoHeader;
+	}
+
+	/**
+	 * Converts this UDP datagram into an IP packet with the given source and destination IP addresses and TTL.
+	 * The psudo header is updated with the provided source and destination IP addresses
+	 * and the checksum computed.
+	 *
+	 * @param srcIP the source IP address
+	 * @param destIP the destination IP address
+	 * @param ttl the time-to-live value for the IP packet
+	 * @return an IPPacket containing this UDP datagram
+	 */
+	public IPPacket toIPPacket(IPAddress srcIP, IPAddress destIP, int ttl) {
+		this.psudoHeader = new PseudoHeader(srcIP, destIP, IPPacket.UDP, length);
+		this.checksum = 0;
+		this.checksum = calculateHeaderChecksum().getComplement().getValue();
+		return new IPPacket(IPPacket.UDP, ttl, srcIP, destIP, this.getBytes());
+	}
+	
+
 	/**
 	 * Creates a UDPDatagram from the given byte array and pseudo header.
 	 * Checksum and length are calculated from the datagram and pseudo header.
@@ -181,59 +244,4 @@ public class UDPDatagram implements ProtocolContainer {
 		return (contents2.length >= 8);
 	}
 
-	public String toString() {
-		return "UDPDatagram [sourcePort=" + sourcePort + ", destinationPort=" + destinationPort + ", length=" + length
-				+ ", checksum=" + String.format("0x%04X", checksum) + ", contents=" + new String(contents) + "]";
-	}
-
-	public OnesComplementNumber calculateHeaderChecksum() {
-        var sum = new OnesComplementNumber((byte) 0, psudoHeader.protocol);
-
-        sum = sum.add(psudoHeader.sourceIP.getHighWord());
-        sum = sum.add(psudoHeader.sourceIP.getLowWord());
-        sum = sum.add(psudoHeader.destinationIP.getHighWord());
-        sum = sum.add(psudoHeader.destinationIP.getLowWord());
-        sum = sum.add(psudoHeader.protocol, (byte) 0);
-        sum = sum.add(psudoHeader.length); 
-        sum = sum.add(sourcePort);
-        sum = sum.add(destinationPort);
-        sum = sum.add(length); 
-        sum = sum.add(checksum);
-        sum.add(contents);
-
-        return sum;
-    }
-
-	@Override
-	public boolean isValid() {
-		return calculateHeaderChecksum().equals(OnesComplementNumber.MINUS_ZERO);
-	}
-
-	public PseudoHeader getPsudoHeader() {
-		return this.psudoHeader;
-	}
-
-	public String toHeaderString() {
-		return "UDPDatagram[srcPort=" + sourcePort + ", destPort=" + destinationPort + ", len=" + length
-			+ ", check=" + String.format("0x%04X", checksum) + "]";
-	}
-
-	/**
-	 * Converts this UDP datagram into an IP packet with the given source and destination IP addresses and TTL.
-	 * The psudo header is updated with the provided source and destination IP addresses
-	 * and the checksum computed.
-	 *
-	 * @param srcIP the source IP address
-	 * @param destIP the destination IP address
-	 * @param ttl the time-to-live value for the IP packet
-	 * @return an IPPacket containing this UDP datagram
-	 */
-	public IPPacket toIPPacket(IPAddress srcIP, IPAddress destIP, int ttl) {
-		this.psudoHeader = new PseudoHeader(srcIP, destIP, IPPacket.UDP, length);
-		this.checksum = 0;
-		this.checksum = calculateHeaderChecksum().getComplement().getValue();
-		return new IPPacket(IPPacket.UDP, ttl, srcIP, destIP, this.getBytes());
-	}
-	
-	
 }
