@@ -43,7 +43,8 @@ public class UDPDatagram implements ProtocolContainer {
 	public record PseudoHeader(
 			IPAddress sourceIP, 
 			IPAddress destinationIP, 
-			byte protocol) { }
+			byte protocol,
+			short length) { }
 	
 	/**
 	 * Simple constructor used by applications for creating the initial UDP datagram,
@@ -58,7 +59,8 @@ public class UDPDatagram implements ProtocolContainer {
 		this.length = (short) (contents.length+ 8); // 8 bytes for the UDP header
 		this.checksum = 0;
 		this.contents = contents;
-		this.psudoHeader = new PseudoHeader(IPAddress.ZERO_ADDRESS, IPAddress.ZERO_ADDRESS, IPPacket.UDP);
+		this.psudoHeader = new PseudoHeader(IPAddress.ZERO_ADDRESS, IPAddress.ZERO_ADDRESS, 
+				IPPacket.UDP, length);
 //		this.checksum = calculateHeaderChecksum().getComplement().getValue();
 	}
 
@@ -192,7 +194,7 @@ public class UDPDatagram implements ProtocolContainer {
         sum = sum.add(psudoHeader.destinationIP.getHighWord());
         sum = sum.add(psudoHeader.destinationIP.getLowWord());
         sum = sum.add(psudoHeader.protocol, (byte) 0);
-        sum = sum.add(length); 
+        sum = sum.add(psudoHeader.length); 
         sum = sum.add(sourcePort);
         sum = sum.add(destinationPort);
         sum = sum.add(length); 
@@ -227,7 +229,7 @@ public class UDPDatagram implements ProtocolContainer {
 	 * @return an IPPacket containing this UDP datagram
 	 */
 	public IPPacket toIPPacket(IPAddress srcIP, IPAddress destIP, int ttl) {
-		this.psudoHeader = new PseudoHeader(srcIP, destIP, IPPacket.UDP);
+		this.psudoHeader = new PseudoHeader(srcIP, destIP, IPPacket.UDP, length);
 		this.checksum = 0;
 		this.checksum = calculateHeaderChecksum().getComplement().getValue();
 		return new IPPacket(IPPacket.UDP, ttl, srcIP, destIP, this.getBytes());

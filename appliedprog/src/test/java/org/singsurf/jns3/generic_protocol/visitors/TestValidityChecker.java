@@ -211,7 +211,8 @@ class TestValidityChecker {
 		short destPort = 5678;
 		String content = "Hello UDP";
         byte[] data = content.getBytes();
-        var psuedo = new UDPDatagram.PseudoHeader(pc1.getIPAddress(), pc2.getIPAddress(), IPPacket.UDP);
+        var psuedo = new UDPDatagram.PseudoHeader(pc1.getIPAddress(), pc2.getIPAddress(), 
+        		IPPacket.UDP, (short) (data.length + 8));
 		var datagram = new UDPDatagram(srcPort, destPort, data, psuedo);
 
         // act
@@ -271,7 +272,8 @@ class TestValidityChecker {
 	void dhcp_discover_in_datagram() {
 		var dhcpDiscover = DHCPMessage.createDiscoverMessage(
 				pc1.getMACAddress(), pc1.getIPAddress());
-        var psuedo = new UDPDatagram.PseudoHeader(pc1.getIPAddress(), pc2.getIPAddress(), IPPacket.UDP);
+        var psuedo = new UDPDatagram.PseudoHeader(pc1.getIPAddress(), pc2.getIPAddress(), 
+        		IPPacket.UDP, (short) (dhcpDiscover.getBytes().length + 8));
 		var datagram = new UDPDatagram(DHCPProtocol.DHCP_CLIENT_PORT, 
 				DHCPProtocol.DHCP_SERVER_PORT, 
 				dhcpDiscover.getBytes(), psuedo);
@@ -356,9 +358,11 @@ class TestValidityChecker {
 
 	@Test
 	void chat_massage_in_udp_datagram() {
-        var psuedo = new UDPDatagram.PseudoHeader(pc1.getIPAddress(), pc2.getIPAddress(), IPPacket.UDP);
+		String content = "Chat hello";
+        var psuedo = new UDPDatagram.PseudoHeader(pc1.getIPAddress(), pc2.getIPAddress(),
+        		IPPacket.UDP, (short) (content.length() + 8));
 		var datagram = new UDPDatagram(ChatApplication.PRIVATE_PORT, 
-				ChatApplication.PUBLIC_PORT, "Chat hello".getBytes(), psuedo);
+				ChatApplication.PUBLIC_PORT, content.getBytes(), psuedo);
 
         // act
         boolean result = visitor.check(datagram);
@@ -370,7 +374,8 @@ class TestValidityChecker {
 	@Test
 	void large_chat_massage_in_packet() {
 		var largeMessage = Jns3Logger.generateOnesComplementTable();
-        var psuedo = new UDPDatagram.PseudoHeader(pc1.getIPAddress(), pc2.getIPAddress(), IPPacket.UDP);
+        var psuedo = new UDPDatagram.PseudoHeader(pc1.getIPAddress(), pc2.getIPAddress(), 
+        		IPPacket.UDP, (short) (largeMessage.length() + 8));
 		var datagram = new UDPDatagram(ChatApplication.PRIVATE_PORT, 
 				ChatApplication.PUBLIC_PORT, largeMessage.getBytes(), psuedo);
 		var packet = datagram.toIPPacket(pc1.getIPAddress(), pc2.getIPAddress(), 64);
@@ -384,7 +389,8 @@ class TestValidityChecker {
 	@Test
 	void for_large_chat_massage_in_fragments_first_fragment_is_valid_udp_remaininder_not() {
 		var largeMessage = Jns3Logger.generateOnesComplementTable();
-        var psuedo = new UDPDatagram.PseudoHeader(pc1.getIPAddress(), pc2.getIPAddress(), IPPacket.UDP);
+        var psuedo = new UDPDatagram.PseudoHeader(pc1.getIPAddress(), pc2.getIPAddress(), 
+        		IPPacket.UDP, (short) (largeMessage.length() + 8));
 		var datagram = new UDPDatagram(ChatApplication.PRIVATE_PORT, 
 				ChatApplication.PUBLIC_PORT, largeMessage.getBytes(), psuedo);
 		var packet = datagram.toIPPacket(pc1.getIPAddress(), pc2.getIPAddress(), 64);
@@ -400,12 +406,7 @@ class TestValidityChecker {
 			var result = visitor.check(fragment,ValidityChecker.Level.TRANSPORT);
 			System.out.println("Fragment " + count + " is valid at transport level: " + result 
 					+ " is fragment " + fragment.isFragment());
-			if(count == 0) {
-				assertTrue(result, "First fragment should be valid at transport level");
-			} else {
-				assertFalse(result, "Subsequent fragments should not be valid at transport level");
-			}
-			count++;
+			assertFalse(result);
 			assertTrue(fragment.isFragment());
 		}
         

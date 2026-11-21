@@ -39,7 +39,9 @@ public class UDPController implements PacketHandler, NamedDevice {
 	}
 
 	private void receive(IPPacket packet) {
-		var psudo = new PseudoHeader(packet.getSourceAddress(), packet.getDestinationAddress(), IPPacket.UDP);
+		var psudo = new PseudoHeader(packet.getSourceAddress(), 
+				packet.getDestinationAddress(), 
+				IPPacket.UDP, (short) packet.getContents().length);
 		var datagram = UDPDatagram.fromBytes(packet.getContents(),psudo);
 		var lookupAddress = 
 				packet.getDestinationAddress().equals(device.getMulticastAddress())

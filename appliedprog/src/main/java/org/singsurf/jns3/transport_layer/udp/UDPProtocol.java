@@ -69,7 +69,9 @@ public class UDPProtocol implements Protocol, LowerAdapter<IPPacket>, UpperSocke
 	@Override
 	public <R> R accept(ProtocolVisitor<R> visitor, IPPacket packet) {
 		if(packet.getProtocol() != IPPacket.UDP) return null;
-		var psudo = new PseudoHeader(packet.getSourceAddress(), packet.getDestinationAddress(), IPPacket.UDP);
+		var psudo = new PseudoHeader(packet.getSourceAddress(), 
+				packet.getDestinationAddress(), IPPacket.UDP,
+				(short) packet.getContents().length);
 		if(!UDPDatagram.isExtractable(packet.getContents()))
 			return null;
 		var datagram = UDPDatagram.unsafeFromBytes(packet.getContents(),psudo);
