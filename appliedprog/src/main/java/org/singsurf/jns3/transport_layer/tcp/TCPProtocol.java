@@ -34,13 +34,18 @@ public class TCPProtocol implements LowerAdapter<IPPacket>, UpperSocketPort<Inte
 	
 	public record PortAddr(IPAddress ip, short port) {}
 	
-	record MsgSynAck(InternetMessage message, int seqNum, int ackNum) {}
-	Map<PortAddr, MsgSynAck> waitingMessages = new HashMap<>();
-	Map<PortAddr,Integer> initialSynNums = new HashMap<>();
-	
-	record SegmentSynAck(TCPSegment segment, int seqNum, int ackNum) {}
-	Map<PortAddr, List<SegmentSynAck>> receivedSegments = new HashMap<>();
-	Map<PortAddr, Integer> intialAckNums = new HashMap<>();
+//	record MsgSynAck(InternetMessage message, int seqNum, int ackNum) {}
+//	Map<PortAddr, MsgSynAck> waitingMessages = new HashMap<>();
+//	Map<PortAddr,Integer> initialSynNums = new HashMap<>();
+//	Map<PortAddr,Integer> currentSynNums = new HashMap<>();
+//	
+//	record SegmentSynAck(TCPSegment segment, int seqNum, int ackNum) {}
+//	Map<PortAddr, List<SegmentSynAck>> receivedSegments = new HashMap<>();
+//	Map<PortAddr, Integer> initialAckNums = new HashMap<>();
+//	Map<PortAddr, Integer> currentAckNums = new HashMap<>();
+
+	Map<PortAddr, ClientView> clientViews = new HashMap<>();
+	Map<PortAddr, ServerView> serverViews = new HashMap<>();
 	
 	Queue<InternetMessage> messageQueue = new LinkedList<>();
 	
@@ -52,86 +57,55 @@ public class TCPProtocol implements LowerAdapter<IPPacket>, UpperSocketPort<Inte
 		socketFactory = new TCPSocketFactory(this);
 		delegator = new ProtocolDelegator<TCPSegment>(name);
 		delegator.addHandler(new SynHandler(this));
+		delegator.addHandler(new SynAckHandler(this));
 		packetHandler = new TCPPacketHandler(this);
 	}
 
 	public void transmitMessage(InternetMessage message) {
 		// Start the TCP connection handshake
-		int seqNum = random.nextInt();
-		int ackNum = 0;
-		
-		var srcIP = message.getSrcIP();
 		var destIP = message.getDestIP();
-		var srcPort = message.getSrcPort();
 		var destPort = message.getDestPort();
 		var portAddr = new PortAddr(destIP, destPort);
 		
-		var ent = waitingMessages.get(portAddr);
+		var ent = clientViews.get(portAddr);
 		if(ent != null) {
 			messageQueue.add(message);
 			return;
 		}
-		waitingMessages.put(
+		var clientView = new ClientView(this,message);
+		clientViews.put(
 				new PortAddr(destIP, destPort), 
-				new MsgSynAck(message, seqNum, ackNum));
-		
-		sendSyn(seqNum, ackNum, srcIP, srcPort, destIP, destPort);
+				clientView);	
+		clientView.sendSyn();
 	}
 
-	void sendSyn(int seqNum, int ackNum, IPAddress srcIP, short srcPort, IPAddress destIP, short destPort) {
-		var pseudoHeader = new TCPSegment.PseudoHeader(
-				srcIP, destIP, IPPacket.TCP, (short) 20);
-		var snycDatagram = new TCPSegment(
-				srcPort, destPort,
-				seqNum, ackNum, 
-				TCPSegment.FLAG_SYN, new byte[0], 
-				pseudoHeader);
-		var packet = snycDatagram.toPacket();
-		sender.send(packet);
-	}
 
 	void receiveSyn(TCPSegment datagram) {
 		var portAddr = new PortAddr(
 				datagram.getPsudoHeader().sourceIP(), 
 				datagram.getSourcePort());
-		int synNo = datagram.getSequenceNumber();
-		int ackNo = random.nextInt();
 		
-		var ent = receivedSegments.get(portAddr);
+		var ent = serverViews.get(portAddr);
 		if(ent != null) {
 			Jns3Logger.logError("TCPProtocol", "Dupe SYN received for " + portAddr);
 			return;
 		}
-		initialSynNums.put(portAddr, synNo);
-		intialAckNums.put(portAddr, ackNo);
-		receivedSegments.put(portAddr, new ArrayList<>());
-				
-		sendSynAck(
-				datagram.getPsudoHeader().destinationIP(), datagram.getDestinationPort(),
-				datagram.getPsudoHeader().sourceIP(), datagram.getSourcePort(),
-				synNo, ackNo);		
-	}
 
-	 
-	void sendSynAck(IPAddress srcIP, short srcPort, 
-			IPAddress destIP, short destPort,
-			int synNo, int ackNo) {
-		var pseudoHeader = new TCPSegment.PseudoHeader(
-				srcIP, destIP, IPPacket.TCP, (short) 20);
-		var snycDatagram = new TCPSegment(
-				srcPort, destPort,
-				synNo, ackNo, 
-				(byte) (TCPSegment.FLAG_SYN | TCPSegment.FLAG_ACK),
-				new byte[0], 
-				pseudoHeader);
-		var packet = snycDatagram.toPacket();
-		sender.send(packet);
+		var serverView = new ServerView(this, datagram);
+		serverViews.put(portAddr, serverView);
+		serverView.sendSynAck();
 	}
-	
 	
 	public void receiveSynAck(TCPSegment datagram) {
-		// TODO Auto-generated method stub
-		
+		var portAddr = new PortAddr(
+				datagram.getPsudoHeader().sourceIP(), 
+				datagram.getSourcePort());
+		var cv = clientViews.get(portAddr);
+		if(cv == null) {
+			Jns3Logger.logError("TCPProtocol", "No client view found for SYN-ACK from " + portAddr);
+			return;
+		}
+		cv.receiveSynAck(datagram);
 	}
 
 
@@ -146,7 +120,9 @@ public class TCPProtocol implements LowerAdapter<IPPacket>, UpperSocketPort<Inte
 		var table = bindings.get(tcpSocket.getAddress());
 		if(table != null) {
 			table.remove(tcpSocket.getPort());
-		}		
+		} else {
+			Jns3Logger.logError("TCPProtocol", "Unbind failed for " + tcpSocket);
+		}	
 	}
 
 	

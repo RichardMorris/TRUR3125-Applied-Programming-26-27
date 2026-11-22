@@ -4,8 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.application_layer.http.HTTPClient;
 import org.singsurf.jns3.hardware.DeviceFactory;
 import org.singsurf.jns3.hardware.GlobalWallClock;
@@ -46,29 +48,56 @@ class TestHandshake {
 		http1.requestPage(pc2.getIPAddress(), "/index.html");
 		
 		assertTrue(tcp1.messageQueue.isEmpty());
-		assertEquals(1, tcp1.waitingMessages.size());
+		assertEquals(1, tcp1.clientViews.size());
 		
-		var ent = tcp1.waitingMessages.entrySet().iterator().next();
+		var ent = tcp1.clientViews.entrySet().iterator().next();
 		assertEquals(pc2.getIPAddress(), ent.getKey().ip());
 		assertEquals(80, ent.getKey().port());
+		var cv = ent.getValue();
 		
-		var msg = ent.getValue();
-		System.out.println("SYN "+msg.seqNum());
-		assertEquals(0, msg.ackNum());
-		var text = new String(msg.message().getContents());
+		System.out.println("SYN "+cv.getInitialSeqNum());
+		assertEquals(0, cv.getInitialRemoteSeqNum());
+		var text = new String(cv.getMessage().getContents());
 		assertTrue(text.startsWith("GET /index.html HTTP/0.1"));
 
 		GlobalWallClock.advanceBy(1);
 
-		var ent2 = tcp2.initialSynNums.entrySet().iterator().next();
+		var ent2 = tcp2.serverViews.entrySet().iterator().next();
 		assertEquals(pc1.getIPAddress(), ent2.getKey().ip());
 		assertEquals(12345, ent2.getKey().port());
-		assertEquals(msg.seqNum(), ent2.getValue());
+		var sv = ent2.getValue();
 		
-		var ent3 = tcp2.intialAckNums.entrySet().iterator().next();
-		assertEquals(pc1.getIPAddress(), ent3.getKey().ip());
-		assertEquals(12345, ent3.getKey().port());
-		System.out.println("ACK " + ent3.getValue());
+		assertEquals(cv.getInitialSeqNum(), sv.getInitialRemoteSeqNum());		
+		System.out.println("PC2 SYN " + sv.getInitialSeqNum());
+	}
+
+	@Test
+	void test_handshake_stage2() {
+		http1.requestPage(pc2.getIPAddress(), "/index.html");
+		
+		assertTrue(tcp1.messageQueue.isEmpty());
+		
+		GlobalWallClock.advanceBy(2);
+
+		var cv = tcp1.clientViews.entrySet().iterator().next().getValue();
+		var sv = tcp2.serverViews.entrySet().iterator().next().getValue();
+		assertNotNull(cv);
+		assertNotNull(sv);
+		
+		assertEquals(cv.getInitialSeqNum(), sv.getInitialRemoteSeqNum());
+		assertEquals(cv.getInitialRemoteSeqNum(), sv.getInitialSeqNum());
+		assertEquals(cv.getCurrentSeqNum(), sv.getCurrentRemoteSeqNum());
+		
+		assertEquals(cv.getInitialSeqNum()+ 1, cv.getCurrentSeqNum());
+	}
+	
+	
+	@AfterEach
+	void tearDown() throws Exception {
+		GlobalWallClock.getInstance().clear();
+		var errorFree = Jns3Logger.isErrorFree();
+		Jns3Logger.clearLog();
+		assertTrue(errorFree);
 	}
 
 }
