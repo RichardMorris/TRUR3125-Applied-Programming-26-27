@@ -46,6 +46,12 @@ public class ServerView {
 		this.localPort = datagram.getDestinationPort();
 	}
 
+	
+	public void receiveAck(TCPSegment datagram) {
+		currentRemoteSeqNum = datagram.getSequenceNumber();
+		currentSeqNum = datagram.getAcknowledgementNumber();
+	}
+
 	void sendSynAck() {
 		var pseudoHeader = new TCPSegment.PseudoHeader(
 				localIP, remoteIP, IPPacket.TCP, (short) 20);
@@ -94,6 +100,7 @@ public class ServerView {
 	public short getLocalPort() {
 		return localPort;
 	}
+
 
 	
 }

@@ -67,6 +67,18 @@ public class ClientView {
 		currentSeqNum = ackNo;
 	}
 
+	public void sendAck() {
+		var pseudoHeader = new TCPSegment.PseudoHeader(
+				localIP, remoteIP, IPPacket.TCP, (short) 20);
+		var snycDatagram = new TCPSegment(
+				localPort, remotePort,
+				currentSeqNum, currentRemoteSeqNum, 
+				TCPSegment.FLAG_ACK, new byte[0], 
+				pseudoHeader);
+		var packet = snycDatagram.toPacket();
+		tcpProtocol.sender.send(packet);
+	}
+
 	public InternetMessage getMessage() {
 		return message;
 	}
@@ -102,5 +114,6 @@ public class ClientView {
 	public short getLocalPort() {
 		return localPort;
 	}
+
 
 }

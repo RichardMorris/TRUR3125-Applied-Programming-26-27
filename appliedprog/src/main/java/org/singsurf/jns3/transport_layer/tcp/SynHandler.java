@@ -37,7 +37,7 @@ public class SynHandler implements ProtocolHandler<TCPSegment> {
 		
 		var ent = tcpProtocol.serverViews.get(portAddr);
 		if(ent != null) {
-			Jns3Logger.logError("TCPProtocol", "Dupe SYN received for " + portAddr);
+			Jns3Logger.logError(tcpProtocol.getName(), "Dupe SYN received for " + portAddr);
 			return;
 		}
 

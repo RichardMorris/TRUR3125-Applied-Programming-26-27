@@ -48,6 +48,7 @@ public class TCPProtocol implements LowerAdapter<IPPacket>, UpperSocketPort<Inte
 		delegator = new ProtocolDelegator<TCPSegment>(name);
 		delegator.addHandler(new SynHandler(this));
 		delegator.addHandler(new SynAckHandler(this));
+		delegator.addHandler(new ServerAckHandler(this));
 		packetHandler = new TCPPacketHandler(this);
 	}
 
@@ -107,6 +108,10 @@ public class TCPProtocol implements LowerAdapter<IPPacket>, UpperSocketPort<Inte
 	@Override
 	public List<LowerSocketAdapter<InternetMessage>> getChildProtocols() {
 		return childProtocols;
+	}
+
+	public String getName() {
+		return name;
 	}
 
 

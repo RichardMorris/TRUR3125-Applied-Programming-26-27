@@ -270,6 +270,10 @@ public class TCPSegment implements ProtocolContainer {
 		recalculateHeaderChecksum();
 	}
 
+	public byte getFlags() {
+		return flags;
+	}
+
 	public boolean isSYN() {
 		return (flags & FLAG_SYN) != 0;
 	}
@@ -309,5 +313,6 @@ public class TCPSegment implements ProtocolContainer {
 		var bytes = packet.getContents();
 		return new TCPSegment(bytes, psudo);
 	}
+
 
 }

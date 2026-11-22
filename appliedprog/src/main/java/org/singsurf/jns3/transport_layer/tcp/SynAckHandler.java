@@ -35,10 +35,12 @@ public class SynAckHandler implements ProtocolHandler<TCPSegment> {
 				datagram.getSourcePort());
 		var cv = tcpProtocol.clientViews.get(portAddr);
 		if(cv == null) {
-			Jns3Logger.logError("TCPProtocol", "No client view found for SYN-ACK from " + portAddr);
+			Jns3Logger.logError(tcpProtocol.getName(), "No client view found for SYN-ACK from " + portAddr);
 			return;
 		}
 		cv.receiveSynAck(datagram);
+		cv.sendAck();
+
 	}
 
 }
