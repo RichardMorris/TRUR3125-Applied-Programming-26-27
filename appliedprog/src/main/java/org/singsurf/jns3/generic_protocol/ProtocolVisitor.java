@@ -10,6 +10,8 @@ import org.singsurf.jns3.network_layer.icmp.ICMPMessage;
 import org.singsurf.jns3.network_layer.icmp.ICMPProtocol;
 import org.singsurf.jns3.transport_layer.dhcp.DHCPMessage;
 import org.singsurf.jns3.transport_layer.dhcp.DHCPProtocol;
+import org.singsurf.jns3.transport_layer.tcp.TCPProtocol;
+import org.singsurf.jns3.transport_layer.tcp.TCPSegment;
 import org.singsurf.jns3.transport_layer.udp.UDPDatagram;
 import org.singsurf.jns3.transport_layer.udp.UDPProtocol;
 
@@ -31,5 +33,6 @@ public interface ProtocolVisitor<R> {
 	R visit(ICMPProtocol protocol, ICMPMessage message);
 	R visit(UDPProtocol protocol, UDPDatagram datagram);
 	R visit(DHCPProtocol protocol, DHCPMessage message);
+	R visit(TCPProtocol protocol, TCPSegment segment);
 
 }

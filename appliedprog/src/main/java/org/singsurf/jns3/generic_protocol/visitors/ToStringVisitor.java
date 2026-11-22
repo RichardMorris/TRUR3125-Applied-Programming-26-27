@@ -13,6 +13,9 @@ import org.singsurf.jns3.network_layer.icmp.ICMPMessage;
 import org.singsurf.jns3.network_layer.icmp.ICMPProtocol;
 import org.singsurf.jns3.transport_layer.dhcp.DHCPMessage;
 import org.singsurf.jns3.transport_layer.dhcp.DHCPProtocol;
+import org.singsurf.jns3.transport_layer.tcp.InternetMessage;
+import org.singsurf.jns3.transport_layer.tcp.TCPProtocol;
+import org.singsurf.jns3.transport_layer.tcp.TCPSegment;
 import org.singsurf.jns3.transport_layer.udp.UDPDatagram;
 import org.singsurf.jns3.transport_layer.udp.UDPProtocol;
 
@@ -132,6 +135,30 @@ public class ToStringVisitor extends AbstractVisitor<String> {
 		var options = msg.getOptions();
 		for(var option: options) {
 			sb.append(INDENT_STR).append(option).append('\n');
+		}
+		return sb.toString();
+	}
+
+	@Override
+	public String visit(TCPProtocol protocol, TCPSegment segment) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(segment.toHeaderString()).append('\n');
+		if(segment.getContents().length == 0) {
+			return sb.toString();
+		}
+		InternetMessage msg = new InternetMessage("tcp", 
+				segment.getPsudoHeader().sourceIP(), segment.getPsudoHeader().destinationIP(), 
+				segment.getSourcePort(), segment.getDestinationPort(), 
+				segment.getContents());
+		for(var child: protocol.getChildProtocols()) {
+			var res = child.accept(this, msg);
+			if(res != null) {
+				sb.append(indent(res));
+				return sb.toString();
+			}
+		}
+		if(segment.getContents().length > 0) {
+			sb.append(indent(new String(segment.getContents()))).append('\n');
 		}
 		return sb.toString();
 	}

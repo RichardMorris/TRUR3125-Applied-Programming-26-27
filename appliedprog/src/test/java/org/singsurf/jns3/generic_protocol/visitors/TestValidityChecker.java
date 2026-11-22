@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.application_layer.ChatApplication;
+import org.singsurf.jns3.application_layer.http.HTTPClient;
 import org.singsurf.jns3.data_link_layer.EthernetFrame;
 import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.data_link_layer.arp.ARPMessage;
@@ -20,6 +21,7 @@ import org.singsurf.jns3.network_layer.PacketFragmentor;
 import org.singsurf.jns3.network_layer.icmp.ICMPMessage;
 import org.singsurf.jns3.transport_layer.dhcp.DHCPMessage;
 import org.singsurf.jns3.transport_layer.dhcp.DHCPProtocol;
+import org.singsurf.jns3.transport_layer.tcp.TCPSegment;
 import org.singsurf.jns3.transport_layer.udp.UDPDatagram;
 
 class TestValidityChecker {
@@ -79,7 +81,7 @@ class TestValidityChecker {
 		// arrange
 		String content = "Hello IP";
         byte[] data = content.getBytes();
-        IPPacket packet = new IPPacket(IPPacket.TCP, 64,
+        IPPacket packet = new IPPacket(1234, 64,
             pc1.getIPAddress(), pc2.getIPAddress(), data); 
 
         EthernetFrame frame = new EthernetFrame(
@@ -99,7 +101,7 @@ class TestValidityChecker {
 		// arrange
 		String content = "Hello IP";
         byte[] data = content.getBytes();
-        IPPacket packet = new IPPacket(IPPacket.TCP, 64,
+        IPPacket packet = new IPPacket(1234, 64,
             pc1.getIPAddress(), pc2.getIPAddress(), data); 
         
         // act
@@ -409,8 +411,72 @@ class TestValidityChecker {
 			assertFalse(result);
 			assertTrue(fragment.isFragment());
 		}
-        
-        // assert
 	}
+	
+	
+	@Test
+	void tcp_syn_in_packet() {
+		short srcPort = 1234;
+		short destPort = 5678;
+		int initialSeqNum=87654321;
+		int initialRemoteSeqNum=0;
+		
+		var pseudoHeader = new TCPSegment.PseudoHeader(
+				pc1.getIPAddress(), pc2.getIPAddress(), IPPacket.TCP, (short) 20);
+		var snycDatagram = new TCPSegment(
+				srcPort, destPort,
+				initialSeqNum, initialRemoteSeqNum, 
+				TCPSegment.FLAG_SYN, new byte[0], 
+				pseudoHeader);
+		var packet = snycDatagram.toPacket();
+		
+		boolean result = visitor.check(packet);
+		assertTrue(result);
+	}
+
+	@Test
+	void tcp_syn() {
+		short srcPort = 1234;
+		short destPort = 5678;
+		int initialSeqNum=87654321;
+		int initialRemoteSeqNum=0;
+		
+		var pseudoHeader = new TCPSegment.PseudoHeader(
+				pc1.getIPAddress(), pc2.getIPAddress(), IPPacket.TCP, (short) 20);
+		var snycDatagram = new TCPSegment(
+				srcPort, destPort,
+				initialSeqNum, initialRemoteSeqNum, 
+				TCPSegment.FLAG_SYN, new byte[0], 
+				pseudoHeader);
+		
+		boolean result = visitor.check(snycDatagram);
+		assertTrue(result);
+	}
+
+	@Test
+	void http_req_syn_in_packet() {
+		var http1 = new HTTPClient(pc1); 
+		String request = http1.getRequestString("/index.html");
+		
+		short srcPort = 1234;
+		short destPort = 80;
+		int initialSeqNum=87654321;
+		int initialRemoteSeqNum=0;
+		
+		var pseudoHeader = new TCPSegment.PseudoHeader(
+				pc1.getIPAddress(), pc2.getIPAddress(), IPPacket.TCP, (short) (20 + request.length()));
+		var snycDatagram = new TCPSegment(
+				srcPort, destPort,
+				initialSeqNum, initialRemoteSeqNum, 
+				TCPSegment.FLAG_SYN, request.getBytes(),
+				pseudoHeader);
+		assertTrue(snycDatagram.isValid());
+
+		var packet = snycDatagram.toPacket();
+		
+		boolean result = visitor.check(packet);
+		assertTrue(result);
+	}
+
 
 }

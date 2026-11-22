@@ -11,17 +11,19 @@ import java.util.Random;
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.generic_protocol.LowerAdapter;
 import org.singsurf.jns3.generic_protocol.LowerSocketAdapter;
+import org.singsurf.jns3.generic_protocol.Protocol;
 import org.singsurf.jns3.generic_protocol.ProtocolDelegator;
 import org.singsurf.jns3.generic_protocol.ProtocolHandler;
 import org.singsurf.jns3.generic_protocol.ProtocolSender;
 import org.singsurf.jns3.generic_protocol.ProtocolSocket;
+import org.singsurf.jns3.generic_protocol.ProtocolVisitor;
 import org.singsurf.jns3.generic_protocol.UpperSocketPort;
 import org.singsurf.jns3.hardware.ProtocolDevice;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPPacket;
 import org.singsurf.jns3.network_layer.PacketSender;
 
-public class TCPProtocol implements LowerAdapter<IPPacket>, UpperSocketPort<InternetMessage> {
+public class TCPProtocol implements Protocol, LowerAdapter<IPPacket>, UpperSocketPort<InternetMessage> {
 	String name;
 	ProtocolDevice device;
 
@@ -129,4 +131,12 @@ public class TCPProtocol implements LowerAdapter<IPPacket>, UpperSocketPort<Inte
 		}
 	}
 
+	@Override
+	public <R> R accept(ProtocolVisitor<R> visitor, IPPacket packet) {
+		if(packet.getProtocol() != IPPacket.TCP) {
+			return null;
+		}
+		var tcpSegment = TCPSegment.fromPacket(packet);
+		return visitor.visit(this, tcpSegment);
+	}
 }

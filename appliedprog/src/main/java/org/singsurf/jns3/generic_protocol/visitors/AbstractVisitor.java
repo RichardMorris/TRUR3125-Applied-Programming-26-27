@@ -8,6 +8,7 @@ import org.singsurf.jns3.hardware.ProtocolDevice;
 import org.singsurf.jns3.network_layer.IPPacket;
 import org.singsurf.jns3.network_layer.icmp.ICMPMessage;
 import org.singsurf.jns3.transport_layer.dhcp.DHCPMessage;
+import org.singsurf.jns3.transport_layer.tcp.TCPSegment;
 import org.singsurf.jns3.transport_layer.udp.UDPDatagram;
 
 /**
@@ -52,6 +53,9 @@ public abstract class AbstractVisitor<R> implements ProtocolVisitor<R> {
 			}
 			case DHCPMessage msg -> {
 				return visit(device.getDHCPProtocol(), msg);
+			}
+			case TCPSegment msg -> {
+				return visit(device.getTCPProtocol(), msg);
 			}
 		default -> throw new IllegalArgumentException("Unexpected value: " + container);
 		}
