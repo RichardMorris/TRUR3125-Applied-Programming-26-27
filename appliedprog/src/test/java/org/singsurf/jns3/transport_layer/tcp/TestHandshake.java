@@ -28,12 +28,12 @@ class TestHandshake {
 		pc1 = DeviceFactory.getInstance().createPC("PC1");
 		pc2 = DeviceFactory.getInstance().createPC("PC2");
 		
-		tcp1 = new TCPProtocol(pc1);
+		tcp1 = pc1.getTCPProtocol();
 		pc1.getIPProtocol().register(tcp1);
 		http1 = new HTTPClient(pc1);
 		tcp1.register(http1);
 		
-		tcp2 = new TCPProtocol(pc2);
+		tcp2 = pc2.getTCPProtocol();
 		pc2.getIPProtocol().register(tcp2);
 		http2 = new HTTPServer(pc2);
 		tcp2.register(http2);
@@ -101,7 +101,9 @@ class TestHandshake {
 		
 		assertTrue(tcp1.messageQueue.isEmpty());
 		
-		GlobalWallClock.advanceBy(3);
+		GlobalWallClock.advanceBy(2);
+		
+		GlobalWallClock.advanceBy(1);
 
 		var cv = tcp1.clientViews.entrySet().iterator().next().getValue();
 		var sv = tcp2.serverViews.entrySet().iterator().next().getValue();
@@ -125,7 +127,7 @@ class TestHandshake {
 		
 		assertTrue(tcp1.messageQueue.isEmpty());
 		
-		GlobalWallClock.advanceBy(4);
+		GlobalWallClock.advanceBy(5);
 
 		Jns3Logger.println();
 		

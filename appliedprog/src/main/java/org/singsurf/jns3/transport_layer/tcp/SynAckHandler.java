@@ -39,8 +39,6 @@ public class SynAckHandler implements ProtocolHandler<TCPSegment> {
 			return;
 		}
 		cv.receiveSynAck(segment);
-		cv.sendAck();
-
 	}
 
 }

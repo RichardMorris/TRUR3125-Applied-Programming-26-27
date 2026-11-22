@@ -50,7 +50,7 @@ public class ClientView implements TickListener {
 		this.localIP = message.getSrcIP();
 		this.localPort = message.getSrcPort();
 		
-		GlobalWallClock.getInstance().addTickListener(this);
+		GlobalWallClock.getInstance().addTickListener(GlobalWallClock.INIT, this);
 	}
 
 	void sendSyn() {
@@ -72,6 +72,7 @@ public class ClientView implements TickListener {
 		initialRemoteSeqNum = synNo;
 		currentRemoteSeqNum = initialRemoteSeqNum+1;
 		currentSeqNum = ackNo;
+		sendAck();
 		state = State.Established;
 	}
 
