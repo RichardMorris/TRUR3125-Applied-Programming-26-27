@@ -14,6 +14,7 @@ import org.singsurf.jns3.network_layer.icmp.ICMPProtocol;
 import org.singsurf.jns3.network_layer.routing.RoutingProtocol;
 import org.singsurf.jns3.physical_layer.PhysicalProtocol;
 import org.singsurf.jns3.transport_layer.dhcp.DHCPProtocol;
+import org.singsurf.jns3.transport_layer.tcp.TCPProtocol;
 import org.singsurf.jns3.transport_layer.udp.UDPProtocol;
 
 /**
@@ -158,6 +159,9 @@ public class DeviceFactory {
 		udpProtocol.register(dhcpProtocol);
         pc.addProtocol(dhcpProtocol);
 
+        TCPProtocol tcpProtocol = new TCPProtocol(pc);
+        ipProtocol.register(tcpProtocol);
+        pc.addProtocol(tcpProtocol);
 //        ipProtocol.finalise();
         ethernetProtocol.finalise();
 

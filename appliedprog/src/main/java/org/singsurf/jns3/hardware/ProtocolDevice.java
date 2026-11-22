@@ -15,6 +15,7 @@ import org.singsurf.jns3.network_layer.icmp.ICMPProtocol;
 import org.singsurf.jns3.network_layer.routing.RoutingProtocol;
 import org.singsurf.jns3.physical_layer.PhysicalProtocol;
 import org.singsurf.jns3.transport_layer.dhcp.DHCPProtocol;
+import org.singsurf.jns3.transport_layer.tcp.TCPProtocol;
 import org.singsurf.jns3.transport_layer.udp.UDPProtocol;
 
 /**
@@ -41,6 +42,7 @@ public abstract class ProtocolDevice implements AddressableDevice {
 	ICMPProtocol icmpProtocol;
 	UDPProtocol udpProtocol;
 	DHCPProtocol dhcpProtocol;
+	TCPProtocol tcpProtocol;
 	
 	public ProtocolDevice(String name, 
 			MACAddress macAddress, IPAddress ipAddress,
@@ -73,6 +75,7 @@ public abstract class ProtocolDevice implements AddressableDevice {
 		case ICMPProtocol icmpp -> icmpProtocol = icmpp;
 		case UDPProtocol udpp -> udpProtocol = udpp;
 		case DHCPProtocol dhcpp -> dhcpProtocol = dhcpp;
+		case TCPProtocol tcpp -> tcpProtocol = tcpp;
 		default -> {}
 		}
 	}
@@ -117,6 +120,10 @@ public abstract class ProtocolDevice implements AddressableDevice {
 
 	public DHCPProtocol getDHCPProtocol() {
 		return dhcpProtocol;
+	}
+
+	public TCPProtocol getTCPProtocol() {
+		return tcpProtocol;
 	}
 
 	@Override
@@ -192,7 +199,4 @@ public abstract class ProtocolDevice implements AddressableDevice {
 	public int getNumPorts() {
 		return numInternalPorts + numExternalPorts;
 	}
-
-	
-
 }
