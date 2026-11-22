@@ -158,7 +158,7 @@ public class DeviceFactory {
 		udpProtocol.register(dhcpProtocol);
         pc.addProtocol(dhcpProtocol);
 
-        ipProtocol.finalise();
+//        ipProtocol.finalise();
         ethernetProtocol.finalise();
 
 		pc.setMulticastAddress(new IPAddress("192.168.1.255"));

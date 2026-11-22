@@ -27,6 +27,7 @@ class TestPacketCombiner {
 	void setUp() throws Exception {
 		fragmentor.setMaxLength(100);
 		pc = deviceFactory.createPC("TestPC");
+		pc.getIPProtocol().finalise();
 		delegator = pc.getIPProtocol().getDelegator();
 		combiner = pc.getIPProtocol().getFragmentHandler();
 		receiver = pc.getIPProtocol().getDefaultReceiver();

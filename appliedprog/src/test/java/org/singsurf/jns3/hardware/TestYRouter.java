@@ -127,6 +127,8 @@ class TestYRouter {
 		// Arrange
 		
 		PC pc = deviceFactory.createPC("Receiver PC");
+		pc.getIPProtocol().finalise();
+
 		var del = pc.getIPProtocol().getDelegator();
 		DefaultPacketHandler receiver = null;
 		for(var h : del.getHandlers()) {
@@ -137,6 +139,7 @@ class TestYRouter {
 		}
 		
 		PC pc2 = deviceFactory.createPC("Sender PC");
+		pc2.getIPProtocol().finalise();
 		
 		var router1 = new YRouter("YRouter", 3, 5);
 		var router2 = new YRouter("YRouter2", 3, 5);

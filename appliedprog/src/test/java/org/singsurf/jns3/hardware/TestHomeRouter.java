@@ -105,6 +105,7 @@ class TestHomeRouter {
 	void can_send_packet_to_established_addresses() {
 		pc1.getArpProtocol().sendGARPRequest();
 		pc2.getArpProtocol().sendGARPRequest();
+		pc2.getIPProtocol().finalise();
 		Jns3Logger.clearLog();
 		byte[] payload = "Hello from PC1".getBytes();
 		
@@ -126,6 +127,8 @@ class TestHomeRouter {
 		System.out.println(router);
 		System.out.println(pc1);
 		System.out.println(pc2);
+		pc2.getIPProtocol().finalise();
+
 		pc2.getArpProtocol().sendGARPRequest();
 		assertEquals(pc1.getMACAddress(), pc2.getArpProtocol().lookup(pc1.getIPAddress()));
 		Jns3Logger.clearLog();

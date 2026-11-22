@@ -178,6 +178,7 @@ class TestPassthroughRouter {
 		var connection2 = new BufferedConnection(pc2.getEndPoint(), router.getEndPoint(1));
 		assertNotNull(connection1);
 		assertNotNull(connection2);
+		pc2.getIPProtocol().finalise();
 		
 		pc1.getArpProtocol().sendGARPRequest();
 		GlobalWallClock.advanceBy(4);
