@@ -34,16 +34,6 @@ public class TCPProtocol implements LowerAdapter<IPPacket>, UpperSocketPort<Inte
 	
 	public record PortAddr(IPAddress ip, short port) {}
 	
-//	record MsgSynAck(InternetMessage message, int seqNum, int ackNum) {}
-//	Map<PortAddr, MsgSynAck> waitingMessages = new HashMap<>();
-//	Map<PortAddr,Integer> initialSynNums = new HashMap<>();
-//	Map<PortAddr,Integer> currentSynNums = new HashMap<>();
-//	
-//	record SegmentSynAck(TCPSegment segment, int seqNum, int ackNum) {}
-//	Map<PortAddr, List<SegmentSynAck>> receivedSegments = new HashMap<>();
-//	Map<PortAddr, Integer> initialAckNums = new HashMap<>();
-//	Map<PortAddr, Integer> currentAckNums = new HashMap<>();
-
 	Map<PortAddr, ClientView> clientViews = new HashMap<>();
 	Map<PortAddr, ServerView> serverViews = new HashMap<>();
 	
@@ -78,36 +68,6 @@ public class TCPProtocol implements LowerAdapter<IPPacket>, UpperSocketPort<Inte
 				clientView);	
 		clientView.sendSyn();
 	}
-
-
-	void receiveSyn(TCPSegment datagram) {
-		var portAddr = new PortAddr(
-				datagram.getPsudoHeader().sourceIP(), 
-				datagram.getSourcePort());
-		
-		var ent = serverViews.get(portAddr);
-		if(ent != null) {
-			Jns3Logger.logError("TCPProtocol", "Dupe SYN received for " + portAddr);
-			return;
-		}
-
-		var serverView = new ServerView(this, datagram);
-		serverViews.put(portAddr, serverView);
-		serverView.sendSynAck();
-	}
-	
-	public void receiveSynAck(TCPSegment datagram) {
-		var portAddr = new PortAddr(
-				datagram.getPsudoHeader().sourceIP(), 
-				datagram.getSourcePort());
-		var cv = clientViews.get(portAddr);
-		if(cv == null) {
-			Jns3Logger.logError("TCPProtocol", "No client view found for SYN-ACK from " + portAddr);
-			return;
-		}
-		cv.receiveSynAck(datagram);
-	}
-
 
 	// Socket binding methods
 	

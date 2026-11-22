@@ -2,8 +2,10 @@ package org.singsurf.jns3.transport_layer.tcp;
 
 import java.util.Random;
 
+import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.generic_protocol.HandlerStatus;
 import org.singsurf.jns3.generic_protocol.ProtocolHandler;
+import org.singsurf.jns3.transport_layer.tcp.TCPProtocol.PortAddr;
 
 public class SynAckHandler implements ProtocolHandler<TCPSegment> {
 	TCPProtocol tcpProtocol;
@@ -22,8 +24,21 @@ public class SynAckHandler implements ProtocolHandler<TCPSegment> {
 		if(!datagram.isACK()) {
 			return HandlerStatus.CONTINUE;
 		}
-		tcpProtocol.receiveSynAck(datagram);
+		receiveSynAck(datagram);
 		return HandlerStatus.COMPLETED;
+	}
+
+	
+	void receiveSynAck(TCPSegment datagram) {
+		var portAddr = new PortAddr(
+				datagram.getPsudoHeader().sourceIP(), 
+				datagram.getSourcePort());
+		var cv = tcpProtocol.clientViews.get(portAddr);
+		if(cv == null) {
+			Jns3Logger.logError("TCPProtocol", "No client view found for SYN-ACK from " + portAddr);
+			return;
+		}
+		cv.receiveSynAck(datagram);
 	}
 
 }
