@@ -109,7 +109,7 @@ class TestHomeRouter {
 		Jns3Logger.clearLog();
 		byte[] payload = "Hello from PC1".getBytes();
 		
-        IPPacket packet = new IPPacket(IPPacket.TCP, 64,
+        IPPacket packet = new IPPacket(34, 64,
             pc1.getIPAddress(), pc2.getIPAddress(), payload);
 		
 		var fs1 = pc1.getIPProtocol().getPacketSender();
@@ -134,7 +134,7 @@ class TestHomeRouter {
 		Jns3Logger.clearLog();
 		byte[] payload = "Hello from PC1".getBytes();
 		
-        IPPacket packet = new IPPacket(IPPacket.TCP, 64,
+        IPPacket packet = new IPPacket(34, 64,
             pc1.getIPAddress(), pc2.getIPAddress(), payload);
 		
 		var fs1 = pc1.getIPProtocol().getPacketSender();

@@ -184,7 +184,7 @@ class TestPassthroughRouter {
 		GlobalWallClock.advanceBy(4);
 		// Act
 		Jns3Logger.clearLog();
-		IPPacket packet1 = new IPPacket((int) IPPacket.TCP, 64,
+		IPPacket packet1 = new IPPacket(1234, 64,
 		pc1.getIPAddress(), pc2.getIPAddress(), new byte[] {1,2,3,4,5,6,7,8,9,10});
 		
 		var packet = packet1;

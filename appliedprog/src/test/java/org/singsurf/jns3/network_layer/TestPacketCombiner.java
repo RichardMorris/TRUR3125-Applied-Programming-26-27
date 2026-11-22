@@ -37,7 +37,7 @@ class TestPacketCombiner {
 	void small_packets_unchanged() {
         IPAddress source = new IPAddress(new byte[] {127, 0, 0, 1});
         byte[] data = new byte[] {1, 2, 3, 4};
-        IPPacket packet = new IPPacket(IPPacket.TCP, 64,
+        IPPacket packet = new IPPacket(34, 64,
             source, pc.getIPAddress(), data);
         var fragments = fragmentor.getFragments(packet);
         assertEquals(1, fragments.size());
@@ -60,7 +60,7 @@ class TestPacketCombiner {
         
         byte[] data = new byte[150];
         for(int i=0;i<data.length;i++) data[i] = (byte) i;
-        IPPacket packet = new IPPacket(IPPacket.TCP, 64,
+        IPPacket packet = new IPPacket(34, 64,
             source, pc.getIPAddress(), data);
         var fragments = fragmentor.getFragments(packet);
         assertEquals(2, fragments.size());
@@ -85,7 +85,7 @@ class TestPacketCombiner {
         
         byte[] data = new byte[150];
         for(int i=0;i<data.length;i++) data[i] = (byte) i;
-        IPPacket packet = new IPPacket(IPPacket.TCP, 64,
+        IPPacket packet = new IPPacket(34, 64,
             source, pc.getIPAddress(), data);
         var fragments = fragmentor.getFragments(packet);
         assertEquals(2, fragments.size());
@@ -110,7 +110,7 @@ class TestPacketCombiner {
         
         byte[] data = new byte[200];
         for(int i=0;i<data.length;i++) data[i] = (byte) (i & 0xFF);
-        IPPacket packet = new IPPacket(IPPacket.TCP, 64,
+        IPPacket packet = new IPPacket(34, 64,
             source, pc.getIPAddress(), data);
 
         Jns3Logger.clearLog();
@@ -198,12 +198,12 @@ class TestPacketCombiner {
         
         byte[] data = new byte[200];
         for(int i=0;i<data.length;i++) data[i] = (byte) (i & 0xFF);
-        IPPacket packet1 = new IPPacket(IPPacket.TCP, 64,
+        IPPacket packet1 = new IPPacket(34, 64,
             source, pc.getIPAddress(), data);
         
         byte[] data2 = new byte[150];
         for(int i=0;i<data2.length;i++) data2[i] = (byte) i;
-        IPPacket packet2 = new IPPacket(IPPacket.TCP, 64,
+        IPPacket packet2 = new IPPacket(34, 64,
             source, pc.getIPAddress(), data2);
 
         var fragments1 = fragmentor.getFragments(packet1);
@@ -243,12 +243,12 @@ class TestPacketCombiner {
         
         byte[] data = new byte[200];
         for(int i=0;i<data.length;i++) data[i] = (byte) (i & 0xFF);
-        IPPacket packet1 = new IPPacket(IPPacket.TCP, 64,
+        IPPacket packet1 = new IPPacket(34, 64,
             source, pc.getIPAddress(), data);
         
         byte[] data2 = new byte[150];
         for(int i=0;i<data2.length;i++) data2[i] = (byte) i;
-        IPPacket packet2 = new IPPacket(IPPacket.TCP, 64,
+        IPPacket packet2 = new IPPacket(34, 64,
             source2, pc.getIPAddress(), data2);
 
         var fragments1 = fragmentor.getFragments(packet1);
@@ -290,7 +290,7 @@ class TestPacketCombiner {
 		var connection = new SimpleConnection(pc.getEndPoint(), pc2.getEndPoint());
 		assertNotNull(connection);
 		pc.getArpProtocol().sendGARPRequest();
-		IPPacket packet1 = new IPPacket((int) IPPacket.TCP, 64,
+		IPPacket packet1 = new IPPacket((int) 34, 64,
 		pc2.getIPAddress(), pc.getIPAddress(), new byte[] {1,2,3,4,5,6,7,8,9,10});
 		// Act
 		var packet = packet1;
@@ -300,7 +300,7 @@ class TestPacketCombiner {
         var receivedPacket = receiver.get(0);
         assertEquals(pc2.getIPAddress(), receivedPacket.getSourceAddress());
         assertEquals(pc.getIPAddress(), receivedPacket.getDestinationAddress());
-        assertEquals(IPPacket.TCP, receivedPacket.getProtocol());
+        assertEquals(34, receivedPacket.getProtocol());
         assertArrayEquals(packet.getContents(), receivedPacket.getContents());
 
 	}
@@ -317,7 +317,7 @@ class TestPacketCombiner {
 		pc.getArpProtocol().sendGARPRequest();
 		
 		String dataString = Jns3Logger.generateOnesComplementTable();
-		IPPacket packet1 = new IPPacket((int) IPPacket.TCP, 64,
+		IPPacket packet1 = new IPPacket((int) 34, 64,
 		pc2.getIPAddress(), pc.getIPAddress(), dataString.getBytes());
 		
 		// Act
@@ -329,7 +329,7 @@ class TestPacketCombiner {
         var receivedPacket = receiver.get(0);
         assertEquals(pc2.getIPAddress(), receivedPacket.getSourceAddress());
         assertEquals(pc.getIPAddress(), receivedPacket.getDestinationAddress());
-        assertEquals(IPPacket.TCP, receivedPacket.getProtocol());
+        assertEquals(34, receivedPacket.getProtocol());
         assertArrayEquals(packet.getContents(), receivedPacket.getContents());
         System.out.println(receivedPacket.getDataAsString());
         assertTrue(Jns3Logger.isErrorFree());

@@ -175,7 +175,7 @@ class TestYRouter {
 		GlobalWallClock.getInstance().advanceTime();
 		
 		String dataString = Jns3Logger.generateOnesComplementTable();
-		IPPacket packet1 = new IPPacket((int) IPPacket.TCP, 64,
+		IPPacket packet1 = new IPPacket(34, 64,
 		pc2.getIPAddress(), pc.getIPAddress(), dataString.getBytes());
 		
 		// Act
@@ -197,7 +197,7 @@ class TestYRouter {
         var receivedPacket = receiver.get(0);
         assertEquals(pc2.getIPAddress(), receivedPacket.getSourceAddress());
         assertEquals(pc.getIPAddress(), receivedPacket.getDestinationAddress());
-        assertEquals(IPPacket.TCP, receivedPacket.getProtocol());
+        assertEquals(34, receivedPacket.getProtocol());
         assertArrayEquals(packet.getContents(), receivedPacket.getContents());
         System.out.println(receivedPacket.getDataAsString());
         assertTrue(Jns3Logger.isErrorFree());
