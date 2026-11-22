@@ -36,7 +36,7 @@ public class HTTPClient implements LowerSocketAdapter<InternetMessage>, TickList
 		socket.send(msg);
 	}
 
-	private String getRequestString(String path) {
+	public String getRequestString(String path) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("GET ").append(path).append(" HTTP/0.1\r\n");
 //		sb.append("Host: ").append(device.getIPAddress()).append("\r\n");

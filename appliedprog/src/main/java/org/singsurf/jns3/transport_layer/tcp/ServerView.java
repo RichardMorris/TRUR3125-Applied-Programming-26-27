@@ -1,7 +1,10 @@
 package org.singsurf.jns3.transport_layer.tcp;
 
+import java.util.ArrayDeque;
+import java.util.Queue;
 import java.util.Random;
 
+import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPPacket;
 
@@ -32,6 +35,7 @@ public class ServerView {
 
 	Random random = new Random();
 
+	Queue<TCPSegment> outOfOrderSegments = new ArrayDeque<>();
 
 	public ServerView(TCPProtocol tcpProtocol, TCPSegment datagram) {
 		this.tcpProtocol = tcpProtocol;
@@ -65,8 +69,39 @@ public class ServerView {
 		tcpProtocol.sender.send(packet);
 	}
 
-	public InternetMessage getRecombinedMessage() {
-		return recombinedMessage;
+	public void receivePsh(TCPSegment datagram) {
+		var seqNo = datagram.getSequenceNumber();
+		var ackNo = datagram.getAcknowledgementNumber();
+		
+		if(ackNo != currentSeqNum) {
+			// out of order ack
+			Jns3Logger.logError(tcpProtocol.getName(), "Out of order ACK received from " + remoteIP + ":" + remotePort);
+			return;
+		}
+		if(seqNo == currentRemoteSeqNum) {
+			var contents = datagram.getContents();
+			currentRemoteSeqNum += contents.length;			
+			sendAck();
+			
+			tcpProtocol.receive(new InternetMessage("http",
+					remoteIP, localIP, remotePort, localPort, contents));
+		} else {
+			// out of order segment
+			outOfOrderSegments.add(datagram);
+		}
+	}
+
+	void sendAck() {
+		var pseudoHeader = new TCPSegment.PseudoHeader(
+				localIP, remoteIP, IPPacket.TCP, (short) 20);
+		var snycDatagram = new TCPSegment(
+				localPort, remotePort,
+				initialSeqNum, currentRemoteSeqNum, 
+				(byte) (TCPSegment.FLAG_SYN | TCPSegment.FLAG_ACK),
+				new byte[0], 
+				pseudoHeader);
+		var packet = snycDatagram.toPacket();
+		tcpProtocol.sender.send(packet);
 	}
 
 	public int getInitialSeqNum() {
@@ -100,6 +135,8 @@ public class ServerView {
 	public short getLocalPort() {
 		return localPort;
 	}
+
+
 
 
 	

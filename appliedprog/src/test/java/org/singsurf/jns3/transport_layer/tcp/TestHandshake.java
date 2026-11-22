@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.application_layer.http.HTTPClient;
+import org.singsurf.jns3.application_layer.http.HTTPServer;
 import org.singsurf.jns3.hardware.DeviceFactory;
 import org.singsurf.jns3.hardware.GlobalWallClock;
 import org.singsurf.jns3.hardware.PC;
@@ -20,6 +21,7 @@ class TestHandshake {
 	private HTTPClient http1;
 	private TCPProtocol tcp1;
 	private TCPProtocol tcp2;
+	private HTTPServer http2;
 	
 	@BeforeEach
 	void setUp() throws Exception {
@@ -33,6 +35,8 @@ class TestHandshake {
 		
 		tcp2 = new TCPProtocol(pc2);
 		pc2.getIPProtocol().register(tcp2);
+		http2 = new HTTPServer(pc2);
+		tcp2.register(http2);
 		
 		var connection = new BufferedConnection(pc1.getEndPoint(), pc2.getEndPoint());
 		assertNotNull(connection);
@@ -90,6 +94,65 @@ class TestHandshake {
 		
 		assertEquals(cv.getInitialSeqNum()+ 1, cv.getCurrentSeqNum());
 	}
+
+	@Test
+	void test_handshake_stage3() {
+		http1.requestPage(pc2.getIPAddress(), "/index.html");
+		
+		assertTrue(tcp1.messageQueue.isEmpty());
+		
+		GlobalWallClock.advanceBy(3);
+
+		var cv = tcp1.clientViews.entrySet().iterator().next().getValue();
+		var sv = tcp2.serverViews.entrySet().iterator().next().getValue();
+		assertNotNull(cv);
+		assertNotNull(sv);
+		
+		assertEquals(cv.getInitialSeqNum(), sv.getInitialRemoteSeqNum());
+		assertEquals(cv.getInitialRemoteSeqNum(), sv.getInitialSeqNum());
+		
+		assertEquals(cv.getCurrentSeqNum(), sv.getCurrentRemoteSeqNum());
+		assertEquals(cv.getCurrentRemoteSeqNum(), sv.getCurrentSeqNum());
+		
+		assertEquals(cv.getInitialSeqNum()+ 1, cv.getCurrentSeqNum());
+		assertEquals(sv.getInitialSeqNum()+ 1, sv.getCurrentSeqNum());
+	}
+
+	@Test
+	void http_request_receive_by_server() {
+		Jns3Logger.clearLog();
+		http1.requestPage(pc2.getIPAddress(), "/index.html");
+		
+		assertTrue(tcp1.messageQueue.isEmpty());
+		
+		GlobalWallClock.advanceBy(4);
+
+		Jns3Logger.println();
+		
+		var cv = tcp1.clientViews.entrySet().iterator().next().getValue();
+		var sv = tcp2.serverViews.entrySet().iterator().next().getValue();
+		assertNotNull(cv);
+		assertNotNull(sv);
+		
+		assertEquals(cv.getInitialSeqNum(), sv.getInitialRemoteSeqNum());
+		assertEquals(cv.getInitialRemoteSeqNum(), sv.getInitialSeqNum());
+		
+		assertEquals(cv.getCurrentSeqNum(), sv.getCurrentRemoteSeqNum());
+		assertEquals(cv.getCurrentRemoteSeqNum(), sv.getCurrentSeqNum());
+		
+		String request = http1.getRequestString("/index.html");
+
+		assertEquals(cv.getInitialSeqNum()+ 1 + request.length(), cv.getCurrentSeqNum());
+		assertEquals(sv.getInitialSeqNum()+ 1, sv.getCurrentSeqNum());
+		
+		assertEquals(request, http2.lastRequest);
+		var item = Jns3Logger.getItem(1);
+		assertEquals("PC2-HTTPD", item.deviceName());
+		assertEquals(Jns3Logger.LogLevel.RECEIVED, item.level());
+		assertEquals("http::"+ pc1.getIPAddress() + ":12345->" + pc2.getIPAddress() + ":80", item.message());
+		System.out.println("Request received by server:\n[" + http2.lastRequest + "]");
+	}
+
 	
 	
 	@AfterEach

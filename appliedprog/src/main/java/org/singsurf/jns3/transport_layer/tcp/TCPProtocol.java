@@ -49,6 +49,7 @@ public class TCPProtocol implements LowerAdapter<IPPacket>, UpperSocketPort<Inte
 		delegator.addHandler(new SynHandler(this));
 		delegator.addHandler(new SynAckHandler(this));
 		delegator.addHandler(new ServerAckHandler(this));
+		delegator.addHandler(new PushHandler(this));
 		packetHandler = new TCPPacketHandler(this);
 	}
 
@@ -114,8 +115,18 @@ public class TCPProtocol implements LowerAdapter<IPPacket>, UpperSocketPort<Inte
 		return name;
 	}
 
-
-
-
+	public void receive(InternetMessage msg) {
+		var table = bindings.get(device.getMulticastAddress());
+		if(table != null) {
+			var binding = table.get(msg.getDestPort());
+			if(binding != null) {
+				binding.receive(msg);
+			} else {
+				Jns3Logger.logError("TCPProtocol", "No binding for " + msg);
+			}
+		} else {
+			Jns3Logger.logError("TCPProtocol", "No binding for " + msg);
+		}
+	}
 
 }
