@@ -5,7 +5,7 @@ import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPPacket;
 import org.singsurf.jns3.network_layer.OnesComplementNumber;
 
-public class TCPDatagram implements ProtocolContainer {
+public class TCPSegment implements ProtocolContainer {
 	public static final byte FLAG_FIN = 0x01;
 	public static final byte FLAG_SYN = 0x02;
 	public static final byte FLAG_RST = 0x04;
@@ -56,7 +56,7 @@ public class TCPDatagram implements ProtocolContainer {
 	 * @param contents
 	 * @param psudoHeader used for calculating the checksum, not transmitted
 	 */
-	public TCPDatagram(short sourcePort, short destinationPort, 
+	public TCPSegment(short sourcePort, short destinationPort, 
 			byte[] contents, PseudoHeader psudoHeader) {
 		super();
 		this.sourcePort = sourcePort;
@@ -72,7 +72,24 @@ public class TCPDatagram implements ProtocolContainer {
 		this.checksum = calculateHeaderChecksum().getComplement().getValue();
 	}
 
-	private TCPDatagram(byte[] bytes, PseudoHeader psudoHeader) {
+	public TCPSegment(short srcPort, short destPort, 
+			int seqNum, int ackNum, byte flags, byte[] content,
+			PseudoHeader psudo) {
+		this.sourcePort = srcPort;
+		this.destinationPort = destPort;
+		this.sequenceNumber = seqNum;
+		this.acknowledgementNumber = ackNum;
+		// 4 bits data offset, 4 bits reserved
+		this.flags = flags;
+		this.windowSize = 0;
+		this.checksum = 0;
+		this.contents = content;
+		this.psudoHeader = psudo;
+		this.checksum = calculateHeaderChecksum().getComplement().getValue();
+	}
+
+	
+	private TCPSegment(byte[] bytes, PseudoHeader psudoHeader) {
 		this.sourcePort = (short) ((bytes[0] << 8) | (bytes[1] & 0xFF));
 		this.destinationPort = (short) ((bytes[2] << 8) | (bytes[3] & 0xFF));
 		this.sequenceNumber = 
@@ -88,6 +105,7 @@ public class TCPDatagram implements ProtocolContainer {
 		this.psudoHeader = psudoHeader;
 	}
 	
+
 
 	@Override
 	public byte[] getBytes() {
@@ -191,6 +209,14 @@ public class TCPDatagram implements ProtocolContainer {
 		return destinationPort;
 	}
 	
+	public int getSequenceNumber() {
+		return sequenceNumber;
+	}
+	
+	public int getAcknowledgementNumber() {
+		return acknowledgementNumber;
+	}
+	
 	public short getChecksum() {
 		return checksum;
 	}
@@ -269,12 +295,19 @@ public class TCPDatagram implements ProtocolContainer {
 		checksum = calculateHeaderChecksum().getComplement().getValue();
 	}
 
-	public static TCPDatagram fromPacket(IPPacket packet) {
+	public IPPacket toPacket() {
+		var packet  = new IPPacket(IPPacket.TCP, 64, 
+				psudoHeader.sourceIP, psudoHeader.destinationIP, 
+				getBytes());
+		return packet;
+	}
+	
+	public static TCPSegment fromPacket(IPPacket packet) {
 		var psudo = new PseudoHeader(packet.getSourceAddress(), 
 				packet.getDestinationAddress(), IPPacket.TCP,
 				(short) packet.getContents().length);
 		var bytes = packet.getContents();
-		return new TCPDatagram(bytes, psudo);
+		return new TCPSegment(bytes, psudo);
 	}
 
 }
