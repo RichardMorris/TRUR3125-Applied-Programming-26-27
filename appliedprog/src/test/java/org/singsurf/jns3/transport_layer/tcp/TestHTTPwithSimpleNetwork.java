@@ -74,8 +74,8 @@ class TestHTTPwithSimpleNetwork {
 		
 		System.out.println("SYN "+cv.getInitialSeqNum());
 		assertEquals(0, cv.getInitialRemoteSeqNum());
-		var text = new String(cv.getMessage().getContents());
-		assertTrue(text.startsWith("GET /index.html HTTP/0.1"));
+//		var text = new String(cv.getMessage().getContents());
+//		assertTrue(text.startsWith("GET /index.html HTTP/0.1"));
 
 		GlobalWallClock.advanceBy(1);
 
@@ -221,6 +221,9 @@ class TestHTTPwithSimpleNetwork {
 	void tearDown() throws Exception {
 		GlobalWallClock.getInstance().clear();
 		var errorFree = Jns3Logger.isErrorFree();
+		if(!errorFree) {
+			Jns3Logger.println();
+		}
 		Jns3Logger.clearLog();
 		assertTrue(errorFree);
 	}

@@ -11,7 +11,7 @@ import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPPacket;
 
 /**
- * A hosts view of a TCP channel between two devices.
+ * A hosts view of a TCP channel between ports on two devices.
  */
 public class TCPChannel implements TickListener {
 	enum State {
@@ -20,10 +20,20 @@ public class TCPChannel implements TickListener {
 	
 	TCPProtocol tcpProtocol;
 	
-	SocketMessage message;
-	
+	/**
+	 * The base our sequence numbers.
+	 */
 	int initialSeqNum;
+	
+	/**
+	 * The current sequence number acknowledged by server.
+	 */
 	int currentSeqNum;
+	
+	/**
+	 * Next sequence number used for queued messages.
+	 */
+	int nextSeqNum=1;
 	
 	int initialRemoteSeqNum;
 	int currentRemoteSeqNum;
@@ -36,12 +46,16 @@ public class TCPChannel implements TickListener {
 
 	State state = State.Closed;
 	
-	Queue<SocketMessage> messageQueue = new ArrayDeque<>();
+	record WaitingMessage(int synNum, byte[] content) {}
+	
+	Queue<WaitingMessage> messageQueue = new ArrayDeque<>();
 	
 	Queue<TCPSegment> outOfOrderSegments = new ArrayDeque<>();
 
 	
 	Random random = new Random();
+
+	private WaitingMessage currentMessage;
 	
 	/**
 	 * Constructor for a client-side view of the TCP protocol. 
@@ -56,9 +70,9 @@ public class TCPChannel implements TickListener {
 
 	public TCPChannel(TCPProtocol tcpProtocol, SocketMessage message) {
 		this.tcpProtocol = tcpProtocol;
-		this.message = message;
 		this.initialSeqNum = random.nextInt();
 		this.currentSeqNum = initialSeqNum;
+		this.nextSeqNum = initialSeqNum +1;
 		this.initialRemoteSeqNum = 0;
 		this.currentRemoteSeqNum = 0;
 		
@@ -66,7 +80,7 @@ public class TCPChannel implements TickListener {
 		this.remotePort = message.getDestPort();
 		this.localIP = message.getSrcIP();
 		this.localPort = message.getSrcPort();
-		messageQueue.add(message);
+		queue(message);
 		
 		GlobalWallClock.getInstance().addTickListener(GlobalWallClock.INIT+1, this);
 	}
@@ -150,12 +164,32 @@ public class TCPChannel implements TickListener {
 	@Override
 	public void onTick() {
 		if(state == State.Established) {
-			if(message != null) {
-				Jns3Logger.logSend(tcpProtocol.getName(), "Sending message to " + remoteIP + ":" + remotePort);
-				sendPsh(message.getContents());
-				message = null;
+			var item = messageQueue.peek();			
+			if(item != null) {
+				if(item.synNum() == currentSeqNum) {	
+					Jns3Logger.logSend(tcpProtocol.getName(), "Sending message to " + remoteIP + ":" + remotePort);
+					sendPsh(item.content());
+					currentMessage = messageQueue.remove();
+				} else if(before(item.synNum(),currentSeqNum,initialSeqNum)) {
+					Jns3Logger.logError(tcpProtocol.getName(), 
+							"SeqNumber is 'before' current");
+				} else {
+					Jns3Logger.logInfo(tcpProtocol.getName(), "Previous message not completed");
+				}
 			}
 		}
+	}
+
+	/**
+	 * Test if {@code num < current} taking account the cyclic nature 
+	 * of sequence numbers.
+	 * @param num
+	 * @param current
+	 * @param initial
+	 * @return
+	 */
+	boolean before(int num, int current, int initial) {
+		return (num - initial) < (current-initial);
 	}
 
 	void sendPsh(byte[] contents) {
@@ -201,11 +235,6 @@ public class TCPChannel implements TickListener {
 		}
 	}
 
-
-	public SocketMessage getMessage() {
-		return message;
-	}
-
 	public int getInitialSeqNum() {
 		return initialSeqNum;
 	}
@@ -239,7 +268,8 @@ public class TCPChannel implements TickListener {
 	}
 
 	public void queue(SocketMessage msg) {
-		messageQueue.add(msg);
+		messageQueue.add(new WaitingMessage(nextSeqNum,msg.contents));
+		nextSeqNum += msg.getContents().length;
 	}
 
 
