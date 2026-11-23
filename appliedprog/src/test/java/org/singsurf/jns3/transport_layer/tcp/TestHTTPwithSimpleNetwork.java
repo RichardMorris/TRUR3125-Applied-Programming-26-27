@@ -65,10 +65,9 @@ class TestHTTPwithSimpleNetwork {
 	void test_handshake_stage1() {
 		http1.requestPage(pc2.getIPAddress(), "/index.html");
 		
-		assertTrue(tcp1.messageQueue.isEmpty());
-		assertEquals(1, tcp1.clientViews.size());
+		assertEquals(1, tcp1.channels.size());
 		
-		var ent = tcp1.clientViews.entrySet().iterator().next();
+		var ent = tcp1.channels.entrySet().iterator().next();
 		assertEquals(pc2.getIPAddress(), ent.getKey().ip());
 		assertEquals(80, ent.getKey().port());
 		var cv = ent.getValue();
@@ -80,7 +79,7 @@ class TestHTTPwithSimpleNetwork {
 
 		GlobalWallClock.advanceBy(1);
 
-		var ent2 = tcp2.clientViews.entrySet().iterator().next();
+		var ent2 = tcp2.channels.entrySet().iterator().next();
 		assertEquals(pc1.getIPAddress(), ent2.getKey().ip());
 		assertEquals(12345, ent2.getKey().port());
 		var sv = ent2.getValue();
@@ -93,12 +92,11 @@ class TestHTTPwithSimpleNetwork {
 	void test_handshake_stage2() {
 		http1.requestPage(pc2.getIPAddress(), "/index.html");
 		
-		assertTrue(tcp1.messageQueue.isEmpty());
 		
 		GlobalWallClock.advanceBy(2);
 
-		var cv = tcp1.clientViews.entrySet().iterator().next().getValue();
-		var sv = tcp2.clientViews.entrySet().iterator().next().getValue();
+		var cv = tcp1.channels.entrySet().iterator().next().getValue();
+		var sv = tcp2.channels.entrySet().iterator().next().getValue();
 		assertNotNull(cv);
 		assertNotNull(sv);
 		
@@ -113,14 +111,13 @@ class TestHTTPwithSimpleNetwork {
 	void test_handshake_stage3() {
 		http1.requestPage(pc2.getIPAddress(), "/index.html");
 		
-		assertTrue(tcp1.messageQueue.isEmpty());
 		
 		GlobalWallClock.advanceBy(2);
 		
 		GlobalWallClock.advanceBy(1);
 
-		var cv = tcp1.clientViews.entrySet().iterator().next().getValue();
-		var sv = tcp2.clientViews.entrySet().iterator().next().getValue();
+		var cv = tcp1.channels.entrySet().iterator().next().getValue();
+		var sv = tcp2.channels.entrySet().iterator().next().getValue();
 		assertNotNull(cv);
 		assertNotNull(sv);
 		
@@ -139,14 +136,13 @@ class TestHTTPwithSimpleNetwork {
 		Jns3Logger.clearLog();
 		http1.requestPage(pc2.getIPAddress(), "/index.html");
 		
-		assertTrue(tcp1.messageQueue.isEmpty());
 		
 		GlobalWallClock.advanceBy(5);
 
 		Jns3Logger.println();
 		
-		var cv = tcp1.clientViews.entrySet().iterator().next().getValue();
-		var sv = tcp2.clientViews.entrySet().iterator().next().getValue();
+		var cv = tcp1.channels.entrySet().iterator().next().getValue();
+		var sv = tcp2.channels.entrySet().iterator().next().getValue();
 		assertNotNull(cv);
 		assertNotNull(sv);
 		
@@ -165,7 +161,7 @@ class TestHTTPwithSimpleNetwork {
 		var item = Jns3Logger.getItem(1);
 		assertEquals("PC2-HTTPD", item.deviceName());
 		assertEquals(Jns3Logger.LogLevel.RECEIVED, item.level());
-		assertEquals("http::"+ pc1.getIPAddress() + ":12345->" + pc2.getIPAddress() + ":80", item.message());
+		assertEquals("SocketMessage["+ pc1.getIPAddress() + ":12345->" + pc2.getIPAddress() + ":80]", item.message());
 		System.out.println("Request received by server:\n[" + http2.lastRequest + "]");
 	}
 

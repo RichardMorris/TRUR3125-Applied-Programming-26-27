@@ -1,20 +1,22 @@
 package org.singsurf.jns3.transport_layer.tcp;
 
+import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.generic_protocol.ProtocolContainer;
 import org.singsurf.jns3.network_layer.IPAddress;
 
-public class InternetMessage implements ProtocolContainer {
-	String protocolName;
+/**
+ * A message that can be sent or received through a TCPSocket.
+ */
+public class SocketMessage implements ProtocolContainer {
 	IPAddress srcIP;
 	IPAddress destIP;
 	short srcPort;
 	short destPort;
 	byte[] contents;
 
-	public InternetMessage(String protocolName, IPAddress srcIP, IPAddress destIP, short srcPort, short destPort,
+	public SocketMessage(String protocolName, IPAddress srcIP, IPAddress destIP, short srcPort, short destPort,
 			byte[] contents) {
 		super();
-		this.protocolName = protocolName;
 		this.srcIP = srcIP;
 		this.destIP = destIP;
 		this.srcPort = srcPort;
@@ -22,9 +24,12 @@ public class InternetMessage implements ProtocolContainer {
 		this.contents = contents;
 	}
 
+	/**
+	 * Not implemented
+	 */
 	@Override
 	public byte[] getBytes() {
-		// TODO Auto-generated method stub
+		Jns3Logger.logError("SocketMessage", "getBytes should not be called");
 		return null;
 	}
 
@@ -40,7 +45,7 @@ public class InternetMessage implements ProtocolContainer {
 
 	@Override
 	public String toHeaderString() {
-		return protocolName + "::" + srcIP + ":" + srcPort + "->"+ destIP + ":" + destPort;
+		return "SocketMessage[" + srcIP + ":" + srcPort + "->"+ destIP + ":" + destPort +"]";
 	}
 
 	@Override
@@ -49,7 +54,7 @@ public class InternetMessage implements ProtocolContainer {
 		if(str.length()>20) {
 			str = str.substring(0, 20);
 		}
-		return protocolName + "::" + srcIP + ":" + srcPort + "->"+ destIP + ":" + destPort + " "+ str;
+		return toHeaderString() + " "+ str;
 	}
 
 	public String toMidString() {
@@ -68,10 +73,6 @@ public class InternetMessage implements ProtocolContainer {
 			sb.append(lines[lines.length-1]).append("\n");
 		}
 		return sb.toString();
-	}
-
-	public String getProtocolName() {
-		return protocolName;
 	}
 
 	public IPAddress getSrcIP() {

@@ -13,7 +13,7 @@ import org.singsurf.jns3.network_layer.IPAddress;
  * Sockets can be created by applications 
  * and bound to a port and IP address.
  */
-public class TCPSocket extends PolledSocket<InternetMessage> implements NamedDevice {
+public class TCPSocket extends PolledSocket<SocketMessage> implements NamedDevice {
 	TCPProtocol tcpProtocol;
 	
 	
@@ -22,7 +22,7 @@ public class TCPSocket extends PolledSocket<InternetMessage> implements NamedDev
 		this.tcpProtocol = protocol;
 	}
 
-	TCPSocket(String name, TCPProtocol tcpProtocol2, ProtocolReceiver<InternetMessage> receiver) {
+	TCPSocket(String name, TCPProtocol tcpProtocol2, ProtocolReceiver<SocketMessage> receiver) {
 		super(name, receiver);
 		this.tcpProtocol = tcpProtocol2;
 	}
@@ -32,7 +32,7 @@ public class TCPSocket extends PolledSocket<InternetMessage> implements NamedDev
 		return "DatagramSocket["+name+" " + getAddress() + ":" + port + "]";
 	}
 
-	public void send(InternetMessage message) {
+	public void send(SocketMessage message) {
 		if(tcpProtocol == null) {
 			Jns3Logger.logError("DatagramSocket", "Socket is not bound to a controller");
 		}

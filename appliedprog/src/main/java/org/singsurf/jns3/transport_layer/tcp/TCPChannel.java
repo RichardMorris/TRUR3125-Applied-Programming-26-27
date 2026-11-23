@@ -11,17 +11,16 @@ import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPPacket;
 
 /**
- * The client-side view of the TCP protocol. 
- *
+ * A hosts view of a TCP channel between two devices.
  */
-public class BothView implements TickListener {
+public class TCPChannel implements TickListener {
 	enum State {
 		Closed, SynSent, Established, FinWait1, FinWait2, TimeWait
 	}
 	
 	TCPProtocol tcpProtocol;
 	
-	InternetMessage message;
+	SocketMessage message;
 	
 	int initialSeqNum;
 	int currentSeqNum;
@@ -37,12 +36,25 @@ public class BothView implements TickListener {
 
 	State state = State.Closed;
 	
+	Queue<SocketMessage> messageQueue = new ArrayDeque<>();
+	
 	Queue<TCPSegment> outOfOrderSegments = new ArrayDeque<>();
 
 	
 	Random random = new Random();
+	
+	/**
+	 * Constructor for a client-side view of the TCP protocol. 
+	 * This is used when a client first tries to connect to an
+	 * unrecognised server.
+	 * Source and destination parameters are found from the message
+	 * and the message is queued for delivery once the handshake is 
+	 * completed. 
+	 * @param tcpProtocol
+	 * @param message initial message, including parameters for transfer.
+	 */
 
-	public BothView(TCPProtocol tcpProtocol, InternetMessage message) {
+	public TCPChannel(TCPProtocol tcpProtocol, SocketMessage message) {
 		this.tcpProtocol = tcpProtocol;
 		this.message = message;
 		this.initialSeqNum = random.nextInt();
@@ -54,11 +66,20 @@ public class BothView implements TickListener {
 		this.remotePort = message.getDestPort();
 		this.localIP = message.getSrcIP();
 		this.localPort = message.getSrcPort();
+		messageQueue.add(message);
 		
-		GlobalWallClock.getInstance().addTickListener(GlobalWallClock.INIT, this);
+		GlobalWallClock.getInstance().addTickListener(GlobalWallClock.INIT+1, this);
 	}
 	
-	public BothView(TCPProtocol tcpProtocol, TCPSegment datagram) {
+	/**
+	 * Constructor for a server-side view of the TCP protocol. 
+	 * This is used when a server receives a SYN from a client
+	 * and needs to respond with a SYN-ACK. 
+	 * Source and destination parameters are found from the datagram.
+	 * @param tcpProtocol
+	 * @param datagram initial SYN datagram received from client.
+	 */
+	public TCPChannel(TCPProtocol tcpProtocol, TCPSegment datagram) {
 		this.tcpProtocol = tcpProtocol;
 		this.initialSeqNum = random.nextInt();
 		this.currentSeqNum = initialSeqNum;
@@ -71,6 +92,7 @@ public class BothView implements TickListener {
 		this.localPort = datagram.getDestinationPort();
 	}
 
+	// Handshake methods
 
 	void sendSyn() {
 		var pseudoHeader = new TCPSegment.PseudoHeader(
@@ -84,6 +106,20 @@ public class BothView implements TickListener {
 				pseudoHeader);
 		var packet = snycDatagram.toPacket();
 		state = State.SynSent;
+		tcpProtocol.sender.send(packet);
+	}
+
+	void sendSynAck() {
+		var pseudoHeader = new TCPSegment.PseudoHeader(
+				localIP, remoteIP, IPPacket.TCP, (short) 20);
+		var snycDatagram = new TCPSegment(
+				localPort, remotePort,
+				initialSeqNum, currentRemoteSeqNum, 
+				(byte) (TCPSegment.FLAG_SYN | TCPSegment.FLAG_ACK),
+				tcpProtocol.windowSize,
+				new byte[0], 
+				pseudoHeader);
+		var packet = snycDatagram.toPacket();
 		tcpProtocol.sender.send(packet);
 	}
 
@@ -142,19 +178,6 @@ public class BothView implements TickListener {
 		currentSeqNum = datagram.getAcknowledgementNumber();
 	}
 
-	void sendSynAck() {
-		var pseudoHeader = new TCPSegment.PseudoHeader(
-				localIP, remoteIP, IPPacket.TCP, (short) 20);
-		var snycDatagram = new TCPSegment(
-				localPort, remotePort,
-				initialSeqNum, currentRemoteSeqNum, 
-				(byte) (TCPSegment.FLAG_SYN | TCPSegment.FLAG_ACK),
-				tcpProtocol.windowSize,
-				new byte[0], 
-				pseudoHeader);
-		var packet = snycDatagram.toPacket();
-		tcpProtocol.sender.send(packet);
-	}
 
 	public void receivePsh(TCPSegment datagram) {
 		var seqNo = datagram.getSequenceNumber();
@@ -170,7 +193,7 @@ public class BothView implements TickListener {
 			currentRemoteSeqNum += contents.length;			
 			sendAck();
 			
-			tcpProtocol.receive(new InternetMessage("http",
+			tcpProtocol.receive(new SocketMessage("http",
 					remoteIP, localIP, remotePort, localPort, contents));
 		} else {
 			// out of order segment
@@ -179,7 +202,7 @@ public class BothView implements TickListener {
 	}
 
 
-	public InternetMessage getMessage() {
+	public SocketMessage getMessage() {
 		return message;
 	}
 
@@ -213,6 +236,10 @@ public class BothView implements TickListener {
 
 	public short getLocalPort() {
 		return localPort;
+	}
+
+	public void queue(SocketMessage msg) {
+		messageQueue.add(msg);
 	}
 
 

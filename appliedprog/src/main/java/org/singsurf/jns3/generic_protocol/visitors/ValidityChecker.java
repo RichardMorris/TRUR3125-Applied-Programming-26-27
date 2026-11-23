@@ -15,7 +15,7 @@ import org.singsurf.jns3.network_layer.icmp.ICMPMessage;
 import org.singsurf.jns3.network_layer.icmp.ICMPProtocol;
 import org.singsurf.jns3.transport_layer.dhcp.DHCPMessage;
 import org.singsurf.jns3.transport_layer.dhcp.DHCPProtocol;
-import org.singsurf.jns3.transport_layer.tcp.InternetMessage;
+import org.singsurf.jns3.transport_layer.tcp.SocketMessage;
 import org.singsurf.jns3.transport_layer.tcp.TCPProtocol;
 import org.singsurf.jns3.transport_layer.tcp.TCPSegment;
 import org.singsurf.jns3.transport_layer.udp.UDPDatagram;
@@ -131,7 +131,7 @@ public class ValidityChecker extends AbstractVisitor<Boolean> {
 		}
 		if(level == Level.TRANSPORT) return true;
 		
-		InternetMessage msg = new InternetMessage("tcp", 
+		SocketMessage msg = new SocketMessage("tcp", 
 				segment.getPsudoHeader().sourceIP(), segment.getPsudoHeader().destinationIP(), 
 				segment.getSourcePort(), segment.getDestinationPort(), 
 				segment.getContents());

@@ -8,11 +8,11 @@ import org.singsurf.jns3.generic_protocol.SocketFactory;
 import org.singsurf.jns3.hardware.GlobalWallClock.TickListener;
 import org.singsurf.jns3.hardware.ProtocolDevice;
 import org.singsurf.jns3.network_layer.IPAddress;
-import org.singsurf.jns3.transport_layer.tcp.InternetMessage;
+import org.singsurf.jns3.transport_layer.tcp.SocketMessage;
 import org.singsurf.jns3.transport_layer.tcp.TCPSocket;
 
-public class HTTPClient implements LowerSocketAdapter<InternetMessage>, TickListener {
-	SocketFactory<InternetMessage> socketFactory;
+public class HTTPClient implements LowerSocketAdapter<SocketMessage>, TickListener {
+	SocketFactory<SocketMessage> socketFactory;
 	ProtocolDevice device;
 	Map<IPAddress, TCPSocket> sockets = new HashMap<>();
 	
@@ -21,14 +21,14 @@ public class HTTPClient implements LowerSocketAdapter<InternetMessage>, TickList
 	}
 
 	@Override
-	public void setSocketFactory(SocketFactory<InternetMessage> factory) {
+	public void setSocketFactory(SocketFactory<SocketMessage> factory) {
 		this.socketFactory = factory;
 	}
 
 	public void requestPage(IPAddress address, String path) {
 		String request = getRequestString(path);
 		
-		var msg = new InternetMessage("http", device.getIPAddress(), 
+		var msg = new SocketMessage("http", device.getIPAddress(), 
 				address, (short) 12345, (short) 80, request.getBytes());
 		var socket =  socketFactory.createSocket("http://"+address);
 		socket.bind(address, (short) 12345);
@@ -51,7 +51,7 @@ public class HTTPClient implements LowerSocketAdapter<InternetMessage>, TickList
 	public void onTick() {
 		for(var ent : sockets.entrySet()) {
 			var socket = ent.getValue();
-			InternetMessage datagram;
+			SocketMessage datagram;
 			while((datagram = socket.poll()) != null) {
 				String message = new String(datagram.getContents());
 				device.getTerminal().display(message);

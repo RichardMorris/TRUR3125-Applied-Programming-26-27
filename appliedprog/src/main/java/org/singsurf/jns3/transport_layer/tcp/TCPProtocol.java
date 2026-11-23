@@ -2,10 +2,8 @@ package org.singsurf.jns3.transport_layer.tcp;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Random;
 
 import org.singsurf.jns3.Jns3Logger;
@@ -23,23 +21,21 @@ import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.network_layer.IPPacket;
 import org.singsurf.jns3.network_layer.PacketSender;
 
-public class TCPProtocol implements Protocol, LowerAdapter<IPPacket>, UpperSocketPort<InternetMessage> {
+public class TCPProtocol implements Protocol, LowerAdapter<IPPacket>, UpperSocketPort<SocketMessage> {
 	String name;
 	ProtocolDevice device;
 	short windowSize = 2048;
 
 	TCPSocketFactory socketFactory;
-	List<LowerSocketAdapter<InternetMessage>> childProtocols = new ArrayList<>();
+	List<LowerSocketAdapter<SocketMessage>> childProtocols = new ArrayList<>();
 	PacketSender sender;
-	Map<IPAddress,Map<Short, ProtocolSocket<InternetMessage>>> bindings = new HashMap<>();
+	Map<IPAddress,Map<Short, ProtocolSocket<SocketMessage>>> bindings = new HashMap<>();
 	ProtocolDelegator<TCPSegment> delegator;
 	TCPPacketHandler packetHandler;
 	
 	public record PortAddr(IPAddress ip, short port) {}
 	
-	Map<PortAddr, BothView> clientViews = new HashMap<>();
-	
-	Queue<InternetMessage> messageQueue = new LinkedList<>();
+	Map<PortAddr, TCPChannel> channels = new HashMap<>();
 	
 	Random random = new Random();
 		
@@ -55,19 +51,25 @@ public class TCPProtocol implements Protocol, LowerAdapter<IPPacket>, UpperSocke
 		packetHandler = new TCPPacketHandler(this);
 	}
 
-	public void transmitMessage(InternetMessage message) {
+	/**
+	 * Sent a message through the TCP protocol.
+	 * If a channel is established then queue the message for sending,
+	 * otherwise 
+	 * @param message
+	 */
+	public void transmitMessage(SocketMessage message) {
 		// Start the TCP connection handshake
 		var destIP = message.getDestIP();
 		var destPort = message.getDestPort();
 		var portAddr = new PortAddr(destIP, destPort);
 		
-		var ent = clientViews.get(portAddr);
+		var ent = channels.get(portAddr);
 		if(ent != null) {
-			messageQueue.add(message);
+			ent.queue(message);
 			return;
 		}
-		var clientView = new BothView(this,message);
-		clientViews.put(
+		var clientView = new TCPChannel(this,message);
+		channels.put(
 				new PortAddr(destIP, destPort), 
 				clientView);	
 		clientView.sendSyn();
@@ -103,13 +105,13 @@ public class TCPProtocol implements Protocol, LowerAdapter<IPPacket>, UpperSocke
 	}
 	
 	@Override
-	public void register(LowerSocketAdapter<InternetMessage> adapter) {
+	public void register(LowerSocketAdapter<SocketMessage> adapter) {
 		childProtocols.add(adapter);
 		adapter.setSocketFactory(socketFactory);
 	}
 
 	@Override
-	public List<LowerSocketAdapter<InternetMessage>> getChildProtocols() {
+	public List<LowerSocketAdapter<SocketMessage>> getChildProtocols() {
 		return childProtocols;
 	}
 
@@ -117,7 +119,7 @@ public class TCPProtocol implements Protocol, LowerAdapter<IPPacket>, UpperSocke
 		return name;
 	}
 
-	public void receive(InternetMessage msg) {
+	public void receive(SocketMessage msg) {
 		var table = bindings.get(device.getMulticastAddress());
 		if(table != null) {
 			var binding = table.get(msg.getDestPort());

@@ -4,7 +4,7 @@ import org.singsurf.jns3.generic_protocol.ProtocolReceiver;
 import org.singsurf.jns3.generic_protocol.ProtocolSocket;
 import org.singsurf.jns3.generic_protocol.SocketFactory;
 
-public class TCPSocketFactory implements SocketFactory<InternetMessage> {
+public class TCPSocketFactory implements SocketFactory<SocketMessage> {
 	TCPProtocol tcpProtocol;
 
 	TCPSocketFactory(TCPProtocol protocol) {
@@ -12,12 +12,12 @@ public class TCPSocketFactory implements SocketFactory<InternetMessage> {
 	}
 
 	@Override
-	public ProtocolSocket<InternetMessage> createSocket(String name) {
+	public ProtocolSocket<SocketMessage> createSocket(String name) {
 		return new TCPSocket(name, tcpProtocol);
 	}
 
 	@Override
-	public ProtocolSocket<InternetMessage> createSocket(String name, ProtocolReceiver<InternetMessage> receiver) {
+	public ProtocolSocket<SocketMessage> createSocket(String name, ProtocolReceiver<SocketMessage> receiver) {
 		return new TCPSocket(name, tcpProtocol, receiver);
 	}
 

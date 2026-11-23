@@ -10,16 +10,16 @@ import org.singsurf.jns3.generic_protocol.SocketFactory;
 import org.singsurf.jns3.hardware.GlobalWallClock;
 import org.singsurf.jns3.hardware.GlobalWallClock.TickListener;
 import org.singsurf.jns3.hardware.ProtocolDevice;
-import org.singsurf.jns3.transport_layer.tcp.InternetMessage;
+import org.singsurf.jns3.transport_layer.tcp.SocketMessage;
 import org.singsurf.jns3.transport_layer.tcp.TCPSocket;
 
 /**
  * A simple HTTP server that listens for incoming HTTP requests and responds
  * with HTTP responses.
  */
-public class HTTPServer implements LowerSocketAdapter<InternetMessage>, TickListener {
+public class HTTPServer implements LowerSocketAdapter<SocketMessage>, TickListener {
 	public static final short PUBLIC_PORT = 80;
-	SocketFactory<InternetMessage> socketFactory;
+	SocketFactory<SocketMessage> socketFactory;
 	ProtocolDevice device;
 	List<TCPSocket> sockets = new ArrayList<>();
 	String name;
@@ -40,7 +40,7 @@ public class HTTPServer implements LowerSocketAdapter<InternetMessage>, TickList
 	}
 
 	@Override
-	public void setSocketFactory(SocketFactory<InternetMessage> factory) {
+	public void setSocketFactory(SocketFactory<SocketMessage> factory) {
 		this.socketFactory = factory;
 		var socket = socketFactory.createSocket(device.getName() + "-HTTPD");
 		var multicastAddress = device.getMulticastAddress();
@@ -111,12 +111,12 @@ public class HTTPServer implements LowerSocketAdapter<InternetMessage>, TickList
 	@Override
 	public void onTick() {
 		for(var socket : sockets) {
-			InternetMessage datagram;
+			SocketMessage datagram;
 			while((datagram = socket.poll()) != null) {
 				Jns3Logger.logRec(name, datagram.toHeaderString());
 				lastRequest = new String(datagram.getContents());
 				var responseBytes = parseRequest(lastRequest);
-				var response = new InternetMessage("http",
+				var response = new SocketMessage("http",
 						datagram.getSrcIP(),	
 						datagram.getDestIP(), 
 						datagram.getSrcPort(), 

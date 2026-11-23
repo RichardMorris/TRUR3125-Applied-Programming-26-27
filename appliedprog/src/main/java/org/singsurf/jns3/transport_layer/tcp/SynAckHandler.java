@@ -33,7 +33,7 @@ public class SynAckHandler implements ProtocolHandler<TCPSegment> {
 		var portAddr = new PortAddr(
 				segment.getPsudoHeader().sourceIP(), 
 				segment.getSourcePort());
-		var cv = tcpProtocol.clientViews.get(portAddr);
+		var cv = tcpProtocol.channels.get(portAddr);
 		if(cv == null) {
 			Jns3Logger.logError(tcpProtocol.getName(), "No client view found for SYN-ACK from " + portAddr);
 			return;

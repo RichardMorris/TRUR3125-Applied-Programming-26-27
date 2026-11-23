@@ -34,7 +34,7 @@ public class PushHandler implements ProtocolHandler<TCPSegment> {
 				datagram.getPsudoHeader().sourceIP(), 
 				datagram.getSourcePort());
 		
-		var sv = tcpProtocol.clientViews.get(portAddr);
+		var sv = tcpProtocol.channels.get(portAddr);
 		if(sv == null) {
 			Jns3Logger.logError(tcpProtocol.getName(), "No client view found for SYN-ACK from " + portAddr);
 			return;
