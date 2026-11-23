@@ -161,6 +161,13 @@ public class TCPChannel implements TickListener {
 		tcpProtocol.sender.send(packet);
 	}
 
+	
+	
+	void queue(SocketMessage msg) {
+		messageQueue.add(new WaitingMessage(nextSeqNum,msg.contents));
+		nextSeqNum += msg.getContents().length;
+	}
+
 	@Override
 	public void onTick() {
 		if(state == State.Established) {
@@ -180,17 +187,6 @@ public class TCPChannel implements TickListener {
 		}
 	}
 
-	/**
-	 * Test if {@code num < current} taking account the cyclic nature 
-	 * of sequence numbers.
-	 * @param num
-	 * @param current
-	 * @param initial
-	 * @return
-	 */
-	boolean before(int num, int current, int initial) {
-		return (num - initial) < (current-initial);
-	}
 
 	void sendPsh(byte[] contents) {
 		var pseudoHeader = new TCPSegment.PseudoHeader(
@@ -211,7 +207,6 @@ public class TCPChannel implements TickListener {
 		currentRemoteSeqNum = datagram.getSequenceNumber();
 		currentSeqNum = datagram.getAcknowledgementNumber();
 	}
-
 
 	public void receivePsh(TCPSegment datagram) {
 		var seqNo = datagram.getSequenceNumber();
@@ -267,11 +262,18 @@ public class TCPChannel implements TickListener {
 		return localPort;
 	}
 
-	public void queue(SocketMessage msg) {
-		messageQueue.add(new WaitingMessage(nextSeqNum,msg.contents));
-		nextSeqNum += msg.getContents().length;
-	}
 
+	/**
+	 * Test if {@code num < current} taking account the cyclic nature 
+	 * of sequence numbers.
+	 * @param num
+	 * @param current
+	 * @param initial
+	 * @return
+	 */
+	static boolean before(int num, int current, int initial) {
+		return (num - initial) < (current-initial);
+	}
 
 
 

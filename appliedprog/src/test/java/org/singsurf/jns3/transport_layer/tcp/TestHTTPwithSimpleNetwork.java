@@ -1,6 +1,7 @@
 package org.singsurf.jns3.transport_layer.tcp;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -216,6 +217,16 @@ class TestHTTPwithSimpleNetwork {
 		var lines = str.split("\r\n");
 		assertEquals("HTTP/0.1 200 OK", lines[0]);
 	}
+	
+	@Test
+	void test_before() {
+		assertTrue(TCPChannel.before(2, 3, 0));
+		int initial = Integer.MAX_VALUE - 5;
+		assertTrue(TCPChannel.before(initial+1, initial+2, initial));
+		assertTrue(TCPChannel.before(initial+1, initial+20, initial));
+		assertFalse(initial+1< initial+20);
+	}
+	
 	
 	@AfterEach
 	void tearDown() throws Exception {
