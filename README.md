@@ -68,3 +68,12 @@ Each week is stored in a separate branch in the repo, so the evolution of the pr
 * Week 17 - The Internet - using IP Prefixes to route traffic and translate local to public IP's.
   * See [week 17](appliedprog/Week17.md)
   * Branch [wk17-the-internet](https://github.com/RichardMorris/TRUR3125-Applied-Programming-26-27/tree/wk17-the-internet)
+
+* Week 18 - Visitors - using visitors pattern for a framework for
+algorithms that can work with a stack of nested containers.
+  * See [week 18](appliedprog/Week18.md)
+  * Branch [wk18-the-internet](https://github.com/RichardMorris/TRUR3125-Applied-Programming-26-27/tree/wk18-visitors)
+
+* Week 19 - Transmission Control Protocol - allows a reliable transmission across the internet
+  * See [week 19](appliedprog/Week19.md)
+  * Branch [wk19-tcp](https://github.com/RichardMorris/TRUR3125-Applied-Programming-26-27/tree/wk19-tcp)
