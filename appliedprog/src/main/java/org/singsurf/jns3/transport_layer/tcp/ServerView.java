@@ -63,6 +63,7 @@ public class ServerView {
 				localPort, remotePort,
 				initialSeqNum, currentRemoteSeqNum, 
 				(byte) (TCPSegment.FLAG_SYN | TCPSegment.FLAG_ACK),
+				tcpProtocol.windowSize,
 				new byte[0], 
 				pseudoHeader);
 		var packet = snycDatagram.toPacket();
@@ -98,6 +99,7 @@ public class ServerView {
 				localPort, remotePort,
 				initialSeqNum, currentRemoteSeqNum, 
 				(byte) (TCPSegment.FLAG_SYN | TCPSegment.FLAG_ACK),
+				tcpProtocol.windowSize,
 				new byte[0], 
 				pseudoHeader);
 		var packet = snycDatagram.toPacket();

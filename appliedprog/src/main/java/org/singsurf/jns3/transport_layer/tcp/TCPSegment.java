@@ -46,34 +46,21 @@ public class TCPSegment implements ProtocolContainer {
 			byte protocol,
 			short length) { }
 
-
 	/**
-	 * Constructor used by applications for creating the initial TCP datagram.
-	 * Destination IP can be set via the pseudo header.
+	 * Constructs a TCP datagram with the specified parameters.
 	 * 
-	 * @param sourcePort
-	 * @param destinationPort
-	 * @param contents
-	 * @param psudoHeader used for calculating the checksum, not transmitted
+	 * @param srcPort the source port number
+	 * @param destPort the destination port number
+	 * @param seqNum the sequence number
+	 * @param ackNum the acknowledgement number
+	 * @param flags the flags byte
+	 * @param window the window size
+	 * @param content the payload data
+	 * @param psudo the pseudo header for checksum calculation
 	 */
-	public TCPSegment(short sourcePort, short destinationPort, 
-			byte[] contents, PseudoHeader psudoHeader) {
-		super();
-		this.sourcePort = sourcePort;
-		this.destinationPort = destinationPort;
-		this.sequenceNumber = 0;
-		this.acknowledgementNumber = 0;
-		// 4 bits data offset, 4 bits reserved
-		this.flags = 0x00;
-		this.windowSize = 0;
-		this.checksum = 0;
-		this.contents = contents;
-		this.psudoHeader = psudoHeader;
-		this.checksum = calculateHeaderChecksum().getComplement().getValue();
-	}
 
 	public TCPSegment(short srcPort, short destPort, 
-			int seqNum, int ackNum, byte flags, byte[] content,
+			int seqNum, int ackNum, byte flags, short window, byte[] content,
 			PseudoHeader psudo) {
 		this.sourcePort = srcPort;
 		this.destinationPort = destPort;
@@ -81,7 +68,7 @@ public class TCPSegment implements ProtocolContainer {
 		this.acknowledgementNumber = ackNum;
 		// 4 bits data offset, 4 bits reserved
 		this.flags = flags;
-		this.windowSize = 0;
+		this.windowSize = window;
 		this.checksum = 0;
 		this.contents = content;
 		this.psudoHeader = psudo;

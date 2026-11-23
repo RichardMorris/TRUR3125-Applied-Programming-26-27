@@ -25,6 +25,7 @@ class TestTCPDatagram {
 		var message = "Hello, TCP!";
 		
 		var datagram = new TCPSegment((short) 1234, (short) 5678,
+				0, 0, (byte) 0, (short) 0,
 				message.getBytes(), pseudo);
 		
 		var expectedHeader = "TCPDatagram[srcPort=1234, destPort=5678, seqNum=0, ackNum=0, DO=0x50, flags=NONE, WS=0, "
@@ -50,6 +51,7 @@ class TestTCPDatagram {
 		var message = "Hello, TCP!";
 		
 		var datagram = new TCPSegment((short) 1234, (short) 5678,
+				0, 0, (byte) 0, (short) 0,
 				message.getBytes(), pseudo);
 		assertTrue(datagram.isValid());
 		datagram.setSYN(true);
@@ -95,6 +97,7 @@ class TestTCPDatagram {
 		var message = "Hello, TCP!";
 		
 		var datagram = new TCPSegment((short) 1234, (short) 5678,
+				0, 0, (byte) 0, (short) 0,
 				message.getBytes(), pseudo);
 		datagram.setPSH(true);
 		datagram.setACK(true);

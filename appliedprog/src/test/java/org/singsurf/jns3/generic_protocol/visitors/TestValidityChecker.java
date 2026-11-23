@@ -426,7 +426,9 @@ class TestValidityChecker {
 		var snycDatagram = new TCPSegment(
 				srcPort, destPort,
 				initialSeqNum, initialRemoteSeqNum, 
-				TCPSegment.FLAG_SYN, new byte[0], 
+				TCPSegment.FLAG_SYN, 
+				(short) 2048,
+				new byte[0], 
 				pseudoHeader);
 		var packet = snycDatagram.toPacket();
 		
@@ -446,7 +448,9 @@ class TestValidityChecker {
 		var snycDatagram = new TCPSegment(
 				srcPort, destPort,
 				initialSeqNum, initialRemoteSeqNum, 
-				TCPSegment.FLAG_SYN, new byte[0], 
+				TCPSegment.FLAG_SYN, 
+				(short) 2048,
+				new byte[0], 
 				pseudoHeader);
 		
 		boolean result = visitor.check(snycDatagram);
@@ -468,7 +472,9 @@ class TestValidityChecker {
 		var snycDatagram = new TCPSegment(
 				srcPort, destPort,
 				initialSeqNum, initialRemoteSeqNum, 
-				TCPSegment.FLAG_SYN, request.getBytes(),
+				TCPSegment.FLAG_SYN,
+				(short) 2048,
+				request.getBytes(),
 				pseudoHeader);
 		assertTrue(snycDatagram.isValid());
 

@@ -59,7 +59,9 @@ public class ClientView implements TickListener {
 		var snycDatagram = new TCPSegment(
 				localPort, remotePort,
 				initialSeqNum, initialRemoteSeqNum, 
-				TCPSegment.FLAG_SYN, new byte[0], 
+				TCPSegment.FLAG_SYN, 
+				tcpProtocol.windowSize,
+				new byte[0],
 				pseudoHeader);
 		var packet = snycDatagram.toPacket();
 		state = State.SynSent;
@@ -82,7 +84,9 @@ public class ClientView implements TickListener {
 		var snycDatagram = new TCPSegment(
 				localPort, remotePort,
 				currentSeqNum, currentRemoteSeqNum, 
-				TCPSegment.FLAG_ACK, new byte[0], 
+				TCPSegment.FLAG_ACK, 
+				tcpProtocol.windowSize,
+				new byte[0], 
 				pseudoHeader);
 		var packet = snycDatagram.toPacket();
 		tcpProtocol.sender.send(packet);
@@ -105,7 +109,9 @@ public class ClientView implements TickListener {
 		var snycDatagram = new TCPSegment(
 				localPort, remotePort,
 				currentSeqNum, currentRemoteSeqNum, 
-				(byte) (TCPSegment.FLAG_ACK | TCPSegment.FLAG_PSH), contents, 
+				(byte) (TCPSegment.FLAG_ACK | TCPSegment.FLAG_PSH), 
+				tcpProtocol.windowSize,
+				contents, 
 				pseudoHeader);
 		var packet = snycDatagram.toPacket();
 		tcpProtocol.sender.send(packet);

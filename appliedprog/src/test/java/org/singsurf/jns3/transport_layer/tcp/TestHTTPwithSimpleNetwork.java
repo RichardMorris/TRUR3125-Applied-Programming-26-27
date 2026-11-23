@@ -15,13 +15,14 @@ import org.singsurf.jns3.hardware.GlobalWallClock;
 import org.singsurf.jns3.hardware.PC;
 import org.singsurf.jns3.physical_layer.BufferedConnection;
 
-class TestHandshake {
+class TestHTTPwithSimpleNetwork {
 	PC pc1;
 	PC pc2;
-	private HTTPClient http1;
-	private TCPProtocol tcp1;
-	private TCPProtocol tcp2;
-	private HTTPServer http2;
+	HTTPClient http1;
+	TCPProtocol tcp1;
+	TCPProtocol tcp2;
+	HTTPServer http2;
+	short windowSize = 2048;
 	
 	@BeforeEach
 	void setUp() throws Exception {
@@ -29,11 +30,13 @@ class TestHandshake {
 		pc2 = DeviceFactory.getInstance().createPC("PC2");
 		
 		tcp1 = pc1.getTCPProtocol();
+		tcp1.setWindowSize(windowSize);
 		pc1.getIPProtocol().register(tcp1);
 		http1 = new HTTPClient(pc1);
 		tcp1.register(http1);
 		
 		tcp2 = pc2.getTCPProtocol();
+		tcp2.setWindowSize(windowSize);
 		pc2.getIPProtocol().register(tcp2);
 		http2 = new HTTPServer(pc2);
 		tcp2.register(http2);
@@ -155,7 +158,11 @@ class TestHandshake {
 		System.out.println("Request received by server:\n[" + http2.lastRequest + "]");
 	}
 
-	
+	@Test
+	void http_response() {
+		var s = Jns3Logger.generateOnesComplementTable();
+		System.out.println(s);
+	}
 	
 	@AfterEach
 	void tearDown() throws Exception {

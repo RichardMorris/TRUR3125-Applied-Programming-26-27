@@ -26,6 +26,7 @@ import org.singsurf.jns3.network_layer.PacketSender;
 public class TCPProtocol implements Protocol, LowerAdapter<IPPacket>, UpperSocketPort<InternetMessage> {
 	String name;
 	ProtocolDevice device;
+	short windowSize = 2048;
 
 	TCPSocketFactory socketFactory;
 	List<LowerSocketAdapter<InternetMessage>> childProtocols = new ArrayList<>();
@@ -138,5 +139,9 @@ public class TCPProtocol implements Protocol, LowerAdapter<IPPacket>, UpperSocke
 		}
 		var tcpSegment = TCPSegment.fromPacket(packet);
 		return visitor.visit(this, tcpSegment);
+	}
+
+	public void setWindowSize(short windowSize) {
+		this.windowSize = windowSize;
 	}
 }
