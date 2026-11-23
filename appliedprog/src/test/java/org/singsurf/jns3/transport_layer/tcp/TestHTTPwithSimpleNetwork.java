@@ -4,10 +4,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.singsurf.jns3.Jns3Logger;
+import org.singsurf.jns3.application_layer.http.FileLoader;
 import org.singsurf.jns3.application_layer.http.HTTPClient;
 import org.singsurf.jns3.application_layer.http.HTTPServer;
 import org.singsurf.jns3.hardware.DeviceFactory;
@@ -40,6 +44,15 @@ class TestHTTPwithSimpleNetwork {
 		pc2.getIPProtocol().register(tcp2);
 		http2 = new HTTPServer(pc2);
 		tcp2.register(http2);
+		http2.setFileLoader(new FileLoader() {
+			@Override
+			public InputStream loadFile(String path) {
+				if(path.startsWith("/")) {
+					path = path.substring(1);
+				}
+				return getClass().getResourceAsStream(path);
+			}
+		});
 		
 		var connection = new BufferedConnection(pc1.getEndPoint(), pc2.getEndPoint());
 		assertNotNull(connection);
@@ -159,9 +172,46 @@ class TestHTTPwithSimpleNetwork {
 	}
 
 	@Test
-	void http_response() {
-		var s = Jns3Logger.generateOnesComplementTable();
-		System.out.println(s);
+	void can_load_index_html() throws IOException {
+		var stream = http2.loadFile("/index.html");
+		var bytes = stream.readAllBytes();
+		assertEquals(6304, bytes.length);
+	}
+	
+	@Test
+	void test_response_header() {
+		var bytes = http2.getFullResponse("/index.html");
+		var str = new String(bytes);
+		var lines = str.split("\r\n");
+		var nlines = lines.length;
+		assertEquals("HTTP/0.1 200 OK", lines[0]);
+		assertEquals("Server: JNS-HTTP-Server/0.1", lines[1]);
+		assertEquals("Transfer-Encoding: chunked", lines[2]);
+		assertEquals("Content-Type: text/html; charset=ASCII", lines[3]);
+		assertEquals("Content-Length: 6304", lines[4]);
+		assertEquals("",lines[5]);
+		assertEquals("<html>", lines[6]);
+		assertEquals("<head>", lines[7]);
+		assertEquals("	<title>Ones Complement Table</title>", lines[8]);
+		assertEquals("</head>", lines[9]);
+		assertEquals("<body>", lines[10]);
+		assertEquals("<h1>Ones Complement Table</h1>", lines[11]);
+		assertEquals("<pre>", lines[12]);
+		assertEquals("0xFF00 -255", lines[13]);
+
+		assertEquals("0x00FF 255", lines[nlines-4]);
+		assertEquals("</pre>", lines[nlines-3]);
+		assertEquals("</body>", lines[nlines-2]);
+		assertEquals("</html>", lines[nlines-1]);
+	}
+	
+	@Test
+	void test_response_header_not_found() {
+		var bytes = http2.getFullResponse("/notfound.html");
+		var str = new String(bytes);
+		var lines = str.split("\r\n");
+		assertEquals("HTTP/0.1 404 OK", lines[0]);
+		Jns3Logger.clearLog();
 	}
 	
 	@AfterEach

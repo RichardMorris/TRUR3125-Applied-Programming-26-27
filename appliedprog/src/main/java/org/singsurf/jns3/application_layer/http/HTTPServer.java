@@ -1,5 +1,6 @@
 package org.singsurf.jns3.application_layer.http;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,12 +13,26 @@ import org.singsurf.jns3.hardware.ProtocolDevice;
 import org.singsurf.jns3.transport_layer.tcp.InternetMessage;
 import org.singsurf.jns3.transport_layer.tcp.TCPSocket;
 
+/**
+ * A simple HTTP server that listens for incoming HTTP requests and responds
+ * with HTTP responses.
+ */
 public class HTTPServer implements LowerSocketAdapter<InternetMessage>, TickListener {
 	public static final short PUBLIC_PORT = 80;
 	SocketFactory<InternetMessage> socketFactory;
 	ProtocolDevice device;
 	List<TCPSocket> sockets = new ArrayList<>();
 	String name;
+	FileLoader fileLoader;
+	
+	public FileLoader getFileLoader() {
+		return fileLoader;
+	}
+
+	public void setFileLoader(FileLoader fileLoader) {
+		this.fileLoader = fileLoader;
+	}
+
 	public HTTPServer(ProtocolDevice device) {
 		this.device = device;
 		name = device.getName() + "-HTTPD";
@@ -33,14 +48,47 @@ public class HTTPServer implements LowerSocketAdapter<InternetMessage>, TickList
 		sockets.add((TCPSocket) socket);
 	}
 
-	public String getReplyHeader() {
+	public String getReplyHeader(int contentLength) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("HTTP/0.1 200 OK\r\n");
 		sb.append("Server: JNS-HTTP-Server/0.1\r\n");
 		sb.append("Transfer-Encoding: chunked\r\n");
 		sb.append("Content-Type: text/html; charset=ASCII\r\n");
+		sb.append("Content-Length: ").append(contentLength).append("\r\n");
 		sb.append("\r\n");
 		return sb.toString();
+	}
+
+	public String get404Header() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("HTTP/0.1 404 OK\r\n");
+		sb.append("Server: JNS-HTTP-Server/0.1\r\n");
+		sb.append("\r\n");
+		return sb.toString();
+	}
+
+	public byte[] getFullResponse(String path) {
+		var stream = loadFile(path);
+		if(stream == null) {
+			Jns3Logger.logError(name, "File not found: " + path);
+			var header = get404Header();
+			return header.getBytes();
+		}
+		try {
+			var bytes = stream.readAllBytes();
+			var header = getReplyHeader(bytes.length);
+			byte[] res = new byte[header.length() + bytes.length];
+			System.arraycopy(header.getBytes(), 0, res, 0, header.length());
+			System.arraycopy(bytes, 0, res, header.length(), bytes.length);
+			return res;
+		} catch (Exception e) {
+			Jns3Logger.logError(name, "Error reading file: " + path);
+			return new byte[0];
+		}
+	}
+
+	public InputStream loadFile(String path) {
+		return fileLoader.loadFile(path);
 	}
 
 	public String lastRequest = null;
