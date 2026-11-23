@@ -27,21 +27,14 @@ public class Switch extends MultiPortDevice {
 
         if (destinationPort != -1) {
             if (destinationPort != portNumber) {
-                if(ports[destinationPort].isConnected()) {
-                    ports[destinationPort].sendFrame(frame);
-                }
-                else {
-                    Jns3Logger.log(getName(), Jns3Logger.LogLevel.ERROR,": Port " + destinationPort + " is not connected.");
-                }
+                sendFrame(destinationPort, frame);
             } else {
                 Jns3Logger.log(getName(), Jns3Logger.LogLevel.ERROR,": Frame received on port " + portNumber + " is destined for the same port.");
             }
         } else { // If the destination MAC address is unknown, broadcast the frame to all other ports
             for (int i = 0; i < numPorts; i++) {
                 if (i != portNumber) {
-                    if (ports[i].isConnected()) {
-                        ports[i].sendFrame(frame);
-                    }
+                    sendFrame(i, frame);
                 }
             }
         }

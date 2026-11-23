@@ -1,14 +1,13 @@
 package org.singsurf.jns3.hardware;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import org.singsurf.jns3.data_link_layer.ARPController;
 import org.singsurf.jns3.data_link_layer.DefaultFrameHandler;
+import org.singsurf.jns3.data_link_layer.FrameChecker;
 import org.singsurf.jns3.data_link_layer.FrameFactory;
 import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.network_layer.IPAddress;
-
-import java.util.ArrayList;
 
 public class DeviceFactory {
     List<MACAddress> macAddresses = new ArrayList<>();
@@ -54,8 +53,9 @@ public class DeviceFactory {
         MACAddress mac = createMACAddress();
         IPAddress ip = createLocalIPAddress();
         var pc = new PC(name, mac, ip);
-        pc.setFrameFactory(frameFactory);
-        pc.setArpController(new ARPController(pc));
+        // boot logic for the PC
+        pc.addFrameHandler(new FrameChecker(pc));
+        pc.addFrameHandler(pc.getArpController());
         pc.addFrameHandler(new DefaultFrameHandler(pc));
         return pc;
     }

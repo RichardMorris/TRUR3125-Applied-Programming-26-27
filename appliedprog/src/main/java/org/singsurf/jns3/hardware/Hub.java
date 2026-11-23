@@ -10,9 +10,7 @@ public class Hub extends MultiPortDevice {
     public void receiveFrame(int portNumber, EthernetFrame frame) {
         for (int i = 0; i < numPorts; i++) {
             if (i != portNumber) {
-                if (ports[i].isConnected()) {
-                    ports[i].sendFrame(frame);
-                }
+                sendFrame(i, frame);
             }
         }
     }
