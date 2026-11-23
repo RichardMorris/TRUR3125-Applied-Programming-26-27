@@ -80,7 +80,7 @@ class TestHTTPwithSimpleNetwork {
 
 		GlobalWallClock.advanceBy(1);
 
-		var ent2 = tcp2.serverViews.entrySet().iterator().next();
+		var ent2 = tcp2.clientViews.entrySet().iterator().next();
 		assertEquals(pc1.getIPAddress(), ent2.getKey().ip());
 		assertEquals(12345, ent2.getKey().port());
 		var sv = ent2.getValue();
@@ -98,7 +98,7 @@ class TestHTTPwithSimpleNetwork {
 		GlobalWallClock.advanceBy(2);
 
 		var cv = tcp1.clientViews.entrySet().iterator().next().getValue();
-		var sv = tcp2.serverViews.entrySet().iterator().next().getValue();
+		var sv = tcp2.clientViews.entrySet().iterator().next().getValue();
 		assertNotNull(cv);
 		assertNotNull(sv);
 		
@@ -120,7 +120,7 @@ class TestHTTPwithSimpleNetwork {
 		GlobalWallClock.advanceBy(1);
 
 		var cv = tcp1.clientViews.entrySet().iterator().next().getValue();
-		var sv = tcp2.serverViews.entrySet().iterator().next().getValue();
+		var sv = tcp2.clientViews.entrySet().iterator().next().getValue();
 		assertNotNull(cv);
 		assertNotNull(sv);
 		
@@ -146,7 +146,7 @@ class TestHTTPwithSimpleNetwork {
 		Jns3Logger.println();
 		
 		var cv = tcp1.clientViews.entrySet().iterator().next().getValue();
-		var sv = tcp2.serverViews.entrySet().iterator().next().getValue();
+		var sv = tcp2.clientViews.entrySet().iterator().next().getValue();
 		assertNotNull(cv);
 		assertNotNull(sv);
 		

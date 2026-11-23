@@ -37,8 +37,7 @@ public class TCPProtocol implements Protocol, LowerAdapter<IPPacket>, UpperSocke
 	
 	public record PortAddr(IPAddress ip, short port) {}
 	
-	Map<PortAddr, ClientView> clientViews = new HashMap<>();
-	Map<PortAddr, ServerView> serverViews = new HashMap<>();
+	Map<PortAddr, BothView> clientViews = new HashMap<>();
 	
 	Queue<InternetMessage> messageQueue = new LinkedList<>();
 	
@@ -67,7 +66,7 @@ public class TCPProtocol implements Protocol, LowerAdapter<IPPacket>, UpperSocke
 			messageQueue.add(message);
 			return;
 		}
-		var clientView = new ClientView(this,message);
+		var clientView = new BothView(this,message);
 		clientViews.put(
 				new PortAddr(destIP, destPort), 
 				clientView);	

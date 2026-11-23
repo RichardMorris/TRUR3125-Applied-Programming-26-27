@@ -35,14 +35,14 @@ public class SynHandler implements ProtocolHandler<TCPSegment> {
 				datagram.getPsudoHeader().sourceIP(), 
 				datagram.getSourcePort());
 		
-		var ent = tcpProtocol.serverViews.get(portAddr);
+		var ent = tcpProtocol.clientViews.get(portAddr);
 		if(ent != null) {
 			Jns3Logger.logError(tcpProtocol.getName(), "Dupe SYN received for " + portAddr);
 			return;
 		}
 
-		var serverView = new ServerView(tcpProtocol, datagram);
-		tcpProtocol.serverViews.put(portAddr, serverView);
+		var serverView = new BothView(tcpProtocol, datagram);
+		tcpProtocol.clientViews.put(portAddr, serverView);
 		serverView.sendSynAck();
 	}
 
