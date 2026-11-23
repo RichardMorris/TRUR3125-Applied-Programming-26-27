@@ -227,7 +227,15 @@ class TestHTTPwithSimpleNetwork {
 		var svCurRelSeq = sv.getCurrentSeqNum() - sv.getInitialSeqNum();
 		assertEquals(svExpectedRelSeq, svCurRelSeq);
 		
-
+		var pages = http1.getReceivedPages();
+		assertEquals(1, pages.size());
+		var page = pages.get(0);
+		assertEquals(192, page.length());
+		var lines2 = page.split("\r\n");
+		assertEquals("<html>", lines2[0]);
+		assertEquals("<head>", lines2[1]);
+		assertEquals("	<title>JNS3 Server</title>", lines2[2]);
+		assertEquals("</html>", lines2[9]);
 		PolledSocket.LOG_MESSAGES = false;
 	}
 

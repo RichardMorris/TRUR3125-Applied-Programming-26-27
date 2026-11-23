@@ -3,6 +3,7 @@ package org.singsurf.jns3.application_layer.http;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.generic_protocol.LowerSocketAdapter;
 import org.singsurf.jns3.generic_protocol.SocketFactory;
 import org.singsurf.jns3.hardware.GlobalWallClock;
@@ -16,6 +17,9 @@ public class HTTPClient implements LowerSocketAdapter<SocketMessage>, TickListen
 	SocketFactory<SocketMessage> socketFactory;
 	ProtocolDevice device;
 	List<TCPSocket> sockets = new ArrayList<>();
+	String compiledMessage = "";
+	List<String> receivedPages = new ArrayList<>();
+	
 	
 	public HTTPClient(ProtocolDevice device) {
 		this.device = device;
@@ -55,8 +59,66 @@ public class HTTPClient implements LowerSocketAdapter<SocketMessage>, TickListen
 			SocketMessage datagram;
 			while((datagram = socket.poll()) != null) {
 				String message = new String(datagram.getContents());
-				device.getTerminal().display(message);
+				parseResponse(message);
 			}
 		}
+	}
+
+	void parseResponse(String message) {
+		compiledMessage += message;
+		if(compiledMessage.contains("\r\n\r\n")) {
+			String[] parts = compiledMessage.split("\r\n\r\n", 2);
+			if(parts.length < 2) {
+				return;
+			}
+			String header = parts[0];
+			String body = parts[1];
+			var headerLines = header.split("\r\n");
+			if(headerLines.length > 0) {
+				String statusLine = headerLines[0];
+				if(statusLine.startsWith("HTTP/")) {
+					String[] statusParts = statusLine.split(" ", 3);
+					if(statusParts.length >= 2) {
+						String statusCode = statusParts[1];
+						if(statusCode.equals("200")) {
+						} else {
+							Jns3Logger.logError("HTTPClient", "Received non-200 status code: " + statusCode);
+							return;
+						}
+					}
+				}
+				int contentLength = -1;
+				for(String line : headerLines) {
+					if(line.toLowerCase().startsWith("content-length:")) {
+						String[] parts2 = line.split(":", 2);
+						if(parts2.length == 2) {
+							String lengthStr = parts2[1].trim();
+							try {
+								contentLength = Integer.parseInt(lengthStr);
+							} catch(NumberFormatException e) {
+								Jns3Logger.logError("HTTPClient", "Invalid Content-Length value: " + lengthStr);
+							}
+						}
+					}
+				}
+				if(contentLength >= 0) {
+					if(body.length() >= contentLength) {
+						String responseBody = body.substring(0, contentLength);
+						getReceivedPages().add(responseBody);
+						Jns3Logger.logRec("HTTPClient", "Received response body: " + responseBody);
+						compiledMessage = "";
+					} else {
+						Jns3Logger.logInfo("HTTPClient", "Waiting for more data. Current body length: " + body.length() + ", expected: " + contentLength);
+					}
+				} else {
+					Jns3Logger.logInfo("HTTPClient", "Content-Length header not found.");
+				}
+				
+			}
+		}		
+	}
+
+	public List<String> getReceivedPages() {
+		return receivedPages;
 	}
 }
