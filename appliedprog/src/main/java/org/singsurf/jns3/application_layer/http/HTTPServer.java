@@ -59,9 +59,25 @@ public class HTTPServer implements LowerSocketAdapter<InternetMessage>, TickList
 		return sb.toString();
 	}
 
+	public String get400Header() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("HTTP/0.1 400 Bad Request\r\n");
+		sb.append("Server: JNS-HTTP-Server/0.1\r\n");
+		sb.append("\r\n");
+		return sb.toString();
+	}
+
 	public String get404Header() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("HTTP/0.1 404 OK\r\n");
+		sb.append("HTTP/0.1 404 Not Found\r\n");
+		sb.append("Server: JNS-HTTP-Server/0.1\r\n");
+		sb.append("\r\n");
+		return sb.toString();
+	}
+
+	public String get405Header() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("HTTP/0.1 405 Method Not Allowed\r\n");
 		sb.append("Server: JNS-HTTP-Server/0.1\r\n");
 		sb.append("\r\n");
 		return sb.toString();
@@ -99,7 +115,30 @@ public class HTTPServer implements LowerSocketAdapter<InternetMessage>, TickList
 			while((datagram = socket.poll()) != null) {
 				Jns3Logger.logRec(name, datagram.toHeaderString());
 				lastRequest = new String(datagram.getContents());
+				var responseBytes = parseRequest(lastRequest);
+				var response = new InternetMessage("http",
+						datagram.getSrcIP(),	
+						datagram.getDestIP(), 
+						datagram.getSrcPort(), 
+						datagram.getDestPort(), responseBytes);
+				Jns3Logger.logSend(name, response.toMidString());
+//				socket.send(response);
 			}
+		}
+	}
+
+	public byte[] parseRequest(String request) {
+		var lines = request.split("\r\n");
+		if(lines[0].startsWith("GET")) {
+			var parts = lines[0].split(" ");
+			if(parts.length >= 2) {
+				return getFullResponse(parts[1]);
+			}
+			Jns3Logger.logError(name, "Malformed GET request: " + lines[0]);
+			return get400Header().getBytes();
+		} else {
+			Jns3Logger.logError(name, "Unknown request type: "+lines[0]);
+			return get405Header().getBytes();
 		}
 	}
 }

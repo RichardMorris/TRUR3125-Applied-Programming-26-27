@@ -59,8 +59,6 @@ class TestHTTPwithSimpleNetwork {
 		
 		pc1.getArpProtocol().sendGARPRequest();
 		GlobalWallClock.advanceBy(2);
-		
-		
 	}
 
 	@Test
@@ -210,8 +208,17 @@ class TestHTTPwithSimpleNetwork {
 		var bytes = http2.getFullResponse("/notfound.html");
 		var str = new String(bytes);
 		var lines = str.split("\r\n");
-		assertEquals("HTTP/0.1 404 OK", lines[0]);
+		assertEquals("HTTP/0.1 404 Not Found", lines[0]);
 		Jns3Logger.clearLog();
+	}
+	
+	@Test
+	void parse_request() {
+		var request = http1.getRequestString("/index.html");
+		var response = http2.parseRequest(request);
+		var str = new String(response);
+		var lines = str.split("\r\n");
+		assertEquals("HTTP/0.1 200 OK", lines[0]);
 	}
 	
 	@AfterEach
