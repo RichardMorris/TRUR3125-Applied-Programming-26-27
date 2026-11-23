@@ -117,12 +117,13 @@ public class HTTPServer implements LowerSocketAdapter<SocketMessage>, TickListen
 				lastRequest = new String(datagram.getContents());
 				var responseBytes = parseRequest(lastRequest);
 				var response = new SocketMessage("http",
-						datagram.getSrcIP(),	
 						datagram.getDestIP(), 
+						datagram.getSrcIP(),	
+						datagram.getDestPort(), 
 						datagram.getSrcPort(), 
-						datagram.getDestPort(), responseBytes);
-				Jns3Logger.logSend(name, response.toMidString());
-//				socket.send(response);
+						responseBytes);
+				Jns3Logger.logSend(name, response.toHeaderString());
+				socket.send(response);
 			}
 		}
 	}

@@ -3,6 +3,7 @@ package org.singsurf.jns3.transport_layer.tcp;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
@@ -15,6 +16,7 @@ import org.singsurf.jns3.Jns3Logger;
 import org.singsurf.jns3.application_layer.http.FileLoader;
 import org.singsurf.jns3.application_layer.http.HTTPClient;
 import org.singsurf.jns3.application_layer.http.HTTPServer;
+import org.singsurf.jns3.generic_protocol.PolledSocket;
 import org.singsurf.jns3.hardware.DeviceFactory;
 import org.singsurf.jns3.hardware.GlobalWallClock;
 import org.singsurf.jns3.hardware.PC;
@@ -138,11 +140,14 @@ class TestHTTPwithSimpleNetwork {
 		http1.requestPage(pc2.getIPAddress(), "/index.html");
 		
 		
-		GlobalWallClock.advanceBy(5);
+		GlobalWallClock.advanceBy(4);
+		var cv = tcp1.channels.entrySet().iterator().next().getValue();
+		assertNotNull(cv.currentMessage);
+		GlobalWallClock.advanceBy(1);
+		assertNull(cv.currentMessage);
 
 		Jns3Logger.println();
 		
-		var cv = tcp1.channels.entrySet().iterator().next().getValue();
 		var sv = tcp2.channels.entrySet().iterator().next().getValue();
 		assertNotNull(cv);
 		assertNotNull(sv);
@@ -164,13 +169,73 @@ class TestHTTPwithSimpleNetwork {
 		assertEquals(Jns3Logger.LogLevel.RECEIVED, item.level());
 		assertEquals("SocketMessage["+ pc1.getIPAddress() + ":12345->" + pc2.getIPAddress() + ":80]", item.message());
 		System.out.println("Request received by server:\n[" + http2.lastRequest + "]");
+		
+	}
+
+	@Test
+	void http_response_send_by_server() {
+		PolledSocket.LOG_MESSAGES = true;
+		pc1.getTerminal().quite = true;
+		Jns3Logger.clearLog();
+		http1.requestPage(pc2.getIPAddress(), "/index.html");
+		
+		
+		GlobalWallClock.advanceBy(5);
+		var cv = tcp1.channels.entrySet().iterator().next().getValue();
+		var sv = tcp2.channels.entrySet().iterator().next().getValue();
+
+		Jns3Logger.println();
+		Jns3Logger.clearLog();
+		GlobalWallClock.advanceBy(1);
+		Jns3Logger.println();
+
+		Jns3Logger.clearLog();
+		GlobalWallClock.advanceBy(1);
+		Jns3Logger.println();
+
+		
+		Jns3Logger.clearLog();
+		GlobalWallClock.advanceBy(1);
+		Jns3Logger.println();
+
+		Jns3Logger.clearLog();
+		GlobalWallClock.advanceBy(1);
+		Jns3Logger.println();
+
+		assertEquals(cv.getInitialSeqNum(), sv.getInitialRemoteSeqNum());
+		assertEquals(cv.getInitialRemoteSeqNum(), sv.getInitialSeqNum());
+		
+		assertEquals(cv.getCurrentSeqNum(), sv.getCurrentRemoteSeqNum());
+		assertEquals(cv.getCurrentRemoteSeqNum(), sv.getCurrentSeqNum());
+		
+		String request = http1.getRequestString("/index.html");
+		String response = http2.getReplyHeader(192);
+
+		var term = pc1.getTerminal();
+		var lines = term.lines;
+		for(var line : lines) {
+			System.out.println("Terminal: " + line);
+		}
+		
+		var expectedRelSeq = cv.getInitialSeqNum()+ 1 + request.length() - cv.getInitialSeqNum();
+		var actualRelSeq = cv.getCurrentSeqNum() - cv.getInitialSeqNum();
+		assertEquals(expectedRelSeq, actualRelSeq);
+		
+		
+		var svExpectedRelSeq = sv.getInitialSeqNum()+ 1
+				+response.length() + 192  - sv.getInitialSeqNum();
+		var svCurRelSeq = sv.getCurrentSeqNum() - sv.getInitialSeqNum();
+		assertEquals(svExpectedRelSeq, svCurRelSeq);
+		
+
+		PolledSocket.LOG_MESSAGES = false;
 	}
 
 	@Test
 	void can_load_index_html() throws IOException {
 		var stream = http2.loadFile("/index.html");
 		var bytes = stream.readAllBytes();
-		assertEquals(6304, bytes.length);
+		assertEquals(192, bytes.length);
 	}
 	
 	@Test
@@ -178,26 +243,18 @@ class TestHTTPwithSimpleNetwork {
 		var bytes = http2.getFullResponse("/index.html");
 		var str = new String(bytes);
 		var lines = str.split("\r\n");
-		var nlines = lines.length;
 		assertEquals("HTTP/0.1 200 OK", lines[0]);
 		assertEquals("Server: JNS-HTTP-Server/0.1", lines[1]);
 		assertEquals("Transfer-Encoding: chunked", lines[2]);
 		assertEquals("Content-Type: text/html; charset=ASCII", lines[3]);
-		assertEquals("Content-Length: 6304", lines[4]);
+		assertEquals("Content-Length: 192", lines[4]);
 		assertEquals("",lines[5]);
 		assertEquals("<html>", lines[6]);
 		assertEquals("<head>", lines[7]);
-		assertEquals("	<title>Ones Complement Table</title>", lines[8]);
+		assertEquals("	<title>JNS3 Server</title>", lines[8]);
 		assertEquals("</head>", lines[9]);
 		assertEquals("<body>", lines[10]);
-		assertEquals("<h1>Ones Complement Table</h1>", lines[11]);
-		assertEquals("<pre>", lines[12]);
-		assertEquals("0xFF00 -255", lines[13]);
-
-		assertEquals("0x00FF 255", lines[nlines-4]);
-		assertEquals("</pre>", lines[nlines-3]);
-		assertEquals("</body>", lines[nlines-2]);
-		assertEquals("</html>", lines[nlines-1]);
+		assertEquals("<h1>Welcome</h1>", lines[11]);
 	}
 	
 	@Test

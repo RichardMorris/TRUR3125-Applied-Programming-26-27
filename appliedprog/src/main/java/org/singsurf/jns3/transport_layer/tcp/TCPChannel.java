@@ -55,7 +55,7 @@ public class TCPChannel implements TickListener {
 	
 	Random random = new Random();
 
-	private WaitingMessage currentMessage;
+	WaitingMessage currentMessage;
 	
 	/**
 	 * Constructor for a client-side view of the TCP protocol. 
@@ -97,6 +97,7 @@ public class TCPChannel implements TickListener {
 		this.tcpProtocol = tcpProtocol;
 		this.initialSeqNum = random.nextInt();
 		this.currentSeqNum = initialSeqNum;
+		this.nextSeqNum = initialSeqNum +1;
 		this.initialRemoteSeqNum = datagram.getSequenceNumber();
 		this.currentRemoteSeqNum = initialRemoteSeqNum+1;
 		
@@ -104,6 +105,7 @@ public class TCPChannel implements TickListener {
 		this.remotePort = datagram.getSourcePort();
 		this.localIP = datagram.getPsudoHeader().destinationIP();
 		this.localPort = datagram.getDestinationPort();
+		GlobalWallClock.getInstance().addTickListener(GlobalWallClock.INIT+1, this);
 	}
 
 	// Handshake methods
@@ -135,6 +137,7 @@ public class TCPChannel implements TickListener {
 				pseudoHeader);
 		var packet = snycDatagram.toPacket();
 		tcpProtocol.sender.send(packet);
+		state = State.Established;
 	}
 
 	public void receiveSynAck(TCPSegment datagram) {
@@ -173,10 +176,20 @@ public class TCPChannel implements TickListener {
 		if(state == State.Established) {
 			var item = messageQueue.peek();			
 			if(item != null) {
-				if(item.synNum() == currentSeqNum) {	
+				if(item.synNum() == currentSeqNum) {
+					var content = item.content();
+					var length = content.length;
+					if(length > tcpProtocol.windowSize) {
+						byte[] head = new byte[tcpProtocol.windowSize];
+						byte[] tail = new byte[length-tcpProtocol.windowSize];
+						System.arraycopy(content, 0, head, 0, tcpProtocol.windowSize);
+						System.arraycopy(content, tcpProtocol.windowSize, tail, 0, length-tcpProtocol.windowSize);
+						content = head;
+					} else {
+						currentMessage = messageQueue.remove();
+					}
 					Jns3Logger.logSend(tcpProtocol.getName(), "Sending message to " + remoteIP + ":" + remotePort);
-					sendPsh(item.content());
-					currentMessage = messageQueue.remove();
+					sendPsh(content);
 				} else if(before(item.synNum(),currentSeqNum,initialSeqNum)) {
 					Jns3Logger.logError(tcpProtocol.getName(), 
 							"SeqNumber is 'before' current");
@@ -201,11 +214,23 @@ public class TCPChannel implements TickListener {
 		var packet = snycDatagram.toPacket();
 		tcpProtocol.sender.send(packet);
 	}
-
 	
 	public void receiveAck(TCPSegment datagram) {
 		currentRemoteSeqNum = datagram.getSequenceNumber();
 		currentSeqNum = datagram.getAcknowledgementNumber();
+		if(currentMessage != null) {
+			var seqNo = currentMessage.synNum();
+			var length = currentMessage.content().length;
+			var endNo = seqNo + length;
+			if(endNo == currentSeqNum) {
+				Jns3Logger.logInfo(tcpProtocol.getName(), "Message completed " + remoteIP + ":" + remotePort);
+				currentMessage = null;
+			} else if( before(currentSeqNum, endNo, initialSeqNum) ) {
+				Jns3Logger.logInfo(tcpProtocol.getName(), "Message partially completed " + remoteIP + ":" + remotePort);
+			} else {
+				Jns3Logger.logError(tcpProtocol.getName(), "Unexpected ACK received from " + remoteIP + ":" + remotePort);
+			}
+		}
 	}
 
 	public void receivePsh(TCPSegment datagram) {
@@ -263,6 +288,12 @@ public class TCPChannel implements TickListener {
 	}
 
 
+	@Override
+	public String toString() {
+		return "TCPChannel [remoteIP=" + remoteIP + ", remotePort=" + remotePort + ", localIP=" + localIP
+				+ ", localPort=" + localPort + ", state=" + state + "]";
+	}
+	
 	/**
 	 * Test if {@code num < current} taking account the cyclic nature 
 	 * of sequence numbers.

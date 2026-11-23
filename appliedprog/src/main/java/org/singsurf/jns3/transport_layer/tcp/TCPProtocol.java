@@ -62,6 +62,14 @@ public class TCPProtocol implements Protocol, LowerAdapter<IPPacket>, UpperSocke
 		var destIP = message.getDestIP();
 		var destPort = message.getDestPort();
 		var portAddr = new PortAddr(destIP, destPort);
+
+		System.out.println("transmitMessage: " + message);
+		for(var ent : channels.entrySet()) {
+			var key = ent.getKey();
+			var value = ent.getValue();
+			System.out.println("transmitMessage: channel " + key + " " + value);
+		}
+		
 		
 		var ent = channels.get(portAddr);
 		if(ent != null) {
@@ -129,7 +137,17 @@ public class TCPProtocol implements Protocol, LowerAdapter<IPPacket>, UpperSocke
 				Jns3Logger.logError("TCPProtocol", "No binding for " + msg);
 			}
 		} else {
-			Jns3Logger.logError("TCPProtocol", "No binding for " + msg);
+			table = bindings.get(msg.getSrcIP());
+			if(table != null) {
+				var binding = table.get(msg.getSrcPort());
+				if(binding != null) {
+					binding.receive(msg);
+				} else {
+					Jns3Logger.logError("TCPProtocol", "No binding for " + msg);
+				}
+			} else {
+				Jns3Logger.logError("TCPProtocol", "No binding for " + msg);
+			}
 		}
 	}
 

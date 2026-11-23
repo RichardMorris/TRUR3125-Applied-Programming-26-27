@@ -1,10 +1,11 @@
 package org.singsurf.jns3.application_layer.http;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.singsurf.jns3.generic_protocol.LowerSocketAdapter;
 import org.singsurf.jns3.generic_protocol.SocketFactory;
+import org.singsurf.jns3.hardware.GlobalWallClock;
 import org.singsurf.jns3.hardware.GlobalWallClock.TickListener;
 import org.singsurf.jns3.hardware.ProtocolDevice;
 import org.singsurf.jns3.network_layer.IPAddress;
@@ -14,10 +15,11 @@ import org.singsurf.jns3.transport_layer.tcp.TCPSocket;
 public class HTTPClient implements LowerSocketAdapter<SocketMessage>, TickListener {
 	SocketFactory<SocketMessage> socketFactory;
 	ProtocolDevice device;
-	Map<IPAddress, TCPSocket> sockets = new HashMap<>();
+	List<TCPSocket> sockets = new ArrayList<>();
 	
 	public HTTPClient(ProtocolDevice device) {
 		this.device = device;
+		GlobalWallClock.getInstance().addTickListener(this);
 	}
 
 	@Override
@@ -31,8 +33,8 @@ public class HTTPClient implements LowerSocketAdapter<SocketMessage>, TickListen
 		var msg = new SocketMessage("http", device.getIPAddress(), 
 				address, (short) 12345, (short) 80, request.getBytes());
 		var socket =  socketFactory.createSocket("http://"+address);
-		socket.bind(address, (short) 12345);
-
+		socket.bind(address, (short) 80);
+		sockets.add((TCPSocket) socket);
 		socket.send(msg);
 	}
 
@@ -49,8 +51,7 @@ public class HTTPClient implements LowerSocketAdapter<SocketMessage>, TickListen
 
 	@Override
 	public void onTick() {
-		for(var ent : sockets.entrySet()) {
-			var socket = ent.getValue();
+		for(var socket : sockets) {
 			SocketMessage datagram;
 			while((datagram = socket.poll()) != null) {
 				String message = new String(datagram.getContents());

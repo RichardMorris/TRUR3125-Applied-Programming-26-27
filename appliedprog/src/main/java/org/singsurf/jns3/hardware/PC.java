@@ -1,4 +1,7 @@
 package org.singsurf.jns3.hardware;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.singsurf.jns3.data_link_layer.MACAddress;
 import org.singsurf.jns3.network_layer.IPAddress;
 import org.singsurf.jns3.physical_layer.PhysicalEndPoint;
@@ -9,12 +12,18 @@ import org.singsurf.jns3.physical_layer.PhysicalEndPoint;
  */
 public class PC extends ProtocolDevice {
 
-    Terminal terminal = new Terminal() {
-    	@Override
+	
+	public static class LoggingTerminal implements Terminal {
+		public boolean quite = false;
+    	public List<String> lines = new ArrayList<>();
+		@Override
 		public void display(String string) {
-			System.out.println(string);
-		}};
-
+			if(!quite)
+				System.out.println(string);
+			lines.add(string);
+		}
+	}
+    public LoggingTerminal terminal = new LoggingTerminal();
 
 	public PC(String name, MACAddress macAddress, IPAddress ipAddress) {
         super(name,macAddress,ipAddress, 1);
@@ -36,7 +45,7 @@ public class PC extends ProtocolDevice {
 		getIPProtocol().displayIPConfig();
 	}
 	
-	public Terminal getTerminal() {
+	public LoggingTerminal getTerminal() {
 		return terminal;
 	}
 
