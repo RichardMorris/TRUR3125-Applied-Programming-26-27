@@ -32,6 +32,7 @@ class TestUDPChatApplication {
 	void setUp() throws Exception {
 		pc1 = deviceFactory.createPC("PC1");
 		pc2 = deviceFactory.createPC("PC2");
+		ChatApplication.showPrompts=true;
 	}
 
 	@Test
