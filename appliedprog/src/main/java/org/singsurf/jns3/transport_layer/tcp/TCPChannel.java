@@ -1,7 +1,7 @@
 package org.singsurf.jns3.transport_layer.tcp;
 
 import java.util.ArrayDeque;
-import java.util.Queue;
+import java.util.Deque;
 import java.util.Random;
 
 import org.singsurf.jns3.Jns3Logger;
@@ -48,9 +48,9 @@ public class TCPChannel implements TickListener {
 	
 	record WaitingMessage(int synNum, byte[] content) {}
 	
-	Queue<WaitingMessage> messageQueue = new ArrayDeque<>();
+	Deque<WaitingMessage> messageQueue = new ArrayDeque<>();
 	
-	Queue<TCPSegment> outOfOrderSegments = new ArrayDeque<>();
+	Deque<TCPSegment> outOfOrderSegments = new ArrayDeque<>();
 
 	
 	Random random = new Random();
@@ -174,19 +174,23 @@ public class TCPChannel implements TickListener {
 	@Override
 	public void onTick() {
 		if(state == State.Established) {
-			var item = messageQueue.peek();			
+			var item = messageQueue.poll();			
 			if(item != null) {
+				var content = item.content();
+				var length = content.length;
+				var msgRelNo = item.synNum() - initialSeqNum;
+				var curRelNo = currentSeqNum - initialSeqNum;
+				Jns3Logger.logInfo(tcpProtocol.getName(), 
+						"sending segment "+msgRelNo+" cur "+curRelNo);
 				if(item.synNum() == currentSeqNum) {
-					var content = item.content();
-					var length = content.length;
 					if(length > tcpProtocol.windowSize) {
 						byte[] head = new byte[tcpProtocol.windowSize];
 						byte[] tail = new byte[length-tcpProtocol.windowSize];
 						System.arraycopy(content, 0, head, 0, tcpProtocol.windowSize);
 						System.arraycopy(content, tcpProtocol.windowSize, tail, 0, length-tcpProtocol.windowSize);
 						content = head;
-					} else {
-						currentMessage = messageQueue.remove();
+						var tailMsg = new WaitingMessage(item.synNum()+tcpProtocol.windowSize, tail);
+						messageQueue.offerFirst(tailMsg);
 					}
 					Jns3Logger.logSend(tcpProtocol.getName(), "Sending message to " + remoteIP + ":" + remotePort);
 					sendPsh(content);
@@ -195,6 +199,10 @@ public class TCPChannel implements TickListener {
 							"SeqNumber is 'before' current");
 				} else {
 					Jns3Logger.logInfo(tcpProtocol.getName(), "Previous message not completed");
+					var good = messageQueue.offerFirst(item); 
+					if(!good) {
+						Jns3Logger.logError(tcpProtocol.getName(), "Failed to requeue message");
+					}
 				}
 			}
 		}
