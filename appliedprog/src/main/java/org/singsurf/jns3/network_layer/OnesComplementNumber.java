@@ -67,6 +67,9 @@ public class OnesComplementNumber implements Comparable<OnesComplementNumber> {
 
 
     public String toString() {
+        if(this.equals(MINUS_ZERO)) {
+            return String.format("0x%04X -%d", num & 0xFFFF, twosComplementValue());
+        }
         return String.format("0x%04X %d", num & 0xFFFF, twosComplementValue());
     }
     
@@ -126,7 +129,7 @@ public class OnesComplementNumber implements Comparable<OnesComplementNumber> {
 			if(that.num>=0) {
 				return -1;
 			}
-			return Short.compare(that.num,num);
+			return Short.compare(that.abs(),abs());
 		}
 	}
 

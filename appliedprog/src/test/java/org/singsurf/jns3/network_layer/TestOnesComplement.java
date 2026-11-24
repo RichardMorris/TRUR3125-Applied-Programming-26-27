@@ -63,4 +63,27 @@ class TestOnesComplement {
         assertEquals((short) 0, result);
 
     }
+
+    @Test
+    public void ones_and_twos_table() {
+        var itt = OnesComplementNumber.iterator(-16, (short) -1, 1);
+        System.out.println("Num\t1's C\t2's C");
+		while(itt.hasNext()) {
+			var num = itt.next();
+            var parts = num.toString().split(" ");
+			System.out.format("%3s\t%s\t0x%04X%n", parts[1], parts[0], (short) num.twosComplementValue());
+		}
+        {
+            var num = OnesComplementNumber.MINUS_ZERO;
+            var parts = num.toString().split(" ");
+		    System.out.format("%3s\t%s%n", parts[1], parts[0]);
+        }
+        itt = OnesComplementNumber.iterator(0, (short) 16, 1);
+        while(itt.hasNext()) {
+            var num = itt.next();
+                var parts = num.toString().split(" ");
+                System.out.format("%3s\t%s\t0x%04X%n", parts[1], parts[0], (short) num.twosComplementValue());
+        }
+
+    }
 }
