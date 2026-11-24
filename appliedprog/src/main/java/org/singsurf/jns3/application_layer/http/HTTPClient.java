@@ -107,7 +107,7 @@ public class HTTPClient implements LowerSocketAdapter<SocketMessage>, TickListen
 					if(body.length() >= contentLength) {
 						String responseBody = body.substring(0, contentLength);
 						getReceivedPages().add(responseBody);
-						Jns3Logger.logRec(name, "Received response body: " + responseBody);
+						Jns3Logger.logRec(name, "Received completed response: " + responseBody.length() + " bytes");
 						compiledMessage = "";
 					} else {
 						Jns3Logger.logInfo(name, "Waiting for more data. Current body length: " + body.length() + ", expected: " + contentLength);

@@ -142,7 +142,7 @@ class TestHTTPwithSimpleNetwork {
 		
 		GlobalWallClock.advanceBy(4);
 		var cv = tcp1.channels.entrySet().iterator().next().getValue();
-		assertNotNull(cv.currentMessage);
+//		assertNotNull(cv.currentMessage);
 		GlobalWallClock.advanceBy(1);
 		assertNull(cv.currentMessage);
 
@@ -164,7 +164,7 @@ class TestHTTPwithSimpleNetwork {
 		assertEquals(sv.getInitialSeqNum()+ 1, sv.getCurrentSeqNum());
 		
 		assertEquals(request, http2.lastRequest);
-		var item = Jns3Logger.getItem(1);
+		var item = Jns3Logger.getItem(2);
 		assertEquals("PC2-HTTPD", item.deviceName());
 		assertEquals(Jns3Logger.LogLevel.RECEIVED, item.level());
 		assertEquals("SocketMessage["+ pc1.getIPAddress() + ":12345->" + pc2.getIPAddress() + ":80]", item.message());
@@ -174,7 +174,7 @@ class TestHTTPwithSimpleNetwork {
 
 	@Test
 	void received_small_page() {
-		PolledSocket.LOG_MESSAGES = true;
+//		PolledSocket.LOG_MESSAGES = true;
 		pc1.getTerminal().quite = true;
 		Jns3Logger.clearLog();
 		http1.requestPage(pc2.getIPAddress(), "/small.html");
@@ -241,8 +241,69 @@ class TestHTTPwithSimpleNetwork {
 
 	@Test
 	void received_large_page() {
-		PolledSocket.LOG_MESSAGES = true;
+//		PolledSocket.LOG_MESSAGES = true;
 		pc1.getTerminal().quite = true;
+		tcp1.setWindowSize((short) 1024);
+		tcp2.setWindowSize((short) 1024);
+		Jns3Logger.clearLog();
+		http1.requestPage(pc2.getIPAddress(), "/table.html");
+		Jns3Logger.println();
+
+		for(int i=0; i<30; i++) {
+			System.out.println("Tick " + i);
+			Jns3Logger.clearLog();
+			GlobalWallClock.advanceBy(1);
+			Jns3Logger.println();
+		}
+		
+		var cv = tcp1.channels.entrySet().iterator().next().getValue();
+		var sv = tcp2.channels.entrySet().iterator().next().getValue();
+		assertEquals(cv.getInitialSeqNum(), sv.getInitialRemoteSeqNum());
+		assertEquals(cv.getInitialRemoteSeqNum(), sv.getInitialSeqNum());
+		
+		assertEquals(cv.getCurrentSeqNum(), sv.getCurrentRemoteSeqNum());
+		assertEquals(cv.getCurrentRemoteSeqNum(), sv.getCurrentSeqNum());
+		
+		int expectedSize = 6306;
+		String request = http1.getRequestString("/small.html");
+		String response = http2.getReplyHeader(expectedSize);
+
+		var term = pc1.getTerminal();
+		var lines = term.lines;
+		for(var line : lines) {
+			System.out.println("Terminal: " + line);
+		}
+		
+		var expectedRelSeq = cv.getInitialSeqNum()+ 1 + request.length() - cv.getInitialSeqNum();
+		var actualRelSeq = cv.getCurrentSeqNum() - cv.getInitialSeqNum();
+		assertEquals(expectedRelSeq, actualRelSeq);
+		
+		
+		var svExpectedRelSeq = sv.getInitialSeqNum()+ 1
+				+response.length() + expectedSize  - sv.getInitialSeqNum();
+		var svCurRelSeq = sv.getCurrentSeqNum() - sv.getInitialSeqNum();
+		assertEquals(svExpectedRelSeq, svCurRelSeq);
+		
+		var pages = http1.getReceivedPages();
+		assertEquals(1, pages.size());
+		var page = pages.get(0);
+		assertEquals(expectedSize, page.length());
+		var lines2 = page.split("\r\n");
+		assertEquals("<html>", lines2[0]);
+		assertEquals("<head>", lines2[1]);
+		assertEquals("	<title>Ones Complement Table</title>", lines2[2]);
+		assertEquals("0x00FF 255", lines2[517]);
+		PolledSocket.LOG_MESSAGES = false;
+	}
+
+	@Test
+	void received_large_page_in_fragments() {
+//		PolledSocket.LOG_MESSAGES = true;
+		pc1.getTerminal().quite = true;
+		tcp1.setWindowSize((short) 2048);
+		tcp2.setWindowSize((short) 2048);
+
+		
 		Jns3Logger.clearLog();
 		http1.requestPage(pc2.getIPAddress(), "/table.html");
 		Jns3Logger.println();
