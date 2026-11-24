@@ -12,22 +12,46 @@ public class OnesComplementNumber implements Comparable<OnesComplementNumber> {
     public static final OnesComplementNumber MAX_VALUE = new OnesComplementNumber((short) 0x7FFF);
 	short num;
 
+	/**
+	 * Creates a new OnesComplementNumber with the specified value.
+	 * So {@code fromTwosComplement(-1)} returns {@code 0xFFFF}
+	 * and {@code fromTwosComplement(0)} returns {@code 0x0000}.
+	 * @see #fromTwosComplement(int)
+	 * @param num the value of the number in 1's complement representation
+	 */
     public OnesComplementNumber(short num) {
         this.num = num;
     }
 
+	/**
+	 * Creates a new OnesComplementNumber with the specified value.
+	 * Uses the lower 16 bits of the integer to represent the number in 1's complement.
+	 * @param num the value of the number in 1's complement representation
+	 */
     public OnesComplementNumber(int num) {
         this.num = (short) (num & 0xFFFF);
     }
 
+    /**
+	 * Creates a new OnesComplementNumber from two bytes representing the low and high parts of the number.
+	 * @param low the low byte of the number
+	 * @param high the high byte of the number
+	 */
     public OnesComplementNumber(byte low, byte high) {
         this.num = (short) (((high & 0xFF) << 8) | (low & 0xFF));
     }
 
+    /**
+	 * Returns the value of the number in 1's complement representation.
+	 */
     public short getValue() {
         return num;
     }
 
+    /**
+     * Returns the value of the number in 2's complement representation.
+     * @return the 2's complement value of the number
+     */
     public short twosComplementValue() {
         if(num >=0)
             return (short) num;
@@ -36,10 +60,17 @@ public class OnesComplementNumber implements Comparable<OnesComplementNumber> {
         }
     }
 
+    /**
+	 * Returns the negation of the number, the bit wise NOT of the current number.
+	 * @return a new OnesComplementNumber representing the 1's complement of the current number
+	 */
     public OnesComplementNumber getComplement() {
         return new OnesComplementNumber((short) ~num);
     }
 
+    /**
+	 * Returns the absolute value of the number.
+	 */
     public short abs() {
         return (short) (num >= 0 ? num : ~num);
     }
@@ -65,6 +96,12 @@ public class OnesComplementNumber implements Comparable<OnesComplementNumber> {
         return add(new OnesComplementNumber(low, high));
     }
 
+    /**
+	 * Adds the contents of a byte array to the current OnesComplementNumber.
+	 * Treating byte as big-endian words, padding with zero if the length is odd.
+	 * @param contents the byte array to be added
+	 * @return a new OnesComplementNumber representing the sum of the current number and the contents of the byte array
+	 */
 	public OnesComplementNumber add(byte[] contents) {
 		
 		if(contents.length == 0) {
@@ -93,6 +130,12 @@ public class OnesComplementNumber implements Comparable<OnesComplementNumber> {
         return String.format("0x%04X %d", num & 0xFFFF, twosComplementValue());
     }
     
+    /**
+	 * Compares this OnesComplementNumber to another object for equality.
+	 * -0 and 0 are not considered equal.
+	 * @param obj the object to compare with
+	 * @return true if the other object is a OnesComplementNumber with the same value, false otherwise
+	 **/
     public boolean equals(Object obj) {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
@@ -104,6 +147,10 @@ public class OnesComplementNumber implements Comparable<OnesComplementNumber> {
         return Short.hashCode(num);
     }
     
+    /**
+     * Compares this OnesComplementNumber with another for order.
+     * -0 is considered less than +0.
+     */
 	@Override
 	public int compareTo(OnesComplementNumber that) {
 		if(num>=0) {
@@ -214,6 +261,13 @@ public class OnesComplementNumber implements Comparable<OnesComplementNumber> {
         };
     }
 
+    /**
+	 * Creates a OnesComplementNumber from a 2's complement integer value.
+	 * So {@code fromTwosComplement(-1)} returns {@code 0xFFFE}
+	 * and {@code fromTwosComplement(0)} returns {@code 0x0000}.
+	 * @param value the 2's complement integer value to convert
+	 * @return a new OnesComplementNumber representing the 1's complement of the given 2's complement value
+	 */
     static OnesComplementNumber fromTwosComplement(int value) {
     	if(value > 32767 || value < -32767) {
 			throw new IllegalArgumentException("Value out of range for 16-bit signed integer: " + value);
