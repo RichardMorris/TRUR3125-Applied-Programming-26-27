@@ -138,5 +138,18 @@ public class Jns3Logger {
 		return sb.toString();
 	}
 
+    public static String generateOnesAndComplementTable() {
+		StringBuilder sb = new StringBuilder();
+		
+
+		var itt = OnesComplementNumber.iterator(-255,255,1);
+		while(itt.hasNext()) {
+			var num = itt.next();
+			sb.append(num.toString());
+			sb.append(" ").append(String.format("0x%04X", num.twosComplementValue()));
+			sb.append('\n');
+		}
+		return sb.toString();
+	}
 
 }
