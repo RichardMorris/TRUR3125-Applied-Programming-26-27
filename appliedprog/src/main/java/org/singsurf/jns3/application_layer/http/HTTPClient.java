@@ -16,6 +16,7 @@ import org.singsurf.jns3.transport_layer.tcp.TCPSocket;
 public class HTTPClient implements LowerSocketAdapter<SocketMessage>, TickListener {
 	SocketFactory<SocketMessage> socketFactory;
 	ProtocolDevice device;
+	String name;
 	List<TCPSocket> sockets = new ArrayList<>();
 	String compiledMessage = "";
 	List<String> receivedPages = new ArrayList<>();
@@ -23,6 +24,7 @@ public class HTTPClient implements LowerSocketAdapter<SocketMessage>, TickListen
 	
 	public HTTPClient(ProtocolDevice device) {
 		this.device = device;
+		this.name = device.getName() + "-HTC";
 		GlobalWallClock.getInstance().addTickListener(this);
 	}
 
@@ -82,7 +84,7 @@ public class HTTPClient implements LowerSocketAdapter<SocketMessage>, TickListen
 						String statusCode = statusParts[1];
 						if(statusCode.equals("200")) {
 						} else {
-							Jns3Logger.logError("HTTPClient", "Received non-200 status code: " + statusCode);
+							Jns3Logger.logError(name, "Received non-200 status code: " + statusCode);
 							return;
 						}
 					}
@@ -96,7 +98,7 @@ public class HTTPClient implements LowerSocketAdapter<SocketMessage>, TickListen
 							try {
 								contentLength = Integer.parseInt(lengthStr);
 							} catch(NumberFormatException e) {
-								Jns3Logger.logError("HTTPClient", "Invalid Content-Length value: " + lengthStr);
+								Jns3Logger.logError(name, "Invalid Content-Length value: " + lengthStr);
 							}
 						}
 					}
@@ -105,13 +107,13 @@ public class HTTPClient implements LowerSocketAdapter<SocketMessage>, TickListen
 					if(body.length() >= contentLength) {
 						String responseBody = body.substring(0, contentLength);
 						getReceivedPages().add(responseBody);
-						Jns3Logger.logRec("HTTPClient", "Received response body: " + responseBody);
+						Jns3Logger.logRec(name, "Received response body: " + responseBody);
 						compiledMessage = "";
 					} else {
-						Jns3Logger.logInfo("HTTPClient", "Waiting for more data. Current body length: " + body.length() + ", expected: " + contentLength);
+						Jns3Logger.logInfo(name, "Waiting for more data. Current body length: " + body.length() + ", expected: " + contentLength);
 					}
 				} else {
-					Jns3Logger.logInfo("HTTPClient", "Content-Length header not found.");
+					Jns3Logger.logInfo(name, "Content-Length header not found.");
 				}
 				
 			}
