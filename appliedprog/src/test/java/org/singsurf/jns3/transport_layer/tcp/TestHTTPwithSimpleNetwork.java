@@ -173,11 +173,11 @@ class TestHTTPwithSimpleNetwork {
 	}
 
 	@Test
-	void http_response_send_by_server() {
+	void received_small_page() {
 		PolledSocket.LOG_MESSAGES = true;
 		pc1.getTerminal().quite = true;
 		Jns3Logger.clearLog();
-		http1.requestPage(pc2.getIPAddress(), "/index.html");
+		http1.requestPage(pc2.getIPAddress(), "/small.html");
 		
 		
 		GlobalWallClock.advanceBy(5);
@@ -208,8 +208,8 @@ class TestHTTPwithSimpleNetwork {
 		assertEquals(cv.getCurrentSeqNum(), sv.getCurrentRemoteSeqNum());
 		assertEquals(cv.getCurrentRemoteSeqNum(), sv.getCurrentSeqNum());
 		
-		String request = http1.getRequestString("/index.html");
-		String response = http2.getReplyHeader(192);
+		String request = http1.getRequestString("/small.html");
+		String response = http2.getReplyHeader(170);
 
 		var term = pc1.getTerminal();
 		var lines = term.lines;
@@ -223,18 +223,18 @@ class TestHTTPwithSimpleNetwork {
 		
 		
 		var svExpectedRelSeq = sv.getInitialSeqNum()+ 1
-				+response.length() + 192  - sv.getInitialSeqNum();
+				+response.length() + 170  - sv.getInitialSeqNum();
 		var svCurRelSeq = sv.getCurrentSeqNum() - sv.getInitialSeqNum();
 		assertEquals(svExpectedRelSeq, svCurRelSeq);
 		
 		var pages = http1.getReceivedPages();
 		assertEquals(1, pages.size());
 		var page = pages.get(0);
-		assertEquals(192, page.length());
+		assertEquals(170, page.length());
 		var lines2 = page.split("\r\n");
 		assertEquals("<html>", lines2[0]);
 		assertEquals("<head>", lines2[1]);
-		assertEquals("	<title>JNS3 Server</title>", lines2[2]);
+		assertEquals("	<title>JNS3 Server - small page</title>", lines2[2]);
 		assertEquals("</html>", lines2[9]);
 		PolledSocket.LOG_MESSAGES = false;
 	}
