@@ -132,8 +132,8 @@ public class ValidityChecker extends AbstractVisitor<Boolean> {
 		if(level == Level.TRANSPORT) return true;
 		
 		SocketMessage msg = new SocketMessage("tcp", 
-				segment.getPsudoHeader().sourceIP(), segment.getPsudoHeader().destinationIP(), 
-				segment.getSourcePort(), segment.getDestinationPort(), 
+				segment.getPsudoHeader().sourceIP(), segment.getSourcePort(), 
+				segment.getPsudoHeader().destinationIP(), segment.getDestinationPort(), 
 				segment.getContents());
 
 		for(var child: protocol.getChildProtocols()) {

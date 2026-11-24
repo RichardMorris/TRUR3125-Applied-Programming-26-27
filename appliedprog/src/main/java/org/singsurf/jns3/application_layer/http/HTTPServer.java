@@ -118,8 +118,8 @@ public class HTTPServer implements LowerSocketAdapter<SocketMessage>, TickListen
 				var responseBytes = parseRequest(lastRequest);
 				var response = new SocketMessage("http",
 						datagram.getDestIP(), 
-						datagram.getSrcIP(),	
-						datagram.getDestPort(), 
+						datagram.getDestPort(),	
+						datagram.getSrcIP(), 
 						datagram.getSrcPort(), 
 						responseBytes);
 				Jns3Logger.logSend(name, response.toHeaderString());

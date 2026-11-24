@@ -14,7 +14,7 @@ public class SocketMessage implements ProtocolContainer {
 	short destPort;
 	byte[] contents;
 
-	public SocketMessage(String protocolName, IPAddress srcIP, IPAddress destIP, short srcPort, short destPort,
+	public SocketMessage(String protocolName, IPAddress srcIP, short srcPort, IPAddress destIP, short destPort,
 			byte[] contents) {
 		super();
 		this.srcIP = srcIP;

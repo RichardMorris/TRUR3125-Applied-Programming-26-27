@@ -35,7 +35,7 @@ public class HTTPClient implements LowerSocketAdapter<SocketMessage>, TickListen
 		String request = getRequestString(path);
 		
 		var msg = new SocketMessage("http", device.getIPAddress(), 
-				address, (short) 12345, (short) 80, request.getBytes());
+				(short) 12345, address, (short) 80, request.getBytes());
 		var socket =  socketFactory.createSocket("http://"+address);
 		socket.bind(address, (short) 80);
 		sockets.add((TCPSocket) socket);

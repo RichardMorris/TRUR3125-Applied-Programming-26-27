@@ -248,7 +248,7 @@ public class TCPChannel implements TickListener {
 			sendAck();
 			
 			tcpProtocol.receive(new SocketMessage("http",
-					remoteIP, localIP, remotePort, localPort, contents));
+					remoteIP, remotePort, localIP, localPort, contents));
 		} else {
 			// out of order segment
 			outOfOrderSegments.add(datagram);
