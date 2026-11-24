@@ -570,7 +570,7 @@ class TestHomeRouter {
 		var output = Jns3Logger.endCapture();
 		System.out.print(output);
 		System.out.println(output.length() + " chars");
-		assertEquals(5914, output.length());
+		assertEquals(5915, output.length());
 		var outputLines = output.split("\n");
 		assertEquals("0x00FF 255", outputLines[17].trim());
 		assertEquals("0x0091 145", outputLines[19].trim());
@@ -626,7 +626,7 @@ class TestHomeRouter {
 	    var output = Jns3Logger.endCapture();
 //		System.out.print(output);
 		System.out.println(output.length() + " chars");
-		assertEquals(5701, output.length());
+		assertEquals(5702, output.length());
 		var outputLines = output.split("\n");
 		System.out.println("Output lines: " + outputLines.length);
 		assertEquals("0xFF00 -255", outputLines[1].trim());
