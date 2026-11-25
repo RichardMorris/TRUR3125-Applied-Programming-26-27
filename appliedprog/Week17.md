@@ -238,4 +238,4 @@ Protocol level diagram.
 
 Modified components.
 
-![Protocol class diagram](diagrams/week17-protocols.png)
+![Class diagram](diagrams/week17.png)
