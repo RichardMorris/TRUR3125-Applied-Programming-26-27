@@ -54,8 +54,6 @@ public class TCPChannel implements TickListener {
 
 	
 	Random random = new Random();
-
-	WaitingMessage currentMessage;
 	
 	/**
 	 * Constructor for a client-side view of the TCP protocol. 
@@ -226,19 +224,6 @@ public class TCPChannel implements TickListener {
 	public void receiveAck(TCPSegment datagram) {
 		currentRemoteSeqNum = datagram.getSequenceNumber();
 		currentSeqNum = datagram.getAcknowledgementNumber();
-		if(currentMessage != null) {
-			var seqNo = currentMessage.synNum();
-			var length = currentMessage.content().length;
-			var endNo = seqNo + length;
-			if(endNo == currentSeqNum) {
-				Jns3Logger.logInfo(tcpProtocol.getName(), "Message completed " + remoteIP + ":" + remotePort);
-				currentMessage = null;
-			} else if( before(currentSeqNum, endNo, initialSeqNum) ) {
-				Jns3Logger.logInfo(tcpProtocol.getName(), "Message partially completed " + remoteIP + ":" + remotePort);
-			} else {
-				Jns3Logger.logError(tcpProtocol.getName(), "Unexpected ACK received from " + remoteIP + ":" + remotePort);
-			}
-		}
 	}
 
 	public void receivePsh(TCPSegment datagram) {
